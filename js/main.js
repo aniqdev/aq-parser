@@ -1,0 +1,662 @@
+$( document ).ready(function() {
+
+     $('.chedit').change(function() {
+        if($(this).is(":checked")) {
+            //console.log($(this).parent().html());
+            $(this).siblings('.listitem').attr('contenteditable','true');
+            $(this).siblings('.listitem').focus();
+            
+        } else {
+          console.log('Down');
+          var ngame = $(this).parent().find('.listitem').text();
+          var igame = $(this).parent().find('.listitem').data('id');
+          var tgame = $('#have-data-table').data('table');
+          $(this).siblings('.listitem').removeAttr('contenteditable');
+          console.log(ngame);
+          $.post('lib/list_changer.php',
+          {id: igame, name: ngame, table: tgame},
+           function(data) {
+            $('.result').html(data);
+            console.log('Загрузка завершена.'+data);
+          });
+
+        }
+        
+    });
+
+
+
+// скрипт для страницы STEAM
+function getSteam (page) {
+  $( "#message li:first" ).before( "<li>Начали парсить страницу "+page+"</li>" );
+  $('.loading').addClass('inaction');
+  $.post( "lib/steam.php?page="+page, function( data ) {
+    $( "#message li:first" ).before( "<li>страница "+page+" сохранена в базе</li>" );
+    if (page < data.pages) {
+      getSteam(++page);
+    }else{
+      $('.loading').removeClass('inaction');
+      $('.loading').html('Done!');
+      console.dir(data);
+      $( "#message li:first" ).before( "<li>или что-то пошло не так<br>"+data+"</li>" );
+    }
+  },'JSON');
+} // getSteam()
+
+$( "#get-steam" ).click(function() {
+  getSteam(1);
+  $(this).attr('disabled','true');
+});
+//================================
+// скрипт для страницы STEAM List
+function getSteamList (page,pages,mark) {
+  $( "#message li:first" ).before( "<li>Начали парсить страницу "+page+"</li>" );
+  $('.loading').addClass('inaction');
+  $.post( "lib/slist.php?page="+page+"&pages="+pages+"&mark="+mark, function( data ) {
+    //console.dir(data);
+    $( "#message li:first" ).before( "<li>страница "+page+" сохранена в базе</li>" );
+    if (page < data.pages) {
+      getSteamList(++page,data.pages,data.mark);
+    }else{
+      $('.loading').removeClass('inaction');
+      $('.loading').html('Done!');
+      $( "#message li:first" ).before( "<li>или что-то пошло не так</li>" );
+      console.dir(data);
+    }
+  },'JSON');
+} // getSteamList()
+
+$( "#get-slist" ).click(function() {
+  getSteamList(1,0,0);
+  $(this).attr('disabled','true');
+});
+
+
+// скрипт для страницы Ebay_prices
+function getEbay_prices (start, end, scan) {
+    $( "#message2 li:first" ).before( "<li>Начали парсить игры с "+start+" по "+end+"</li>" );
+    $('.loading2').addClass('inaction');
+    $.post( "lib/ebay_getprices.php",
+     {ebay_getprices:'true',start:start,end:end,scan:scan},
+      function( data ) {
+      $( "#message2 li:first" ).before( "<li>игры "+start+"-"+end+" сохранены в базе</li>" );
+      if($('#message2 li').length > 20) {
+        $('#message2 li:last').remove();
+        $('#message2 li:last').remove();
+      }
+      if (data.num > end) {
+        getEbay_prices(start+10, end+10, data.scan);
+      }else{
+        console.log('Ebay done!');
+        console.dir(data);
+        $('.loading2').removeClass('inaction');
+        $('.loading2').html('Ebay done!');
+      }
+
+    },'json');
+}
+
+$('#ebay_getprices').click(function() {
+  getEbay_prices(1, 10, '0');
+  $(this).attr('disabled','true');
+});
+//-----------------------------------------
+function getEbay_purchaseHistory(itemids,ititle){
+
+    $.post( "lib/ebay_getprices.php",
+    {ebay_getpurhis:'true', itemid: itemids[0]},
+    function( data ) {
+      //console.dir(data);
+      $('.loader').removeClass('sho');
+      $('.innerinfo').addClass('sho');
+      $('.weekSells').html(data.weekSells);
+      var forChart1 = [['Date', 'Amount']];
+      var forChart2 = [['Date', 'Price']];
+      console.log('len = ', data.resTable.length);
+
+      var i = 1;
+      $.each(data.dayArr, function( day, amount ) {
+        var dd = new Date(day*24*60*60*1000);
+        var ddStr = dd.getDate()+'.'+(dd.getMonth()+1)+'.'+dd.getFullYear()
+        forChart1[i++] = [dd, amount];
+      }); // each()
+      console.log('oldData = ');
+      console.dir(data);
+
+      $.each(data.resTable, function( x, value ) {
+        $('.infotablebody').append(
+            '<tr><td>'+
+            ititle+
+            '</td><td>'+
+            value.curency+' '+
+            value.price+
+            '</td><td>'+
+            value.amount+
+            '</td><td>'+
+            value.time+
+            '</td></tr>');
+        var dd = new Date(value.times*1000);
+        var ddStr = dd.getDate()+'.'+(dd.getMonth()+1)+'.'+dd.getFullYear()
+        forChart2[x+1] = [dd, value.price];
+      }); // each()
+
+      if(data.resTable.length) {
+        ebayChart(forChart1, 1, 'Количество');
+        ebayChart(forChart2, 2, 'Цена');
+      }
+
+      nextChart(data, itemids[1], 1);
+      nextChart(data, itemids[2], 2);
+      nextChart(data, itemids[3], 3);
+      nextChart(data, itemids[4], 4);
+
+    },'json');
+    
+} // getEbay_purchaseHistory()
+
+$('.trr').on('click', function(e) {
+  console.dir(e);
+  e.stopPropagation();
+  var itemids = $(this).parent().data('idarr');
+  var ititle = $(this).parent().find('.tit').text();
+  console.log('title = ',ititle);
+  $('.alpha').append('<a target="_blank" href="http://offer.ebay.de/ws/eBayISAPI.dll?ViewBidsLogin&item='+itemids[0]+'"> | Страница продаж</a>').
+  append('<a target="_blank" href="http://www.ebay.de/itm/'+itemids[0]+'"> | Страница товара</a>')
+  //console.log(itemids);
+  getEbay_purchaseHistory(itemids,ititle);
+  $('.trig').addClass('sho');
+  $('.loader').addClass('sho');
+  $('.innerinfo').removeClass('sho');
+});
+
+$('.toclos').on('click',function() {
+  $('.trig').removeClass('sho');
+  $('.infotablebody').html('');
+  $('.alpha').html('');
+  $('#ebay_chart1').html('Нет данных для построения грфика');
+  $('#ebay_chart2').html('Нет данных для построения грфика');
+});
+
+$('.tableitem').hover(
+  function() {
+    var ititle = $(this).attr('title');
+    $('.inform').text(ititle);
+  }, function() {
+    $('.inform').text('');
+  }
+);
+//===================================
+
+    function drawChart(pappid) {
+
+    $.ajax({
+      method: "POST",
+      url: "lib/chart-test.php",
+      async: true,
+      dataType: 'json',
+      data: { post: "data", appid: pappid }
+    })
+      .done(function( msg ) {
+        var arrdata = [];
+        arrdata[0] = msg[0];
+        for (var i = msg.length - 1; i > 0; i--) {
+          arrdata[i] = [];
+          arrdata[i][0]=msg[i]['title'];
+          arrdata[i][1]=+msg[i]['price'];
+        };
+                // Create the data table.
+        var data = google.visualization.arrayToDataTable(arrdata);
+
+        console.dir(data);
+            // Set chart options
+        var options = {
+          title: 'Измениния цен',
+          hAxis: { titleTextStyle: {color: '#333'}},
+          vAxis: {minValue: 0},
+          colors: ['#366A73', '#1B2F4C']
+        };
+
+        var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+      });
+    } // drawChart()
+
+$(".res-item").click(function() {
+  if (!$(this).hasClass("res-charted")){
+    var jappid = $(this).data();
+    console.log(jappid.appid);
+    drawChart(jappid.appid);
+    $('.res-charted').removeClass('res-charted');
+    $(this).addClass('res-charted');
+    var ab = $('#chart_div')
+    $(this).append(ab);
+  }
+
+
+
+});
+
+function formula (rurprice,exrate) {
+  return ((rurprice/exrate)*1.0242+0.35)/((1-0.15)-0.019-0.08);
+}
+
+$('.tch-table-deligator').on('click', '.row3, .row5, .row7', function(){
+
+  if (!$(this).hasClass("slctd")){   
+    $('.slctd').removeClass('slctd');
+    $(this).addClass('slctd');
+    var rurprice = $(this).text();
+    var exrate = 0;
+    if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
+    var euro = formula(rurprice,exrate);
+    console.log(euro);
+    $('.slctd').attr('data-content', euro.toFixed(4));
+  }
+
+});
+
+
+$('#converter').keyup(function() {
+  var rurprice = $(this).val();
+  var exrate = $('#rateinp').val();
+  var euro = formula (rurprice,exrate);
+  $('.converter').html(euro.toFixed(4));
+});
+
+
+
+function getPlatiRu (start, end, scan) {
+    $( "#message1 li:first" ).before( "<li>Начали парсить игры с "+start+" по "+end+"</li>" );
+    $.post( "lib/getjson.php",
+     {getjson:'true',start:start,end:end,scan:scan},
+      function( data ) {
+
+      $( "#message1 li:first" ).before( "<li>игры "+start+"-"+end+" сохранены в базе</li>" );
+      if($('#message1 li').length > 20) {
+        $('#message1 li:last').remove();
+        $('#message1 li:last').remove();
+      }
+      if (data.num > end) {
+       getPlatiRu(start+10, end+10, data.scan);
+      }else{
+        console.log('PLati.ru done!');
+        console.dir(data);
+        $('.loading1').removeClass('inaction');
+        $('.loading1').html('PLati.ru done!');
+      }
+
+    },'json');
+}
+
+$('#getjson').click(function() {
+    $( "#message1 li:first" ).before( "<li>парсим список id gig-games</li>" );
+    $('.loading1').addClass('inaction');
+    $.post( "lib/getjson.php",
+     {setGigGamesIds:'true'},
+      function( data ) {
+        $( "#message1 li:first" ).before( "<li>список id обновлен</li>" );
+        getPlatiRu(1, 10, '0');
+      },'json');
+  
+  $(this).attr('disabled','true');
+});
+
+
+$('.ch-tab').click(function() {
+  $('.ch-tab').removeClass('active');
+  $('.platitable').removeClass('visible in');
+  $(this).addClass('active');
+  var tab = $(this).data('tab');
+  console.log(tab);
+  $('#'+tab).addClass('visible in');
+});
+
+
+  var exrate = 0;
+  if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
+  $('#rateinp').val(exrate);
+
+function setEuroColumn(exrate) {
+  $('.euro tr').each(function( i ) {
+    var price = $( this ).find('.row3').text();
+    var euro = formula(price,+exrate);
+    $( this ).find('.row9').html(euro.toFixed(4));
+  });
+}
+setEuroColumn(exrate);
+
+$('#rateset').click(function(t) {
+  t.preventDefault();
+  exrate = $('#rateinp').val();
+  localStorage.setItem("exrate", exrate);
+  $('#rateset').html('saved');
+  setTimeout("$('#rateset').html('set');", 1000);
+  setEuroColumn (exrate);
+});
+
+// ===== change woo price =====
+var GenObj = {
+  js_modal_europrice : $('.js-modal-europrice')
+};
+
+var WooObj = {
+  modal_woo_title : $('.modal-woo-title'),
+  js_modal_woo_price : $('#js-modal-woo-price'),
+  woo_change_price : $('#woo-change-price'),
+  woo_remove : $('#woo-remove'),
+  wooModal : $('#wooModal'),
+  js_woo_id_input_holder : $('.js-woo-id-input-holder'),
+  woo_item_id_input : $('#woo-item-id-input'),
+  woo_item_price_input : $('#woo-item-price-input')
+};
+
+  $('.tch-table-deligator').on('click', '.tc-woo', function (e) {
+    e.preventDefault();
+    WooObj.modal_woo_title.html('<img src="images/more-loading.gif" alt="loading">');
+    WooObj.js_modal_woo_price.text('.');
+    WooObj.woo_change_price.attr('disabled', true);
+    WooObj.woo_remove.attr('disabled', false);
+    WooObj.wooModal.modal('show');
+    WooObj.tr = tr = $(this).parent().parent();
+    WooObj.gameId = tr.data('gameid');
+    WooObj.wooId = tr.data('wooid');
+    WooObj.rurprice = +tr.find('.row5').text();
+    var exrate = 0;
+    if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
+    WooObj.europrice = formula(WooObj.rurprice, exrate).toFixed(1);
+    if(WooObj.europrice < 1.5) WooObj.europrice = 1.5;
+    WooObj.woo_item_id_input.val(WooObj.wooId);
+    WooObj.js_woo_id_input_holder.removeClass('has-error');
+    if(!WooObj.wooId){
+      WooObj.js_woo_id_input_holder.addClass('has-error');
+    }
+    $('.modal-plati-title').text(tr.find('.row5').attr('title'));
+    $('.modal-parser-title').text(tr.find('.row2').text());
+    GenObj.js_modal_europrice.text('€'+WooObj.europrice+'0');
+    WooObj.woo_item_price_input.val(WooObj.europrice);
+    if(!WooObj.wooId) return false;
+    $.post('ajax.php?action=ajax-woo',
+      { action:'check', wooId:WooObj.wooId, gameId:WooObj.gameId },
+      function (data) {
+        WooObj.modal_woo_title.text(data.woo_title);
+        WooObj.js_modal_woo_price.text(data.price);
+        if (data.answer === 'good') WooObj.woo_change_price.attr('disabled', false);
+    }, 'json');
+  });
+
+  WooObj.wooModal.on('shown.bs.modal', function () {
+    if(!WooObj.wooId) WooObj.woo_item_id_input.focus();
+  });
+
+  $('#woo-check-form').on('submit',function (e) {
+
+    e.preventDefault();
+    var wooId = +WooObj.woo_item_id_input.val();
+    
+    if(!wooId) return false;
+    $.post('ajax.php?action=ajax-woo',
+      { action:'check', wooId:wooId, gameId:WooObj.gameId, update:'true' },
+      function (data) {
+        if (data.answer === 'good') {
+          WooObj.wooId = wooId;
+          WooObj.js_woo_id_input_holder.removeClass('has-error');
+          $('tr[data-gameid='+WooObj.gameId+']').data('wooid', wooId);
+          WooObj.woo_change_price.attr('disabled', false);
+          WooObj.js_modal_woo_price.text(data.price);
+        }
+        WooObj.modal_woo_title.text(data.woo_title);
+    }, 'json');
+  });
+
+  $('#woo-change-form').on('submit', function (e) {
+    e.preventDefault();
+    if(!WooObj.wooId || !WooObj.europrice) return false;
+    WooObj.woo_change_price.attr('disabled', true);
+    WooObj.woo_remove.attr('disabled', true);
+    var europrice = parseFloat(WooObj.woo_item_price_input.val().replace(',','.'));
+    $.post('ajax.php?action=ajax-woo',
+      { action:'change', wooId:WooObj.wooId, price:europrice },
+      function (data) {
+        if (data.answer == 'good') {
+          WooObj.wooModal.modal('hide');
+          WooObj.tr.find('.tc-woo').parent().addClass('pchanged');
+        }
+    }, 'json');
+  });
+
+  WooObj.woo_remove.on('click', function () {
+    if(!WooObj.wooId) return false;
+    WooObj.woo_change_price.attr('disabled', true);
+    WooObj.woo_remove.attr('disabled', true);
+    $.post('ajax.php?action=ajax-woo',
+      { action:'remove', wooId:WooObj.wooId },
+      function (data) {
+        if (data.answer == 'good') {
+          WooObj.wooModal.modal('hide');
+          WooObj.tr.find('.tc-woo').parent().addClass('pchanged');
+        }
+    }, 'json');
+  });
+
+// ===== /change woo price =====
+
+
+
+// ===== change ebay price =====
+var EbayObj = {
+  js_modal_ebay_title : $('.js-modal-ebay-title'),
+  js_modal_ebay_price : $('#js-modal-ebay-price'),
+  js_ebay_change_price : $('#js-ebay-change-price'),
+  js_ebay_remove : $('#js-ebay-remove'),
+  ebayModal : $('#ebayModal'),
+  js_ebay_item_id_input : $('#js-ebay-item-id-input'),
+  js_ebay_id_input_holder : $('.js-ebay-id-input-holder')
+};
+  $('.tch-table-deligator').on('click', '.tc-ebay', function (e) {
+    e.preventDefault();
+    EbayObj.js_modal_ebay_title.html('<img src="images/more-loading.gif" alt="loading">');
+    EbayObj.js_modal_ebay_price.text('.');
+    EbayObj.js_ebay_change_price.attr('disabled', true);
+    EbayObj.js_ebay_remove.attr('disabled', false);
+    EbayObj.ebayModal.modal('show');
+    EbayObj.tr = tr = $(this).parent().parent();
+    EbayObj.gameId = tr.data('gameid');
+    EbayObj.ebayId = tr.data('ebayid');
+    EbayObj.rurprice = +tr.find('.row5').text();
+    var exrate = 0;
+    if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
+    EbayObj.europrice = formula(EbayObj.rurprice, exrate).toFixed(1);
+    if(EbayObj.europrice < 1.5) EbayObj.europrice = 1.5;
+    EbayObj.js_ebay_item_id_input.val(EbayObj.ebayId);
+    EbayObj.js_ebay_id_input_holder.removeClass('has-error');
+    if(!EbayObj.ebayId){
+      EbayObj.js_ebay_id_input_holder.addClass('has-error');
+    }
+    $('.modal-plati-title').text(tr.find('.row5').attr('title'));
+    $('.modal-parser-title').text(tr.find('.row2').text());
+    GenObj.js_modal_europrice.text('€'+EbayObj.europrice+'0');
+    $('#js-ebay-item-price-input').val(EbayObj.europrice);
+    if(!EbayObj.ebayId) return false;
+    $.post('ajax.php?action=ajax-ebay-api-price-changer',
+      { action:'check', ebayId:EbayObj.ebayId, gameId:EbayObj.gameId },
+      function (data) {
+        EbayObj.js_modal_ebay_title.text(data.ebay_title);
+        EbayObj.js_modal_ebay_price.text(data.price);
+        if (data.answer === 'good') EbayObj.js_ebay_change_price.attr('disabled', false);
+    }, 'json');
+  });
+
+  EbayObj.ebayModal.on('shown.bs.modal', function () {
+    if(!EbayObj.ebayId) EbayObj.js_ebay_item_id_input.focus();
+  });
+
+  $('#js-ebay-check-form').on('submit',function (e) {
+
+    e.preventDefault();
+    var ebayId = +EbayObj.js_ebay_item_id_input.val();
+    
+    if(!ebayId) return false;
+    $.post('ajax.php?action=ajax-ebay-api-price-changer',
+      { action:'check', ebayId:ebayId, gameId:EbayObj.gameId, update:'true' },
+      function (data) {
+        if (data.answer === 'good') {
+          EbayObj.ebayId = ebayId;
+          EbayObj.js_ebay_id_input_holder.removeClass('has-error');
+          $('tr[data-gameid='+EbayObj.gameId+']').data('ebayid', ebayId);
+          EbayObj.js_ebay_change_price.attr('disabled', false);
+          EbayObj.js_modal_ebay_price.text(data.price);
+        }
+        EbayObj.js_modal_ebay_title.text(data.ebay_title);
+    }, 'json');
+  });
+
+  $('#js-ebay-change-form').on('submit', function (e) {
+    e.preventDefault();
+    if(!EbayObj.ebayId || !EbayObj.europrice) return false;
+    EbayObj.js_ebay_change_price.attr('disabled', true);
+    EbayObj.js_ebay_remove.attr('disabled', true);
+    var europrice = parseFloat($('#js-ebay-item-price-input').val().replace(',','.'));
+    $.post('ajax.php?action=ajax-ebay-api-price-changer',
+      { action:'change', ebayId:EbayObj.ebayId, price:europrice },
+      function (data) {
+        if (data.answer == 'good') {
+          EbayObj.ebayModal.modal('hide');
+          EbayObj.tr.find('.tc-ebay').parent().addClass('pchanged');
+        }
+    }, 'json');
+  });
+
+  EbayObj.js_ebay_remove.on('click', function () {
+    if(!EbayObj.ebayId) return false;
+    EbayObj.js_ebay_change_price.attr('disabled', true);
+    EbayObj.js_ebay_remove.attr('disabled', true);
+    $.post('ajax.php?action=ajax-ebay-api-price-changer',
+      { action:'remove', ebayId:EbayObj.ebayId },
+      function (data) {
+        if (data.answer == 'good') {
+          EbayObj.ebayModal.modal('hide');
+          EbayObj.tr.find('.tc-ebay').parent().addClass('pchanged');
+        }
+    }, 'json');
+  });
+
+// ===== /change ebay price =====
+
+// ========= change price merged ===========
+(function($) {
+
+var F = {};
+$('.tch-table-deligator').on('click', '.tch-merged', function() {
+  
+
+  F.tr = $(this).parent().parent();
+  F.gameId = F.tr.data('gameid');
+  F.ebayId = F.tr.data('ebayid');
+  F.wooId = F.tr.data('wooid');
+  F.rurprice = +F.tr.find('.row5').text();
+  var exrate = 0;
+  if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
+  F.europrice = formula(F.rurprice, exrate).toFixed(1);
+  if(F.europrice < 1.5) F.europrice = 1.5;
+
+  $('#mergedModal').modal('show');
+
+});
+
+})(jQuery);
+// ========= /change price merged ===========
+
+
+
+
+// =========2 change price merged 2===========
+(function($){
+
+$('.tch-table-deligator').on('click', '.mChange', function(e) {
+
+  e.preventDefault();
+
+  if($(this).hasClass('color-gray')) return false;
+  $(this).addClass('color-gray');
+  var M = {};
+  M.tr = tr = $(this).parent().parent();
+  M.gameId = tr.data('gameid');
+  M.ebayId = tr.data('ebayid');
+  M.wooId = tr.data('wooid');
+  M.rurprice = +tr.find('.row5').text();
+  var exrate = 0;
+  if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
+  M.europrice = formula(M.rurprice, exrate).toFixed(1);
+  if(M.europrice < 1.5) M.europrice = 1.5;
+
+  if(M.ebayId && M.rurprice){
+    $.post('ajax.php?action=ajax-ebay-api-price-changer',
+      { action: 'change', ebayId: M.ebayId, price: M.europrice },
+      function (data) {
+        if (data.answer == 'good') {
+          M.tr.find('.tc-ebay').addClass('color-green');
+        }else{
+          M.tr.find('.tc-ebay').addClass('color-red');
+        }
+    }, 'json');
+  }
+
+  if(M.wooId && M.rurprice){
+    $.post('ajax.php?action=ajax-woo',
+      { action: 'change', wooId: M.wooId, price: M.europrice },
+      function (data) {
+        if (data.answer == 'good') {
+          M.tr.find('.tc-woo').addClass('color-green');
+        }else{
+          M.tr.find('.tc-woo').addClass('color-red');
+        }
+    }, 'json');
+  }
+
+});
+
+
+$('.tch-table-deligator').on('click', '.mRemove', function(e) {
+
+  e.preventDefault();
+
+  if($(this).hasClass('color-gray')) return false;
+  $(this).addClass('color-gray');
+  var M = {};
+  M.tr = tr = $(this).parent().parent();
+  M.gameId = tr.data('gameid');
+  M.ebayId = tr.data('ebayid');
+  M.wooId = tr.data('wooid');
+
+  if(M.ebayId){
+    $.post('ajax.php?action=ajax-ebay-api-price-changer',
+      { action:'remove', ebayId:M.ebayId },
+      function (data) {
+        if (data.answer == 'good') {
+          M.tr.find('.tc-ebay').addClass('color-green');
+        }else{
+          M.tr.find('.tc-ebay').addClass('color-red');
+        }
+    }, 'json');
+  }
+
+  if(M.wooId){
+      $.post('ajax.php?action=ajax-woo',
+      { action:'remove', wooId:M.wooId },
+      function (data) {
+        if (data.answer == 'good') {
+          M.tr.find('.tc-woo').addClass('color-green');
+        }else{
+          M.tr.find('.tc-woo').addClass('color-red');
+        }
+    }, 'json');
+
+  }
+});
+
+
+})(jQuery);
+// =========2 /change price merged 2===========
+
+}); //document ready
+

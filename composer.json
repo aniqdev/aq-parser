@@ -1,0 +1,6 @@
+{
+    "require": {
+        "imagine/imagine": "~0.5.0",
+        "automattic/woocommerce": "^1.0"
+    }
+}
