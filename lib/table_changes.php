@@ -344,19 +344,19 @@ foreach ($res as $key => $value) {
           <div class="col-sm-2">eBay</div>
           <div class="col-sm-7 fcol fcol2 clip"><img src="images/more-loading.gif" alt="loading"></div>
           <div class="col-sm-1 fcol fcol3"><b>.</b></div>
-          <div class="col-sm-2 fcol fcol4"><input type="text" class="form-control h28"></div>
+          <div class="col-sm-2 fcol fcol4"><input id="js-fEprice" type="text" class="form-control h28"></div>
         </div>
         <div class="row frow frow3">
           <div class="col-sm-2">WooComm</div>
           <div class="col-sm-7 fcol fcol2 clip"><img src="images/more-loading.gif" alt="loading"></div>
           <div class="col-sm-1 fcol fcol3"><b>.</b></div>
-          <div class="col-sm-2 fcol fcol4"><input type="text" class="form-control h28"></div>
+          <div class="col-sm-2 fcol fcol4"><input id="js-fWprice" type="text" class="form-control h28"></div>
         </div>
         <div class="row frow frow4">
           <div class="col-sm-2">Plati.ru</div>
-          <div class="col-sm-7 clip">Puzzler World (Steam gift) Region free</div>
-          <div class="col-sm-1"><b>99.99</b></div>
-          <div class="col-sm-2"></div>
+          <div class="col-sm-7 fcol fcol2 clip">Puzzler World (Steam gift) Region free</div>
+          <div class="col-sm-1 fcol fcol3"></div>
+          <div class="col-sm-2 fcol fcol4"></div>
         </div>
       </div>
       <div class="modal-footer">

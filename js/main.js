@@ -551,15 +551,18 @@ var EbayObj = {
 var F = {
   mergedModal : $('#mergedModal'),
   js_modal_ebay_title : $('.frow2>.fcol2'),
-  js_modal_ebay_price : $('.frow2>.fcol3'),
+  js_modal_ebay_price : $('.frow2>.fcol3>b'),
+  js_modal_ebay_input : $('#js-fEprice'),
   js_modal_woo_title :  $('.frow3>.fcol2'),
-  js_modal_woo_price : $('.frow3>.fcol3'),
-  js_modal_ebay_input : $('.frow2>.fcol4 input'),
-  js_modal_woo_input : $('.frow3>.fcol4 input')
+  js_modal_woo_price : $('.frow3>.fcol3>b'),
+  js_modal_woo_input : $('#js-fWprice'),
+  js_modal_parser_title : $('.frow1>.fcol2'),
+  js_modal_plati_title : $('.frow4>.fcol2'),
 };
 $('.tch-table-deligator').on('click', '.tch-merged', function() {
   
   F.one_removed = false;
+  F.one_changed = false;
   F.tr = $(this).parent();
   F.gameId = F.tr.data('gameid');
   F.ebayId = F.tr.data('ebayid');
@@ -569,14 +572,15 @@ $('.tch-table-deligator').on('click', '.tch-merged', function() {
   if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
   F.europrice = formula(F.rurprice, exrate).toFixed(1);
   if(F.europrice < 1.5) F.europrice = 1.5;
-
   F.mergedModal.modal('show');
+  F.js_modal_plati_title.text(F.tr.find('.row5').attr('title'));
+  F.js_modal_parser_title.text(F.tr.find('.row2').text());
   F.js_modal_ebay_title.html('<img src="images/more-loading.gif" alt="loading">');
   F.js_modal_ebay_price.text('.');
   F.js_modal_ebay_input.val(F.europrice);
   F.js_modal_woo_title.html('<img src="images/more-loading.gif" alt="loading">');
   F.js_modal_woo_price.text('.');
-  F.js_modal_woo_input.val(F.europrice);
+  F.js_modal_woo_input.val((F.europrice - (F.europrice*0.05)).toFixed(2));
 
   if(F.ebayId){
     $.post('ajax.php?action=ajax-ebay-api-price-changer',
@@ -603,7 +607,35 @@ $('.tch-table-deligator').on('click', '.tch-merged', function() {
 $('#fChange').on('submit', function(e) {
   
   e.preventDefault();
+  
+  var fEprice = F.js_modal_ebay_input.val().replace(',','.');
+  var fWprice = F.js_modal_woo_input.val().replace(',','.');
 
+  if(F.ebayId && F.rurprice){
+    $.post('ajax.php?action=ajax-ebay-api-price-changer',
+      { action: 'change', ebayId: F.ebayId, price: fEprice },
+      function (data) {
+        if (data.answer == 'good') {
+          if(F.one_changed) F.mergedModal.modal('hide');
+          else F.one_changed = true;
+        }else{
+
+        }
+    }, 'json');
+  }
+
+  if(F.wooId && F.rurprice){
+    $.post('ajax.php?action=ajax-woo',
+      { action: 'change', wooId: F.wooId, price: fWprice },
+      function (data) {
+        if (data.answer == 'good') {
+          if(F.one_changed) F.mergedModal.modal('hide');
+          else F.one_changed = true;
+        }else{
+
+        }
+    }, 'json');
+  }
 });
 
 $('#fRemove').on('click', function(e) {
