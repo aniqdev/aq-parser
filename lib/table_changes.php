@@ -342,14 +342,14 @@ foreach ($res as $key => $value) {
         </div>
         <div class="row frow frow2">
           <div class="col-sm-2">eBay</div>
-          <div class="col-sm-7 fcol fcol2 clip">Puzzler World (PC) Steam -Region free- MULTILANGUAGE</div>
-          <div class="col-sm-1 fcol fcol3"><b>5.95</b></div>
+          <div class="col-sm-7 fcol fcol2 clip"><img src="images/more-loading.gif" alt="loading"></div>
+          <div class="col-sm-1 fcol fcol3"><b>.</b></div>
           <div class="col-sm-2 fcol fcol4"><input type="text" class="form-control h28"></div>
         </div>
         <div class="row frow frow3">
           <div class="col-sm-2">WooComm</div>
-          <div class="col-sm-7 fcol fcol2 clip">Puzzler World</div>
-          <div class="col-sm-1 fcol fcol3"><b>67.2</b></div>
+          <div class="col-sm-7 fcol fcol2 clip"><img src="images/more-loading.gif" alt="loading"></div>
+          <div class="col-sm-1 fcol fcol3"><b>.</b></div>
           <div class="col-sm-2 fcol fcol4"><input type="text" class="form-control h28"></div>
         </div>
         <div class="row frow frow4">
@@ -360,11 +360,11 @@ foreach ($res as $key => $value) {
         </div>
       </div>
       <div class="modal-footer">
-      	<div class="btn-group">
+      	<form class="btn-group" id="fChange">
       		<input type="number" class="btn btn-default" value="3" style="width: 80px;">
-	        <button type="button" class="btn btn-danger" data-dismiss="modal">Remove from Sale</button>
+	        <button type="button" class="btn btn-danger" id="fRemove">Remove from Sale</button>
 	        <button type="submit" class="btn btn-primary">Change Price</button>
-        </div>
+        </form>
       </div>
     </div><!-- /.modal-content -->
   </div>

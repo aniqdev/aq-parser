@@ -542,14 +542,25 @@ var EbayObj = {
 
 // ===== /change ebay price =====
 
+
+
+
 // ========= change price merged ===========
 (function($) {
 
-var F = {};
+var F = {
+  mergedModal : $('#mergedModal'),
+  js_modal_ebay_title : $('.frow2>.fcol2'),
+  js_modal_ebay_price : $('.frow2>.fcol3'),
+  js_modal_woo_title :  $('.frow3>.fcol2'),
+  js_modal_woo_price : $('.frow3>.fcol3'),
+  js_modal_ebay_input : $('.frow2>.fcol4 input'),
+  js_modal_woo_input : $('.frow3>.fcol4 input')
+};
 $('.tch-table-deligator').on('click', '.tch-merged', function() {
   
-
-  F.tr = $(this).parent().parent();
+  F.one_removed = false;
+  F.tr = $(this).parent();
   F.gameId = F.tr.data('gameid');
   F.ebayId = F.tr.data('ebayid');
   F.wooId = F.tr.data('wooid');
@@ -559,12 +570,77 @@ $('.tch-table-deligator').on('click', '.tch-merged', function() {
   F.europrice = formula(F.rurprice, exrate).toFixed(1);
   if(F.europrice < 1.5) F.europrice = 1.5;
 
-  $('#mergedModal').modal('show');
+  F.mergedModal.modal('show');
+  F.js_modal_ebay_title.html('<img src="images/more-loading.gif" alt="loading">');
+  F.js_modal_ebay_price.text('.');
+  F.js_modal_ebay_input.val(F.europrice);
+  F.js_modal_woo_title.html('<img src="images/more-loading.gif" alt="loading">');
+  F.js_modal_woo_price.text('.');
+  F.js_modal_woo_input.val(F.europrice);
+
+  if(F.ebayId){
+    $.post('ajax.php?action=ajax-ebay-api-price-changer',
+      { action:'check', ebayId:F.ebayId, gameId:F.gameId },
+      function (data) {
+        F.js_modal_ebay_title.text(data.ebay_title);
+        F.js_modal_ebay_price.text(data.price);
+        // if (data.answer === 'good') F.'????'.attr('disabled', false);
+    }, 'json');
+  }
+
+  if(F.wooId){
+    $.post('ajax.php?action=ajax-woo',
+      { action:'check', wooId:F.wooId, gameId:F.gameId },
+      function (data) {
+        F.js_modal_woo_title.text(data.woo_title);
+        F.js_modal_woo_price.text(data.price);
+        // if (data.answer === 'good') WooObj.woo_change_price.attr('disabled', false);
+    }, 'json');
+  }
+
+});
+
+$('#fChange').on('submit', function(e) {
+  
+  e.preventDefault();
+
+});
+
+$('#fRemove').on('click', function(e) {
+  
+  e.preventDefault();
+
+  if(F.ebayId){
+    $.post('ajax.php?action=ajax-ebay-api-price-changer',
+      { action:'remove', ebayId:F.ebayId },
+      function (data) {
+        if (data.answer == 'good') {
+          if(F.one_removed) F.mergedModal.modal('hide');
+          else F.one_removed = true;
+        }else{
+
+        }
+    }, 'json');
+  }
+
+  if(F.wooId){
+      $.post('ajax.php?action=ajax-woo',
+      { action:'remove', wooId:F.wooId },
+      function (data) {
+        if (data.answer == 'good') {
+          if(F.one_removed) F.mergedModal.modal('hide');
+          else F.one_removed = true;
+        }else{
+
+        }
+    }, 'json');
+  }
 
 });
 
 })(jQuery);
 // ========= /change price merged ===========
+
 
 
 
@@ -650,7 +726,6 @@ $('.tch-table-deligator').on('click', '.mRemove', function(e) {
           M.tr.find('.tc-woo').addClass('color-red');
         }
     }, 'json');
-
   }
 });
 
