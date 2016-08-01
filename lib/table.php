@@ -49,7 +49,7 @@ foreach ($scans as $value) {
 	
 </div>
 <div class="ppp-block">
-<table class="ppp-table">
+<table class="ppp-table tch-table-deligator">
 	<thead><tr>
 		<th class="sort asc" data-sort="row1">№</th>
 		<th class="sort" data-sort="row2">Наименование товара</th>

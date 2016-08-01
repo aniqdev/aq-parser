@@ -50,7 +50,7 @@
 		<input type="submit">
 	</form>
 </div>
-<div class="ch-tab-panel">
+<div class="ch-tab-panel" id="js-tch-deligator">
 <?php	
 	if (isset($_GET['scan'])) {
 		$scan = _esc(trim(strip_tags($_GET['scan'])));
@@ -236,7 +236,7 @@ foreach ($res as $key => $value) {
 <?php drowPlatiTable($gameStayed,$ids_arr); ?>
 </div> <!-- platitable -->
 
-</div> <!-- ch-tab-panel -->
+</div> <!-- /ch-tab-panel -->
 
 <!--===========ebay modal===================-->
 <div class="modal fade" id="ebayModal">
@@ -331,14 +331,13 @@ foreach ($res as $key => $value) {
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="gridSystemModalLabel">Modal title</h4>
+        <h4 class="modal-title" id="gridSystemModalLabel">Merged Price Changer</h4>
       </div>
       <div class="modal-body">
         <div class="row frow frow1">
           <div class="col-sm-2">Parser</div>
           <div class="col-sm-7 fcol fcol2 clip">Puzzler World Steam</div>
-          <div class="col-sm-1"></div>
-          <div class="col-sm-2"></div>
+          <div class="col-sm-3 fcol fcol3"><table><tr></tr></table></div>
         </div>
         <div class="row frow frow2">
           <div class="col-sm-2">eBay</div>
@@ -361,7 +360,7 @@ foreach ($res as $key => $value) {
       </div>
       <div class="modal-footer">
       	<form class="btn-group" id="fChange">
-      		<input type="number" class="btn btn-default" value="3" style="width: 80px;">
+      		<input type="number" class="btn btn-default" value="3" style="width: 80px;" disabled>
 	        <button type="button" class="btn btn-danger" id="fRemove">Remove from Sale</button>
 	        <button type="submit" class="btn btn-primary">Change Price</button>
         </form>

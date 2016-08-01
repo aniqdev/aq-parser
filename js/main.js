@@ -257,7 +257,7 @@ $('.tch-table-deligator').on('click', '.row3, .row5, .row7', function(){
 
 
 $('#converter').keyup(function() {
-  var rurprice = $(this).val();
+  var rurprice = this.value;
   var exrate = $('#rateinp').val();
   var euro = formula (rurprice,exrate);
   $('.converter').html(euro.toFixed(4));
@@ -336,7 +336,8 @@ $('#rateset').click(function(t) {
 
 // ===== change woo price =====
 var GenObj = {
-  js_modal_europrice : $('.js-modal-europrice')
+  js_modal_europrice : $('.js-modal-europrice'),
+  js_tch_deligator : $('#js-tch-deligator')
 };
 
 var WooObj = {
@@ -350,7 +351,7 @@ var WooObj = {
   woo_item_price_input : $('#woo-item-price-input')
 };
 
-  $('.tch-table-deligator').on('click', '.tc-woo', function (e) {
+  GenObj.js_tch_deligator.on('click', '.tc-woo', function (e) {
     e.preventDefault();
     WooObj.modal_woo_title.html('<img src="images/more-loading.gif" alt="loading">');
     WooObj.js_modal_woo_price.text('.');
@@ -358,8 +359,8 @@ var WooObj = {
     WooObj.woo_remove.attr('disabled', false);
     WooObj.wooModal.modal('show');
     WooObj.tr = tr = $(this).parent().parent();
-    WooObj.gameId = tr.data('gameid');
-    WooObj.wooId = tr.data('wooid');
+    WooObj.gameId = tr.attr('data-gameid');
+    WooObj.wooId = tr.attr('data-wooid');
     WooObj.rurprice = +tr.find('.row5').text();
     var exrate = 0;
     if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
@@ -452,7 +453,7 @@ var EbayObj = {
   js_ebay_item_id_input : $('#js-ebay-item-id-input'),
   js_ebay_id_input_holder : $('.js-ebay-id-input-holder')
 };
-  $('.tch-table-deligator').on('click', '.tc-ebay', function (e) {
+  GenObj.js_tch_deligator.on('click', '.tc-ebay', function (e) {
     e.preventDefault();
     EbayObj.js_modal_ebay_title.html('<img src="images/more-loading.gif" alt="loading">');
     EbayObj.js_modal_ebay_price.text('.');
@@ -460,8 +461,8 @@ var EbayObj = {
     EbayObj.js_ebay_remove.attr('disabled', false);
     EbayObj.ebayModal.modal('show');
     EbayObj.tr = tr = $(this).parent().parent();
-    EbayObj.gameId = tr.data('gameid');
-    EbayObj.ebayId = tr.data('ebayid');
+    EbayObj.gameId = tr.attr('data-gameid');
+    EbayObj.ebayId = tr.attr('data-ebayid');
     EbayObj.rurprice = +tr.find('.row5').text();
     var exrate = 0;
     if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
@@ -546,9 +547,8 @@ var EbayObj = {
 
 
 // ========= change price merged ===========
-(function($) {
 
-var F = {
+var FF = {
   mergedModal : $('#mergedModal'),
   js_modal_ebay_title : $('.frow2>.fcol2'),
   js_modal_ebay_price : $('.frow2>.fcol3>b'),
@@ -558,21 +558,25 @@ var F = {
   js_modal_woo_input : $('#js-fWprice'),
   js_modal_parser_title : $('.frow1>.fcol2'),
   js_modal_plati_title : $('.frow4>.fcol2'),
+  js_modal_ebay_prices : $('.frow1>.fcol3 tr'),
 };
-$('.tch-table-deligator').on('click', '.tch-merged', function() {
+
+// Выхов модального окна Merged Price Changer
+GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
   
+  var F = e.data.f
   F.one_removed = false;
   F.one_changed = false;
+  F.mergedModal.modal('show');
   F.tr = $(this).parent();
-  F.gameId = F.tr.data('gameid');
-  F.ebayId = F.tr.data('ebayid');
-  F.wooId = F.tr.data('wooid');
+  F.gameId = F.tr.attr('data-gameid');
+  F.ebayId = F.tr.attr('data-ebayid');
+  F.wooId = F.tr.attr('data-wooid');
   F.rurprice = +F.tr.find('.row5').text();
   var exrate = 0;
   if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
   F.europrice = formula(F.rurprice, exrate).toFixed(1);
   if(F.europrice < 1.5) F.europrice = 1.5;
-  F.mergedModal.modal('show');
   F.js_modal_plati_title.text(F.tr.find('.row5').attr('title'));
   F.js_modal_parser_title.text(F.tr.find('.row2').text());
   F.js_modal_ebay_title.html('<img src="images/more-loading.gif" alt="loading">');
@@ -581,6 +585,7 @@ $('.tch-table-deligator').on('click', '.tch-merged', function() {
   F.js_modal_woo_title.html('<img src="images/more-loading.gif" alt="loading">');
   F.js_modal_woo_price.text('.');
   F.js_modal_woo_input.val((F.europrice - (F.europrice*0.05)).toFixed(2));
+  F.js_modal_ebay_prices.html(F.tr.find('td[iid]').clone());
 
   if(F.ebayId){
     $.post('ajax.php?action=ajax-ebay-api-price-changer',
@@ -604,10 +609,17 @@ $('.tch-table-deligator').on('click', '.tch-merged', function() {
 
 });
 
-$('#fChange').on('submit', function(e) {
+// Изменение инпута WooCommerce
+FF.js_modal_ebay_input.on('change', function() {
+  FF.js_modal_woo_input.val((parseFloat(FF.js_modal_ebay_input.val().replace(',','.'))*0.95).toFixed(2));
+})
+
+// Изменение цен
+$('#fChange').on('submit', {f:FF}, function(e) {
   
   e.preventDefault();
   
+  var F = e.data.f
   var fEprice = F.js_modal_ebay_input.val().replace(',','.');
   var fWprice = F.js_modal_woo_input.val().replace(',','.');
 
@@ -618,10 +630,13 @@ $('#fChange').on('submit', function(e) {
         if (data.answer == 'good') {
           if(F.one_changed) F.mergedModal.modal('hide');
           else F.one_changed = true;
+          F.tr.find('.tc-ebay').parent().addClass('pchanged');
         }else{
 
         }
     }, 'json');
+  }else{
+    F.one_changed = true;
   }
 
   if(F.wooId && F.rurprice){
@@ -631,17 +646,23 @@ $('#fChange').on('submit', function(e) {
         if (data.answer == 'good') {
           if(F.one_changed) F.mergedModal.modal('hide');
           else F.one_changed = true;
+          F.tr.find('.tc-woo').parent().addClass('pchanged');
         }else{
 
         }
     }, 'json');
+  }else{
+    F.one_changed = true;
   }
+  
 });
 
-$('#fRemove').on('click', function(e) {
+// Удаление товаров с продажи
+$('#fRemove').on('click', {f:FF}, function(e) {
   
   e.preventDefault();
 
+  var F = e.data.f
   if(F.ebayId){
     $.post('ajax.php?action=ajax-ebay-api-price-changer',
       { action:'remove', ebayId:F.ebayId },
@@ -670,7 +691,6 @@ $('#fRemove').on('click', function(e) {
 
 });
 
-})(jQuery);
 // ========= /change price merged ===========
 
 
@@ -678,9 +698,8 @@ $('#fRemove').on('click', function(e) {
 
 
 // =========2 change price merged 2===========
-(function($){
 
-$('.tch-table-deligator').on('click', '.mChange', function(e) {
+GenObj.js_tch_deligator.on('click', '.mChange', function(e) {
 
   e.preventDefault();
 
@@ -688,9 +707,9 @@ $('.tch-table-deligator').on('click', '.mChange', function(e) {
   $(this).addClass('color-gray');
   var M = {};
   M.tr = tr = $(this).parent().parent();
-  M.gameId = tr.data('gameid');
-  M.ebayId = tr.data('ebayid');
-  M.wooId = tr.data('wooid');
+  M.gameId = tr.attr('data-gameid');
+  M.ebayId = tr.attr('data-ebayid');
+  M.wooId = tr.attr('data-wooid');
   M.rurprice = +tr.find('.row5').text();
   var exrate = 0;
   if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
@@ -724,7 +743,7 @@ $('.tch-table-deligator').on('click', '.mChange', function(e) {
 });
 
 
-$('.tch-table-deligator').on('click', '.mRemove', function(e) {
+GenObj.js_tch_deligator.on('click', '.mRemove', function(e) {
 
   e.preventDefault();
 
@@ -732,9 +751,9 @@ $('.tch-table-deligator').on('click', '.mRemove', function(e) {
   $(this).addClass('color-gray');
   var M = {};
   M.tr = tr = $(this).parent().parent();
-  M.gameId = tr.data('gameid');
-  M.ebayId = tr.data('ebayid');
-  M.wooId = tr.data('wooid');
+  M.gameId = tr.attr('data-gameid');
+  M.ebayId = tr.attr('data-ebayid');
+  M.wooId = tr.attr('data-wooid');
 
   if(M.ebayId){
     $.post('ajax.php?action=ajax-ebay-api-price-changer',
@@ -761,8 +780,6 @@ $('.tch-table-deligator').on('click', '.mRemove', function(e) {
   }
 });
 
-
-})(jQuery);
 // =========2 /change price merged 2===========
 
 }); //document ready

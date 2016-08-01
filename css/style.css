@@ -668,7 +668,7 @@ form.imagine-form input{
   color: #555;
 }
 
-.changes tbody tr:hover{
+.changes tr:hover td{
   outline: 1px solid aquamarine;
 }
 
@@ -732,4 +732,19 @@ form.imagine-form input{
 
 .frow {
     height: 30px;
+}
+
+.tch-merged{
+  background: url('../images/modal-icon.png') 99% center no-repeat;
+  background-size: 27px;
+  cursor: pointer;
+}
+
+.frow1>.fcol3 table{
+  width: 100%;
+  text-align: center;
+}
+
+.frow1>.fcol3 td{
+    border: 1px solid #ddd;
 }
