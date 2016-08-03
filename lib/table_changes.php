@@ -1,3 +1,4 @@
+<div class="ajax-loader ajaxed"></div>
 <style>
 .ppp-block,.ppp-table{
     max-width: initial;
@@ -336,7 +337,7 @@ foreach ($res as $key => $value) {
       <div class="modal-body">
         <div class="row frow frow1">
           <div class="col-sm-2">Parser</div>
-          <div class="col-sm-7 fcol fcol2 clip">Puzzler World Steam</div>
+          <div class="col-sm-7 fcol fcol2 clip"></div>
           <div class="col-sm-3 fcol fcol3"><table><tr></tr></table></div>
         </div>
         <div class="row frow frow2">
@@ -352,10 +353,13 @@ foreach ($res as $key => $value) {
           <div class="col-sm-2 fcol fcol4"><input id="js-fWprice" type="text" class="form-control h28"></div>
         </div>
         <div class="row frow frow4">
-          <div class="col-sm-2">Plati.ru</div>
-          <div class="col-sm-7 fcol fcol2 clip">Puzzler World (Steam gift) Region free</div>
-          <div class="col-sm-1 fcol fcol3"></div>
-          <div class="col-sm-2 fcol fcol4"></div>
+          <div class="col-sm-2">Plati.ru <b>: <i id="consec"></i></b></div>
+          <div class="col-sm-7 fcol fcol2 clip">
+          	<a class="jsm-arr jsm-arr-left glyphicon glyphicon-chevron-left"></a>
+          	<div class="jsm-plati-title"></div>
+          	<a class="jsm-arr jsm-arr-right glyphicon glyphicon-chevron-right"></a>
+          </div>
+          <div class="col-sm-3 fcol fcol3 fcol4"></div>
         </div>
       </div>
       <div class="modal-footer">

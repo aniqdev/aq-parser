@@ -740,11 +740,49 @@ form.imagine-form input{
   cursor: pointer;
 }
 
-.frow1>.fcol3 table{
+.frow1>.fcol3 table,
+.tch-smalltable{
   width: 100%;
   text-align: center;
 }
 
-.frow1>.fcol3 td{
+.frow1>.fcol3 td,
+.tch-smalltable td{
     border: 1px solid #ddd;
+}
+
+.tch-smalltable td{
+  width: 33.33%;
+}
+
+.frow4>.fcol2{
+  position: relative;
+}
+
+.frow4>.fcol2>.jsm-arr{
+  position: absolute;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.frow4>.fcol2>.jsm-arr-left{
+    left: 100%;
+    margin-left: -37px;
+}
+
+.frow4>.fcol2>.jsm-arr-right{
+  right: 0;
+}
+
+.ajax-loader{
+  position: fixed;
+  height: 250px;
+  width: 250px;
+  background-image: url('https://rechtwijzer.modria.com/static/images/ajax-loader.gif');
+  z-index: 1200;
+  display: none;
+}
+
+.ajax-loader.ajaxed{
+  display: block;
 }

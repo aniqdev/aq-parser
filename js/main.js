@@ -237,7 +237,11 @@ $(".res-item").click(function() {
 });
 
 function formula (rurprice,exrate) {
-  return ((rurprice/exrate)*1.0242+0.35)/((1-0.15)-0.019-0.08);
+  rurprice = parseFloat(rurprice);
+  var res = ((rurprice/exrate)*1.0242+0.35)/((1-0.15)-0.019-0.08);
+  if(res < 1.5) res = 1.5;
+
+  return +res.toFixed(2);
 }
 
 $('.tch-table-deligator').on('click', '.row3, .row5, .row7', function(){
@@ -250,7 +254,7 @@ $('.tch-table-deligator').on('click', '.row3, .row5, .row7', function(){
     if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
     var euro = formula(rurprice,exrate);
     console.log(euro);
-    $('.slctd').attr('data-content', euro.toFixed(4));
+    $('.slctd').attr('data-content', euro);
   }
 
 });
@@ -260,7 +264,7 @@ $('#converter').keyup(function() {
   var rurprice = this.value;
   var exrate = $('#rateinp').val();
   var euro = formula (rurprice,exrate);
-  $('.converter').html(euro.toFixed(4));
+  $('.converter').html(euro);
 });
 
 
@@ -320,7 +324,7 @@ function setEuroColumn(exrate) {
   $('.euro tr').each(function( i ) {
     var price = $( this ).find('.row3').text();
     var euro = formula(price,+exrate);
-    $( this ).find('.row9').html(euro.toFixed(4));
+    $( this ).find('.row9').html(euro);
   });
 }
 setEuroColumn(exrate);
@@ -557,13 +561,83 @@ var FF = {
   js_modal_woo_price : $('.frow3>.fcol3>b'),
   js_modal_woo_input : $('#js-fWprice'),
   js_modal_parser_title : $('.frow1>.fcol2'),
-  js_modal_plati_title : $('.frow4>.fcol2'),
+  js_modal_plati_title : $('.frow4>.fcol2 .jsm-plati-title'),
+  js_modal_plati_price : $('.frow4>.fcol4'),
   js_modal_ebay_prices : $('.frow1>.fcol3 tr'),
+  consec : 1,
+  consec_out : $('#consec'),
 };
 
-// Выхов модального окна Merged Price Changer
+$('.jsm-arr-left').click(function(e) {
+
+  e.preventDefault();
+  switch (FF.consec) {
+    case 1:
+      FF.consec = 3;
+      FF.js_modal_plati_title.text(FF.game_line.item3_name);
+      FF.js_modal_ebay_input.val(FF.europrice3);
+      FF.js_modal_woo_input.val((FF.europrice3*0.95).toFixed(2));
+      break;
+    case 2:
+      FF.consec = 1;
+      FF.js_modal_plati_title.text(FF.game_line.item1_name);
+      FF.js_modal_ebay_input.val(FF.europrice1);
+      FF.js_modal_woo_input.val((FF.europrice1*0.95).toFixed(2));
+      break;
+    case 3:
+      FF.consec = 2;
+      FF.js_modal_plati_title.text(FF.game_line.item2_name);
+      FF.js_modal_ebay_input.val(FF.europrice2);
+      FF.js_modal_woo_input.val((FF.europrice2*0.95).toFixed(2));
+      break;
+    default:
+      console.log( 'Я таких значений не знаю' );
+  }
+  $('.tch-smalltable .gig').removeClass('gig');
+  $('.rp'+FF.consec).addClass('gig');
+  FF.consec_out.text(FF.consec);
+
+});
+
+$('.jsm-arr-right').click(function(e) {
+
+  e.preventDefault();
+  switch (FF.consec) {
+    case 1:
+      FF.consec = 2;
+      FF.js_modal_plati_title.text(FF.game_line.item2_name);
+      FF.js_modal_ebay_input.val(FF.europrice2);
+      FF.js_modal_woo_input.val((FF.europrice2*0.95).toFixed(2));
+      break;
+    case 2:
+      FF.consec = 3;
+      FF.js_modal_plati_title.text(FF.game_line.item3_name);
+      FF.js_modal_ebay_input.val(FF.europrice3);
+      FF.js_modal_woo_input.val((FF.europrice3*0.95).toFixed(2));
+      break;
+    case 3:
+      FF.consec = 1;
+      FF.js_modal_plati_title.text(FF.game_line.item1_name);
+      FF.js_modal_ebay_input.val(FF.europrice1);
+      FF.js_modal_woo_input.val((FF.europrice1*0.95).toFixed(2));
+      break;
+    default:
+      console.log( 'Я таких значений не знаю' );
+  }
+  $('.tch-smalltable .gig').removeClass('gig');
+  $('.rp'+FF.consec).addClass('gig');
+  FF.consec_out.text(FF.consec);
+});
+
+// Вызов модального окна Merged Price Changer
 GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
   
+  FF.consec = 1;
+  FF.consec_out.text(FF.consec);
+  FF.game_line = {};
+  FF.europrice1 = 0;
+  FF.europrice2 = 0;
+  FF.europrice3 = 0;
   var F = e.data.f
   F.one_removed = false;
   F.one_changed = false;
@@ -575,7 +649,8 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
   F.rurprice = +F.tr.find('.row5').text();
   var exrate = 0;
   if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
-  F.europrice = formula(F.rurprice, exrate).toFixed(1);
+  F.europrice = formula(F.rurprice, exrate);
+  console.log(F.europrice);
   if(F.europrice < 1.5) F.europrice = 1.5;
   F.js_modal_plati_title.text(F.tr.find('.row5').attr('title'));
   F.js_modal_parser_title.text(F.tr.find('.row2').text());
@@ -584,13 +659,24 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
   F.js_modal_ebay_input.val(F.europrice);
   F.js_modal_woo_title.html('<img src="images/more-loading.gif" alt="loading">');
   F.js_modal_woo_price.text('.');
-  F.js_modal_woo_input.val((F.europrice - (F.europrice*0.05)).toFixed(2));
+  F.js_modal_woo_input.val((F.europrice*0.95).toFixed(2));
   F.js_modal_ebay_prices.html(F.tr.find('td[iid]').clone());
 
   if(F.ebayId){
     $.post('ajax.php?action=ajax-ebay-api-price-changer',
       { action:'check', ebayId:F.ebayId, gameId:F.gameId },
       function (data) {
+        FF.game_line = data.game_line;
+        FF.europrice1 = formula(FF.game_line.item1_price, exrate);
+        FF.europrice2 = formula(FF.game_line.item2_price, exrate);
+        FF.europrice3 = formula(FF.game_line.item3_price, exrate);
+        var rur_prices = 
+          '<table class="tch-smalltable"><tr>'+
+            '<td class="rp1 gig">'+FF.game_line.item1_price+'</td>'+
+            '<td class="rp2">'+FF.game_line.item2_price+'</td>'+
+            '<td class="rp3">'+FF.game_line.item3_price+'</td>'+
+          '</tr></table>';
+        F.js_modal_plati_price.html(rur_prices);
         F.js_modal_ebay_title.text(data.ebay_title);
         F.js_modal_ebay_price.text(data.price);
         // if (data.answer === 'good') F.'????'.attr('disabled', false);
@@ -781,6 +867,15 @@ GenObj.js_tch_deligator.on('click', '.mRemove', function(e) {
 });
 
 // =========2 /change price merged 2===========
+var ajax_loader = $('.ajax-loader');
+  ajax_loader.removeClass('ajaxed');
+$( document ).ajaxSend(function() {
+  ajax_loader.addClass('ajaxed');
+});
+
+$( document ).ajaxStop(function() {
+  ajax_loader.removeClass('ajaxed');
+});
 
 }); //document ready
 
