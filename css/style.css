@@ -243,7 +243,8 @@ a{
   text-decoration: none;
 }
 
-a:hover{
+a:hover,
+a:focus{
   color: #F9B511;
   text-decoration: none;
 }
@@ -785,4 +786,32 @@ form.imagine-form input{
 
 .ajax-loader.ajaxed{
   display: block;
+}
+
+#mergedModal .modal-content{
+  border-radius: 0;
+}
+
+#mergedModal .modal-header,
+#mergedModal .modal-footer{
+  padding: 10px;
+}
+
+zz{
+    color: #19dde4;
+    font-weight: bold;
+}
+
+#mergedModal .btn{
+  border-radius: 0;
+}
+
+.jsm-plati-title{
+  color: #ca8e3a;
+    font-size: 16px;
+}
+
+.jsm-plati-title:focus{
+    color: initial;
+    text-decoration: none;
 }

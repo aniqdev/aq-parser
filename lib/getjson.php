@@ -177,12 +177,15 @@ if (isset($_POST['getjson'])) {
 	if ($_POST['end'] < $num) $end = $_POST['end'];
 	else $end = $num;
 
-	$blacklist = arrayDB("SELECT * FROM blacklist WHERE category='item'");
+	$blacklistM = arrayDB("SELECT * FROM blacklist WHERE category='item'");
 	$blacksell = arrayDB("SELECT * FROM blacklist WHERE category='seller'");
 	//$game_list = array();
 
 	for ($j; $j <= $end; $j++) {
 		
+		$game_id = $reqs[$j-1]['id'];
+		$blackaddons = arrayDB("SELECT * FROM blacklist WHERE category LIKE 'game_id=$game_id%'");
+		$blacklist = array_merge($blacklistM, $blackaddons);
 		$request = $reqs[$j-1]['name'];
 	    $request = requestFilter($request);
 		if(isset($game_list)) $game_list[]['name'] = $request;

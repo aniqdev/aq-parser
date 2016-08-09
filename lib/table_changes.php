@@ -355,16 +355,17 @@ foreach ($res as $key => $value) {
         <div class="row frow frow4">
           <div class="col-sm-2">Plati.ru <b>: <i id="consec"></i></b></div>
           <div class="col-sm-7 fcol fcol2 clip">
-          	<a class="jsm-arr jsm-arr-left glyphicon glyphicon-chevron-left"></a>
-          	<div class="jsm-plati-title"></div>
-          	<a class="jsm-arr jsm-arr-right glyphicon glyphicon-chevron-right"></a>
+          	<a class="jsm-plati-title" herf="" target="_blank"></a>
+          	<a class="jsm-arr jsm-arr-left glyphicon glyphicon-chevron-left" id="arrleft"></a>
+          	<a class="jsm-arr jsm-arr-right glyphicon glyphicon-chevron-right" id="arrright"></a>
           </div>
           <div class="col-sm-3 fcol fcol3 fcol4"></div>
         </div>
       </div>
       <div class="modal-footer">
       	<form class="btn-group" id="fChange">
-      		<input type="number" class="btn btn-default" value="3" style="width: 80px;" disabled>
+	        <button type="button" class="btn btn-info" id="fBanaddon">to ADDon</button>
+	        <button type="button" class="btn btn-warning" id="fBlacklist">to Blacklist</button>
 	        <button type="button" class="btn btn-danger" id="fRemove">Remove from Sale</button>
 	        <button type="submit" class="btn btn-primary">Change Price</button>
         </form>

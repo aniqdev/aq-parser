@@ -1,4 +1,36 @@
+(function( $ ){
+
+  $.fn.pickText = function( search, options ) {  
+
+    var s = $.extend( {
+      'open_tag'  : '<zz>',
+      'close_tag' : '</zz>'
+    }, options);
+
+    return this.each(function() {
+
+      var html = this.innerHTML;
+
+      for(var i in search){
+        var reg = new RegExp('('+search[i]+')', 'gim');
+        html = html.replace( reg, s.open_tag+'$1'+s.close_tag);
+      }
+
+      this.innerHTML = html;
+
+    });
+
+  };
+
+})( jQuery );
+
+
+
+
+
 $( document ).ready(function() {
+
+  // $('.row2').pickText(['steam','new','the']);
 
      $('.chedit').change(function() {
         if($(this).is(":checked")) {
@@ -568,66 +600,32 @@ var FF = {
   consec_out : $('#consec'),
 };
 
-$('.jsm-arr-left').click(function(e) {
+// стрелочки
+$('.jsm-arr').click(function(e) {
 
   e.preventDefault();
-  switch (FF.consec) {
-    case 1:
-      FF.consec = 3;
-      FF.js_modal_plati_title.text(FF.game_line.item3_name);
-      FF.js_modal_ebay_input.val(FF.europrice3);
-      FF.js_modal_woo_input.val((FF.europrice3*0.95).toFixed(2));
-      break;
-    case 2:
-      FF.consec = 1;
-      FF.js_modal_plati_title.text(FF.game_line.item1_name);
-      FF.js_modal_ebay_input.val(FF.europrice1);
-      FF.js_modal_woo_input.val((FF.europrice1*0.95).toFixed(2));
-      break;
-    case 3:
-      FF.consec = 2;
-      FF.js_modal_plati_title.text(FF.game_line.item2_name);
-      FF.js_modal_ebay_input.val(FF.europrice2);
-      FF.js_modal_woo_input.val((FF.europrice2*0.95).toFixed(2));
-      break;
-    default:
-      console.log( 'Я таких значений не знаю' );
+  if(e.target.id == 'arrleft'){
+    FF.consec -= 1;
+    if(FF.consec < 1) FF.consec = 3;
   }
+
+  if(e.target.id == 'arrright'){
+    FF.consec += 1;
+    if(FF.consec > 3) FF.consec = 1;
+  }
+
+  FF.rurprice = +FF.game_line['item'+FF.consec+'_price'];
+  FF.js_modal_plati_title.text(FF.game_line['item'+FF.consec+'_name']).pickText(['free','row']);
+  FF.js_modal_plati_title.attr('href', 'http://www.plati.ru/itm/'+FF.game_line['item'+FF.consec+'_id']);
+  FF.js_modal_ebay_input.val(FF['europrice'+FF.consec]);
+  FF.js_modal_woo_input.val((FF['europrice'+FF.consec]*0.95).toFixed(2));
+
   $('.tch-smalltable .gig').removeClass('gig');
   $('.rp'+FF.consec).addClass('gig');
   FF.consec_out.text(FF.consec);
 
 });
 
-$('.jsm-arr-right').click(function(e) {
-
-  e.preventDefault();
-  switch (FF.consec) {
-    case 1:
-      FF.consec = 2;
-      FF.js_modal_plati_title.text(FF.game_line.item2_name);
-      FF.js_modal_ebay_input.val(FF.europrice2);
-      FF.js_modal_woo_input.val((FF.europrice2*0.95).toFixed(2));
-      break;
-    case 2:
-      FF.consec = 3;
-      FF.js_modal_plati_title.text(FF.game_line.item3_name);
-      FF.js_modal_ebay_input.val(FF.europrice3);
-      FF.js_modal_woo_input.val((FF.europrice3*0.95).toFixed(2));
-      break;
-    case 3:
-      FF.consec = 1;
-      FF.js_modal_plati_title.text(FF.game_line.item1_name);
-      FF.js_modal_ebay_input.val(FF.europrice1);
-      FF.js_modal_woo_input.val((FF.europrice1*0.95).toFixed(2));
-      break;
-    default:
-      console.log( 'Я таких значений не знаю' );
-  }
-  $('.tch-smalltable .gig').removeClass('gig');
-  $('.rp'+FF.consec).addClass('gig');
-  FF.consec_out.text(FF.consec);
-});
 
 // Вызов модального окна Merged Price Changer
 GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
@@ -643,16 +641,17 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
   F.one_changed = false;
   F.mergedModal.modal('show');
   F.tr = $(this).parent();
-  F.gameId = F.tr.attr('data-gameid');
+  F.gameId = FF.gameId = F.tr.attr('data-gameid');
   F.ebayId = F.tr.attr('data-ebayid');
   F.wooId = F.tr.attr('data-wooid');
   F.rurprice = +F.tr.find('.row5').text();
   var exrate = 0;
   if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
   F.europrice = formula(F.rurprice, exrate);
-  console.log(F.europrice);
+
   if(F.europrice < 1.5) F.europrice = 1.5;
-  F.js_modal_plati_title.text(F.tr.find('.row5').attr('title'));
+  F.js_modal_plati_title.text(F.tr.find('.row5').attr('title')).pickText(['free','row']);
+  F.js_modal_plati_title.attr('href', F.tr.find('.row8 a').attr('href'));
   F.js_modal_parser_title.text(F.tr.find('.row2').text());
   F.js_modal_ebay_title.html('<img src="images/more-loading.gif" alt="loading">');
   F.js_modal_ebay_price.text('.');
@@ -661,6 +660,7 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
   F.js_modal_woo_price.text('.');
   F.js_modal_woo_input.val((F.europrice*0.95).toFixed(2));
   F.js_modal_ebay_prices.html(F.tr.find('td[iid]').clone());
+  F.js_modal_plati_price.html('<img src="images/more-loading.gif" alt="loading">');
 
   if(F.ebayId){
     $.post('ajax.php?action=ajax-ebay-api-price-changer',
@@ -704,12 +704,12 @@ FF.js_modal_ebay_input.on('change', function() {
 $('#fChange').on('submit', {f:FF}, function(e) {
   
   e.preventDefault();
-  
+
   var F = e.data.f
   var fEprice = F.js_modal_ebay_input.val().replace(',','.');
   var fWprice = F.js_modal_woo_input.val().replace(',','.');
 
-  if(F.ebayId && F.rurprice){
+  if(F.ebayId && FF.rurprice){
     $.post('ajax.php?action=ajax-ebay-api-price-changer',
       { action: 'change', ebayId: F.ebayId, price: fEprice },
       function (data) {
@@ -725,7 +725,7 @@ $('#fChange').on('submit', {f:FF}, function(e) {
     F.one_changed = true;
   }
 
-  if(F.wooId && F.rurprice){
+  if(F.wooId && FF.rurprice){
     $.post('ajax.php?action=ajax-woo',
       { action: 'change', wooId: F.wooId, price: fWprice },
       function (data) {
@@ -760,6 +760,8 @@ $('#fRemove').on('click', {f:FF}, function(e) {
 
         }
     }, 'json');
+  }else{
+    F.one_removed = true;
   }
 
   if(F.wooId){
@@ -773,8 +775,30 @@ $('#fRemove').on('click', {f:FF}, function(e) {
 
         }
     }, 'json');
+  }else{
+    F.one_removed = true;
   }
 
+});
+
+function toBlack(plati_id) {
+  $.post('ajax.php?action=ajax-woo',
+    {action:'ban',plati_id:plati_id});
+}
+
+$('#fBlacklist').on('click', function() {
+  if (!confirm("Уверен?")) return false;
+  toBlack(FF.game_line['item'+FF.consec+'_id']);
+});
+
+$('#fBanaddon').on('click', function() {
+  if (!confirm("Баним эту игру?")) return false;
+  $.post('ajax.php?action=ajax-woo',
+    {action : 'banaddon',
+    plati_id : FF.game_line['item'+FF.consec+'_id'],
+    game_name : FF.game_line['item'+FF.consec+'_name'],
+    game_id : FF.gameId,
+  });
 });
 
 // ========= /change price merged ===========
@@ -879,3 +903,4 @@ $( document ).ajaxStop(function() {
 
 }); //document ready
 
+// update games set ebay_id=null where id=4168

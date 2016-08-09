@@ -68,3 +68,21 @@ if (isset($_POST['wooId']) && isset($_POST['action']) && $_POST['action'] == 're
 	echo json_encode($send);
 
 }
+
+
+if (isset($_POST['plati_id']) && isset($_POST['action']) && $_POST['action'] === 'ban') {
+	$plati_id = (int)$_POST['plati_id'];
+	if(!$plati_id) die;
+	$exist = arrayDB("SELECT id FROM blacklist WHERE item_id=$plati_id LIMIT 1");
+	if(!$exist) arrayDB("INSERT INTO blacklist VALUES (NULL, '$plati_id', 'item')");
+}
+
+
+if (isset($_POST['plati_id']) && isset($_POST['game_id']) && isset($_POST['action']) && $_POST['action'] === 'banaddon') {
+	$plati_id = (int)$_POST['plati_id'];
+	$game_id = (int)$_POST['game_id'];
+	$category = 'game_id='.$game_id.'&game_name='._esc(urlencode($_POST['game_name']));
+	if(!$plati_id || !$game_id) die;
+	$exist = arrayDB("SELECT id FROM blacklist WHERE item_id=$plati_id AND category LIKE 'game_id=$game_id%' LIMIT 1");
+	if(!$exist) arrayDB("INSERT INTO blacklist VALUES (NULL, '$plati_id', '$category')");
+}
