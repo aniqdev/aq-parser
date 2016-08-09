@@ -13,7 +13,6 @@
 	if (isset($_GET['delStr'])) {
 		$delId = $_GET['delStr'];
 		arrayDB("DELETE FROM blacklist WHERE id='$delId'");
-		header('Location: ?action=blackl');
 	}
 
 	if (isset($_POST['addItem'])) {
