@@ -61,7 +61,7 @@ function moveFile(){
 		} else return('Ошибка при чтении CSV');
 		$sql = '';
 		foreach ($reqs as $key => $value) {
-			$value = mysql_escape_string(trim(strip_tags($value)));
+			$value = _esc(trim(strip_tags($value)));
 			$sql .=  "INSERT INTO games (name) VALUES ('$value');";
 		}
 		// 	echo "<pre>";
@@ -79,7 +79,7 @@ if ($_FILES) {
 //============================================= / files end
 
 	if (isset($_POST['addItem'])) {
-		$itemName = mysql_escape_string(trim(strip_tags($_POST['item'])));
+		$itemName = _esc(trim(strip_tags($_POST['item'])));
 		echo '<i>Вы добавили: "',$itemName,'" в конец списка</i>';
 		arrayDB("INSERT INTO games (name) VALUES ('$itemName')");
 	}

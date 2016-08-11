@@ -653,10 +653,12 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
   F.js_modal_plati_title.text(F.tr.find('.row5').attr('title')).pickText(['free','row']);
   F.js_modal_plati_title.attr('href', F.tr.find('.row8 a').attr('href'));
   F.js_modal_parser_title.text(F.tr.find('.row2').text());
-  F.js_modal_ebay_title.html('<img src="images/more-loading.gif" alt="loading">');
+  if(F.ebayId) F.js_modal_ebay_title.html('<img src="images/more-loading.gif" alt="loading">');
+  else F.js_modal_ebay_title.html('no id');
   F.js_modal_ebay_price.text('.');
   F.js_modal_ebay_input.val(F.europrice);
-  F.js_modal_woo_title.html('<img src="images/more-loading.gif" alt="loading">');
+  if(F.wooId) F.js_modal_woo_title.html('<img src="images/more-loading.gif" alt="loading">');
+  else F.js_modal_woo_title.html('no id');
   F.js_modal_woo_price.text('.');
   F.js_modal_woo_input.val((F.europrice*0.95).toFixed(2));
   F.js_modal_ebay_prices.html(F.tr.find('td[iid]').clone());

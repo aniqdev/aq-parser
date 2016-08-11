@@ -8,7 +8,7 @@ function aqSqlite($query,$multiquery = false){
     $db = new SQLite3(__DIR__.'/../sqlite/mydb.db');
     $results = $db->query($query);
     $res = array();
-    if (stripos($query, 'select') !== false) {
+    if (stripos($query, 'select') !== false || stripos($query, 'show') !== false) {
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) { // SQLITE3_BOTH, SQLITE3_ASSOC, SQLITE3_NUM
             $res[] = $row;
         }
@@ -32,7 +32,7 @@ function aqMysqli($query, $multiquery = false){
 
     }else{
 
-        if (stripos(trim($query), 'select') === 0) {
+        if (stripos($query, 'select') !== false || stripos($query, 'show') !== false) {
             return DB::getInstance()->get_results($query);
         }else{
             return DB::getInstance()->query($query);

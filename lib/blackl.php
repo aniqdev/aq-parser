@@ -1,11 +1,11 @@
 <br>
+<div class="ppp-block">
 <div class="ppp-form-group">
 	<form method="POST" class="listForm">
 		<input type="text" name="item" placeholder="Ведите id товара" style="width: 300px;">
 		<input type="submit" name="addItem" value="Добавить строку">
 	</form>
 </div>
-<div class="ppp-block">
 <ol class="ppp-ol">
 <?php
 
@@ -38,13 +38,13 @@
 </div>
 <!--|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||-->
 <br>
+<div class="ppp-block">
 <div class="ppp-form-group">
 	<form method="POST" class="listForm">
 		<input type="text" name="seller" placeholder="Ведите id продавца" style="width: 300px;">
 		<input type="submit" name="addSeller" value="Добавить строку">
 	</form>
 </div>
-<div class="ppp-block">
 <ol class="ppp-ol">
 <?php
 //============================================== 
@@ -67,24 +67,16 @@
 				<span class="listitem" data-id="',$value['id'],'">',$value['item_id'],'</span>
 			  </li>';
 	}
-
-
-
-
-
 ?>
 </ol>
 </div>
-<pre>
-<?php
 
-?>
-</pre>
+<br>
 <div class="ppp-block" id="addons-table">
 <table class="ppp-table-collapse platitable">
 <thead>
 	<tr>
-		<th>#</th>
+		<th>del</th>
 		<th class="sort" data-sort="col1">parser name</th>
 		<th class="sort" data-sort="col2">plati.ru name</th>
 	</tr>
@@ -120,7 +112,4 @@ foreach ($res as $key => $value) {
 	};
 
 	var userList = new List('addons-table', options);
-
-
-
 </script>

@@ -515,7 +515,11 @@ form.search-charts input{
 .ch-tab-navigator .ch-tab.active{
 	background-color: #222;
 	color: #A0CFE2;
-      border-bottom: 2px solid #A0CFE2;
+  border-bottom: 2px solid #A0CFE2;
+}
+
+.ch-tab-navigator .ch-tab:hover{
+  border-bottom: 2px solid #A0CFE2;
 }
 
 .choose-old{
