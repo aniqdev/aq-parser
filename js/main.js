@@ -616,7 +616,7 @@ $('.jsm-arr').click(function(e) {
 
   FF.rurprice = +FF.game_line['item'+FF.consec+'_price'];
   FF.js_modal_plati_title.text(FF.game_line['item'+FF.consec+'_name']).pickText(['free','row']);
-  FF.js_modal_plati_title.attr('href', 'http://www.plati.ru/itm/'+FF.game_line['item'+FF.consec+'_id']);
+  FF.js_modal_plati_title.attr('href', 'http://www.plati.ru/itm/'+FF.game_line['item'+FF.consec+'_id']+'?ai=163508');
   FF.js_modal_ebay_input.val(FF['europrice'+FF.consec]);
   FF.js_modal_woo_input.val((FF['europrice'+FF.consec]*0.95).toFixed(2));
 

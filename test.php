@@ -8,7 +8,6 @@ define('DOCROOT', 'E:\xamp\htdocs\parser\www\test.php');
 define('ROOT', __DIR__);
 require_once('lib/array_DB.php');
 require_once('lib/simple_html_dom.php');
-require_once('lib/functions.class/functions.class.php');
 
 $headers = array
     (
@@ -37,6 +36,7 @@ $xml = '<?xml version="1.0" encoding="utf-8"?>
     <Title>BlazBlue: Calamity Trigger (PC) Steam Regfree MULTILANG</Title>
     <Quantity>0</Quantity>
     <StartPrice>4.55</StartPrice>
+    <Description>'.htmlspecialchars (file_get_contents('StarDrive.html')) .'</Description>
   </Item>
   <MessageID>1</MessageID>
   <WarningLevel>High</WarningLevel>
@@ -77,6 +77,30 @@ var_dump($ack);
 $responseObj = simplexml_load_string($responseXML);
 echo "<pre>";
 var_dump((string)$responseObj->Ack);
-echo "<hr>";
-print_r($responseObj);
+// echo "<hr>";
+// print_r($responseObj);
 echo "</pre>";
+
+function getItemDescription($itemId){
+    $url = 'http://open.api.ebay.com/shopping';
+    $url .= '?callname=GetSingleItem';
+    $url .= '&responseencoding=JSON';
+    $url .= '&appid=Aniq6478a-a8de-47dd-840b-8abca107e57';
+    $url .= '&siteid=77';
+    $url .= '&version=515';
+    $url .= '&ItemID='.$itemId;
+//   $url .= '&IncludeSelector=Details';
+    $url .= '&IncludeSelector=Description';
+//  $url .= '&IncludeSelector=Details,Description';
+//  $url .= '&IncludeSelector=Details,TextDescription';
+
+
+    // Открываем файл с помощью установленных выше HTTP-заголовков
+    $json = file_get_contents($url);
+    return json_decode($json, true)['Item']['Description'];
+}
+
+$desc = getSingleItem('112026286055');
+echo "<pre>";
+echo "</pre>";
+print_r($desc);

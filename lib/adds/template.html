@@ -5,15 +5,51 @@
 <div class="gig-wrapper">
 <!--Panel 1-->
 <style>
-@charset "utf-8";
+@keyframes movetable1{
+  from {
+    left: 0%;
+  }
+  to {
+    left: -140%;
+  }
+}
+@keyframes movetable2{
+  from {
+    left: 140%;
+  }
+  to {
+    left: 0%;
+  }
+}
 .gig-panel-wrapper{
     text-align: center;
     width: 100%;
     background: #4f4f4f;
     box-shadow: 0 0 10px #000;
     border: 4px solid #eaeaea;
-    margin: 20px 0;
+    margin: 0 0 20px 0;
+    position: relative;
+    overflow: hidden;
+    height: 246px;
+    box-sizing: border-box;
 }
+.gig-panel-table{
+  position: absolute;
+  width: 140%;
+}
+.gig-panel-table1{
+  animation: 30s movetable1 linear infinite;
+}
+.gig-panel-table2{
+  left: 140%;
+  animation: 30s movetable2 linear infinite;
+}
+.gig-panel-wrapper:hover .gig-panel-table{
+  animation-play-state: paused;
+}
+/* .gig-panel-wrapper .gig-panel-table{
+  animation-play-state: paused;
+} */
 .gig-panel-link{
     display: block;
     position: relative;
@@ -23,7 +59,7 @@
     background: #444;
 }
 .gig-panel-link:before{
-  content: 'AudioSurf (PC) Steam Region free English';
+  content: 'no title';
   position: absolute;
   top: 146px;
   left: 0px;
@@ -34,13 +70,13 @@
   box-sizing: border-box;
   color: #ffd7aa;
   font-size: 18px;
-  padding: 0 10px;
+  padding: 0 7px;
   overflow: hidden;
-  height: 42px;
+  height: 45px;
   font-family: arial, sans-serif;
 }
 .gig-panel-link:after{
-  content: '€25,99';
+  content: '€0.00';
   position: absolute;
   color: #fff;
   padding: 10px;
@@ -54,29 +90,46 @@
   font-size: 20px;
   font-weight: bold;
 }
-.gig-panel-link:hover{
-      outline: -webkit-focus-ring-color auto 5px;
-}
 .gig-panel-link img{
-  width: 100%;
+    max-width: 100%;
+    height: 133px;
 }
 </style>
-<table class="gig-panel-wrapper">
-<tr>
-  <td><a href="#" class="gig-panel-link"><img src="images/test1.jpg" alt=""></a></td>
-  <td><a href="#" class="gig-panel-link"><img src="images/test1.jpg" alt=""></a></td>
-  <td><a href="#" class="gig-panel-link"><img src="images/test1.jpg" alt=""></a></td>
-  <td><a href="#" class="gig-panel-link"><img src="images/test1.jpg" alt=""></a></td>
-  <td><a href="#" class="gig-panel-link"><img src="images/test1.jpg" alt=""></a></td>
-  <td><a href="#" class="gig-panel-link"><img src="images/test1.jpg" alt=""></a></td>
-  <td><a href="#" class="gig-panel-link"><img src="images/test1.jpg" alt=""></a></td>
-  <td><a href="#" class="gig-panel-link"><img src="images/test1.jpg" alt=""></a></td>
-</tr>
+<link rel="stylesheet" href="http://hot-body.net/panel/css/cssdata.css">
+<div class="gig-panel-wrapper">
+<table class="gig-panel-table gig-panel-table1">
+  <tr>
+    <td><a href="http://hot-body.net/panel/api/v1/links/1" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img1.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/2" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img2.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/3" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img3.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/4" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img4.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/5" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img5.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/6" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img6.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/7" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img7.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/8" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img8.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/9" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img9.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/10" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img10.jpg" alt=""></a></td>
+  </tr>
 </table>
+<table class="gig-panel-table gig-panel-table2">
+  <tr>
+    <td><a href="http://hot-body.net/panel/api/v1/links/1" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img1.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/2" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img2.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/3" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img3.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/4" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img4.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/5" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img5.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/6" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img6.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/7" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img7.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/8" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img8.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/9" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img9.jpg" alt=""></a></td>
+    <td><a href="http://hot-body.net/panel/api/v1/links/10" target="_blank" class="gig-panel-link"><img src="http://hot-body.net/panel/images/img10.jpg" alt=""></a></td>
+  </tr>
+</table>
+</div>
 <!--/Panel 1-->
-<!--Languages-->
-   <div class="gig-langs">
-   <input name="gig-lang" id="giglang1" checked="" type="radio">
+<!--Languages -->
+<div class="gig-langs">
+   <input name="gig-lang" id="giglang1" checked type="radio">
    <input name="gig-lang" id="giglang2" type="radio">
    <input name="gig-lang" id="giglang3" type="radio">
    <input name="gig-lang" id="giglang4" type="radio">
