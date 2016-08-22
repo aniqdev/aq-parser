@@ -460,6 +460,102 @@ function setGigGamesIdsToFileT(){
 
 }
 
+// возвращает количество строк в CSV файле
+// какобычно индекс последней строки на 1 меньше
+function csvCount($file_path){
+    $i = 0;
+    $fh = fopen($file_path,'r') or die($php_errormsg); 
+    while (!feof($fh)) { 
+        fgets($fh);
+            $i++;
+    }
+    fclose($fh) or die($php_errormsg); 
+    return $i;
+}
+
+
+// возвращает массив строки CSV файла по индексу
+function csvGetRowByIndex($file_path, $index=0, $delimetr=',', $encoding='windows-1251'){
+    $z = 0; $str = array();
+    $i = $index; //нужная строка 
+    $fh = fopen($file_path,'r') or die($php_errormsg); 
+    while ((! feof($fh)) && ($z <= $i)) { 
+        
+        if ($z === $i) {
+            $str = fgetcsv($fh, 0, $delimetr);
+            if($encoding === 'windows-1251') foreach ($str as &$cell) $cell = iconv('Windows-1251', 'UTF-8', $cell);
+        }else fgets($fh);
+        $z++;
+    }
+    fclose($fh) or die($php_errormsg);
+    return $str; 
+}
+
+
+function readExcel($path){
+    
+    // Открываем файл
+    $xls = PHPExcel_IOFactory::load($path);
+    // Устанавливаем индекс активного листа
+    $xls->setActiveSheetIndex(0);
+    // Получаем активный лист
+    $sheet = $xls->getActiveSheet();
+     
+    $Excel_table = array();
+    // Получили строки и обойдем их в цикле
+    $rowIterator = $sheet->getRowIterator();
+    foreach ($rowIterator as $kR=>$row) {
+        // Получили ячейки текущей строки и обойдем их в цикле
+        $cellIterator = $row->getCellIterator();
+
+        $Excel_table[$kR] = array();
+        foreach ($cellIterator as $kC=>$cell) {
+            $Excel_table[$kR][$kC] = $cell->getCalculatedValue();
+        }
+    }
+    return $Excel_table;
+}
+
+
+// ============== Пример использования функции 
+// В cell и value пердавать либо 2 строки либо 2 массива 
+// $cell = array('G3','H3','I3','J3','K3','L3','M3');
+// $value = array('Фото яндекса','м1','д1','м2','д2','м3','д3');
+// writeCell(FILES_DIR.'file.xls', $cell, $value);
+function writeCell($file_path, $cell, $value){
+    $Xlsvsfkii_Failik = PHPExcel_IOFactory::load(FILES_DIR.$file_path);
+    $Xlsvsfkii_Failik->setActiveSheetIndex(0);
+
+if (is_array($cell) && is_array($value)) {
+    foreach ($cell as $k => $onecell) {
+        $Xlsvsfkii_Failik->getActiveSheet()->setCellValue($onecell, $value[$k]);
+    }
+}else{
+    $Xlsvsfkii_Failik->getActiveSheet()->setCellValue($cell, $value);
+}
+
+    switch (strtolower(pathinfo($file_path)['extension'])) {
+        case 'csv':
+            $writeType = 'CSV';
+            break;
+        case 'xls':
+            $writeType = 'Excel5';
+            break;
+        case 'xlsx':
+            $writeType = 'Excel2007';
+            break;
+        
+        default:
+            $writeType = 'Excel2007';
+            break;
+    }
+    $Zapisat = PHPExcel_IOFactory::createWriter($Xlsvsfkii_Failik, $writeType);
+    $Zapisat->save(FILES_DIR.$file_path);
+     
+    unset($Xlsvsfkii_Failik);
+    unset($Zapisat);
+}
+
 //===================================================================================
 //===================================================================================
 class WooCommerceApi{

@@ -14,6 +14,8 @@
         </li>
         <li><a href="#">Ebay.com</a>
 			<ul>
+				<li><a target="_blank" href="http://hot-body.net/panel/api/v1/counter">Counter</a></li>
+				<li><a target="_blank" href="http://hot-body.net/panel/api/v1/update/gig-games">Update</a></li>
 				<li><a href="?action=ebay_table">Table</a></li>
 				<li><a href="?action=ebay_excel">Excel</a></li>
 				<li><a href="?action=ebay_getprices">get&nbsp;Prices</a></li>

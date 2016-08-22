@@ -3,98 +3,10 @@
 </style>
 <meta charset="utf-8">
 <div class="gig-wrapper">
-<!--Panel 1-->
 <style>
-@keyframes movetable1{
-  from {
-    left: 0%;
-  }
-  to {
-    left: -140%;
-  }
-}
-@keyframes movetable2{
-  from {
-    left: 140%;
-  }
-  to {
-    left: 0%;
-  }
-}
-.gig-panel-wrapper{
-    text-align: center;
-    width: 100%;
-    background: #4f4f4f;
-    box-shadow: 0 0 10px #000;
-    border: 4px solid #eaeaea;
-    margin: 0 0 20px 0;
-    position: relative;
-    overflow: hidden;
-    height: 246px;
-    box-sizing: border-box;
-}
-.gig-panel-table{
-  position: absolute;
-  width: 140%;
-}
-.gig-panel-table1{
-  animation: 30s movetable1 linear infinite;
-}
-.gig-panel-table2{
-  left: 140%;
-  animation: 30s movetable2 linear infinite;
-}
-.gig-panel-wrapper:hover .gig-panel-table{
-  animation-play-state: paused;
-}
-/* .gig-panel-wrapper .gig-panel-table{
-  animation-play-state: paused;
-} */
-.gig-panel-link{
-    display: block;
-    position: relative;
-    padding: 5px;
-    height: 220px;
-    border: 1px solid #eaeaea;
-    background: #444;
-}
-.gig-panel-link:before{
-  content: 'no title';
-  position: absolute;
-  top: 146px;
-  left: 0px;
-  word-break: break-word;
-  text-align: center;
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  color: #ffd7aa;
-  font-size: 18px;
-  padding: 0 7px;
-  overflow: hidden;
-  height: 45px;
-  font-family: arial, sans-serif;
-}
-.gig-panel-link:after{
-  content: '€0.00';
-  position: absolute;
-  color: #fff;
-  padding: 10px;
-  bottom: -2px;
-  right: 0px;
-  box-sizing: border-box;
-  display: block;
-  width: 100%;
-  text-align: center;
-  font-family: arial, sans-serif;
-  font-size: 20px;
-  font-weight: bold;
-}
-.gig-panel-link img{
-    max-width: 100%;
-    height: 133px;
-}
+
 </style>
+<!--Panel 1-->
 <link rel="stylesheet" href="http://hot-body.net/panel/css/cssdata.css">
 <div class="gig-panel-wrapper">
 <table class="gig-panel-table gig-panel-table1">
