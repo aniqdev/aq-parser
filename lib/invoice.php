@@ -61,6 +61,6 @@ $itemid = '2174988';
 // $request = new X2\Request;
 
   echo "<pre>";
-  print_r(new Signer('103239093088', __DIR__.'/adds/103239093088.kwm', 'kajmadkwm'));
+  print_r(new Signer('103239093088', __DIR__.'/adds/103239093088.kwm', KWM_PASSWORD));
 //print_r(get_class_methods($request));
   echo "</pre>";
