@@ -51,17 +51,38 @@ $desc = getItemDescription($itemid);
 
 file_put_contents('desc-backup/'.$itemid.'_'.time().'.html', $desc);
 
-$panel = file_get_contents('lib/adds/panel.html');
-
-$is_panel = stripos($desc, '<!--Panel 1-->');
-
-if($is_panel === false){
-  $desc = str_replace('<div class="gig-wrapper">', '<div class="gig-wrapper">'."\r\n".$panel."\r\n", $desc);
+if (stripos($desc, 'gig-support') === false) {
+  $desc = str_replace('<p><b>Skype</b> g.i.g-group</p>', "<p><b>Skype</b> g.i.g-group</p>\r\n<p><a href='http://gig-games.de' class='gig-support' target='_blank'>Online Support</a></p>", $desc);
 }
 
-$len = stripos($desc, '<!-- DreamRobot.de');
+$len = stripos($desc, '<small class="triple">');
 
-if($len !== false)  $desc = substr($desc, 0, $len);
+if($len !== false){
+
+  $desc = substr($desc, 0, $len);
+  $add_to_desc = '<a href="http://gig-games.de" class="gig-copy" target="_blank"><small class="triple">Copyright © g.i.g-group 2014</small></a></p>
+<div class="gig-created">
+   <a href="http://koeln-webstudio.de/" title="koeln-webstudio"> created by
+    <img src="http://hot-body.net/gig-less/images/visit_card.png" alt="koeln-webstudio">
+   </a>
+  </div>
+  <!--dreamrobot-->
+    <div class="gig-dreamrobot">
+  <div>
+   <p>
+    Die Vertragsabwicklung erfolgt über
+      <a target="_blank" href="https://www.dreamrobot.de/pdf/DreamRobot_Datenschutzerklaerung.pdf" style="color:#A4A3A5;">DreamRobot</a> im
+    Auftrag des Verkäufers. <br> Dazu werden die personenbezogenen Daten des Käufers an DreamRobot (Betreiber:
+    DreamRobot GmbH, Eckendorfer Str. 2-4, 33609 Bielefeld, Deutschland)
+    weitergeleitet. Hier finden Sie die
+      <a target="_blank" href="https://www.dreamrobot.de/pdf/DreamRobot_Datenschutzerklaerung.pdf" style="color:#A4A3A5;"> DreamRobot Datenschutzerklärung</a>.
+   </p>
+  </div>
+ </div>
+  <!--/dreamrobot-->
+ </div>';
+ $desc = $desc . $add_to_desc;
+}
 
 //echo $desc;
 
@@ -117,15 +138,16 @@ echo "</pre>";
 
 }
 
-$itemid = '112085493041';
-//addPanel($itemid);
+// $itemid = '121658238763';
+// addPanel($itemid);
 
 $itemArr = readExcel('csv/itemlist.20.08.xlsx');
 
 $l = count($itemArr);
 var_dump($l);
-for ($i=900; $i < $l+1; $i++) { 
-  //addPanel($itemArr[$i]['A']);
+for ($i=980; $i < $l+1; $i++) { 
+  var_dump($i);
+  addPanel($itemArr[$i]['A']);
   echo '<a href="http://www.ebay.de/itm/',$itemArr[$i]['A'],'" target="_blank">',$itemArr[$i]['B'],'</a><br>';
 }
 

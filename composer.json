@@ -1,6 +1,7 @@
 {
     "require": {
         "imagine/imagine": "~0.5.0",
-        "automattic/woocommerce": "^1.0"
+        "automattic/woocommerce": "^1.0",
+        "baibaratsky/php-webmoney": "0.14.*"
     }
 }

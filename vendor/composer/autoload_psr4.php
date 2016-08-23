@@ -6,5 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'baibaratsky\\WebMoney\\' => array($vendorDir . '/baibaratsky/php-wmsigner', $vendorDir . '/baibaratsky/php-webmoney'),
     'Automattic\\WooCommerce\\' => array($vendorDir . '/automattic/woocommerce/src/WooCommerce'),
 );

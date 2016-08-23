@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "dc7bc680fb270dd30565f6c7336fbfae",
-    "content-hash": "f6e7315711e64d208af3376c7b68f06e",
+    "hash": "835435600baabf1a5d89776f1218ecc6",
+    "content-hash": "784f4b49a4264e26e340445dea2ada71",
     "packages": [
         {
             "name": "automattic/woocommerce",
@@ -53,6 +53,103 @@
                 "woocommerce"
             ],
             "time": "2016-05-10 21:07:17"
+        },
+        {
+            "name": "baibaratsky/php-webmoney",
+            "version": "v0.14.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/baibaratsky/php-webmoney.git",
+                "reference": "6906e5742d1fa07219080c338d7f8d24a7be6c7f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/baibaratsky/php-webmoney/zipball/6906e5742d1fa07219080c338d7f8d24a7be6c7f",
+                "reference": "6906e5742d1fa07219080c338d7f8d24a7be6c7f",
+                "shasum": ""
+            },
+            "require": {
+                "baibaratsky/php-wmsigner": "2.0.*",
+                "php": ">=5.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "baibaratsky\\WebMoney\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Andrei Baibaratsky",
+                    "email": "andrei@baibaratsky.com"
+                },
+                {
+                    "name": "Constantin Chuprik",
+                    "email": "constantinchuprik@gmail.com"
+                }
+            ],
+            "description": "WebMoney API PHP Library",
+            "homepage": "http://github.com/baibaratsky/php-webmoney",
+            "keywords": [
+                "WMXI",
+                "capitaller",
+                "megastock",
+                "webmoney",
+                "wmsigner"
+            ],
+            "time": "2016-06-12 14:46:36"
+        },
+        {
+            "name": "baibaratsky/php-wmsigner",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/baibaratsky/php-wmsigner.git",
+                "reference": "e75858af085a9c26ce760436f80df9e778a6d162"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/baibaratsky/php-wmsigner/zipball/e75858af085a9c26ce760436f80df9e778a6d162",
+                "reference": "e75858af085a9c26ce760436f80df9e778a6d162",
+                "shasum": ""
+            },
+            "require": {
+                "ext-bcmath": "*",
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "*",
+                "satooshi/php-coveralls": "~1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "baibaratsky\\WebMoney\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Andrei Baibaratsky",
+                    "email": "andrei@baibaratsky.com"
+                }
+            ],
+            "description": "WebMoney Signer: a native PHP implementation of the WMSigner module",
+            "homepage": "http://github.com/baibaratsky/php-wmsigner",
+            "keywords": [
+                "WMXI",
+                "signer",
+                "webmoney",
+                "wmsigner"
+            ],
+            "time": "2016-06-12 14:33:36"
         },
         {
             "name": "imagine/imagine",
