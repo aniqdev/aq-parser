@@ -1,7 +1,9 @@
 <?php
-//ini_get('safe_mode') or set_time_limit(0); // Указываем скрипту, чтобы не обрывал связь.
+ini_get('safe_mode') or set_time_limit(300); // Указываем скрипту, чтобы не обрывал связь.
 //include('simple_html_dom.php');
 //include('PHPExcel.php');
+ini_set("display_errors",1);
+error_reporting(E_ALL);
 require_once('array_DB.php');
 require_once('simple_html_dom.php');
 if(!defined('ROOT')) header('Content-Type: text/html; charset=utf-8');
@@ -204,6 +206,7 @@ for ($i=$_first; $i <= $_last; $i++) {
 $sendData = array(  'weekSells' => $weekSells,
 					'resTable' => $resTable,
 					'dayArr' => $dayArr2,
+					'errors' => $_ERRORS,
 					'first' => $_first,
 					'last' => $_last );
 

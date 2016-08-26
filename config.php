@@ -23,4 +23,5 @@ define( 'db_NAME', 'gig_parser' ); // set database name
 define( 'SEND_ERRORS_TO', '' ); //set email notification email address
 define( 'DISPLAY_DEBUG', true ); //display db errors?
 
-define('KWM_PASSWORD', 'kajmadkwm');
+define('KWM88_PASSWORD', 'kajmadkwm');
+define('KWM46_PASSWORD', '21546598');

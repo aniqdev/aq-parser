@@ -8,7 +8,7 @@ function aqSqlite($query,$multiquery = false){
     $db = new SQLite3(__DIR__.'/../sqlite/mydb.db');
     $results = $db->query($query);
     $res = array();
-    if (stripos($query, 'select') !== false || stripos($query, 'show') !== false) {
+    if (stripos($query, 'select') === 0 || stripos($query, 'show') === 0) {
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) { // SQLITE3_BOTH, SQLITE3_ASSOC, SQLITE3_NUM
             $res[] = $row;
         }
@@ -32,7 +32,7 @@ function aqMysqli($query, $multiquery = false){
 
     }else{
 
-        if (stripos($query, 'select') !== false || stripos($query, 'show') !== false) {
+        if (stripos($query, 'select') === 0 || stripos($query, 'show') === 0) {
             return DB::getInstance()->get_results($query);
         }else{
             return DB::getInstance()->query($query);
@@ -46,9 +46,9 @@ function aqMysqli($query, $multiquery = false){
 
 function arrayDB($query,$multiquery = false){
     if (USE_DB === 'sqlite') {
-        return aqSqlite($query);
+        return aqSqlite(trim($query));
     }elseif (USE_DB === 'mysqli') {
-        return aqMysqli($query,$multiquery);
+        return aqMysqli(trim($query),$multiquery);
     }else{
         echo "data base aq_error!";
     }

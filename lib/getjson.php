@@ -1,5 +1,7 @@
 <?php
 ini_set('max_execution_time', 300);
+ini_set("display_errors",1);
+error_reporting(E_ALL);
 set_time_limit(300); // Указываем скрипту, чтобы не обрывал связь.
 require_once('array_DB.php');
 
@@ -12,10 +14,11 @@ function getResultsFromApi($request, $blacklist, $blacksell){
 
 		$arrItem = array();
 		// получаем результаты запросов в JSON
-		$opts = array('http'=>array('header' => "User-Agent:MyAgent/1.0\r\n"));
-		$context = stream_context_create($opts);
+		// $opts = array('http'=>array('header' => "User-Agent:MyAgent/1.0\r\n"));
+		// $context = stream_context_create($opts);
 		$url = 'http://www.plati.ru/api/search.ashx?query='.$request.'&pagesize=500&response=json';
-		$result = file_get_contents($url,false,$context);
+		// $result = file_get_contents($url,false,$context);
+		$result = file_get_contents($url);
 		$result = json_decode($result);
 		$iQ = $result->total;
 		if ($iQ > 500) $iQ = 500;
@@ -233,22 +236,22 @@ if (isset($_POST['getjson'])) {
 
 		$game_id         = $reqs[$j-1]['id'];
 		if (isset($arrItem[0])) {
-			$item1_id    = mysql_escape_string(trim(strip_tags($arrItem[0]['itemID'])));
-			$item1_name  = mysql_escape_string(trim(strip_tags($arrItem[0]['name'])));
-			$item1_price = mysql_escape_string(trim(strip_tags($arrItem[0]['price'])));
-			$item1_desc  = mysql_escape_string(trim(strip_tags($arrItem[0]['sellID'])));
+			$item1_id    = _esc(trim(strip_tags($arrItem[0]['itemID'])));
+			$item1_name  = _esc(trim(strip_tags($arrItem[0]['name'])));
+			$item1_price = _esc(trim(strip_tags($arrItem[0]['price'])));
+			$item1_desc  = _esc(trim(strip_tags($arrItem[0]['sellID'])));
 		}
 		if (isset($arrItem[1])) {
-			$item2_id    = mysql_escape_string(trim(strip_tags($arrItem[1]['itemID'])));
-		 	$item2_name  = mysql_escape_string(trim(strip_tags($arrItem[1]['name'])));
-			$item2_price = mysql_escape_string(trim(strip_tags($arrItem[1]['price'])));
-			$item2_desc  = mysql_escape_string(trim(strip_tags($arrItem[1]['sellID'])));
+			$item2_id    = _esc(trim(strip_tags($arrItem[1]['itemID'])));
+		 	$item2_name  = _esc(trim(strip_tags($arrItem[1]['name'])));
+			$item2_price = _esc(trim(strip_tags($arrItem[1]['price'])));
+			$item2_desc  = _esc(trim(strip_tags($arrItem[1]['sellID'])));
 		}
 		if (isset($arrItem[2])) {
-			$item3_id    = mysql_escape_string(trim(strip_tags($arrItem[2]['itemID'])));
-		 	$item3_name  = mysql_escape_string(trim(strip_tags($arrItem[2]['name'])));
-			$item3_price = mysql_escape_string(trim(strip_tags($arrItem[2]['price'])));
-			$item3_desc  = mysql_escape_string(trim(strip_tags($arrItem[2]['sellID'])));
+			$item3_id    = _esc(trim(strip_tags($arrItem[2]['itemID'])));
+		 	$item3_name  = _esc(trim(strip_tags($arrItem[2]['name'])));
+			$item3_price = _esc(trim(strip_tags($arrItem[2]['price'])));
+			$item3_desc  = _esc(trim(strip_tags($arrItem[2]['sellID'])));
 		}
 
 		arrayDB("INSERT INTO items VALUES(null,'$game_id','$item1_id','$item1_name','$item1_price','$item1_desc',
@@ -263,7 +266,7 @@ if (isset($_POST['getjson'])) {
 				'scan' => $scan,
 				'num'  => $num,
 				'games' => $game_list,
-				'errors' => $_ERRORS
+				'errors' => $_ERRORS,
 				];
 	echo json_encode($answer);
 }elseif(isset($_POST['setGigGamesIds'])){

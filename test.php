@@ -147,7 +147,7 @@ $l = count($itemArr);
 var_dump($l);
 for ($i=980; $i < $l+1; $i++) { 
   var_dump($i);
-  addPanel($itemArr[$i]['A']);
+  //addPanel($itemArr[$i]['A']);
   echo '<a href="http://www.ebay.de/itm/',$itemArr[$i]['A'],'" target="_blank">',$itemArr[$i]['B'],'</a><br>';
 }
 

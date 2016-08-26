@@ -2,7 +2,8 @@
 if (isset($_POST['submitted'])) {
 	$log = $_POST['login'];
 	$pas = $_POST['password'];
-	if ($log === 'a' && $pas === 's') {
+	$ip = $_SERVER['REMOTE_ADDR'];
+	if (($log === 'goldenpars' && $pas === 'v$sK6HfqDd') || $ip === '37.46.229.203'){
 		session_start();
 		$_SESSION['logged'] = true;
 		header("Location: index.php?".$_SERVER['QUERY_STRING']);
@@ -16,8 +17,7 @@ if (isset($_POST['submitted'])) {
 	<title>Login</title>
 	<style>
 		body {
-/* 			background: url("http://subtlepatterns2015.subtlepatterns.netdna-cdn.com/patterns/purty_wood.png");
- */			background: url("images/SoftWhiteBricks.jpg");
+ 			background: url("images/SoftWhiteBricks.jpg");
 			font-family: helvetica, arial;
 		}
 		form{

@@ -19,11 +19,12 @@ ini_get('safe_mode') or set_time_limit(100); // Указываем скрипт�
 function get_invoice($itemid){
 
   $endpoint = 'https://shop.digiseller.ru/xml/create_invoice.asp';
-
+// 568398645946
+// 103239093088
   $xml = "<digiseller.request>
             <id_good>$itemid</id_good>
-            <wm_id>103239093088</wm_id>
-            <email>thenav@mail.ru</email>
+            <wm_id>568398645946</wm_id>
+            <email>germanez2000@rambler.ru</email>
             <id_parnter>163508</id_parnter>
             <curr>WMR</curr>
             <lang>ru-RU</lang>
@@ -55,12 +56,12 @@ function get_invoice($itemid){
 }
 
 $itemid = '2174988';
-//get_invoice($itemid);
+get_invoice($itemid);
 
 
-// $request = new X2\Request;
+ $request = new X2\Request;
 
   echo "<pre>";
-  print_r(new Signer('103239093088', __DIR__.'/adds/103239093088.kwm', KWM_PASSWORD));
-//print_r(get_class_methods($request));
+  print_r(new Signer('103239093088', __DIR__.'/adds/kwms/103239093088.kwm', KWM88_PASSWORD));
+print_r(get_class_methods($request));
   echo "</pre>";
