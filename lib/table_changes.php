@@ -10,9 +10,13 @@
 }
 </style>
 <div class="ppp-block ppp-right">
+<?php $dataex = '';
+$exrate = arrayDB("SELECT value FROM aq_settings WHERE name='exrate'");
+if($exrate) $dataex = $exrate[0]['value'];
+?>
 	<form class="ppp-right exrate-form">
 		<input size="6" maxlength="6" type="text" id="rateinp">
-		<button id="rateset">set</button>
+		<button id="rateset" dataex="<?php echo $dataex;?>">set</button>
 	</form>
 <ul class="ppp-parses">
 <?php

@@ -86,3 +86,15 @@ if (isset($_POST['plati_id']) && isset($_POST['game_id']) && isset($_POST['actio
 	$exist = arrayDB("SELECT id FROM blacklist WHERE item_id=$plati_id AND category LIKE 'game_id=$game_id%' LIMIT 1");
 	if(!$exist) arrayDB("INSERT INTO blacklist VALUES (NULL, '$plati_id', '$category')");
 }
+
+
+if (isset($_POST['exrate']) && isset($_POST['action']) && $_POST['action'] === 'change_exrate') {
+	$exrate = arrayDB("SELECT value FROM aq_settings WHERE name='exrate'");
+	$newval = $_POST['exrate'];
+	if (isset($exrate[0]['value'])) {
+		arrayDB("UPDATE aq_settings SET value = '$newval' WHERE name = 'exrate'");
+	}else{
+		arrayDB("INSERT INTO aq_settings VALUES(null,'exrate','$newval','exrate')");
+	}
+	print_r($_ERRORS);
+}

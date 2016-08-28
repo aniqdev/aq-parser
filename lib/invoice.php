@@ -23,7 +23,7 @@ function get_invoice($itemid){
 // 103239093088
   $xml = "<digiseller.request>
             <id_good>$itemid</id_good>
-            <wm_id>568398645946</wm_id>
+            <wm_id>103239093088</wm_id>
             <email>germanez2000@rambler.ru</email>
             <id_parnter>163508</id_parnter>
             <curr>WMR</curr>

@@ -30,7 +30,10 @@
 
 $( document ).ready(function() {
 
-  // $('.row2').pickText(['steam','new','the']);
+ var dataex = $('#rateset').attr('dataex');
+ if (dataex) {
+  localStorage.setItem("exrate", dataex);
+ }
 
      $('.chedit').change(function() {
         if($(this).is(":checked")) {
@@ -368,6 +371,7 @@ $('#rateset').click(function(t) {
   $('#rateset').html('saved');
   setTimeout("$('#rateset').html('set');", 1000);
   setEuroColumn (exrate);
+  $.post('ajax.php?action=ajax-woo', { action:'change_exrate', exrate:exrate });
 });
 
 // ===== change woo price =====
