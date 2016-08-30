@@ -23,7 +23,7 @@ function get_invoice($itemid){
 // 103239093088
   $xml = "<digiseller.request>
             <id_good>$itemid</id_good>
-            <wm_id>103239093088</wm_id>
+            <wm_id>568398645946</wm_id>
             <email>germanez2000@rambler.ru</email>
             <id_parnter>163508</id_parnter>
             <curr>WMR</curr>
@@ -41,27 +41,41 @@ function get_invoice($itemid){
   );
                           
   $context  = stream_context_create($opts);
-  $responseXML = file_get_contents($endpoint, false, $context, -1, 40000);
+  $responseXML = file_get_contents($endpoint, false, $context);
 
 
-  var_dump($responseXML);
-  $responseObj = simplexml_load_string($responseXML);
+  $responseObj = simplexml_load_string( str_replace('&', '&amp;', $responseXML) );
 
 
 
-  echo "<pre>";
-  print_r($responseObj);
+  echo "<pre>\r\n";
+  var_dump( htmlentities( iconv('windows-1251', 'utf-8', $responseXML) ) );
+  // var_dump( $responseXML );
+  var_dump((string)$responseObj->retval);
+  echo "<hr>";
+  var_dump($responseObj);
   echo "</pre>";
 
 }
 
-$itemid = '2174988';
-get_invoice($itemid);
+$itemid = '1450257';
+//get_invoice($itemid);
 
 
- $request = new X2\Request;
+$platiObj = new PlatiRuBuy();
+// $inv_res = $platiObj->getInvoice($itemid);
 
-  echo "<pre>";
-  print_r(new Signer('103239093088', __DIR__.'/adds/kwms/103239093088.kwm', KWM88_PASSWORD));
-print_r(get_class_methods($request));
-  echo "</pre>";
+//   echo "<pre>";
+//   var_dump($inv_res['inv']['wm_inv']);
+//   echo "<br>";
+//   var_dump($inv_res['inv']['wm_purse']);
+//   echo "<br>";
+//   print_r($inv_res);
+//   echo "</pre>";
+
+// sleep(1);
+// if($inv_res['success'])
+//   $platiObj->payInvoice($inv_res['inv']['wm_inv'],$inv_res['inv']['wm_purse']);
+
+
+// $platiObj->payInvoice('639060131','R781352104789');

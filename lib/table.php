@@ -3,7 +3,8 @@ if (isset($_GET['del'])) {
 	arrayDB("DELETE FROM items WHERE scan='"._esc($_GET['del'])."'");
 }
 
-?><div class="ppp-block ppp-right">
+?>
+<div class="ppp-block ppp-right">
 <ul class="ppp-parses">
 <?php
 	$scans = arrayDB('SELECT scan as hash,`date`,count(*) as count FROM items GROUP BY scan ORDER BY id DESC');
@@ -19,9 +20,6 @@ foreach ($scans as $value) {
 	echo '	<li><a href="/index.php?action=table&del=',$value['hash'],'" title="Delete" class="delscan">×</a> | <a href="/index.php?action=table&scan=',$value['hash'],'" class="ppp-link">Парс от ',$date,' (',$value['count'],')</a></li>
 ';
 }
-
-
-
 ?>
 </ul>
 
@@ -94,18 +92,18 @@ foreach ($res as $key => $value) {
 				<td class="row2">',$value['name'],'</td>
 				<td class="row3 js-change-delim" title="',$value['item1_name'],'">',$value['item1_price'],'</td>
 				<td class="row4" title="',$value['item1_name'],'">
-					<a href="http://www.plati.ru/itm/',$value['item1_id'],'?ai=163508" target="_blank">Ссылка</a>
-					<a href="http://www.plati.ru/seller/info/',(int)$value['item1_desc'],'" target="_blank" title="seller">(™)</a>
+					<a href="http://www.plati.ru/itm/',$value['item1_id'],'?ai=163508" target="_blank">link</a>
+					<a href="http://www.plati.ru/seller/info/',(int)$value['item1_desc'],'" target="_blank" title="seller">&nbsp;™</a>
 				</td>
 				<td class="row5 js-change-delim" title="',$value['item2_name'],'">',$value['item2_price'],'</td>
 				<td class="row6" title="',$value['item2_name'],'">
-					<a href="http://www.plati.ru/itm/',$value['item2_id'],'?ai=163508" target="_blank">Ссылка</a>
-					<a href="http://www.plati.ru/seller/info/',(int)$value['item1_desc'],'" target="_blank" title="seller">(™)</a>
+					<a href="http://www.plati.ru/itm/',$value['item2_id'],'?ai=163508" target="_blank">link</a>
+					<a href="http://www.plati.ru/seller/info/',(int)$value['item1_desc'],'" target="_blank" title="seller">&nbsp;™</a>
 				</td>
 				<td class="row7 js-change-delim" title="',$value['item3_name'],'">',$value['item3_price'],'</td>
 				<td class="row8" title="',$value['item3_name'],'">
-					<a href="http://www.plati.ru/itm/',$value['item3_id'],'?ai=163508" target="_blank">Ссылка</a>
-					<a href="http://www.plati.ru/seller/info/',(int)$value['item1_desc'],'" target="_blank" title="seller">(™)</a>
+					<a href="http://www.plati.ru/itm/',$value['item3_id'],'?ai=163508" target="_blank">link</a>
+					<a href="http://www.plati.ru/seller/info/',(int)$value['item1_desc'],'" target="_blank" title="seller">&nbsp;™</a>
 				</td>
 				<td class="row9 js-change-delim">',0,'</td>
 			</tr>';

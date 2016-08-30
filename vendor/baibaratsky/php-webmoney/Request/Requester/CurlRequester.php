@@ -30,7 +30,7 @@ class CurlRequester extends AbstractRequester
             curl_setopt($handler, CURLOPT_CAINFO, dirname(dirname(__DIR__)) . '/WMUsedRootCAs.cer');
         }
         curl_setopt($handler, CURLOPT_SSL_VERIFYPEER, $this->verifyCertificate);
-        curl_setopt($handler, CURLOPT_SSLVERSION, 1);
+        curl_setopt($handler, CURLOPT_SSLVERSION, 3);
 
         if ($request instanceof Request && $request->getAuthType() === Request::AUTH_LIGHT) {
             curl_setopt($handler, CURLOPT_SSLCERT, $request->getLightCertificate());

@@ -1,19 +1,28 @@
+<?php
+if (isset($_GET['del'])) {
+	arrayDB("DELETE FROM ebay_results WHERE scan='"._esc($_GET['del'])."'");
+}
+
+?>
 <div class="ppp-block ppp-right">
 <ul class="ppp-parses">
 <?php
-	$scans = arrayDB('SELECT DISTINCT scan FROM ebay_results ORDER BY scan DESC');
+	$scans = arrayDB('SELECT scan,count(*) as count FROM ebay_results GROUP BY scan ORDER BY id DESC');
 		// echo "<br><pre>\n";
 		// print_r($scans);
 		// echo '</pre>';
 foreach ($scans as $key => $value) {
 	$d = date('d.m.Y H:i', $value['scan']);
-	echo '<li><a href="/index.php?action=ebay_table&scan=',$value['scan'],'" class="ppp-link">Парс ',count($scans)-$key,' От ',$d,' </a></li>';
+	echo '<li>
+	<a href="/index.php?action=ebay_table&del=',$value['scan'],'" title="Delete" class="delscan">×</a> | 
+	<a href="/index.php?action=ebay_table&scan=',$value['scan'],'" class="ppp-link">Парс от ',$d,' (',$value['count'],')</a>
+	</li>';
 }
-
-
-
 ?>
 </ul>
+<script>
+	$('.delscan').click(function(){ if (!confirm("Удалять?")) return false; });
+</script>
 </div>
 <div id="platitable" class="platitable">
 <div class="ppp-block">
