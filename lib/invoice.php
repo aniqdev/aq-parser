@@ -5,7 +5,7 @@ use baibaratsky\WebMoney\Signer;
 use baibaratsky\WebMoney\Request\Requester\CurlRequester;
 use baibaratsky\WebMoney\Api\X\X2;
 
-header('Content-Type: text/html; charset=utf-8');
+//header('Content-Type: text/html; charset=utf-8');
 ini_get('safe_mode') or set_time_limit(100); // Указываем скрипту, чтобы не обрывал связь.
 ?>
 
@@ -21,9 +21,10 @@ function get_invoice($itemid){
   $endpoint = 'https://shop.digiseller.ru/xml/create_invoice.asp';
 // 568398645946
 // 103239093088
+// 164322596678
   $xml = "<digiseller.request>
             <id_good>$itemid</id_good>
-            <wm_id>568398645946</wm_id>
+            <wm_id>164322596678</wm_id>
             <email>germanez2000@rambler.ru</email>
             <id_parnter>163508</id_parnter>
             <curr>WMR</curr>
@@ -58,24 +59,54 @@ function get_invoice($itemid){
 
 }
 
-$itemid = '1450257';
+$itemid = '1905477';
 //get_invoice($itemid);
 
+function do_payment($itemid){
 
-$platiObj = new PlatiRuBuy();
-// $inv_res = $platiObj->getInvoice($itemid);
+  $platiObj = new PlatiRuBuy();
+  $inv_res = $platiObj->getInvoice($itemid);
 
-//   echo "<pre>";
-//   var_dump($inv_res['inv']['wm_inv']);
-//   echo "<br>";
-//   var_dump($inv_res['inv']['wm_purse']);
-//   echo "<br>";
-//   print_r($inv_res);
-//   echo "</pre>";
+    echo "<pre>";
+    // var_dump($inv_res['inv']['wm_inv']);
+    // echo "<br>";
+    // var_dump($inv_res['inv']['wm_purse']);
+    // echo "<br>";
+    print_r($inv_res);
+    echo "</pre>";
 
-// sleep(1);
-// if($inv_res['success'])
-//   $platiObj->payInvoice($inv_res['inv']['wm_inv'],$inv_res['inv']['wm_purse']);
+  sleep(1);
+  if($inv_res['success']){
 
+    echo '<hr><iframe class="invoice-iframe" src="',$inv_res['inv']['link'],'">
+        Ваш браузер не поддерживает плавающие фреймы!
+     </iframe>';
+
+    $platiObj->payInvoice($inv_res['inv']['wm_inv'],$inv_res['inv']['wm_purse']);
+
+    // echo '<hr><iframe class="invoice-iframe" src="https://shop.digiseller.ru/xml/purchase.asp?id_i=',$inv_res['inv']['id'],'&uid=',$inv_res['inv']['uid'],'">
+    //     Ваш браузер не поддерживает плавающие фреймы!
+    //  </iframe>';
+
+
+
+     // echo '<pre>';
+     // echo file_get_contents('https://shop.digiseller.ru/xml/purchase.asp?id_i=',$inv_res['inv']['id'].'&uid='.$inv_res['inv']['uid']);
+     // echo '</pre>';
+  }
+}
+
+//var_dump(strlen($_GET['platiid']) > 3);
+
+if (isset($_GET['platiid']) && strlen($_GET['platiid']) > 3 && (int)$_GET['platiid'] !== 0) {
+  $platiid = $_GET['platiid'];
+  do_payment($platiid);
+}else{
+  echo '<h3>Что-то пошло не так! Обратитесь к администратору<h3>';
+}
+
+     // echo '<pre>';
+     // print_r($_SERVER);
+     // echo '</pre>';
 
 // $platiObj->payInvoice('639060131','R781352104789');
