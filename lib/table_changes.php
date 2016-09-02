@@ -175,7 +175,8 @@ foreach ($res as $key => $value) {
 	echo   '<tr
 			   data-gameid="',$value['game_id'],'"
 			   data-ebayid="',$value['ebay_id'],'"
-			   data-wooid="',$value['woo_id'],'">
+			   data-wooid="',$value['woo_id'],'"
+			   data-plati1id="',$value['item1_id'],'">
 				<td class="row1">',$n++,'</td>
 				<td class="row2 tch-merged">',$value['name'],'</td>
 				<td><a href="#ebayModal" class="tc-ebay ',$good_e,'"></a></td>
@@ -367,6 +368,10 @@ foreach ($res as $key => $value) {
         </div>
       </div>
       <div class="modal-footer">
+      	<a href="" target="_blank" class="btn btn-success pull-left" id="fBuyItem">Buy</a>
+      	<script>
+			$('#fBuyItem').click(function(){if(!confirm("Покупаем?"))return false;});
+		</script>
       	<form class="btn-group" id="fChange">
 	        <button type="button" class="btn btn-info" id="fBanaddon">to ADDon</button>
 	        <button type="button" class="btn btn-warning" id="fBlacklist">to Blacklist</button>

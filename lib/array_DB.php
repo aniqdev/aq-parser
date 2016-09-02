@@ -768,9 +768,10 @@ class PlatiRuBuy
 			$endpoint = 'https://shop.digiseller.ru/xml/create_invoice.asp';
 		// 568398645946
 		// 103239093088
+        // 164322596678
 			$xml = "<digiseller.request>
 								<id_good>$itemid</id_good>
-								<wm_id>568398645946</wm_id>
+								<wm_id>164322596678</wm_id>
 								<email>germanez2000@rambler.ru</email>
 								<id_parnter>163508</id_parnter>
 								<curr>WMR</curr>
@@ -839,10 +840,10 @@ class PlatiRuBuy
 		  $request->setSignerWmid('568398645946');
 		  // Unique ID of the transaction in your system
 		  $request->setTransactionExternalId(self::inv_counter());
-		  $request->setPayerPurse('R046889215238');
+		  $request->setPayerPurse('R337227083600');
 		  $request->setPayeePurse($payeePurse);
 		  $request->setAmount(0.01); // Payment amount
-		  $request->setDescription('Test payment');
+		  $request->setDescription('api payment ' . time());
 		  $request->setInvoiceId($invid);
 
 		  $request->sign($sign);

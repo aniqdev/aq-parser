@@ -819,3 +819,11 @@ zz{
     color: initial;
     text-decoration: none;
 }
+
+.invoice-iframe{
+    display: block;
+    width: 100%;
+    height: 700px;
+    border: none;
+    background: #fff;
+}

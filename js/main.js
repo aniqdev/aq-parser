@@ -600,6 +600,7 @@ var FF = {
   js_modal_plati_title : $('.frow4>.fcol2 .jsm-plati-title'),
   js_modal_plati_price : $('.frow4>.fcol4'),
   js_modal_ebay_prices : $('.frow1>.fcol3 tr'),
+  js_modal_buy_button : $('#fBuyItem'),
   consec : 1,
   consec_out : $('#consec'),
 };
@@ -621,6 +622,7 @@ $('.jsm-arr').click(function(e) {
   FF.rurprice = +FF.game_line['item'+FF.consec+'_price'];
   FF.js_modal_plati_title.text(FF.game_line['item'+FF.consec+'_name']).pickText(['free','row']);
   FF.js_modal_plati_title.attr('href', 'http://www.plati.ru/itm/'+FF.game_line['item'+FF.consec+'_id']+'?ai=163508');
+  FF.js_modal_buy_button.attr('href', '?action=invoice&platiid='+FF.game_line['item'+FF.consec+'_id']);
   FF.js_modal_ebay_input.val(FF['europrice'+FF.consec]);
   FF.js_modal_woo_input.val((FF['europrice'+FF.consec]*0.95).toFixed(2));
 
@@ -648,6 +650,7 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
   F.gameId = FF.gameId = F.tr.attr('data-gameid');
   F.ebayId = F.tr.attr('data-ebayid');
   F.wooId = F.tr.attr('data-wooid');
+  F.js_modal_buy_button.attr('href', '?action=invoice&platiid='+F.tr.attr('data-plati1id'));
   F.rurprice = +F.tr.find('.row5').text();
   var exrate = 0;
   if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
