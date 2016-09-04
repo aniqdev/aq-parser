@@ -5,31 +5,27 @@ $Cert_ID = "SBX-9a5ca62d27f5-2b6c-4b4c-bcc4-3575";
 
 $url  = "https://api.sandbox.ebay.com/ws/api.dll";
 
-$token = "AgAAAA**AQAAAA**aAAAAA**0IzFVw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4GjDJKKoAidj6x9nY+seQ**hOwDAA**AAMAAA**5fIgQRcKUKMfCA/qQ4HIkcDo/19W2bsbkvjk+fMZTeaawjfbG3lFUheBNjwuDJLoUB8BcFSdLb0JoU2YPkROU/+ovb0OcJJNFK+GR6DURUMOY0K76gI76fO2WlInWgOnwWM/1B4AJHwoAtUKKtLWBOlI+YEAXTkaSIiu7uDWr5sq4oh0/5ypPtN+lPJZJ8mppzHiuevQ62TsHqBQzUVWa2vr46zqQIrCBX3W0abJfiEvbtf/vkP+b61nocTmjwrs5Eq1TE8ADue30RLUgUoZJmTiOoPobd5q5fGQ8/pBVsywZ3QQzIw1FB5WmAjdxlYtY/gXXjJ1zbHMXathQ1j04N1CQ4HFjNWSgxnjI9eaT0hjThMLRNX/l6aOOjizrdV+yF7PSvm0eFm/tKt+8/jkPEWX7keWzabVoJMg6/mFB0HHnr5HyYxPr9UEAqfCq6yl75R1SwX5E7wz2StUXMuqk6xHV1ykc6YP5mPDG6c+eBUo7sJDqXgPNBr0v3A0dlsW5lORQq4M2P47/7a5GzoEeFs2sDY6m7+1arRyzb0q8JP4Muo61XofMPyoE8GOHBLiPYlAtgpS8SLUH5mpiMGFJQER7XYBF0Z59Ez+nU7r68iezBorlILVkdZGHQOu/Bhik8lwh8Wla+E4CC2WM04nD5XdprIWTaghHg5AXTRrEz7ahqVUxMvhk2qKPF5vpo1+TP5529dGidD9QavQ+nSTX+9c0mInimX6zyjWYH+0BkH7YCzq4z8oFWG0LJ0GCUCv";
-
-$url = 'https://api.ebay.com/ws/api.dll';//https://api.sandbox.ebay.com/ws/api.dll
-
-$token = 'AgAAAA**AQAAAA**aAAAAA**lW+DVw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFloqjAZOKoQydj6x9nY+seQ**A1sDAA**AAMAAA**bJZNblCzYfoH41ej+oYjKvaiSIEgGgjXtz5xYJH+Nn6AeKYxrNyVhcIKlc8PDqUdVZMBsG3COT8cmmTUmWECC4wEm1RFzyxmwBppednB5xFBjl7Tt2iHwVq9Joq5fXHe9QVC1KTyrZVnCRL2ViKpUPyRJOAxjfW4R/8ld72LE9F1teRHyeeTYy26Js/vXh4r1ZkNoHIrmCWGwZ/x84FQEr7d4XMwuhaKsQZWhYhXKahQT3SreaYcXsygdQdWwvC/XZ5kuFbh6/UPXPrrDc5LsozMw18CGMF/eNY4ozP1Sq/xhBoWBjrlUpMdKAf9e+t1q3/fBcYnjGRaL5vNUGFIVRWLohfuYf5vZSlPFmbaYI8+Vtl8O7f1Qp9fYYyxdRU4DNRdwc55vgq9lSsrJRqiRY1E3BFbjljoj5tJ06BQ4zRoVHbnzvYiJ8+AcMAT4sLHVwf+9/QljLk6jqev/vwjkaJzQZ9cN/WwADeEv3j6EC9kAkAoBx7JPbB0REWdAtoHdqFKByQk35mbbkcWAI/VQfsqBO0lqo77CR1vkZideodUZvzXT7icbtrnTdZW2rvqJNvwSsnYIOgoIifbA2PiMuHtWvG91Cctsz+IE7wRQ4pFycAAWf4lsdQ1jkgiHW5tEz7XW7afDPxpPL1MyVZTtbzLBacmHsVch61gWDcBhadjbizx2xTJUzHW7UyIqp4Q7b/4v0P4bNyje2uD79alLH6YTlkbOT88DaGR/TPR/CQS/eouhfoqVMWWLN4BVjA8';
+$token = "AgAAAA**AQAAAA**aAAAAA**TCvJVw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4GjDJOGpAidj6x9nY+seQ**gOwDAA**AAMAAA**WGb9rPwe19/eeZjnVCwfTSyr39/UMNsPRt+fc5vIikBYz5TFE4HECldROutjvkAdAvzyXOQlh3plgg/32fUP7ZLydzmUkIi+wcPp8GUFxeDpO25i+xMhGy823qzxg9djBrk1Erdx9eqelPRtQLMmnssHzfDk2NkMWRGe8/CzQYeUm598MrfhB4ik7LyK1a8t9NXSnPW9+35FRulwxz8InDJyxYP9qG+gZCLicXEBtPCfl/bS5zKogdO4O5ymDPhWFm28qnkfx3VnhB8Mj5CmkOwVDpPqKrFwdabRJ4vP74wVc66GHdR2heLt0Sw5WfoabjOshUG9x/jeE0R1Vn4agtY9fyMp3T+s6GQ8hMTpFQTjHi1GT9x1lc5XusMPz1oyIic76xbDZ621g8QNMuxB3vCfcjSbo2ma5W2BMYap8f2a9CkByYvuZzaBKDZb4tuE3E/WyHbfCPbShMTwN7Qtj7CGAvbVYGK/j9A/LqydLgWuKMocnTLR4eNBdMpuGfLlbrS8xFqdrrAC7GcHUplrpEwcVgO5RhUVcXkmaHBSd8MN9+AJtvwgR2O0vcFeOi/yL2x4hPFHDQzfMppiOTXHAbDmXTwhCazTMTMKnb7OooM0xCdEDnzXZhOi2GDjFx0oNUnaqQzqbgDe536KjkbFAb5U7stlWD3JQkig+kA1DIGJlpnWN16Kay3fi8OnN4Nfba1F3VatyBkhEterKSkl4wibdD5wWovQscs7NafIYgJnz6qctjLg+36HKeNCi2Ie";
 
 $request = '<?xml version="1.0" encoding="utf-8"?>
 <GetOrdersRequest xmlns="urn:ebay:apis:eBLBaseComponents">
   <RequesterCredentials>
     <eBayAuthToken>'.$token.'</eBayAuthToken>
   </RequesterCredentials>
-  <OrderIDArray>
-    <OrderID>121526107522-1677951284002</OrderID>
-    <OrderID>111978074461-1558681181001</OrderID>
-  </OrderIDArray>
+  <CreateTimeFrom>2016-08-01T20:34:44.000Z</CreateTimeFrom>
+  <CreateTimeTo>2016-09-10T20:34:44.000Z</CreateTimeTo>
   <OrderRole>Seller</OrderRole>
-  <OrderStatus>Completed</OrderStatus>
   <DetailLevel>ReturnAll</DetailLevel>
   <Pagination> 
     <EntriesPerPage>55</EntriesPerPage> 
   </Pagination> 
 </GetOrdersRequest>';
 
+  //<OrderStatus>Active</OrderStatus>
+
   // <OrderIDArray>
-  //   <OrderID>122005720344-1667076997002</OrderID>
+  //   <OrderID>121526107522-1677951284002</OrderID>
+  //   <OrderID>111978074461-1558681181001</OrderID>
   // </OrderIDArray>
 
   // <CreateTimeFrom>2016-08-01T20:34:44.000Z</CreateTimeFrom>

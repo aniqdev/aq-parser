@@ -7,5 +7,10 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'baibaratsky\\WebMoney\\' => array($vendorDir . '/baibaratsky/php-wmsigner', $vendorDir . '/baibaratsky/php-webmoney'),
+    'Zyberspace\\SteamWebApi\\' => array($vendorDir . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi'),
+    'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-message/src'),
+    'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
+    'GuzzleHttp\\Promise\\' => array($vendorDir . '/guzzlehttp/promises/src'),
+    'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
     'Automattic\\WooCommerce\\' => array($vendorDir . '/automattic/woocommerce/src/WooCommerce'),
 );

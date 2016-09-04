@@ -6,6 +6,7 @@ if (isset($_POST['submitted'])) {
 	if (($log === 'goldenpars' && $pas === 'v$sK6HfqDd') || $ip === '37.46.229.203'){
 		session_start();
 		$_SESSION['logged'] = true;
+		$_SESSION['csrf-buy-token'] = md5(time());
 		header("Location: index.php?".$_SERVER['QUERY_STRING']);
 	}
 }

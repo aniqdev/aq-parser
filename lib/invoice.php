@@ -98,12 +98,27 @@ function do_payment($itemid){
 
 //var_dump(strlen($_GET['platiid']) > 3);
 
-if (isset($_GET['platiid']) && strlen($_GET['platiid']) > 3 && (int)$_GET['platiid'] !== 0) {
-  $platiid = $_GET['platiid'];
-  do_payment($platiid);
-}else{
-  echo '<h3>Что-то пошло не так! Обратитесь к администратору<h3>';
+
+function do_invoice(){
+
+  if (!isset($_GET['platiid']) ||
+   strlen($_GET['platiid']) < 3 ||
+    (int)$_GET['platiid'] === 0)
+      return 'Что-то не так с id товара';
+
+  if(!isset($_POST['csrf-buy-time']) ||
+   isset($_SESSION[md5($_POST['csrf-buy-time'])]) ||
+    $_SESSION['csrf-buy-token'] !== $_POST['csrf-buy-token'])
+      return '<h3>Данная покупка уже оплачена! Посмотрите историю покупок<h3>
+              <h4>Если нет, нажмите повторно кнопку "Buy"';
+
+    $platiid = $_GET['platiid'];
+    do_payment($platiid);
+    $_SESSION[md5($_POST['csrf-buy-time'])] = 'done';
+
 }
+
+echo do_invoice();
 
      // echo '<pre>';
      // print_r($_SERVER);

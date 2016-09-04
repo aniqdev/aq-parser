@@ -6,10 +6,30 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit920844333485d70c18c57609e87d17fe
 {
+    public static $files = array (
+        'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
+        'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
+        '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
         'b' => 
         array (
             'baibaratsky\\WebMoney\\' => 21,
+        ),
+        'Z' => 
+        array (
+            'Zyberspace\\SteamWebApi\\' => 23,
+        ),
+        'P' => 
+        array (
+            'Psr\\Http\\Message\\' => 17,
+        ),
+        'G' => 
+        array (
+            'GuzzleHttp\\Psr7\\' => 16,
+            'GuzzleHttp\\Promise\\' => 19,
+            'GuzzleHttp\\' => 11,
         ),
         'A' => 
         array (
@@ -22,6 +42,26 @@ class ComposerStaticInit920844333485d70c18c57609e87d17fe
         array (
             0 => __DIR__ . '/..' . '/baibaratsky/php-wmsigner',
             1 => __DIR__ . '/..' . '/baibaratsky/php-webmoney',
+        ),
+        'Zyberspace\\SteamWebApi\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi',
+        ),
+        'Psr\\Http\\Message\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-message/src',
+        ),
+        'GuzzleHttp\\Psr7\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
+        ),
+        'GuzzleHttp\\Promise\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/promises/src',
+        ),
+        'GuzzleHttp\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
         ),
         'Automattic\\WooCommerce\\' => 
         array (
@@ -39,12 +79,79 @@ class ComposerStaticInit920844333485d70c18c57609e87d17fe
         ),
     );
 
+    public static $classMap = array (
+        'Zyberspace\\SteamWebApi\\Interfaces\\IAccountRecoveryService' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IAccountRecoveryService.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ICSGOServers_730' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ICSGOServers_730.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ICSGOTournaments_730' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ICSGOTournaments_730.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ICheatReportingService' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ICheatReportingService.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IDOTA2AutomatedTourney_205790' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IDOTA2AutomatedTourney_205790.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IDOTA2AutomatedTourney_570' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IDOTA2AutomatedTourney_570.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IDOTA2Fantasy_205790' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IDOTA2Fantasy_205790.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IDOTA2Fantasy_570' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IDOTA2Fantasy_570.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IDOTA2MatchStats_205790' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IDOTA2MatchStats_205790.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IDOTA2MatchStats_570' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IDOTA2MatchStats_570.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IDOTA2Match_205790' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IDOTA2Match_205790.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IDOTA2Match_570' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IDOTA2Match_570.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IDOTA2StreamSystem_205790' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IDOTA2StreamSystem_205790.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IDOTA2StreamSystem_570' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IDOTA2StreamSystem_570.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IDOTA2Teams_205790' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IDOTA2Teams_205790.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IDOTA2Teams_570' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IDOTA2Teams_570.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IDOTA2Ticket_205790' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IDOTA2Ticket_205790.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IDOTA2Ticket_570' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IDOTA2Ticket_570.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IEconDOTA2_205790' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IEconDOTA2_205790.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IEconDOTA2_570' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IEconDOTA2_570.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IEconItems_205790' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IEconItems_205790.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IEconItems_218620' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IEconItems_218620.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IEconItems_221540' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IEconItems_221540.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IEconItems_238460' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IEconItems_238460.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IEconItems_440' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IEconItems_440.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IEconItems_570' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IEconItems_570.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IEconItems_620' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IEconItems_620.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IEconItems_730' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IEconItems_730.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IEconItems_841' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IEconItems_841.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IEconService' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IEconService.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IGCVersion_205790' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IGCVersion_205790.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IGCVersion_440' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IGCVersion_440.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IGCVersion_570' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IGCVersion_570.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IGCVersion_730' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IGCVersion_730.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IGameServersService' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IGameServersService.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IInventoryService' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IInventoryService.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IPlayerService' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IPlayerService.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IPortal2Leaderboards_620' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IPortal2Leaderboards_620.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IPortal2Leaderboards_841' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IPortal2Leaderboards_841.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\IPublishedFileService' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IPublishedFileService.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamApps' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamApps.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamBitPay' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamBitPay.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamCDN' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamCDN.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamDirectory' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamDirectory.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamEconomy' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamEconomy.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamEnvoy' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamEnvoy.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamNews' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamNews.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamPayPalPaymentsHub' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamPayPalPaymentsHub.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamRemoteStorage' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamRemoteStorage.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamUser' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamUser.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamUserAuth' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamUserAuth.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamUserOAuth' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamUserOAuth.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamUserStats' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamUserStats.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamWebAPIUtil' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamWebAPIUtil.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ISteamWebUserPresenceOAuth' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ISteamWebUserPresenceOAuth.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ITFItems_440' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ITFItems_440.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ITFPromos_205790' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ITFPromos_205790.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ITFPromos_440' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ITFPromos_440.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ITFPromos_570' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ITFPromos_570.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ITFPromos_620' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ITFPromos_620.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ITFPromos_730' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ITFPromos_730.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ITFPromos_841' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ITFPromos_841.php',
+        'Zyberspace\\SteamWebApi\\Interfaces\\ITFSystem_440' => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ITFSystem_440.php',
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit920844333485d70c18c57609e87d17fe::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit920844333485d70c18c57609e87d17fe::$prefixDirsPsr4;
             $loader->prefixesPsr0 = ComposerStaticInit920844333485d70c18c57609e87d17fe::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit920844333485d70c18c57609e87d17fe::$classMap;
 
         }, null, ClassLoader::class);
     }

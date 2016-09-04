@@ -368,9 +368,13 @@ foreach ($res as $key => $value) {
         </div>
       </div>
       <div class="modal-footer">
-      	<a href="" target="_blank" class="btn btn-success pull-left" id="fBuyItem">Buy</a>
+      	<form action="" id="fBuyItem" target="_blank" class="pull-left" method="POST">
+      		<input type="hidden" name="csrf-buy-time" value="" id="csrf-buy-time">
+      		<input type="hidden" name="csrf-buy-token" value="<?php echo($_SESSION['csrf-buy-token']);?>">
+      		<button type="submit" class="btn btn-success">Buy</button>
+      	</form>
       	<script>
-			$('#fBuyItem').click(function(){if(!confirm("Покупаем?"))return false;});
+			$('#fBuyItem').submit(function(){if(!confirm("Покупаем?"))return false;});
 		</script>
       	<form class="btn-group" id="fChange">
 	        <button type="button" class="btn btn-info" id="fBanaddon">to ADDon</button>
