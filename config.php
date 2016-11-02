@@ -22,6 +22,7 @@ define( 'db_PASS', '' ); // set database password
 define( 'db_NAME', 'gig_parser' ); // set database name
 define( 'SEND_ERRORS_TO', '' ); //set email notification email address
 define( 'DISPLAY_DEBUG', true ); //display db errors?
+<<<<<<< HEAD
 
 define('KWM88_PASSWORD', 'kajmadkwm');
 define('KWM46_PASSWORD', '21546598');
@@ -31,3 +32,5 @@ define('EBAY_GIG_TOKEN', 'AgAAAA**AQAAAA**aAAAAA**lW+DVw**nY+sHZ2PrBmdj6wVnY+sEZ
 define('A3_GIG_MAIL_PWD', '!leto2016');
 
 define('AQS_BOT_TOKEN', '198456336:AAHzGlLSkduqZ7Q5kZidOkE1SC1gWVMsF_s');
+=======
+>>>>>>> b8ff4063729422972db4919c017c212a0c6e60db
