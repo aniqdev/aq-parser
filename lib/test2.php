@@ -1,55 +1,58 @@
 <pre>
 <?php
+ini_get('safe_mode') or set_time_limit(180); // Указываем скрипту, чтобы не обрывал связь.
 
-	die;
+// $res = Ebay_shopping2::findItemsAdvanced(0,'igx4u_com',1,200);
 
-	$db = new DB;
+// $res = json_decode($res, true);
 
-	$count = arrayDB("SELECT count(*) as count FROM steam");
-	$count = $count[0]['count'];
+// foreach ($res['findItemsAdvancedResponse'][0] as $key => $value) {
+// 	var_dump($key);
+// }
 
-	var_dump($count);
-
-	//$results = $db->get_results("SELECT * FROM steam LIMIT 1")[0];
-	$fields = $db->list_fields("SELECT * FROM steam LIMIT 1");
-	// $db->display($fields);
-
-	$headers = [];
-	foreach ($fields as $key => $field) {
-		$headers[] = $field->name;
-	}
-	$db->display($headers);
-
-	$i = 0;
-	$fp = fopen(__DIR__.'/../Files/steam_gnom.csv', 'w');
-	if(!$fp) die('Не удалось получить доступ к файлу');
-
-	if (true) {
-
-		$header_line = "id;Название игры;Ссылка;Жанр;Цена;Год;Релиз;Язык;Описание;ОС;Системные требования;Рейтинг;Обзоры;\r\n";
-		//$header_line = iconv('UTF-8', 'Windows-1251', $header_line);
-		$header_line = str_replace(';', ',', $header_line);
-		fwrite($fp, $header_line);
-	}else{
-		fputcsv($fp, $headers, ',');
-	}
+// print_r($res);
 
 
-	while ($i < $count) {
+$ebayObj = new Ebay_shopping2();
 
-		$offers100 = arrayDB("SELECT * FROM steam LIMIT 100 OFFSET ".$i);
-		$i = $i+100;
+$res3 = $ebayObj->GetSellerItemsArray();
 
-		foreach ($offers100 as $key => $item) {
-			// foreach ($item as &$cell) {
-			// 	$cell = @iconv('UTF-8', 'Windows-1251//IGNORE', $cell);
-			// 	if($cell === false) continue 2;
-			// }
-			fputcsv($fp, $item, ',');
-		}
+// $sql = 'TRUNCATE ebay_games;';
+// foreach ($res3 as $id => $title) {
+// 	$sql .= "INSERT INTO ebay_games (item_id,title) VALUES ('$id','"._esc($title)."');";
+// }
+// arrayDB($sql, true);
 
-	}
-	fclose($fp);
+var_dump(count($res3));
+print_r($res3);
 
+// $res2 = $ebayObj->GetSellerListRequest(1, 200);
+
+// $ids_arr = [];
+// foreach ($res2['ItemArray']['Item'] as $key => $item) {
+// 	$ids_arr[$item['ItemID']] = $item['Title'];
+// }
+
+// unset($res2['ItemArray']);
+// print_r($res2);
+
+// $pages = $res2['PaginationResult']['TotalNumberOfPages'];
+// $entires = $res2['PaginationResult']['TotalNumberOfEntries'];
+// echo 'Pages: ',$pages,'<br>';
+// for ($i=2; $i <= $pages; $i++) { 
+// 	$res2 = $ebayObj->GetSellerListRequest($i, 200);
+// 	foreach ($res2['ItemArray']['Item'] as $key => $item) {
+// 		$ids_arr[$item['ItemID']] = $item['Title'];
+// 	}
+// }
+
+// echo 'Results hav: ',count($ids_arr),'<br>';
+// echo 'Results must: ',$entires,'<br>';
+// print_r($ids_arr);
+
+var_dump(date('Y-m-d\TH:i:s.B\Z', time()-2592000*3));
+var_dump(date('Y-m-d\TH:i:s.B\Z'));
+var_dump(date('Y-m-d\TH:i:s.B\Z', time()+2592000));
+var_dump(time());
 ?>
 </pre>

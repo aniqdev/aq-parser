@@ -6,6 +6,12 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'EasyPeasyICS' => $vendorDir . '/phpmailer/phpmailer/extras/EasyPeasyICS.php',
+    'PHPMailer' => $vendorDir . '/phpmailer/phpmailer/class.phpmailer.php',
+    'PHPMailerOAuth' => $vendorDir . '/phpmailer/phpmailer/class.phpmaileroauth.php',
+    'PHPMailerOAuthGoogle' => $vendorDir . '/phpmailer/phpmailer/class.phpmaileroauthgoogle.php',
+    'POP3' => $vendorDir . '/phpmailer/phpmailer/class.pop3.php',
+    'SMTP' => $vendorDir . '/phpmailer/phpmailer/class.smtp.php',
     'Zyberspace\\SteamWebApi\\Interfaces\\IAccountRecoveryService' => $vendorDir . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/IAccountRecoveryService.php',
     'Zyberspace\\SteamWebApi\\Interfaces\\ICSGOServers_730' => $vendorDir . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ICSGOServers_730.php',
     'Zyberspace\\SteamWebApi\\Interfaces\\ICSGOTournaments_730' => $vendorDir . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ICSGOTournaments_730.php',
@@ -69,4 +75,6 @@ return array(
     'Zyberspace\\SteamWebApi\\Interfaces\\ITFPromos_730' => $vendorDir . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ITFPromos_730.php',
     'Zyberspace\\SteamWebApi\\Interfaces\\ITFPromos_841' => $vendorDir . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ITFPromos_841.php',
     'Zyberspace\\SteamWebApi\\Interfaces\\ITFSystem_440' => $vendorDir . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi/Interfaces/ITFSystem_440.php',
+    'ntlm_sasl_client_class' => $vendorDir . '/phpmailer/phpmailer/extras/ntlm_sasl_client.php',
+    'phpmailerException' => $vendorDir . '/phpmailer/phpmailer/class.phpmailer.php',
 );

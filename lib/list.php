@@ -13,9 +13,8 @@
 		<input type="password" name="pswd" class="delall" maxlength="6" size="6">
 		<input type="submit" name="delAll" class="delall" value="Очистить список!">
 	</form>
+	<button id="update-ebay-games">update ebay games</button>
 </div>
-<div class="ppp-block">
-<ol class="ppp-ol" id="have-data-table" data-table="games">
 <?php
 
 
@@ -24,11 +23,10 @@ if (isset($_GET['delStr'])) {
 	arrayDB("DELETE FROM games WHERE id='$delId'");
 }
 if (isset($_POST['delAll']) && $_POST['pswd'] === 'koeln') {
-	$multiQuery = "DELETE FROM games";
-	arrayDB($multiQuery);
-	sleep(3);
-	$multiQuery = "DELETE FROM scans";
-	arrayDB($multiQuery);
+	
+	arrayDB("DELETE FROM games");
+	sleep(1);
+	arrayDB("DELETE FROM scans");
 	sleep(1);
 }
 //==============================================  files start
@@ -85,24 +83,34 @@ if ($_FILES) {
 	}
 
 	$res = arrayDB('SELECT * FROM games');
-
-	// echo "<pre>";
-	// print_r($res);
-	// echo "</pre>";
-
-	foreach ($res as $key => $value) {
-		echo '<li>
-				<a href="index.php?action=list&delStr=',$value['id'],'" class="delbutton">×</a>
-				<input type="checkbox" class="chedit" id="chedit',$value['id'],'">
-				<label for="chedit',$value['id'],'" class="checkEdit"></label>
-				<span class="listitem" data-id="',$value['id'],'">',$value['name'],'</span>
-			  </li>';
-	}
-
-
-
-
-
 ?>
-</ol>
+<div class="ppp-block" style="max-width:100%">
+<table id="have-data-table" data-table="games" class="ppp-table-collapse">
+<?php
+	foreach ($res as $key => $game) {
+		$need_title = 'id ok'; $need_id = '';
+		if (!$game['ebay_id']) {
+			$match = arrayDB("SELECT item_id,title FROM ebay_games 
+				WHERE MATCH (title_clean) AGAINST ('"._esc($game['name'])."') LIMIT 1");
+			if($match){
+				$need_title = $match[0]['title'];
+				$need_id = $match[0]['item_id'];
+			}else $need_title = 'no results';
+		}
+		echo '<tr>
+				<td>
+					<a href="index.php?action=list&delStr=',$game['id'],'" class="delbutton">×</a>
+					<input type="checkbox" class="chedit" id="chedit',$game['id'],'">
+					<label for="chedit',$game['id'],'" class="checkEdit"></label>
+					<span class="listitem" data-id="',$game['id'],'">',$game['name'],'</span>
+				</td>
+				<td>',$game['woo_id'],'</td>
+				<td>
+					<input class="list-id-input" value="',$game['ebay_id'],'">&nbsp;<button class="list-id-save">save</button>
+				</td>
+				<td><button ebayid="',$need_id,'" class="fill-input"><<</button> <span class="propos">',$need_title,'</span></td>
+			</tr>';
+	}
+?>
+</table>
 </div>

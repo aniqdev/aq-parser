@@ -1,9 +1,9 @@
 <?php
-header('Content-Type: text/html; charset=utf-8');
 ini_get('safe_mode') or set_time_limit(1800); // Указываем скрипту, чтобы не обрывал связь.
+header('Content-Type: text/html; charset=utf-8');
 ?>
-
-<?php
+<meta charset="utf-8">
+<pre><?php
 define('DOCROOT', 'E:\xamp\htdocs\parser\www\test.php');
 define('ROOT', __DIR__);
 require_once 'lib/PHPExcel.php';
@@ -68,10 +68,11 @@ function getItemDescription($itemId){
 
     // Открываем файл с помощью установленных выше HTTP-заголовков
     $json = file_get_contents($url);
+    //var_dump($json);
     return json_decode($json, true)['Item']['Description'];
 }
 
-function doChanges($itemid){
+function doChanges($itemid,$desc){
 
 $headers = array
     (
@@ -86,21 +87,10 @@ $headers = array
 
 $endpoint = 'https://api.ebay.com/ws/api.dll';//https://api.sandbox.ebay.com/ws/api.dll
 
-$auth_token = 'AgAAAA**AQAAAA**aAAAAA**lW+DVw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFloqjAZOKoQydj6x9nY+seQ**A1sDAA**AAMAAA**bJZNblCzYfoH41ej+oYjKvaiSIEgGgjXtz5xYJH+Nn6AeKYxrNyVhcIKlc8PDqUdVZMBsG3COT8cmmTUmWECC4wEm1RFzyxmwBppednB5xFBjl7Tt2iHwVq9Joq5fXHe9QVC1KTyrZVnCRL2ViKpUPyRJOAxjfW4R/8ld72LE9F1teRHyeeTYy26Js/vXh4r1ZkNoHIrmCWGwZ/x84FQEr7d4XMwuhaKsQZWhYhXKahQT3SreaYcXsygdQdWwvC/XZ5kuFbh6/UPXPrrDc5LsozMw18CGMF/eNY4ozP1Sq/xhBoWBjrlUpMdKAf9e+t1q3/fBcYnjGRaL5vNUGFIVRWLohfuYf5vZSlPFmbaYI8+Vtl8O7f1Qp9fYYyxdRU4DNRdwc55vgq9lSsrJRqiRY1E3BFbjljoj5tJ06BQ4zRoVHbnzvYiJ8+AcMAT4sLHVwf+9/QljLk6jqev/vwjkaJzQZ9cN/WwADeEv3j6EC9kAkAoBx7JPbB0REWdAtoHdqFKByQk35mbbkcWAI/VQfsqBO0lqo77CR1vkZideodUZvzXT7icbtrnTdZW2rvqJNvwSsnYIOgoIifbA2PiMuHtWvG91Cctsz+IE7wRQ4pFycAAWf4lsdQ1jkgiHW5tEz7XW7afDPxpPL1MyVZTtbzLBacmHsVch61gWDcBhadjbizx2xTJUzHW7UyIqp4Q7b/4v0P4bNyje2uD79alLH6YTlkbOT88DaGR/TPR/CQS/eouhfoqVMWWLN4BVjA8';
-
-$desc = getItemDescription($itemid);
-
-file_put_contents('desc-backup/'.$itemid.'_'.time().'.html', $desc);
-
-
-
-
-//echo $desc;
-
 $xml = '<?xml version="1.0" encoding="utf-8"?>
 <ReviseItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
   <RequesterCredentials>
-    <eBayAuthToken>'.$auth_token.'</eBayAuthToken>
+    <eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
   </RequesterCredentials>
   <Item ComplexType="ItemType">
     <ItemID>'.$itemid.'</ItemID>
@@ -117,7 +107,7 @@ $xml = '<?xml version="1.0" encoding="utf-8"?>
 $xml = '<?xml version="1.0" encoding="utf-8"?>
 <ReviseItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
   <RequesterCredentials>
-    <eBayAuthToken>'.$auth_token.'</eBayAuthToken>
+    <eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
   </RequesterCredentials>
   <Item ComplexType="ItemType">
     <ItemID>'.$itemid.'</ItemID>
@@ -141,27 +131,156 @@ curl_close($ch);
 //var_dump($responseXML);
 
 $responseObj = simplexml_load_string($responseXML);
-echo "<pre>";
+
 echo "<hr>";
 var_dump((string)$responseObj->Ack);
 //print_r($responseObj);
-echo "</pre>";
+
 
 }
+
+
 
 // $itemid = '121658238763';
 // doChanges($itemid);
 
-$itemArr = readExcel('csv/itemlist.20.08.xlsx');
+$itemArr = readExcel('csv/FileExchange_Response_11.10.16.xlsx');
+
+// $l = count($itemArr);
+// var_dump($l);
+// for ($i=2; $i <= 2; $i++) { 
+//   var_dump($i);
+//   doChanges($itemArr[$i]['A']);
+//   echo '<a href="http://www.ebay.de/itm/',$itemArr[$i]['A'],'" target="_blank">',$itemArr[$i]['B'],'</a><br>';
+// }
+
+
 
 $l = count($itemArr);
 var_dump($l);
-for ($i=980; $i < $l+1; $i++) { 
+for ($i=6709; $i <= 751; $i++) { 
   var_dump($i);
-  //doChanges($itemArr[$i]['A']);
-  echo '<a href="http://www.ebay.de/itm/',$itemArr[$i]['A'],'" target="_blank">',$itemArr[$i]['B'],'</a><br>';
-}
+  //doChanges2($itemArr[$i]['A']);
+  $itemid = $itemArr[$i]['A'];
+  //if($i=='2') $itemid = '121503896106';
+  $desc = getItemDescription($itemid);
 
-// echo "<pre>";
-// print_r();
-// echo "</pre>";
+  file_put_contents('desc-backup/'.$itemid.'_'.time().'.html', $desc);
+  //var_dump($desc);
+  $dom = str_get_html($desc);
+
+  $title = $dom->find('.gig-tittle',0)->plaintext;
+  $title = trim($title);
+
+  $img3d = '';
+  if($img3d = $dom->find('img[src$="3d.png"]',0))$img3d=$img3d->getAttribute('src');
+  if($img1  = $dom->find('img[src$="/1.jpg"]',0)) $img1=$img1->getAttribute('src');
+  if($img2  = $dom->find('img[src$="/2.jpg"]',0)) $img2=$img2->getAttribute('src');
+  if($img3  = $dom->find('img[src$="/3.jpg"]',0)) $img3=$img3->getAttribute('src');
+
+  if (!$img3d) {
+    if($img3d = $dom->find('img[src*="funkyimg.com"]',0)) $img3d=$img3d->getAttribute('src');
+    if($img1  = $dom->find('img[src*="funkyimg.com"]',1)) $img1=$img1->getAttribute('src');
+    if($img2  = $dom->find('img[src*="funkyimg.com"]',2)) $img2=$img2->getAttribute('src');
+    if($img3  = $dom->find('img[src*="funkyimg.com"]',3)) $img3=$img3->getAttribute('src');
+  }
+
+  $about = $dom->find('.triple',1);
+  if($about){
+    $about = $about->innertext;
+    $about = trim($about);
+  }else{
+    AqsBot::sendMessage(['text'=>print_r([$itemid,$about],true),]);
+  }
+
+  $new_desc = file_get_contents('lib/adds/responsive.html');
+
+  $new_desc = str_replace('{{TITLE}}', $title, $new_desc);
+  $new_desc = str_replace('{{IMG3D}}', $img3d, $new_desc);
+  $new_desc = str_replace('{{IMG1}}', $img1, $new_desc);
+  $new_desc = str_replace('{{IMG2}}', $img2, $new_desc);
+  $new_desc = str_replace('{{IMG3}}', $img3, $new_desc);
+  $new_desc = str_replace('{{ABOUT}}', $about, $new_desc);
+  //var_dump($new_desc);
+
+  var_dump($title);
+  var_dump($img3d);
+  var_dump($img1);
+  var_dump($img2);
+  var_dump($img3);
+  //var_dump($about);
+  echo '<a href="http://www.ebay.de/itm/',$itemArr[$i]['A'],'" target="_blank">',$itemArr[$i]['N'],'</a><hr>';
+  doChanges($itemid,$new_desc);
+}
+//showArray($itemArr);
+
+
+//doChanges('112090853589',file_get_contents('desc-backup/112090853589_1476200986.html'));
+$dirdesc = scandir('desc-backup');
+$ddcount = count($dirdesc);
+var_dump($ddcount);
+//print_r($dirdesc);
+
+$dir_keys = [];
+for ($i=2; $i < $ddcount; $i++) {
+  $id = explode('_', $dirdesc[$i])[0];
+  $dir_keys[$id] = $dirdesc[$i];
+}
+var_dump(count($dir_keys));
+//print_r($dir_keys);
+
+$count = count($itemArr);
+var_dump($count);
+$search = '<div class="midinfo">
+<p>Sprache: <b>FR, EN</b></p>
+<p>Region: <b>free</b></p>
+<p>Plattform: <b>Steam</b></p>
+<a href="" class="gig-button">Buy with Discount</a>
+</div>';
+for ($i=7909; $i <= 751; $i++) { 
+
+  $itemid = (string)$itemArr[$i]['A'];
+  //if($i=='2') $itemid = '121503896106';
+  $curr_desc = getItemDescription($itemid);
+  $old_desc = file_get_contents('desc-backup/'.$dir_keys[$itemid]);
+
+  file_put_contents('desc-backup2/'.$itemid.'_'.time().'.html', $curr_desc);
+
+  if (strpos($curr_desc, 'gig-about') !== false) {
+    //var_dump($dir_keys[$itemid]);
+
+    $dom_old = str_get_html($old_desc);
+    $replace = $dom_old->find('.midinfo',0)->innertext;
+    $dom_curr = str_get_html($curr_desc);
+    $dom_curr->find('.midinfo',0)->innertext = $replace;
+    $new_desc = $dom_curr->save();
+
+    doChanges($itemid,$new_desc);
+    var_dump('done!');
+  }else{
+    var_dump('skipped!');
+  }
+    echo '<a href="http://www.ebay.de/itm/',$itemArr[$i]['A'],'" target="_blank">',$itemArr[$i]['N'],'</a><hr>';
+}
+// =======================================================
+
+// $old_desc = file_get_contents('desc-backup/'.$dir_keys['112026272410']);
+// $curr_desc = file_get_contents('lib/adds/responsive.html');
+//echo $curr_desc;
+// $curr_desc = getItemDescription('112026272410');
+// echo $curr_desc;
+// $dom_old = str_get_html($old_desc);
+// $replace = $dom_old->find('.midinfo',0)->innertext;
+// $dom_curr = str_get_html($curr_desc);
+// $dom_curr->find('.midinfo',0)->innertext = $replace;
+// $new_desc = $dom_curr->save();
+//var_dump($replace);
+// $search = '<div class="midinfo">
+// <p>Sprache: <b>FR, EN</b></p>
+// <p>Region: <b>free</b></p>
+// <p>Plattform: <b>Steam</b></p>
+// <a href="" class="gig-button">Buy with Discount</a>
+// </div>';
+//echo str_ireplace($search, $replace, $curr_desc);
+//echo $new_desc;
+?></pre>

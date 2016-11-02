@@ -1,6 +1,10 @@
 <?php
-include_once __DIR__.'/../config.php';
-require_once __DIR__.'/class.db.php';
+require_once __DIR__.'/../config.php';
+
+spl_autoload_register(function($class)
+{
+	include_once __DIR__ . '/classes/' . $class . '.class.php';
+});
 
 // функция для работы с SQLite3
 function aqSqlite($query,$multiquery = false){
@@ -32,7 +36,7 @@ function aqMysqli($query, $multiquery = false){
 
 		}else{
 
-				if (stripos($query, 'select') === 0 || stripos($query, 'show') === 0) {
+				if (stripos($query, 'select') === 0 || stripos($query, 'show') === 0 || stripos($query, 'describe') === 0) {
 						return DB::getInstance()->get_results($query);
 				}else{
 						return DB::getInstance()->query($query);
@@ -58,7 +62,7 @@ function _esc($str){
 		return DB::getInstance()->escape($str);
 }
 
-function BlackListFilter($blacklist,$itemID){
+function BlackListFilter(&$blacklist,&$itemID){
 		foreach ($blacklist as $v) if ($itemID == $v['item_id']) return false;
 		return true;
 }
@@ -116,290 +120,6 @@ function aqErrorHandler($errno, $errstr, $errfile, $errline){
 set_error_handler("aqErrorHandler");
 
 
-class Ebay_shopping{
-
-		//     // Создаем контекст для file_get_contents()
-		// private static $opts = array(
-		//           "http"=>array(
-		//             "method"=>"GET",
-		//             "header"=>"Accept-language: en\r\nCookie: foo=bar\r\n"
-		//           )
-		//         );
-		// private static $context;
-
-		// private static function context(){
-		//     self::$context = stream_context_create($opts);
-		// }
-
-
-		static function findItemsAdvanced($request, $seller, $page = 1, $categoryId = false){
-				 $url = "http://svcs.ebay.com/services/search/FindingService/v1";
-				 $url .= "?OPERATION-NAME=findItemsAdvanced";
-		//   $url .= "?OPERATION-NAME=findItemsByKeywords";
-		//   $url .= "?OPERATION-NAME=findItemsByCategory";
-				 $url .= "&SERVICE-VERSION=1.0.0";
-				 $url .= "&SECURITY-APPNAME=Aniq6478a-a8de-47dd-840b-8abca107e57";
-				 $url .= "&GLOBAL-ID=EBAY-DE";
-				 $url .= "&RESPONSE-DATA-FORMAT=JSON";
-				 $url .= "&REST-PAYLOAD";
-		//   $url .= "&IncludeSelector=Details,Description,TextDescription";
-				if ($seller != '0') {
-				 $url .= "&itemFilter(0).name=Seller";
-				 $url .= "&itemFilter(0).value=".$seller;
-				}
-				 if($categoryId) $url .= "&categoryId=".$categoryId;
-				 if($request != '0') $url .= "&keywords=".rawurlencode($request);
-				 $url .= "&paginationInput.entriesPerPage=25";
-				 $url .= "&paginationInput.pageNumber=".$page;
-		//     $url .= "&sortOrder=currentPrice";
-
-
-				// Открываем файл с помощью установленных выше HTTP-заголовков
-				$json = file_get_contents($url);
-				return $json;
-				//return json_decode($json);
-		}
-
-
-		static function getSingleItem($itemId){
-				$url = 'http://open.api.ebay.com/shopping';
-				$url .= '?callname=GetSingleItem';
-				$url .= '&responseencoding=JSON';
-				$url .= '&appid=Aniq6478a-a8de-47dd-840b-8abca107e57';
-		//  $url .= '&siteid=77';
-				$url .= '&version=515';
-				$url .= '&ItemID='.$itemId;
-				// $url .= '&IncludeSelector=Details';
-				// $url .= '&IncludeSelector=Details,Description';
-				$url .= '&IncludeSelector=Details,TextDescription';
-
-
-				// Открываем файл с помощью установленных выше HTTP-заголовков
-				$json = file_get_contents($url);
-				return $json;
-		}
-
-
-} // class Ebay_shopping 1
-
-class Ebay_shopping2{
-
-		static function findItemsAdvanced($request, $seller, $page = 1, $perPage = 100, $categoryId = false){
-				 $url = "http://svcs.ebay.com/services/search/FindingService/v1";
-				 $url .= "?OPERATION-NAME=findItemsAdvanced";
-		//   $url .= "?OPERATION-NAME=findItemsByKeywords";
-		//   $url .= "?OPERATION-NAME=findItemsByCategory";
-				 $url .= "&SERVICE-VERSION=1.0.0";
-				 $url .= "&SECURITY-APPNAME=Aniq6478a-a8de-47dd-840b-8abca107e57";
-				 $url .= "&GLOBAL-ID=EBAY-DE";
-				 $url .= "&RESPONSE-DATA-FORMAT=JSON";
-				 $url .= "&REST-PAYLOAD";
-		//   $url .= "&IncludeSelector=Details,Description,TextDescription";
-				if ($seller != '0') {
-				 $url .= "&itemFilter(0).name=Seller";
-				 $url .= "&itemFilter(0).value=".$seller;
-				}
-				 if($categoryId) $url .= "&categoryId=".$categoryId;
-				 if($request != '0') $url .= "&keywords=".rawurlencode($request);
-				 $url .= "&paginationInput.entriesPerPage=$perPage";
-				 $url .= "&paginationInput.pageNumber=".$page;
-		//     $url .= "&sortOrder=currentPrice";
-
-
-				// Открываем файл с помощью установленных выше HTTP-заголовков
-				$json = file_get_contents($url);
-				return $json;
-				//return json_decode($json);
-		}
-
-
-		static function getSingleItem($itemId){
-				$url = 'http://open.api.ebay.com/shopping';
-				$url .= '?callname=GetSingleItem';
-				$url .= '&responseencoding=JSON';
-				$url .= '&appid=Aniq6478a-a8de-47dd-840b-8abca107e57';
-		 $url .= '&siteid=77';
-				$url .= '&version=515';
-				$url .= '&ItemID='.$itemId;
-				$url .= '&IncludeSelector=Details';
-		//  $url .= '&IncludeSelector=Details,Description';
-		//  $url .= '&IncludeSelector=Details,TextDescription';
-
-
-				// Открываем файл с помощью установленных выше HTTP-заголовков
-				$json = file_get_contents($url);
-				return $json;
-		}
-
-		public function getSellerInfo($seller){
-				$result = array(
-						'status' => 'OK',
-						'totalPages' => 0,
-						'totalEntries' => 0
-				);
-
-				$json = self::findItemsAdvanced(0, $seller, 1, 1);
-
-				$respArr = json_decode($json, true);
-
-				if ($respArr != null && isset($respArr['findItemsAdvancedResponse'][0]['errorMessage'])) {
-						$result['status'] = 'error';
-						$result['errorMsg'] = $respArr['findItemsAdvancedResponse'][0]['errorMessage'][0]['error'][0]['message'][0];
-				}else{
-						$result['totalEntries'] = $respArr['findItemsAdvancedResponse'][0]['paginationOutput'][0]['totalEntries'][0];
-						$result['totalPages'] = ceil($result['totalEntries']/100);
-						$result['item0Id'] = $respArr['findItemsAdvancedResponse'][0]['searchResult'][0]['item'][0]['itemId'][0];
-				}
-
-				return $result;
-		}
-
-		public function getProductsBySeller($seller, $page = 1){
-				$result = array(
-						'status' => 'OK',
-						'totalPages' => 0,
-						'totalEntries' => 0,
-						'curPage' => 0,
-						'count' => 0,
-						'items' => array()            
-				);
-
-				$json = self::findItemsAdvanced(0, $seller, $page);
-
-				$respArr = json_decode($json, true);
-
-				if ($respArr != null && isset($respArr['findItemsAdvancedResponse'][0]['errorMessage'])) {
-						$result['status'] = 'error';
-						$result['errorMsg'] = $respArr['findItemsAdvancedResponse'][0]['errorMessage'][0]['error'][0]['message'][0];
-				}else{
-						$result['totalEntries'] = $respArr['findItemsAdvancedResponse'][0]['paginationOutput'][0]['totalEntries'][0];
-						$result['totalPages'] = ceil($result['totalEntries']/100);
-						$result['curPage'] = $respArr['findItemsAdvancedResponse'][0]['paginationOutput'][0]['pageNumber'][0];
-						$result['count'] = $respArr['findItemsAdvancedResponse'][0]['searchResult'][0]['@count'];
-						$items = $respArr['findItemsAdvancedResponse'][0]['searchResult'][0]['item'];
-						foreach ($items as $key => $item) {
-								$result['items'][$key]['itemId'] = $item['itemId'][0];
-								$result['items'][$key]['title']  = $item['title'][0];
-								$result['items'][$key]['galleryURL']  = $item['galleryURL'][0];
-								if(isset($item['galleryPlusPictureURL'][0]))
-								$result['items'][$key]['galleryPlusPictureURL']  = $item['galleryPlusPictureURL'][0];
-								else $result['items'][$key]['galleryPlusPictureURL'] = '';
-								$result['items'][$key]['viewItemURL']  = $item['viewItemURL'][0];
-								$result['items'][$key]['price']  = $item['sellingStatus'][0]['currentPrice'][0]['__value__'];
-								$result['items'][$key]['currency']  = $item['sellingStatus'][0]['currentPrice'][0]['@currencyId'];
-								$result['items'][$key]['convertedPrice']  = $item['sellingStatus'][0]['convertedCurrentPrice'][0]['__value__'];
-								$result['items'][$key]['convertedCurrency']  = $item['sellingStatus'][0]['convertedCurrentPrice'][0]['@currencyId'];
-								//$result['items'][$key]['price']  = $item['title'][0];
-						}
-				}
-
-				return $result;
-		}
-
-		public function updateProductPrice($item_id, $price)
-		{
-				if(!$price || !$item_id) return false;
-
-				$item_id = preg_replace('/\D/', '', $item_id);
-
-				$headers = array
-						(
-						'X-EBAY-API-COMPATIBILITY-LEVEL: ' . '837',
-						'X-EBAY-API-DEV-NAME: ' . 'c1f2f124-1232-4bc4-bf9e-8166329ce649',
-						'X-EBAY-API-APP-NAME: ' . 'Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
-						'X-EBAY-API-CERT-NAME: ' . 'PRD-ae576df59071-a52d-4e1b-8b78-9156',
-						'X-EBAY-API-CALL-NAME: ' . 'ReviseItem',
-						'X-EBAY-API-SITEID: ' . '77',
-				);
-
-				$endpoint = 'https://api.ebay.com/ws/api.dll';//https://api.sandbox.ebay.com/ws/api.dll
-
-				$auth_token = 'AgAAAA**AQAAAA**aAAAAA**lW+DVw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFloqjAZOKoQydj6x9nY+seQ**A1sDAA**AAMAAA**bJZNblCzYfoH41ej+oYjKvaiSIEgGgjXtz5xYJH+Nn6AeKYxrNyVhcIKlc8PDqUdVZMBsG3COT8cmmTUmWECC4wEm1RFzyxmwBppednB5xFBjl7Tt2iHwVq9Joq5fXHe9QVC1KTyrZVnCRL2ViKpUPyRJOAxjfW4R/8ld72LE9F1teRHyeeTYy26Js/vXh4r1ZkNoHIrmCWGwZ/x84FQEr7d4XMwuhaKsQZWhYhXKahQT3SreaYcXsygdQdWwvC/XZ5kuFbh6/UPXPrrDc5LsozMw18CGMF/eNY4ozP1Sq/xhBoWBjrlUpMdKAf9e+t1q3/fBcYnjGRaL5vNUGFIVRWLohfuYf5vZSlPFmbaYI8+Vtl8O7f1Qp9fYYyxdRU4DNRdwc55vgq9lSsrJRqiRY1E3BFbjljoj5tJ06BQ4zRoVHbnzvYiJ8+AcMAT4sLHVwf+9/QljLk6jqev/vwjkaJzQZ9cN/WwADeEv3j6EC9kAkAoBx7JPbB0REWdAtoHdqFKByQk35mbbkcWAI/VQfsqBO0lqo77CR1vkZideodUZvzXT7icbtrnTdZW2rvqJNvwSsnYIOgoIifbA2PiMuHtWvG91Cctsz+IE7wRQ4pFycAAWf4lsdQ1jkgiHW5tEz7XW7afDPxpPL1MyVZTtbzLBacmHsVch61gWDcBhadjbizx2xTJUzHW7UyIqp4Q7b/4v0P4bNyje2uD79alLH6YTlkbOT88DaGR/TPR/CQS/eouhfoqVMWWLN4BVjA8';
-
-				$xml = '<?xml version="1.0" encoding="utf-8"?>
-				<ReviseItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
-					<RequesterCredentials>
-						<eBayAuthToken>'.$auth_token.'</eBayAuthToken>
-					</RequesterCredentials>
-					<Item ComplexType="ItemType">
-						<ItemID>'.$item_id.'</ItemID>
-						<Quantity>3</Quantity>
-						<StartPrice>'.$price.'</StartPrice>
-					</Item>
-					<MessageID>1</MessageID>
-					<WarningLevel>High</WarningLevel>
-					<Version>837</Version>
-				</ReviseItemRequest>​';
-
-				$ch  = curl_init($endpoint);     
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);                  
-				curl_setopt($ch, CURLOPT_POST, true);              
-				curl_setopt($ch, CURLOPT_POSTFIELDS, $xml); 
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);    
-				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-				$responseXML = curl_exec($ch);
-				curl_close($ch);
-
-
-				//var_dump($responseXML);
-				if (stripos($responseXML, 'Success') !== false) return true;
-				return false;
-		}
-
-		public function removeFromSale($item_id)
-		{
-				if(!$item_id) return false;
-
-				$item_id = preg_replace('/\D/', '', $item_id);
-
-				$headers = array
-						(
-						'X-EBAY-API-COMPATIBILITY-LEVEL: ' . '837',
-						'X-EBAY-API-DEV-NAME: ' . 'c1f2f124-1232-4bc4-bf9e-8166329ce649',
-						'X-EBAY-API-APP-NAME: ' . 'Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
-						'X-EBAY-API-CERT-NAME: ' . 'PRD-ae576df59071-a52d-4e1b-8b78-9156',
-						'X-EBAY-API-CALL-NAME: ' . 'ReviseItem',
-						'X-EBAY-API-SITEID: ' . '77',
-				);
-
-				$endpoint = 'https://api.ebay.com/ws/api.dll';//https://api.sandbox.ebay.com/ws/api.dll
-
-				$auth_token = 'AgAAAA**AQAAAA**aAAAAA**lW+DVw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFloqjAZOKoQydj6x9nY+seQ**A1sDAA**AAMAAA**bJZNblCzYfoH41ej+oYjKvaiSIEgGgjXtz5xYJH+Nn6AeKYxrNyVhcIKlc8PDqUdVZMBsG3COT8cmmTUmWECC4wEm1RFzyxmwBppednB5xFBjl7Tt2iHwVq9Joq5fXHe9QVC1KTyrZVnCRL2ViKpUPyRJOAxjfW4R/8ld72LE9F1teRHyeeTYy26Js/vXh4r1ZkNoHIrmCWGwZ/x84FQEr7d4XMwuhaKsQZWhYhXKahQT3SreaYcXsygdQdWwvC/XZ5kuFbh6/UPXPrrDc5LsozMw18CGMF/eNY4ozP1Sq/xhBoWBjrlUpMdKAf9e+t1q3/fBcYnjGRaL5vNUGFIVRWLohfuYf5vZSlPFmbaYI8+Vtl8O7f1Qp9fYYyxdRU4DNRdwc55vgq9lSsrJRqiRY1E3BFbjljoj5tJ06BQ4zRoVHbnzvYiJ8+AcMAT4sLHVwf+9/QljLk6jqev/vwjkaJzQZ9cN/WwADeEv3j6EC9kAkAoBx7JPbB0REWdAtoHdqFKByQk35mbbkcWAI/VQfsqBO0lqo77CR1vkZideodUZvzXT7icbtrnTdZW2rvqJNvwSsnYIOgoIifbA2PiMuHtWvG91Cctsz+IE7wRQ4pFycAAWf4lsdQ1jkgiHW5tEz7XW7afDPxpPL1MyVZTtbzLBacmHsVch61gWDcBhadjbizx2xTJUzHW7UyIqp4Q7b/4v0P4bNyje2uD79alLH6YTlkbOT88DaGR/TPR/CQS/eouhfoqVMWWLN4BVjA8';
-
-				$xml = '<?xml version="1.0" encoding="utf-8"?>
-				<ReviseItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
-					<RequesterCredentials>
-						<eBayAuthToken>'.$auth_token.'</eBayAuthToken>
-					</RequesterCredentials>
-					<Item ComplexType="ItemType">
-						<ItemID>'.$item_id.'</ItemID>
-						<Quantity>0</Quantity>
-					</Item>
-					<MessageID>1</MessageID>
-					<WarningLevel>High</WarningLevel>
-					<Version>837</Version>
-				</ReviseItemRequest>​';
-
-				$ch  = curl_init($endpoint);     
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);                  
-				curl_setopt($ch, CURLOPT_POST, true);              
-				curl_setopt($ch, CURLOPT_POSTFIELDS, $xml); 
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);    
-				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-				$responseXML = curl_exec($ch);
-				curl_close($ch);
-
-
-				//var_dump($responseXML);
-				if (stripos($responseXML, 'Success') !== false) return true;
-				return false;
-		}
-
-
-} // class Ebay_shopping 2
-
 
 function setGigGamesIdsToFile(){
 
@@ -446,7 +166,6 @@ function setGigGamesIdsToFileT(){
 				//             break;
 				//         }
 				//         $ids_arr[$item['itemId']] = $item;
-
 				//     }
 				// }
 				// var_dump(count($ids_arr));
@@ -469,7 +188,7 @@ function csvCount($file_path){
 				fgets($fh);
 						$i++;
 		}
-		fclose($fh) or die($php_errormsg); 
+		fclose($fh) or die($php_errormsg);
 		return $i;
 }
 
@@ -492,12 +211,12 @@ function csvGetRowByIndex($file_path, $index=0, $delimetr=',', $encoding='window
 }
 
 
-function readExcel($path){
+function readExcel($path, $sheet = 0){
 		
 		// Открываем файл
 		$xls = PHPExcel_IOFactory::load($path);
 		// Устанавливаем индекс активного листа
-		$xls->setActiveSheetIndex(0);
+		$xls->setActiveSheetIndex($sheet);
 		// Получаем активный лист
 		$sheet = $xls->getActiveSheet();
 		 
@@ -523,7 +242,7 @@ function readExcel($path){
 // $value = array('Фото яндекса','м1','д1','м2','д2','м3','д3');
 // writeCell(FILES_DIR.'file.xls', $cell, $value);
 function writeCell($file_path, $cell, $value){
-		$Xlsvsfkii_Failik = PHPExcel_IOFactory::load(FILES_DIR.$file_path);
+		$Xlsvsfkii_Failik = PHPExcel_IOFactory::load($file_path);
 		$Xlsvsfkii_Failik->setActiveSheetIndex(0);
 
 if (is_array($cell) && is_array($value)) {
@@ -550,7 +269,7 @@ if (is_array($cell) && is_array($value)) {
 						break;
 		}
 		$Zapisat = PHPExcel_IOFactory::createWriter($Xlsvsfkii_Failik, $writeType);
-		$Zapisat->save(FILES_DIR.$file_path);
+		$Zapisat->save($file_path);
 		 
 		unset($Xlsvsfkii_Failik);
 		unset($Zapisat);
@@ -558,100 +277,40 @@ if (is_array($cell) && is_array($value)) {
 
 //===================================================================================
 //===================================================================================
-class WooCommerceApi{
-		
-		function __construct(){
+// $inputArr = [1=>['A'=>'value']]
+function writeExcel($file_path, $inputArr, $sheetIndex){
 
-				$this->woocommerce = new \Automattic\WooCommerce\Client(
-						'http://gig-games.de/', // Your store URL
-						'ck_410bb472d79a017b47c7ff2b70cfee4120904b09', // Your consumer key
-						'cs_db96dd892f781080643d93f966246b8a78704a4a', // Your consumer secret
-						['version' => 'v3'] // WooCommerce API version
-				);
+	if (!is_array($inputArr)) return;
+
+	$Xlsvsfkii_Failik = PHPExcel_IOFactory::load($file_path);
+	$Xlsvsfkii_Failik->setActiveSheetIndex($sheetIndex);
+
+	foreach ($inputArr as $k1 => $row) {
+		foreach ($row as $k2 => $cell) {
+			$Xlsvsfkii_Failik->getActiveSheet()->setCellValue($k2.$k1, $cell);
 		}
+	}
 
-//--------------------------------------------------------------------
-		public function addProduct($item){
-
-				$data = [
-						'product' => [
-								'title' => '',
-								'type' => 'simple',
-								'regular_price' => '',
-								'description' => '',
-								'short_description' => '',
-								'categories' => [],
-								'images' => ['position' => '1', 'src' => 'http://vignette3.wikia.nocookie.net/madannooutovanadis/images/6/60/No_Image_Available.png/revision/latest?cb=20150730162527']
-						]
-				];
-
-				$data = array_merge($data, $item);
-
-				$this->woocommerce->post('products', $data);
-		}
-
-//--------------------------------------------------------------------
-		public function checkProductById($item_id = 0){
-				
-				$item = '';
-				try{
-						$item = $this->woocommerce->get('products/'.(int)$item_id);
-				}catch (Exception $e) {
-						//echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
-						//var_dump($e);
-				}
-
-				return $item;
-		}
-//--------------------------------------------------------------------
-
-		public function updateProductPrice($id, $price){
-				
-				$data = [
-						'product' => [
-								'regular_price' => $price,
-								'in_stock' => true
-						]
-				];
-
-				$item = '';
-				try{
-						$item = $this->woocommerce->put("products/$id", $data);
-				}catch (Exception $e) {
-						//echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
-						//var_dump($e);
-				}
-
-				return $item;
-		}
-//--------------------------------------------------------------------
-
-		public function removeFromSale($id){
-				
-				$data = [
-						'product' => [
-								'in_stock' => false
-						]
-				];
-
-				$item = '';
-				try{
-						$item = $this->woocommerce->put("products/$id", $data);
-				}catch (Exception $e) {
-						//echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
-						//var_dump($e);
-				}
-
-				return $item;
-		}
-
-
-//--------------------------------------------------------------------
-
-		public function run()    {
-
-
-		}
+	switch (strtolower(pathinfo($file_path)['extension'])) {
+			case 'csv':
+					$writeType = 'CSV';
+					break;
+			case 'xls':
+					$writeType = 'Excel5';
+					break;
+			case 'xlsx':
+					$writeType = 'Excel2007';
+					break;
+			
+			default:
+					$writeType = 'Excel2007';
+					break;
+	}
+	$Zapisat = PHPExcel_IOFactory::createWriter($Xlsvsfkii_Failik, $writeType);
+	$Zapisat->save($file_path);
+	 
+	unset($Xlsvsfkii_Failik);
+	unset($Zapisat);
 }
 //===================================================================================
 //===================================================================================
@@ -748,127 +407,184 @@ function showArray($array, $length = 10, $offset = 0){
 /**
 * 
 */
-class PlatiRuBuy
-{
-		
-		function __construct()
-		{
-				# code...
-		}
+function get_a3_smtp_object(){
+	$mail = new PHPMailer;
 
-		private static function inv_counter()
-		{
-			$num = file_get_contents(__DIR__.'/adds/c.txt');
-			file_put_contents(__DIR__.'/adds/c.txt', ++$num);
-			return $num;
-		}
+	$mail->isSMTP();                                      // Set mailer to use SMTP
+	$mail->Host = 'smtp.strato.de';  // Specify main and backup SMTP servers
+	$mail->SMTPAuth = true;                               // Enable SMTP authentication
+	$mail->Username = 'a3@gig-games.de';                 // SMTP username
+	$mail->Password = A3_GIG_MAIL_PWD;                           // SMTP password
+	$mail->SMTPSecure = 'ssl';                            // Enable TLS encryption,
+	$mail->Port = 465;
+	$mail->CharSet = "UTF-8";                               // TCP port to connect to
+	$mail->setFrom('a3@gig-games.de', 'GiG-Games');
+	$mail->isHTML(true);                                  // Set email format to HTML
 
-		public function getInvoice($itemid)
-		{
-			$endpoint = 'https://shop.digiseller.ru/xml/create_invoice.asp';
-		// 568398645946
-		// 103239093088
-        // 164322596678
-			$xml = "<digiseller.request>
-								<id_good>$itemid</id_good>
-								<wm_id>164322596678</wm_id>
-								<email>germanez2000@rambler.ru</email>
-								<id_parnter>163508</id_parnter>
-								<curr>WMR</curr>
-								<lang>ru-RU</lang>
-							</digiseller.request>";
+	return $mail;
+}
 
 
-			$opts = array('http' =>
-				array(
-					'method'  => 'POST',
-					'header'  => "Content-Type: text/xml\r\n",
-					'content' => $xml,
-					'timeout' => 60
-				)
-			);
-															
-			$context  = stream_context_create($opts);
-			$responseXML = file_get_contents($endpoint, false, $context);
-			$responseObj = simplexml_load_string( str_replace('&', '&amp;', $responseXML) );
+function get_item_xml($receive_item_link){
 
-			if($responseXML === false){
-				return [
-					'success'=>false,
-					'text'=>'Ошибка при парсинге XML',
-					'xml'=>htmlentities(iconv('windows-1251', 'utf-8', $responseXML)),
-				];
-			}
+	$ret = [];
+	libxml_use_internal_errors(true);
+	$receive_item_object = simplexml_load_file($receive_item_link);
 
-			if ((string)$responseObj->retval !== '0') {
-				return [
-					'success'=>false,
-					'text'=>'Ошибка при выписке счета',
-					'xml'=>htmlentities(iconv('windows-1251', 'utf-8', $responseXML)),
-					'retval'=>(string)$responseObj->retval,
-					'retdesc'=>(string)$responseObj->retdesc,
-					];
-			}
+	if($receive_item_object === false) return ['success'=>false,'text'=>'не загрузился xml'];
 
-			return [
-				'success'=>'OK',
-				'text'=>'счет выписан',
-				'xml'=>htmlentities(iconv('windows-1251', 'utf-8', $responseXML)),
-				'retval'=>(string)$responseObj->retval,
-				'retdesc'=>(string)$responseObj->retdesc,
-				'inv'=>(array)$responseObj->inv,
-				];
+	$receive_item_array = (array)$receive_item_object;
 
-		}
+	if ($receive_item_array['retval'] !== '0') {
+		$ret['success'] = false;
+		$ret['text'] = $receive_item_array['retdesc'];
+		return $ret;
+	}
 
-/*
-21 - счет, по которому совершается оплата не найден
-103 - транзакция с таким значением поля w3s.request/trans/tranid уже выполнялась
-110 - нет доступа к интерфейсу
-*/
-		public function payInvoice($invid,$payeePurse)
-		{
+	$ret['success'] = 'OK';
+	if ($receive_item_array['typegood'] == '1') {
+		$ret['typegood'] = '1';
+		$ret['result'] = (string)$receive_item_object->text;
+	}else{
+		$ret['typegood'] = '2';
+		$ret['link_tag'] = '<a href="'.(string)$receive_item_object->file->link.'" target="_blank">'.(string)$receive_item_object->file->name_in.'</a>';
+		$ret['result'] = (string)$receive_item_object->file->link;
+	}
 
-		  $request = new baibaratsky\WebMoney\Api\X\X2\Request;
+	return $ret;
+}
 
-		  $sign = new baibaratsky\WebMoney\Signer('568398645946', __DIR__.'/adds/kwms/568398645946.kwm', KWM46_PASSWORD);
 
-		  //   <option value="R046889215238">R046889215238 (66.00 - Рубли)</option>
-		  //   <option value="R337227083600">R337227083600&nbsp;&nbsp;(730.05 - place4game/Расходы)</option>
-		  $webMoney = new baibaratsky\WebMoney\WebMoney(new baibaratsky\WebMoney\Request\Requester\CurlRequester);
+function get_steam_key_from_text($text){
+	if (preg_match('/[A-Z0-9]{5}(-[A-Z0-9]{5}){2}/', $text, $matches)) {
+		return $matches[0];
+	}elseif(preg_match('/[A-Z0-9]{4}(-[A-Z0-9]{4}){4}/', $text, $matches)){
+		return $matches[0];
+	}else{
+		return $text;
+	}
+}
 
-		  $request->setSignerWmid('568398645946');
-		  // Unique ID of the transaction in your system
-		  $request->setTransactionExternalId(self::inv_counter());
-		  $request->setPayerPurse('R337227083600');
-		  $request->setPayeePurse($payeePurse);
-		  $request->setAmount(0.01); // Payment amount
-		  $request->setDescription('api payment ' . time());
-		  $request->setInvoiceId($invid);
 
-		  $request->sign($sign);
+function get_order_data_for_senders($order_id, $item_id){
 
-		  if ($request->validate()) {
-		      /** @var X2\Response $response */
-		      $response = $webMoney->request($request);
+	$order_info = arrayDB("SELECT * FROM ebay_orders WHERE id='$order_id'");
+	if(!$order_info) return false;
+	$order_info = $order_info[0];
+	$bayer_address = json_decode($order_info['ShippingAddress'], true);
+	$goods_titles = [];
+	foreach (json_decode($order_info['goods'], true) as $go) {
+	$goods_titles[$go['itemid']] = $go['title'];
+	}
 
-		    echo "<pre>";
-		    print_r($response);
-		    echo "</pre>";
-		      $cod = $response->getReturnCode();
-		      if ($cod === 0) {
-		          echo 'Successful payment, transaction id: ' . $response->getTransactionId();
-		      } else {
-		          echo 'Payment error: ' . $response->getReturnDescription();
-		          echo "<hr>";
-		          var_dump($cod);
-		      }
-		  } else {
-		    echo "<pre>";
-		    print_r($request->getErrors());
-		    echo "</pre>";
-		  }
+	$ret['item_id'] = $item_id;
+	$ret['ebay_orderid'] = $order_info['order_id'];
+	$ret['item_title'] = $goods_titles[$item_id];
+	$ret['bayer_email'] = $order_info['BuyerEmail'];
+	$ret['bayer_country_alias'] = $bayer_address['Country'];
+	$ret['bayer_UserID'] = $order_info['BuyerUserID'];
 
-		}
+	return $ret;
+}
+
+
+function sugest_send_product($product){
+
+	$order_info = get_order_data_for_senders($_POST['tch-order-orderid'], $_POST['tch-order-itemid']);
+	echo "<pre>";
+	print_r($order_info);
+	echo "</pre>";
+
+	if(!$order_info) return false;
+
+	$ca = $order_info['bayer_country_alias'];
+	// германия, австрия, швейцария, нидерланды
+	if ($ca === 'DE' || $ca === 'AT' || $ca === 'CH' || $ca === 'NL') {
+		$msg_email = arrayDB('SELECT * FROM ebay_inv_messages WHERE country_alias="DE" AND ebay_or_mail="mail" LIMIT 1')[0]['message'];
+	}else{
+		@$msg_email = arrayDB('SELECT * FROM ebay_inv_messages WHERE country_alias="'.$ca.'" AND ebay_or_mail="mail" LIMIT 1')[0]['message'];
+	}
+	if (!$msg_email) {
+		$msg_email = arrayDB('SELECT * FROM ebay_inv_messages WHERE country_alias="EN" AND ebay_or_mail="mail" LIMIT 1')[0]['message'];
+	}
+
+
+	// германия, австрия, швейцария, нидерланды
+	if ($ca === 'DE' || $ca === 'AT' || $ca === 'CH' || $ca === 'NL') {
+		$msg_ebay = arrayDB('SELECT * FROM ebay_inv_messages WHERE country_alias="DE" AND ebay_or_mail="ebay" LIMIT 1')[0]['message'];
+	}else{
+		@$msg_ebay = arrayDB('SELECT * FROM ebay_inv_messages WHERE country_alias="'.$ca.'" AND ebay_or_mail="ebay" LIMIT 1')[0]['message'];
+	}
+	if (!$msg_ebay) {
+		$msg_ebay = arrayDB('SELECT * FROM ebay_inv_messages WHERE country_alias="EN" AND ebay_or_mail="ebay" LIMIT 1')[0]['message'];
+	}
+
+
+	$item_title = $order_info['item_title'];
+	if($pos = stripos($item_title, '(pc)')) $item_title = substr($item_title, 0, $pos-1);
+	if($pos = stripos($item_title, 'steam')) $item_title = substr($item_title, 0, $pos-1);
+	if($pos = stripos($item_title, 'gog')) $item_title = substr($item_title, 0, $pos-1);
+	if($pos = stripos($item_title, 'uplay')) $item_title = substr($item_title, 0, $pos-1);
+
+	$msg_email = str_replace('{{PRODUCT}}', get_steam_key_from_text($product), $msg_email);
+	$msg_ebay = str_replace('{{EMAIL}}', $order_info['bayer_email'], $msg_ebay);
+
+	if (strpos($msg_email, 'account/ackgift') !== false || strpos($msg_email, 'undle.com') !== false) {
+		$msg_email = str_replace('Activation link/key', 'Activation link', $msg_email);
+		$msg_email = preg_replace('/Aktivierungsschl.+ssel\/link/', 'Aktivierungslink', $msg_email);
+	}else{
+		$msg_email = str_replace('Activation link/key', 'Activation key', $msg_email);
+		$msg_email = preg_replace('/Aktivierungsschl.+ssel\/link/', 'Aktivierungsschlüssel', $msg_email);
+	}
+	?>
+	<br>
+	<div class="container">
+		<form class="row" method="POST" id="js-inv-sendemail-form">
+
+			<div class="col-sm-6">
+				<input type="hidden" name="sendemail">
+				<input type="hidden" name="ebay_orderid" value="<?php echo $order_info['ebay_orderid'];?>">
+				<input type="hidden" name="user_email" value="<?php echo $order_info['bayer_email'];?>">
+				<input type="text" class="form-control" name="email_subject" value="Activation data for <?php echo $item_title;?>"><br>
+				<textarea class="form-control" name="email_body" id="editor1" cols="30" rows="11" resize="both"><?php echo $msg_email; ?></textarea><br>
+				<button class="glyphicon btn btn-success outline" type="submit">Send All</button>
+				<button class="glyphicon btn btn-primary outline pull-right" id="js-inv-sendemail" type="button">Send Email</button>
+			</div>
+
+			<div class="col-sm-6">
+				<input type="hidden" name="sendebay">
+				<input type="hidden" name="ebay_user" value="<?php echo $order_info['bayer_UserID'];?>">
+				<input type="hidden" name="ebay_item" value="<?php echo $order_info['item_id'];?>">
+				<input type="text" class="form-control" name="ebay_subject" value="Activation data for <?php echo $item_title;?>"><br>
+				<textarea class="form-control" name="ebay_body" id="" cols="30" rows="11"><?php echo $msg_ebay; ?></textarea><br>
+				<button class="btn btn-info outline glyphicon pull-right" id="js-inv-sendebay" type="button">Send Message</button>
+			</div>
+
+		</form>
+	</div>
+	<hr>
+
+	<script src="ckeditor/ckeditor.js"></script>
+	<script>
+	    // Replace the <textarea id="editor1"> with a CKEditor
+	    // instance, using default configuration.
+	    //CKEDITOR.replace( 'editor1' );
+	</script>
+	<?php
 
 }
+
+
+
+function array_walk_callback_clean_ebay_titles(&$title){
+
+	$words_to_del = array(
+		'(PC)',' PC ','-Region free-','Region free','Multilanguage','steam',
+		'Multilang','Regfree','ENGLISH','-','–','&','Uplay','Game Of The Year Edition',
+		'DLC','regfr','Add On','Addon',' goty','Regionfree',':',"’s","'s","'","’",'Uplay');
+    $title = str_ireplace( $words_to_del, ' ', $title);
+    $title = trim(preg_replace('/\s+/', ' ', $title));
+
+}
+
+?>

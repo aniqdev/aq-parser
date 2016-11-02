@@ -1,17 +1,22 @@
+<pre>
 <?php
 ini_set('max_execution_time', 3000);
 set_time_limit(3000); // Указываем скрипту, чтобы не обрывал связь.
 
 
 $first = csvToArr('csv/forte_in1.csv', ['delimetr' => ',','del_first' => 1]);
+//print_r($first);
 $first = array_map(function ($el){ return $el[0]; }, $first);
+//print_r($first);
 
 $second = csvToArr('csv/forte_in2.csv', ['delimetr' => ',','del_first' => 1]);
 //$second = array_map(function ($el){ return $el[0]; }, $second);
+//print_r($second);
 $second2 = [];
 foreach ($second as $key => $value) {
 	$second2[$value[0]][$value[2]][$value[3]] = $value[5];
 }
+//print_r($second2);
 
 class S{ public static $counter = 0; }
 
@@ -21,10 +26,10 @@ function savePic($path , $id, $n){
 		preg_match('(//(.+?)\.jpg)i', $path, $b);
 		$path = 'http://'.$b[1].'.jpg';
 		$name = $id.'-'.$n.'.jpg';
-		// if(copy($path, __DIR__.'/../pictures/'.$name)){
-		// 	S::$counter++;
-		// 	return $name;
-		// } else return '';
+		if(copy($path, __DIR__.'/../pictures/'.$name)){
+			S::$counter++;
+			return $name;
+		} else return '';
 
 		// if(getimagesize($path)){
 		// 	S::$counter++;
@@ -65,12 +70,12 @@ foreach ($first as $fkey => $fval) {
         'encoding' => 'windows-1251',
         'keys_first_row' => false
         );
-arrToCsv($third, 'csv/forte.csv', $config);
+arrToCsv($third, 'csv/forte21sep.csv', $config);
 
 ?>
-<pre>
+
 <?php
-var_dump(!!getimagesize('http://bilder.afterbuy.de/images/NPZZNW/etikett_colostrum_250g_1200x1200_72dpi.jpg'));
+//var_dump(!!getimagesize('http://bilder.afterbuy.de/images/NPZZNW/etikett_colostrum_250g_1200x1200_72dpi.jpg'));
 var_dump(S::$counter);
 // print_r($first);
 //print_r($second2);

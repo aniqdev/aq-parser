@@ -9,34 +9,42 @@ $token = "AgAAAA**AQAAAA**aAAAAA**TCvJVw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4GjDJ
 
 $url = 'https://api.ebay.com/ws/api.dll';//https://api.sandbox.ebay.com/ws/api.dll
 
-$token = 'AgAAAA**AQAAAA**aAAAAA**lW+DVw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFloqjAZOKoQydj6x9nY+seQ**A1sDAA**AAMAAA**bJZNblCzYfoH41ej+oYjKvaiSIEgGgjXtz5xYJH+Nn6AeKYxrNyVhcIKlc8PDqUdVZMBsG3COT8cmmTUmWECC4wEm1RFzyxmwBppednB5xFBjl7Tt2iHwVq9Joq5fXHe9QVC1KTyrZVnCRL2ViKpUPyRJOAxjfW4R/8ld72LE9F1teRHyeeTYy26Js/vXh4r1ZkNoHIrmCWGwZ/x84FQEr7d4XMwuhaKsQZWhYhXKahQT3SreaYcXsygdQdWwvC/XZ5kuFbh6/UPXPrrDc5LsozMw18CGMF/eNY4ozP1Sq/xhBoWBjrlUpMdKAf9e+t1q3/fBcYnjGRaL5vNUGFIVRWLohfuYf5vZSlPFmbaYI8+Vtl8O7f1Qp9fYYyxdRU4DNRdwc55vgq9lSsrJRqiRY1E3BFbjljoj5tJ06BQ4zRoVHbnzvYiJ8+AcMAT4sLHVwf+9/QljLk6jqev/vwjkaJzQZ9cN/WwADeEv3j6EC9kAkAoBx7JPbB0REWdAtoHdqFKByQk35mbbkcWAI/VQfsqBO0lqo77CR1vkZideodUZvzXT7icbtrnTdZW2rvqJNvwSsnYIOgoIifbA2PiMuHtWvG91Cctsz+IE7wRQ4pFycAAWf4lsdQ1jkgiHW5tEz7XW7afDPxpPL1MyVZTtbzLBacmHsVch61gWDcBhadjbizx2xTJUzHW7UyIqp4Q7b/4v0P4bNyje2uD79alLH6YTlkbOT88DaGR/TPR/CQS/eouhfoqVMWWLN4BVjA8';
+include_once 'config.php';
+$token = EBAY_GIG_TOKEN;
 
 $request = '<?xml version="1.0" encoding="utf-8"?>
 <GetOrdersRequest xmlns="urn:ebay:apis:eBLBaseComponents">
   <RequesterCredentials>
     <eBayAuthToken>'.$token.'</eBayAuthToken>
   </RequesterCredentials>
-  <CreateTimeFrom>2016-09-01T20:34:44.000Z</CreateTimeFrom>
-  <CreateTimeTo>2016-09-05T20:34:44.000Z</CreateTimeTo>
+      <CreateTimeFrom>2016-09-11T20:34:44.000Z</CreateTimeFrom>
+      <CreateTimeTo>2016-09-12T20:34:44.000Z</CreateTimeTo>
   <OrderRole>Seller</OrderRole>
   <DetailLevel>ReturnAll</DetailLevel>
   <Pagination>
-      <EntriesPerPage>50</EntriesPerPage>
+      <EntriesPerPage>30</EntriesPerPage>
       <PageNumber>1</PageNumber>
   </Pagination>
 </GetOrdersRequest>';
 
   //<OrderStatus>Active</OrderStatus>
+  //<OrderStatus>Completed</OrderStatus>
 
   // <OrderIDArray>
-  //   <OrderID>121526107522-1677951284002</OrderID>
-  //   <OrderID>111978074461-1558681181001</OrderID>
+  //   <OrderID>122003069616-1679644116002</OrderID>
+  //   <OrderID>111542599737-1560080370001</OrderID>
   // </OrderIDArray>
 
+  // <CreateTimeFrom>2016-09-03T20:34:44.000Z</CreateTimeFrom>
+  // <CreateTimeTo>2016-09-05T20:34:44.000Z</CreateTimeTo>
+  
   // <CreateTimeFrom>2016-08-01T20:34:44.000Z</CreateTimeFrom>
   // <CreateTimeTo>2016-09-10T20:34:44.000Z</CreateTimeTo>
 
-$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
+$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967", // 967,837
+    'X-EBAY-API-DEV-NAME: c1f2f124-1232-4bc4-bf9e-8166329ce649',
+    'X-EBAY-API-APP-NAME: Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
+    'X-EBAY-API-CERT-NAME: PRD-ae576df59071-a52d-4e1b-8b78-9156',
 "X-EBAY-API-CALL-NAME: GetOrders",
 "X-EBAY-API-SITEID: 0",
 "Content-Type: text/xml");
@@ -48,7 +56,7 @@ function request($url, $post) {
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-	curl_setopt($ch,CURLOPT_HTTPHEADER,$headers);
+	curl_setopt($ch, CURLOPT_HTTPHEADER,$headers);
 	curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 	if($post){
 		curl_setopt($ch, CURLOPT_POST, 1);

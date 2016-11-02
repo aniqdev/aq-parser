@@ -9,6 +9,7 @@
 	font-weight: bold;
 }
 </style>
+
 <div class="ppp-block ppp-right">
 <?php $dataex = '';
 $exrate = arrayDB("SELECT value FROM aq_settings WHERE name='exrate'");
@@ -55,6 +56,64 @@ if($exrate) $dataex = $exrate[0]['value'];
 		<input type="submit">
 	</form>
 </div>
+
+<div class="ppp-block tch-orders">
+<table class="orders-table">
+	<tr>
+		<th>#</th>
+		<th>Country</th>
+		<th>Amount</th>
+		<th>Game title</th>
+		<th>Price</th>
+		<th>Link</th>
+		<th>eBayID</th>
+		<th>Buyer email</th>
+		<th>Buyer name</th>
+		<th>PaidTime</th>
+		<th>CreatedTime</th>
+		<th>Sd</th>
+	</tr>
+<?php
+
+$orders = arrayDB("SELECT * FROM ebay_orders WHERE PaidTime<>0 AND ShippedTime=0 AND OrderStatus='Completed' LIMIT 20");
+
+foreach ($orders as $key => $order) {
+	$goods = json_decode($order['goods'], true);
+	$address = json_decode($order['ShippingAddress'], true);
+	//showArray($goods);
+	echo '<tr>',
+			'<td>',$key+1,'</td>',
+			'<td title="',$address['CountryName'],'">',$address['Country'],'</td>',
+			'<td>';foreach($goods as $g) echo $g['amount'],'<br>';echo '</td>',
+			'<td class="tch-ord-title">';
+			foreach($goods as $g) 
+				echo '<div 
+						class="tch-orders-buy" 
+						ebayid="',$g['itemid'],'" 
+						gigparser-orderid="',$order['id'],'" 
+					>',$g['title'],'</div>';
+			echo '</td>',
+			'<td title="total price: ',$order['total_price'],'">';foreach($goods as $g) echo $g['price'],'<br>';echo '</td>',
+			'<td>';foreach($goods as $g)
+			 echo '<a href="http://www.ebay.de/itm/',$g['itemid'],'" target="_blank">link</a><br>';echo '</td>',
+			'<td>',$order['BuyerUserID'],'</td>',
+			'<td>',$order['BuyerEmail'],'</td>',
+			'<td>',$order['BuyerFirstName'],' ',$order['BuyerLastName'],'</td>',
+			'<td>',$order['PaidTime'],'</td>',
+			'<td>',$order['CreatedTime'],'</td>',
+			'<td><button 
+					orderid="',$order['order_id'],'"
+					class="mas"
+					title="Mark as Shipped"
+				 >s</button>
+			</td>',
+		 '</tr>';
+}
+
+?>
+</table>
+</div>
+
 <div class="ch-tab-panel" id="js-tch-deligator">
 <?php	
 	if (isset($_GET['scan'])) {
@@ -369,6 +428,8 @@ foreach ($res as $key => $value) {
       </div>
       <div class="modal-footer">
       	<form action="" id="fBuyItem" target="_blank" class="pull-left" method="POST">
+      		<input type="hidden" name="tch-order-itemid" value="" id="tch-order-itemid">
+      		<input type="hidden" name="tch-order-orderid" value="" id="tch-order-orderid">
       		<input type="hidden" name="csrf-buy-time" value="" id="csrf-buy-time">
       		<input type="hidden" name="csrf-buy-token" value="<?php echo($_SESSION['csrf-buy-token']);?>">
       		<button type="submit" class="btn btn-success">Buy</button>

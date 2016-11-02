@@ -125,6 +125,7 @@ foreach ($res as $key => $value) {
 	color: #222;
 	padding: 2px 7px;
 	cursor: pointer;
+	    margin: 0;
 	-webkit-user-select: none;  /* Chrome all / Safari all */
 	-moz-user-select: none;     /* Firefox all */
 	-ms-user-select: none;      /* IE 10+ */

@@ -1,11 +1,22 @@
 <?php
+require_once 'vendor/autoload.php';
+// require_once 'lib/kint-master/Kint.class.php';
+// require_once 'lib/PHPExcel.php';
+// require_once 'lib/simple_html_dom.php';
+require_once 'lib/array_DB.php';
 if (isset($_POST['submitted'])) {
-	$log = $_POST['login'];
-	$pas = $_POST['password'];
-	$ip = $_SERVER['REMOTE_ADDR'];
-	if (($log === 'goldenpars' && $pas === 'v$sK6HfqDd') || $ip === '37.46.229.203'){
+	$log = _esc($_POST['login']);
+	$pas = _esc(md5($_POST['password']));
+	$user_check = arrayDB("SELECT * FROM gig_users WHERE username='$log' AND password='$pas'");
+	if ($user_check){
+		$page_list = $user_check[0]['page_list'];
+		$user_white_list = arrayDB("SELECT page_action FROM gig_users_page_list WHERE list_name='$page_list' AND white_or_black='white'");
+		foreach ($user_white_list as &$qwasd) $qwasd = $qwasd['page_action'];
 		session_start();
 		$_SESSION['logged'] = true;
+		$_SESSION['username'] = $user_check[0]['username'];
+		$_SESSION['page_list_name'] = $page_list;
+		$_SESSION['user_white_list'] = $user_white_list;
 		$_SESSION['csrf-buy-token'] = md5(time());
 		header("Location: index.php?".$_SERVER['QUERY_STRING']);
 	}

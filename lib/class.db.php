@@ -67,7 +67,7 @@ class DB
             $headers  = 'MIME-Version: 1.0' . "\r\n";
             $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
             $headers .= 'To: Admin <'.SEND_ERRORS_TO.'>' . "\r\n";
-            $headers .= 'From: Yoursite <system@'.$_SERVER['SERVER_NAME'].'.com>' . "\r\n";
+            $headers .= 'From: gig-parser <system@'.$_SERVER['SERVER_NAME'].'.com>' . "\r\n";
             mail( SEND_ERRORS_TO, 'Database Error', $message, $headers );   
         }
         else

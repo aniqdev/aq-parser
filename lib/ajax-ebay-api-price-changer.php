@@ -1,4 +1,6 @@
 <?php
+ini_get('safe_mode') or set_time_limit(180); // Указываем скрипту, чтобы не обрывал связь.
+
 if (isset($_POST['ebayId']) && isset($_POST['action']) && $_POST['action'] == 'check') {
 
 	$Ebay = new Ebay_shopping2();
@@ -61,6 +63,50 @@ elseif (isset($_POST['ebayId']) && isset($_POST['action']) && $_POST['action'] =
 	}
 	$send = array(
 			'answer' => $answer,
+			'post' => $_POST,
+		);
+
+	echo json_encode($send);
+
+}elseif (isset($_POST['update_ebay_games'])) {
+
+	$ebayObj = new Ebay_shopping2();
+	$res = $ebayObj->GetSellerItemsArray();
+
+	$words_to_del = array(
+		'(PC)',' PC ','-Region free-','Region free','Multilanguage','steam',
+		'Multilang','Regfree','ENGLISH','-','–','&','Uplay','Game Of The Year Edition',
+		'DLC','regfr','Add On','Addon',' goty','Regionfree',':',"’s","'s","'","’",'Uplay');
+
+	$sql = 'TRUNCATE ebay_games;';
+	foreach ($res as $id => $title) {
+	    $title_clean = str_ireplace( $words_to_del, ' ', $title);
+	    $title_clean = trim(preg_replace('/\s+/', ' ', $title_clean));
+		$sql .= "INSERT INTO ebay_games (item_id,title,title_clean) 
+			VALUES ('$id','"._esc($title)."','"._esc($title_clean)."');";
+	}
+	arrayDB($sql, true);
+	echo json_encode(['answer'=>'good','errors'=>$_ERRORS]);
+
+}elseif (isset($_POST['insert_ebayID_to_games'])) {
+
+	$game_id = _esc($_POST['game_id']);
+	$ebay_id = _esc($_POST['ebay_id']);
+	arrayDB("UPDATE games SET ebay_id='$ebay_id' WHERE id='$game_id'");
+	echo '{"answer":"good"}';
+
+}elseif (isset($_POST['ebayId']) && isset($_POST['action']) && $_POST['action'] == 'change_quantity3') {
+
+	$Ebay = new Ebay_shopping2();
+	$response = $Ebay->updateQuantity($_POST['ebayId'], 3);
+	if($response && $response['Ack'] === 'Success'){
+		$answer = 'good';
+	}else{
+		$answer = 'bad';
+	}
+	$send = array(
+			'answer' => $answer,
+			'response' => $response,
 			'post' => $_POST,
 		);
 

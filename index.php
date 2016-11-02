@@ -14,6 +14,7 @@ if (isset($_GET['logout'])  && $_GET['logout'] === 'true') {
 require_once 'vendor/autoload.php';
 require_once 'lib/kint-master/Kint.class.php';
 require_once 'lib/PHPExcel.php';
+require_once 'lib/simple_html_dom.php';
 require_once 'lib/array_DB.php';
 define('ROOT', __DIR__);
 ?>
@@ -34,14 +35,26 @@ define('ROOT', __DIR__);
 
 <?php 
 include_once('lib/navigate.php');
-if (isset($_GET['action'])) {
+
+$isset_get_action = isset($_GET['action']);
+$accessed = ($isset_get_action AND ($_SESSION['page_list_name'] === 'admin' || in_array($_GET['action'], $_SESSION['user_white_list'])));
+
+if ($accessed) {
+
 	$toFile = 'lib/'.$_GET['action'].'.php';
 	if (file_exists($toFile)) include_once($toFile);
-	else echo "<h2>404 - Страница не найдена!!!</h2>";
+	else echo "<h2>404 - Page not found!!!</h2>";
+
+} elseif ($isset_get_action) {
+
+	echo "<h2>Access denied!</h2>";
+	echo "<h4>Contact your administrator</h4>";
+
 } else {
-	echo "<h2>Главная страница</h2>";
-}
-?>
+
+	echo "<h2>Home page</h2>";
+
+}?>
 
 <script src="js/main.js?t=<?php echo date('d-m-y_H:i:s',filemtime ('js/main.js')); ?>"></script>
 <?php

@@ -3,6 +3,8 @@
         "imagine/imagine": "~0.5.0",
         "automattic/woocommerce": "^1.0",
         "baibaratsky/php-webmoney": "0.14.*",
-        "zyberspace/steam-web-api-client": "^0.4.0"
+        "zyberspace/steam-web-api-client": "^0.4.0",
+        "php-curl-class/php-curl-class": "^6.0",
+        "phpmailer/phpmailer": "^5.2"
     }
 }

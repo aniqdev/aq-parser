@@ -11,23 +11,15 @@ function sortN($a,$b){ return $a['price']-$b['price'];}
 function getResultsFromApi($request, $blacklist, $blacksell){
 	
 		$k = 0;
-
-		$arrItem = array();
-		// получаем результаты запросов в JSON
-		// $opts = array('http'=>array('header' => "User-Agent:MyAgent/1.0\r\n"));
-		// $context = stream_context_create($opts);
-		$url = 'http://www.plati.ru/api/search.ashx?query='.$request.'&pagesize=500&response=json';
-		// $result = file_get_contents($url,false,$context);
+		$url = "http://www.plati.ru/api/search.ashx?query={$request}&pagesize=500&response=json";
 		$result = file_get_contents($url);
 		$result = json_decode($result);
 		$iQ = $result->total;
 		if ($iQ > 500) $iQ = 500;
-		
-			
+
+		$arrItem = array();
 		for($i = 0; $i < $iQ; $i++){
 			
-
-
 			$itemID      = $result->items[$i]->id;
 			$sellID      = $result->items[$i]->seller_id;
 		    $name        = $result->items[$i]->name;
@@ -43,8 +35,7 @@ function getResultsFromApi($request, $blacklist, $blacksell){
 
 			$bool4 = BlackListFilter($blacklist,$itemID);
 			$bool5 = BlackListFilter($blacksell,$sellID);
-// 			echo "<br>itemID = ",$itemID;
-// var_dump($bull4);
+
 			if (($bool1 || $bool2) && $bool3 && $bool4 && $bool5) {
 
 				$arrItem[$k] = array();	
@@ -61,34 +52,6 @@ function getResultsFromApi($request, $blacklist, $blacksell){
 
 } // getResultsFromApi()
 
-function requestToArr($request=''){
-	
-    $a = [' 10 ',' 9 ',' 8 ',' 7 ',' 6 ',' 5 ',' 4 ',' 3 ',' 2 ',' 1 ',];
-    $b = [' x ',' ix ',' viii ',' vii ',' vi ',' v ',' iv ',' iii ',' ii ',' i '];
-
-    $c = [' Edition',' DLC',' Add-on',' Pack',' Bundle'];
-    $d = [];
-
-    $e = [' goty'];
-    $f = [' game of the year edition'];
-
-    $retArr = array($request);
-
-    $result1 = str_ireplace($a, $b, $request);
-    $result2 = str_ireplace($b, $a, $request);
-    $result3 = str_ireplace($c, $d, $request);
-    $result4 = str_ireplace($e, $f, $request);
-    $result5 = str_ireplace($f, $e, $request);
-
-    if($request != $result1) $retArr[] = $result1;
-    if($request != $result2) $retArr[] = $result2;
-    if($request != $result3) $retArr[] = $result3;
-    if($request != $result4) $retArr[] = $result4;
-    if($request != $result5) $retArr[] = $result5;
-
-    return $retArr;
-
-} // requestToArr()
 
 function requestToArrChacker($pare, $reqArr){
 
@@ -101,7 +64,8 @@ function requestToArrChacker($pare, $reqArr){
     return $reqArr;
 }
 
-function requestToArr2($request){
+
+function requestToArr($request){
     $changeArr = [
         [' 10 ', ' x '],
         [' 9 ', ' ix '],
@@ -133,7 +97,7 @@ function requestToArr2($request){
 
     return $reqArr;
 
-} // requestToArr2()
+} // requestToArr()
 
 function strictFilter($request, $arrayIn){
     
@@ -209,7 +173,7 @@ if (isset($_POST['getjson'])) {
 
 		//============================================================
 		//========= function getResultsFromApi()
-    $requests = requestToArr2($request);
+    $requests = requestToArr($request);
 
     $arrItem = array();
     $arrItem1 = array();
@@ -278,13 +242,16 @@ if (isset($_POST['getjson'])) {
 	<div class="col-sm-6">
 		<h3>парсим цены Plati.ru</h3>
 		<button id="getjson" class="getjson-btn">Спарсить</button>
+		<button id="getjson_multi" class="getjson-btn" style="margin:4px 0 -30px;" title="в 1.7 раз быстрее">v2.0 beta</button>
+		<button id="getjson_multi3" class="getjson-btn" style="margin:35px 0 -62px;" title="в 10 раз быстрее">v3.0 beta</button>
 		<span class="loading loading1"></span>
 		<h3>Состояние процесса:</h3>
 		<ul id="message1" class="message"><li></li></ul>
 	</div>
 	<div class="col-sm-6">
 		<h3>парсим цены Ebay.com</h3>
-		<button id="ebay_getprices" class="getjson-btn">Спарсить</button>
+		<button id="ebay_getprices" class="getjson-btn ebay_getprices">Спарсить</button>
+		<button id="ebay_getprices_multi" class="getjson-btn ebay_getprices" style="margin:4px 0 -30px;" title="в 5 раз быстрее">v2.2 beta</button>
 		<span class="loading loading2"></span>
 		<h3>Состояние процесса:</h3>
 		<ul id="message2" class="message"><li></li></ul>
