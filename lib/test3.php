@@ -1,7 +1,11 @@
 <pre>
 <?php
 
-var_dump(0=='0000-00-00 00:00:00');
+$a = obj('querYstrinG')->SET('foo','bar')->del(0,'bar')->give();
+
+var_dump($a);
+
+print_r(ArrayDB("SELECT count(*) as count FROM ebay_orders ORDER BY id DESC"));
 
 
 ?>

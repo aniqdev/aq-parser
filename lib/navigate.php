@@ -15,7 +15,7 @@
         <li><a href="#">Ebay.com</a>
 			<ul>
 				<li><a href="?action=ebay-messages">Messages</a></li>
-				<li><a href="?action=orders-page&list_type=all&active[]=act_all">Orders&nbsp;Page</a></li>
+				<li><a href="?action=orders-page&list_type=all&active[]=act_all&offset=0&limit=100">Orders&nbsp;Page</a></li>
 				<li><a href="?action=orders">Orders&nbsp;API</a></li>
 				<li><a href="?action=orders-page-full">Orders&nbsp;Full</a></li>
 				<li><a target="_blank" href="http://hot-body.net/panel/api/v1/counter">Counter</a></li>

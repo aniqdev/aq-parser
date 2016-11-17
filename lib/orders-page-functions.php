@@ -53,11 +53,20 @@ function get_orders($option){
 		$limit = 'LIMIT 500';
 	}
 	switch ($option) {
-		case 'all':	return arrayDB("SELECT * FROM ebay_orders ORDER BY id DESC $limit");
+		case 'all':	
+			$_GET['count'] = arrayDB("SELECT count(*) as count FROM ebay_orders ORDER BY id DESC");
+			$_GET['count'] = $_GET['count'][0]['count'];
+			return arrayDB("SELECT * FROM ebay_orders ORDER BY id DESC $limit");
 
-		case 'paid':	return arrayDB("SELECT * FROM ebay_orders WHERE PaidTime<>0 ORDER BY id DESC $limit");
+		case 'paid':	
+			$_GET['count'] = arrayDB("SELECT count(*) as count FROM ebay_orders WHERE PaidTime<>0");
+			$_GET['count'] = $_GET['count'][0]['count'];
+			return arrayDB("SELECT * FROM ebay_orders WHERE PaidTime<>0 ORDER BY id DESC $limit");
 
-		case 'shipped':	return arrayDB("SELECT * FROM ebay_orders WHERE ShippedTime<>0 ORDER BY id DESC $limit");
+		case 'shipped':	
+			$_GET['count'] = arrayDB("SELECT count(*) as count FROM ebay_orders WHERE ShippedTime<>0");
+			$_GET['count'] = $_GET['count'][0]['count'];
+			return arrayDB("SELECT * FROM ebay_orders WHERE ShippedTime<>0 ORDER BY id DESC $limit");
 		
 		default: return [];
 	}
@@ -139,4 +148,38 @@ function op_platiru_product(){
 	return $frames;
 }
 
+
+function op_pagination()
+{	
+	$count = $_GET['count']-1;
+	$limit = $_GET['limit'];
+	$offset_prev = $_GET['offset']-$limit;
+	if($offset_prev < 0) $offset_prev = 0;
+	$offset_next = $_GET['offset']+$limit;
+	if($offset_next > $count) $offset_next = $count-1;
+	//var_dump($count/$limit);
+	$str =
+	'<nav aria-label="Page navigation">
+	  <ul class="pagination">
+	    <li>
+	      <a href="?'.obj(QS)->SET('offset',$offset_prev)->give().'" aria-label="Previous">
+	        <span aria-hidden="true">&laquo;</span>
+	      </a>
+	    </li>'.
+	    // '<li><a href="#">1</a></li>
+	    // <li><a href="#">2</a></li>
+	    // <li><a href="#">3</a></li>
+	    // <li><a href="#">4</a></li>
+	    // <li><a href="#">5</a></li>'.
+	    '<li>
+	      <a href="?'.obj(QS)->SET('offset',$offset_next)->give().'" aria-label="Next">
+	        <span aria-hidden="true">&raquo;</span>
+	      </a>
+	    </li>
+	  </ul><b>total: </b>'.$count.
+	'</nav>';
+
+	echo $str;
+
+}
 ?>

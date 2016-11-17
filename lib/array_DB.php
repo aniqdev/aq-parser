@@ -624,4 +624,9 @@ function view($view, $data){
 }
 
 
+function obj($obj_name = false)
+{
+	if($obj_name) return new $obj_name();
+}
+
 ?>

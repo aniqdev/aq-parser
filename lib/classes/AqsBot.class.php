@@ -5,7 +5,7 @@
 */
 class AqsBot
 {
-	private static $bot_token = '198456336:AAHzGlLSkduqZ7Q5kZidOkE1SC1gWVMsF_s';
+	private static $bot_token = AQS_BOT_TOKEN;
 	private static $api_url = 'https://api.telegram.org/bot';
 	private static $chat_id = '278472749';
 
