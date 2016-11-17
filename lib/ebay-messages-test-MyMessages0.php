@@ -30,14 +30,18 @@ function GetMessages($MessageID = ""){
   <RequesterCredentials>
     <eBayAuthToken>'.$token.'</eBayAuthToken>
   </RequesterCredentials>
-  <WarningLevel>High</WarningLevel>';
+  <WarningLevel>High</WarningLevel>
+  <Pagination>
+    <EntriesPerPage>1000</EntriesPerPage>
+    <PageNumber>1</PageNumber>
+  </Pagination>';
 
   //если указаны ID конкретных сообщений, то выдаем их полный текст
   if($MessageID){
 	  $post .= '<DetailLevel>ReturnMessages</DetailLevel>';
 		$post .= '<MessageIDs>
-			<MessageID>'.$MessageID.'</MessageID>
-			</MessageIDs>';
+					<MessageID>'.$MessageID.'</MessageID>
+				</MessageIDs>';
 	  }
   //в противном случае выдаем лишь заголовки
   else{
@@ -54,7 +58,18 @@ $post .= '</GetMyMessagesRequest>';
 	return json_decode(json_encode(simplexml_load_string($result)), true);
 }
 
-print_r(GetMessages());
+$messages = GetMessages();
+
+$mtype = [];
+$m_ids = [];
+foreach ($messages['Messages']['Message'] as $m) {
+	$mtype[@$m['MessageType']] += 1;
+	$m_ids[$m['MessageID']] = $m['ReceiveDate'];
+}
+
+print_r($mtype);
+// print_r($m_ids);
+print_r($messages);
 
 ?>
 </pre>

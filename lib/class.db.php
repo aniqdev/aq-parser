@@ -403,8 +403,6 @@ class DB
     public function get_results( $query, $object = false )
     {
         self::$counter++;
-        //Overwrite the $row var to null
-        $row = null;
         
         $results = $this->link->query( $query );
         if( $this->link->error )

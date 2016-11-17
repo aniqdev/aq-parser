@@ -696,6 +696,7 @@ var FF = {
 	js_modal_plati_price : $('.frow4>.fcol4'),
 	js_modal_ebay_prices : $('.frow1>.fcol3 tr'),
 	js_modal_buy_button : $('#fBuyItem'), // форма
+	js_modal_ebay_link : $('#m-ebli'),
 	js_csrf_buy_time_input : $('#csrf-buy-time'),
 	consec : 1,
 	consec_out : $('#consec'),
@@ -743,6 +744,7 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
 	F.one_changed = false;
 	F.mergedModal.modal('show');
 	F.tr = $(this).parent();
+	F.js_modal_ebay_link[0].href = F.tr.find('a:last')[0].href;
 	F.gameId = FF.gameId = F.tr.attr('data-gameid');
 	F.ebayId = F.tr.attr('data-ebayid');
 	F.wooId = F.tr.attr('data-wooid');
@@ -820,8 +822,8 @@ $('#fChange').on('submit', {f:FF}, function(e) {
 			{ action: 'change', ebayId: F.ebayId, price: fEprice },
 			function (data) {
 				if (data.answer == 'good') {
-					if(F.one_changed) F.mergedModal.modal('hide');
-					else F.one_changed = true;
+					// if(F.one_changed) F.mergedModal.modal('hide');
+					// else F.one_changed = true;
 					F.tr.find('.tc-ebay').parent().addClass('pchanged');
 				}else{
 
@@ -836,8 +838,8 @@ $('#fChange').on('submit', {f:FF}, function(e) {
 			{ action: 'change', wooId: F.wooId, price: fWprice },
 			function (data) {
 				if (data.answer == 'good') {
-					if(F.one_changed) F.mergedModal.modal('hide');
-					else F.one_changed = true;
+					// if(F.one_changed) F.mergedModal.modal('hide');
+					// else F.one_changed = true;
 					F.tr.find('.tc-woo').parent().addClass('pchanged');
 				}else{
 
@@ -1023,7 +1025,7 @@ $('#js-inv-sendemail-form').on('submit', function(e) {
 	$.post('/ajax.php?action=ajax-invoice-sender',
 		send_data,
 		function(data) {
-			$('button').addClass('glyphicon-ok');
+			$('#js-inv-sendemail-form button').addClass('glyphicon-ok');
 		},'JSON');
 });
 
@@ -1121,6 +1123,73 @@ $('#fBuyItem').on('submit', {f:FF}, function(e) {
 		}, 'json');
 	}
 
+});
+
+$('#ebay-msg-answer-form').on('submit', function function_name(e) {
+	e.preventDefault();
+	var $this = $(this);
+	$this.find('button').attr('disabled',true);
+	var data_send = $this.serialize();
+	$.post('/ajax.php?action=ajax-invoice-sender',
+		data_send,
+		function(data) {
+			if(data.reload === 'yes') window.location.reload();
+			$this.html('<pre>'+data.sendebay_ans+'</pre>');
+		},'JSON');
+});
+
+
+$('.q-radio').change(function(e) {
+  console.log(this.value);
+  console.log(this.name);
+  console.log(this.name.split('us')[1]);
+  var value = this.value;
+  var name = this.name;
+  send_obj = {msg_id : name.split('us')[1]};
+  if (value === 'asked') {
+  	send_obj.mark_as_asked = 1;
+  }else if (value === 'answerd') {
+  	send_obj.mark_as_answerd = 1;
+  }
+  $.post('ajax.php?action=ajax-mark-messages',
+  	send_obj,
+  	function (data) {
+  		// body...
+  	});
+});
+
+$('.orders-table').on('click', '.op-markorder', function(e) {
+	console.log(this.name);
+	console.log(this.value);
+	var $this = this;
+	var name = this.name;
+	var html = this.innerHTML;
+	var send_data = {ebay_order_id:this.value};
+	if (name === 'mark_as_shipped') {
+		if (html === '+') {
+			send_data.mark_as_shipped = 'true';
+		}else{
+			send_data.mark_as_shipped = 'false';
+		}
+	}
+	if (name === 'mark_as_paid') {
+		if (html === '+') {
+			send_data.mark_as_paid = 'true';
+		}else{
+			send_data.mark_as_paid = 'false';
+		}
+	}
+	$.post('/ajax.php?action=ajax-mark-orders',
+		send_data,
+		function(data) {
+			if(data.Ack == 'Success'){
+				if(html === '-'){
+					$this.innerHTML = '+'
+				}else if(html === '+'){
+					$this.innerHTML = '-'
+				}
+			}
+		},'JSON');
 });
 
 

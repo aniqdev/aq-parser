@@ -10,7 +10,7 @@ function getOrderArray(){
 
 	$ord_obj = new EbayOrders;
 
-	$ord_arr = $ord_obj->getOrders(['NumberOfDays'=>2,'SortingOrder'=>'Ascending']);
+	$ord_arr = $ord_obj->getOrders(['NumberOfDays'=>1,'SortingOrder'=>'Ascending']);
 
 	//$ord_arr = $ord_obj->getOrders(['order_status'=>'Completed','OrderIDArray'=>['216865269010']]);
 

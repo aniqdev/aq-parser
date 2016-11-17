@@ -1,6 +1,6 @@
 <?php
 
-function axaj_sendemail(){
+function axaj_send_email(){
 	
 	if(!filter_var(trim($_POST['user_email']), FILTER_VALIDATE_EMAIL)) return 'no email ('.$_POST['user_email'].')';
 
@@ -15,7 +15,7 @@ function axaj_sendemail(){
 	return $mail->send();	
 }
 
-function axaj_sendebay(){
+function axaj_send_ebay(){
 
 	$ebayObj = new EbayOrders();
 
@@ -27,12 +27,19 @@ function axaj_sendebay(){
 	return $ebayObj->SendMessage($userId, $itemId, $subject, $body);
 }
 
+function ajax_send_answer(){
+
+	if(!isset($_POST['correspondent']) || !isset($_POST['message_id'])) return false;
+	$ebayObj = new Ebay_shopping2();
+	return $ebayObj->AnswerQuestion($_POST['correspondent'], $_POST['message_id'], $_POST['text']);
+}
+
 
 $sendemail_ans = 'no';
 $m = 'no';
 if (!defined('DEV_MODE') && isset($_POST['sendemail'])){
 	
-	$sendemail_ans = axaj_sendemail();
+	$sendemail_ans = axaj_send_email();
 	if ($sendemail_ans && isset($_POST['ebay_orderid'])) {
 		$ebayObj = new EbayOrders();
 		$OrderID = $_POST['ebay_orderid'];
@@ -41,16 +48,31 @@ if (!defined('DEV_MODE') && isset($_POST['sendemail'])){
 			arrayDB("UPDATE ebay_orders SET ShippedTime=CURRENT_TIMESTAMP WHERE order_id='$OrderID'");
 		}
 	}
-} 
+}
 
 
 $sendebay_ans = 'no';
-if (!defined('DEV_MODE') && isset($_POST['sendebay'])) $sendebay_ans = axaj_sendebay();
+if (!defined('DEV_MODE') && isset($_POST['sendebay'])){
+	$sendebay_ans = axaj_send_ebay();
+} 
+
+$reload = 'no';
+if (!defined('DEV_MODE') && isset($_POST['sendanswer'])){
+	$sendebay_ans = ajax_send_answer();
+	if ($sendebay_ans['Ack']==='Success') {
+		include_once __DIR__.'/cron-ebay-messages.php';
+		cron_save_outbox();
+		$reload = 'yes';
+	}
+	$sendebay_ans = print_r($sendebay_ans, true);
+}
+
 
 echo json_encode([
 		'sendebay_ans' => $sendebay_ans,
 		'sendemail_ans' => $sendemail_ans,
 		'marked' => $m,
+		'reload' => $reload,
 		'post' => $_POST,
 		'errors' => $_ERRORS,
 	]);

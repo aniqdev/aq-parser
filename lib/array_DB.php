@@ -391,15 +391,9 @@ function arrToCsv($array, $file_path = 'result.csv', $options = array()){
 				fclose($fp);
 }
 
-function showArray($array, $length = 10, $offset = 0){
-		$res = array();
-		$count = count($array);
-		if ($length > $count) $length = $count;
-		for ($i=$offset; $i < $length; $i++) { 
-				$res[] = $array[$i];
-		}
+function showArray($array){
 		echo "<pre>";
-		print_r($res);
+		print_r($array);
 		echo "</pre>";
 }
 
@@ -429,8 +423,9 @@ function get_item_xml($receive_item_link){
 
 	$ret = [];
 	libxml_use_internal_errors(true);
-	$receive_item_object = simplexml_load_file($receive_item_link);
-
+	$receive_item_str = file_get_contents($receive_item_link);
+	$receive_item_str = iconv('utf-8', 'cp1251', $receive_item_str);
+	$receive_item_object = simplexml_load_string($receive_item_str);
 	if($receive_item_object === false) return ['success'=>false,'text'=>'не загрузился xml'];
 
 	$receive_item_array = (array)$receive_item_object;
@@ -456,13 +451,27 @@ function get_item_xml($receive_item_link){
 
 
 function get_steam_key_from_text($text){
-	if (preg_match('/[A-Z0-9]{5}(-[A-Z0-9]{5}){2}/', $text, $matches)) {
+	if (preg_match('/[A-Z0-9]{5}(-[A-Z0-9]{5}){2,4}/', $text, $matches)) {
 		return $matches[0];
 	}elseif(preg_match('/[A-Z0-9]{4}(-[A-Z0-9]{4}){4}/', $text, $matches)){
 		return $matches[0];
 	}else{
 		return $text;
 	}
+}
+
+
+function get_urls_from_text($text){
+
+    $found = preg_match_all('#\b(https?://[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))#ism', $text, $urls);
+    $urls = $urls[1];
+    $urls = array_unique($urls);
+    $urls = implode('<br>'.PHP_EOL, $urls);
+    if ($found) {
+    	return $urls;
+    }else{
+    	return $text;
+    }
 }
 
 
@@ -526,7 +535,11 @@ function sugest_send_product($product){
 	if($pos = stripos($item_title, 'gog')) $item_title = substr($item_title, 0, $pos-1);
 	if($pos = stripos($item_title, 'uplay')) $item_title = substr($item_title, 0, $pos-1);
 
-	$msg_email = str_replace('{{PRODUCT}}', get_steam_key_from_text($product), $msg_email);
+	$product = iconv('CP1251', 'UTF-8', $product);
+	$product = get_steam_key_from_text($product);
+	$product = get_urls_from_text($product);
+
+	$msg_email = str_replace('{{PRODUCT}}', $product, $msg_email);
 	$msg_ebay = str_replace('{{EMAIL}}', $order_info['bayer_email'], $msg_ebay);
 
 	if (strpos($msg_email, 'account/ackgift') !== false || strpos($msg_email, 'undle.com') !== false) {
@@ -575,7 +588,6 @@ function sugest_send_product($product){
 }
 
 
-
 function array_walk_callback_clean_ebay_titles(&$title){
 
 	$words_to_del = array(
@@ -586,5 +598,30 @@ function array_walk_callback_clean_ebay_titles(&$title){
     $title = trim(preg_replace('/\s+/', ' ', $title));
 
 }
+
+// преобразует многомерный массив в одномерный
+// ключи в значениях которых массивы не сохраняются
+function array_collapser($array){
+
+	$ret = [];
+	foreach ($array as $k => $val) {
+		if (!is_array($val)) $ret[$k] = $val;
+		else $ret = array_merge($ret, array_collapser($val));
+	}
+	return $ret;
+}
+
+// function use custom blade templater from laravel 5.1
+// more info: https://laravel.com/docs/5.1/blade
+function view($view, $data){
+
+	$views = __DIR__ . '/../views';
+	$cache = __DIR__ . '/../cache';
+
+	$blade = new Philo\Blade\Blade($views, $cache);
+	echo $blade->view()->make($view, $data)->render();
+	unset($blade);
+}
+
 
 ?>

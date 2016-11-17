@@ -36,8 +36,13 @@ function GetMessages($MessageID = ""){
   if($MessageID){
 	  $post .= '<DetailLevel>ReturnMessages</DetailLevel>';
 		$post .= '<MessageIDs>
-			<MessageID>'.$MessageID.'</MessageID>
-			</MessageIDs>';
+					<MessageID>'.$MessageID.'</MessageID>
+					<MessageID>83585538220</MessageID>
+					<MessageID>83575798490</MessageID>
+				</MessageIDs>';
+		// $post .= '<ExternalMessageIDs>
+		// 			<ExternalMessageID>1400861478010</ExternalMessageID>
+		// 		</ExternalMessageIDs>';
 	  }
   //в противном случае выдаем лишь заголовки
   else{
@@ -54,22 +59,41 @@ $post .= '</GetMyMessagesRequest>';
 	return json_decode(json_encode(simplexml_load_string($result)), true);
 }
 
-$message = GetMessages('82396323240');
+$message = GetMessages('83671097850');
 
-$mess_text = $message['Messages']['Message']['Text'];
-$dom = str_get_html($mess_text);
-$client_msg = $dom->find('#UserInputtedText', 0)->innertext;
-$mess_content = $message['Messages']['Message']['Content'];
-file_put_contents('lib/adds/mess-text.html', $mess_text);
-unset($message['Messages']['Message']['Text']);
-unset($message['Messages']['Message']['Content']);
+if(isset($message['Messages']['Message']['Sender']))
+	$message['Messages']['Message'] = [$message['Messages']['Message']];
+
+foreach ($message['Messages']['Message'] as $key => &$Message) {
+
+	$mess_text = $Message['Text'];
+	$dom = str_get_html($mess_text);
+	$client_msg = $dom->find('#UserInputtedText', 0)->innertext;
+	echo "<pre>";
+	echo $client_msg;
+	echo '</pre>';
+	// unset($Message['Text']);
+	// unset($Message['Content']);
+}
+// $mess_text = $message['Messages']['Message']['Text'];
+// $dom = str_get_html($mess_text);
+// $client_msg = $dom->find('#UserInputtedText', 0)->innertext;
+// $mess_content = $message['Messages']['Message']['Content'];
+// file_put_contents('lib/adds/mess-text.html', $mess_text);
+// unset($message['Messages']['Message']['Text']);
+// unset($message['Messages']['Message']['Content']);
 print_r($message);
 
 ?>
 </pre>
 <div class="ppp-block">
 <?php
-echo $client_msg;
+//echo $client_msg;
 ?>
 </div>
 <iframe src="lib/adds/mess-text.html" frameborder="0" style="width:100%;height:750px;background:#fff"></iframe>
+<style>
+	body{
+		    padding-top: 50px!important;
+	}
+</style>

@@ -329,4 +329,101 @@ class Ebay_shopping2{
 		return json_decode(json_encode(simplexml_load_string($result)), true);
 	}
 
+
+
+	public function GetMessages($folder = 'inbox', $EntriesPerPage = 100)
+	{
+		$FolderID = '0';
+		if ($folder === 'outbox') {
+			$FolderID = '1';
+		}
+		$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
+						"X-EBAY-API-CALL-NAME: GetMyMessages",
+						"X-EBAY-API-SITEID: 0",
+						"Content-Type: text/xml");
+
+		$xml = '<?xml version="1.0" encoding="utf-8"?>
+				<GetMyMessagesRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+				  <RequesterCredentials>
+				    <eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+				  </RequesterCredentials>
+				  <WarningLevel>High</WarningLevel>
+				  <FolderID>'.$FolderID.'</FolderID>
+				  <Pagination>
+				    <EntriesPerPage>'.$EntriesPerPage.'</EntriesPerPage>
+				    <PageNumber>1</PageNumber>
+				  </Pagination>
+				  <DetailLevel>ReturnHeaders</DetailLevel>
+				</GetMyMessagesRequest>';
+
+		$result = $this->request($this->api_url, $xml, $headers);
+		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
+
+	function GetMessageBody($MessageID = ""){
+
+		$post = '<?xml version="1.0" encoding="utf-8"?>
+				<GetMyMessagesRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+				  <RequesterCredentials>
+				    <eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+				  </RequesterCredentials>
+				  <WarningLevel>High</WarningLevel>
+					<DetailLevel>ReturnMessages</DetailLevel>
+					<MessageIDs>
+						<MessageID>'.$MessageID.'</MessageID>
+					</MessageIDs>
+				</GetMyMessagesRequest>';
+
+		$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
+		"X-EBAY-API-CALL-NAME: GetMyMessages",
+		"X-EBAY-API-SITEID: 0",
+		"Content-Type: text/xml");
+
+		$result_xml = $this->request($this->api_url, $post, $headers);
+		$result_arr = json_decode(json_encode(simplexml_load_string($result_xml)), true);
+		if($result_arr['Ack'] === 'Failure') return false;
+
+		if(isset($result_arr['Messages']['Message']['Sender']))
+			$result_arr['Messages']['Message'] = [$result_arr['Messages']['Message']];
+
+		$message = $result_arr['Messages']['Message'][0];
+		if(!$message) return false;
+
+		$mess_text = $message['Text'];
+		$dom = str_get_html($mess_text);
+		$transId = '0';
+		if (preg_match('/Transaktionsnummer: (.+)<br>/', $mess_text, $matches)) $transId = $matches[1];
+		$msg_body = $dom->find('#UserInputtedText', 0)->innertext;
+		return ['msg_body'=>$msg_body,'transId'=>$transId];
+	}
+
+
+	//ответ на вопрос от пользователя
+	function AnswerQuestion($RecipientID, $ParentMessageID, $text){
+
+	$post = '<?xml version="1.0" encoding="utf-8"?>
+			<AddMemberMessageRTQRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+			  <RequesterCredentials>
+			    <eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+			  </RequesterCredentials>
+			  <MemberMessage>
+			    <Body>'.htmlspecialchars($text).'</Body>
+			    <DisplayToPublic>true</DisplayToPublic>
+			    <EmailCopyToSender>true</EmailCopyToSender>
+			    <ParentMessageID>'.$ParentMessageID.'</ParentMessageID>
+			    <RecipientID>'.$RecipientID.'</RecipientID>
+			  </MemberMessage>
+			</AddMemberMessageRTQRequest>';
+
+		$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
+			"X-EBAY-API-CALL-NAME: AddMemberMessageRTQ",
+			"X-EBAY-API-SITEID: 0",
+			"Content-Type: text/xml");
+
+		$result = $this->request($this->api_url, $post, $headers);
+		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
+
+
+
 } // class Ebay_shopping 2

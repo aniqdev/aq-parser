@@ -14,6 +14,7 @@
         </li>
         <li><a href="#">Ebay.com</a>
 			<ul>
+				<li><a href="?action=ebay-messages">Messages</a></li>
 				<li><a href="?action=orders-page&list_type=all&active[]=act_all">Orders&nbsp;Page</a></li>
 				<li><a href="?action=orders">Orders&nbsp;API</a></li>
 				<li><a href="?action=orders-page-full">Orders&nbsp;Full</a></li>

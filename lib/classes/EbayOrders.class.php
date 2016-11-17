@@ -81,7 +81,7 @@ class EbayOrders
 	    'X-EBAY-API-APP-NAME: Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
 	    'X-EBAY-API-CERT-NAME: PRD-ae576df59071-a52d-4e1b-8b78-9156',
 		"X-EBAY-API-CALL-NAME: GetOrders",
-		"X-EBAY-API-SITEID: 0",
+		"X-EBAY-API-SITEID: 77",
 		"Content-Type: text/xml");
 
 		$result = $this->request($this->api_url, $post, $headers);
@@ -120,6 +120,7 @@ class EbayOrders
 	//помечает товар(заказ) как оплаченный
 	public function MarkAsPaid($OrderID, $status = 'true'){
 
+		if(defined('DEV_MODE')) return ['mode'=>'dev','Ack'=>'Success'];
 		$post = '<?xml version="1.0" encoding="utf-8"?>
 		<CompleteSaleRequest xmlns="urn:ebay:apis:eBLBaseComponents">
 		  <RequesterCredentials>

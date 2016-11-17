@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Imagine' => array($vendorDir . '/imagine/imagine/lib'),
+    'Doctrine\\Common\\Inflector\\' => array($vendorDir . '/doctrine/inflector/lib'),
 );

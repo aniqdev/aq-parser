@@ -1137,6 +1137,19 @@ zz{
       height: 18px;
 }
 
+.op-titles{
+  max-width: 400px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.op-markorder{
+      font-size: 20px;
+    line-height: 13px;
+    font-weight: bold;
+}
+
 .op-tab-navigator{
     margin-bottom: 8px;
 }
@@ -1283,4 +1296,40 @@ button.load:after{
   color: #eaeaea;
   cursor: default;
 }
+/*
+=========================================
+*/
+.q-status{
+    margin-top: 10px;
+    background: #fff;
+    height: 22px;
+    border: 1px solid #eaeaea;
+}
 
+.q-radio{
+  display: none;
+}
+
+.q-label{
+  float: left;
+  display: block;
+  width: 50%;
+  height: 20px;
+      margin: 0;
+}
+
+.q-label1{
+  background: rgba(255, 0, 0, 0.4);
+}
+
+.q-label2{
+  background: rgba(0, 0, 255, 0.4);
+}
+
+.q-status .q-radio1:checked~.q-label1{
+  background: rgba(255, 0, 0, 0.8);
+}
+
+.q-status .q-radio2:checked~.q-label2{
+  background: rgba(0, 0, 255, 0.8);
+}

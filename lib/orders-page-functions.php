@@ -3,15 +3,15 @@
 function op_href($state = 'l1', $order_id = '', $item_id = ''){
 
 	switch ($state) {
-		case 'l1': echo '?action=orders-page&list_type=all&active[]=act_all';
+		case 'l1': echo '?action=orders-page&list_type=all&active[]=act_all&offset=0&limit=100';
 			# code...
 			break;
 
-		case 'l2': echo '?action=orders-page&list_type=paid&active[]=act_paid';
+		case 'l2': echo '?action=orders-page&list_type=paid&active[]=act_paid&offset=0&limit=100';
 			# code...
 			break;
 
-		case 'l3': echo '?action=orders-page&list_type=shipped&active[]=act_shipped';
+		case 'l3': echo '?action=orders-page&list_type=shipped&active[]=act_shipped&offset=0&limit=100';
 			# code...
 			break;
 
@@ -47,12 +47,17 @@ function op_act($value='f'){
 function get_orders($option){
 
 	if($option === null) return [];
+	if(isset($_GET['offset']) && isset($_GET['limit'])){
+		$limit = 'LIMIT '.(int)$_GET['offset'].','.(int)$_GET['limit'];
+	}else{
+		$limit = 'LIMIT 500';
+	}
 	switch ($option) {
-		case 'all':	return arrayDB("SELECT * FROM ebay_orders ORDER BY id DESC LIMIT 50");
+		case 'all':	return arrayDB("SELECT * FROM ebay_orders ORDER BY id DESC $limit");
 
-		case 'paid':	return arrayDB("SELECT * FROM ebay_orders WHERE PaidTime<>0 ORDER BY id DESC LIMIT 50");
+		case 'paid':	return arrayDB("SELECT * FROM ebay_orders WHERE PaidTime<>0 ORDER BY id DESC $limit");
 
-		case 'shipped':	return arrayDB("SELECT * FROM ebay_orders WHERE ShippedTime<>0 ORDER BY id DESC LIMIT 50");
+		case 'shipped':	return arrayDB("SELECT * FROM ebay_orders WHERE ShippedTime<>0 ORDER BY id DESC $limit");
 		
 		default: return [];
 	}
@@ -113,6 +118,25 @@ function op_sugest_send_product(){
 		</form>
 	</div>';
 	
+}
+
+
+function op_platiru_product(){
+	
+	if (!isset($_GET['item_id'])) return '';
+	$order_id = $_GET['order_id'];
+	$item_id = $_GET['item_id'];
+
+	$frame_links = arrayDB("SELECT * FROM ebay_invoices WHERE parser_order_id='$order_id' AND ebay_game_id='$item_id'");
+
+	$frames = '';
+	foreach ($frame_links as $key => $frame_link) {
+		
+		$frames .= '<br><iframe class="invoice-iframe" src="'.$frame_link['product_frame_link'].'&oper=checkpay">
+        Ваш браузер не поддерживает плавающие фреймы!
+     </iframe>';
+	}
+	return $frames;
 }
 
 ?>

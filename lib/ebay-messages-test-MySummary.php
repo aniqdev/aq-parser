@@ -1,6 +1,6 @@
 <pre>
 <?php
-ini_get('safe_mode') or set_time_limit(180); // Указываем скрипту, чтобы не обрывал связь.
+ini_get('safe_mode') or set_time_limit(30); // Указываем скрипту, чтобы не обрывал связь.
 
 $url = 'https://api.ebay.com/ws/api.dll';
 $token = EBAY_GIG_TOKEN;
@@ -54,7 +54,13 @@ $post .= '</GetMyMessagesRequest>';
 	return json_decode(json_encode(simplexml_load_string($result)), true);
 }
 
-print_r(GetMessages());
+
+
+$res = GetMessages();
+$aaa = array_collapser($res);
+
+print_r($aaa);
+print_r($res);
 
 ?>
 </pre>

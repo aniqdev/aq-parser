@@ -70,7 +70,7 @@ function GetOrders(){
 			<eBayAuthToken>'.$token.'</eBayAuthToken>
 		  </RequesterCredentials>
 		  <OrderStatus>All</OrderStatus>
-		  <NumberOfDays>2</NumberOfDays>
+		  <NumberOfDays>1</NumberOfDays>
 		  <OrderRole>Seller</OrderRole>
 		  <Pagination> 
 			<EntriesPerPage>100</EntriesPerPage>

@@ -56,8 +56,33 @@ if($pay_resp['success'] === 'OK' && $received_item['success'] === 'OK'){
     echo "</pre>";
   }
 
-//$parser_order_id = $_POST['tch-order-orderid'];
-  //arrayDB("INSERT INTO ebay_invoices (parser_order_id) VALUES($parser_order_id)");
+    unset($inv_res['xml']);
+    unset($inv_res['xml1251']);
+    // echo "<hr><pre>";
+    // print_r($inv_res);
+    // print_r($pay_resp);
+    // echo "</pre>";
+
+  $parser_order_id      = isset($_POST['tch-order-orderid']) ? _esc($_POST['tch-order-orderid']) : '0';
+  $ebay_game_id         = isset($_POST['tch-order-itemid'])  ? _esc($_POST['tch-order-itemid']) : '0';
+  $platiru_invoice_json = isset($inv_res)                    ? _esc(json_encode($inv_res)) : '0';
+  $web_pay_json         = isset($pay_resp)                   ? _esc(json_encode($pay_resp)) : '0';
+  $product_frame_link   = isset($inv_res['inv']['link'])     ? _esc($inv_res['inv']['link']) : null;
+  $product_api_link     = isset($receive_item_link)          ? _esc($receive_item_link) : null;
+
+  arrayDB("INSERT INTO ebay_invoices (parser_order_id, 
+                                      ebay_game_id, 
+                                      platiru_invoice_json, 
+                                      web_pay_json, 
+                                      product_frame_link, 
+                                      product_api_link) 
+                               VALUES('$parser_order_id', 
+                                      '$ebay_game_id', 
+                                      '$platiru_invoice_json', 
+                                      '$web_pay_json', 
+                                      '$product_frame_link', 
+                                      '$product_api_link')");
+
 
 }
 
