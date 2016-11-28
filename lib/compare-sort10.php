@@ -3,9 +3,9 @@
 <?php
 //require_once 'lib/simple_html_dom.php';
 
-$t1 = readExcel('csv/sort10nov.xlsx', 0);
-$t4 = readExcel('csv/sort10nov.xlsx', 1);
-$t5 = readExcel('csv/sort10nov.xlsx', 2);
+$t1 = readExcel('csv/sort10nov2.xlsx', 0);
+$t4 = readExcel('csv/sort10nov2.xlsx', 1);
+$t5 = readExcel('csv/sort10nov2.xlsx', 2);
 
 
 var_dump($t1_len = count($t1));
@@ -46,8 +46,8 @@ print_r($t6);
 print_r($t7);
 print_r($t1);
 
-writeExcel('csv/sort10nov_res.xlsx', $t1, 0);
-writeExcel('csv/sort10nov_res.xlsx', $t6, 3);
-writeExcel('csv/sort10nov_res.xlsx', $t7, 4);
+writeExcel('csv/sort10nov2_res.xlsx', $t1, 0);
+writeExcel('csv/sort10nov2_res.xlsx', $t6, 3);
+writeExcel('csv/sort10nov2_res.xlsx', $t7, 4);
 ?>
 </pre>

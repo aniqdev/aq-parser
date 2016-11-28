@@ -3,8 +3,8 @@
 <?php
 //require_once 'lib/simple_html_dom.php';
 
-$t1 = readExcel('csv/sort11nov.xlsx', 0);
-$t2 = readExcel('csv/sort11nov.xlsx', 1);
+$t1 = readExcel('csv/sort11nov2.xlsx', 0);
+$t2 = readExcel('csv/sort11nov2.xlsx', 1);
 
 var_dump($t1_len = count($t1));
 var_dump($t2_len = count($t2));
@@ -32,6 +32,6 @@ for ($i=2; $i <= $t1_len; $i++) {
 }
 print_r($t1);
 
-writeExcel('csv/sort11nov_res.xlsx', $t1, 0);
+writeExcel('csv/sort11nov2_res.xlsx', $t1, 0);
 ?>
 </pre>

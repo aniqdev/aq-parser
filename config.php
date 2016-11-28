@@ -32,4 +32,3 @@ define('A3_GIG_MAIL_PWD', '!leto2016');
 
 define('AQS_BOT_TOKEN', '198456336:AAHzGlLSkduqZ7Q5kZidOkE1SC1gWVMsF_s');
 
-define('QS', 'QueryString');

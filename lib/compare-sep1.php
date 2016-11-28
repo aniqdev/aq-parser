@@ -1,8 +1,8 @@
 <pre>
 <?php
 
-$t1 = readExcel('csv/sep1nov.xlsx', 0);
-$t2 = readExcel('csv/sep1nov.xlsx', 1);
+$t1 = readExcel('csv/sep1nov2.xlsx', 0);
+$t2 = readExcel('csv/sep1nov2.xlsx', 1);
 
 var_dump($t1_len = count($t1));
 var_dump($t2_len = count($t2));
@@ -103,6 +103,6 @@ foreach ($t1 as $k1 => $row) {
 // var_dump(count($valls));
 // print_r($cells);
 // print_r($valls);
-writeCell('csv/sep1nov_res.xlsx', $cells, $valls);
+writeCell('csv/sep1nov2_res.xlsx', $cells, $valls);
 ?>
 </pre>

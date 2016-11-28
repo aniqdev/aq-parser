@@ -85,7 +85,7 @@ function is_chkd($a, $b){if ($a === $b) echo 'checked';}
 		<div class="chat-body clearfix">
 			<div class="header">
 				<a title="<?php echo $msg['e_Subject'];?>" href="?action=ebay-messages&correspondent=<?php echo $msg['e_Correspondent'];?>&message_id=<?php echo $msg['e_ExternalMessageID'];?>"><strong class="primary-font"><?php echo $msg['e_Correspondent']; ?></strong></a>
-				<small class="text-muted"><?php echo $msg['e_ItemTitle']; ?></small>
+				<a href="?<?php echo query_to_orders_page(['order_id'=>'0','q'=>$msg['e_transId']]);?>"><small class="text-muted"><?php echo $msg['e_ItemTitle']; ?></small></a>
 				<small class="pull-right text-muted">
 					<span class="glyphicon glyphicon-time"></span><?php echo $msg['e_ReceiveDate']; ?></small>
 			</div>

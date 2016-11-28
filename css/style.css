@@ -358,7 +358,7 @@ input[type=file]{
     width: 100%;
     top: 0;
     left: 0;
-    z-index: 1;
+    z-index: 999;
 }
 
 .navigate,
@@ -1200,6 +1200,8 @@ zz{
   width: 1000px;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.65);
   display: none;
+  z-index: 2;
+  border-radius: 5px 0 0 5px;
 }
 
 .op-main-modal.active{
@@ -1269,10 +1271,21 @@ background: #2e3337;
     border: 1px solid #161b1f;
     color: #eaeaea;
     font-family: sans-serif;
+        display: inline-block;
+    text-align: center;
 }
 
 .op-modal-btn:active{
   background: linear-gradient(to bottom, #5e646c 0%,#494d55 100%);
+}
+
+.op-orders-table tr.active td{
+  background: #364e6c;
+}
+
+.op-pagination a.current{
+  background: #ccc;
+  cursor: default;
 }
 
 button.load:after{

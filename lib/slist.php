@@ -15,7 +15,9 @@ $context = stream_context_create($options);
 if ($_GET['pages']) {
     $pages = $_GET['pages'];
 }else{
-    $data = file_get_html('http://store.steampowered.com/search/?sort_by=Released_DESC&page=1', false, $context);
+    $doc = file_get_contents('http://store.steampowered.com/search/?sort_by=Released_DESC&page=1', false, $context);
+    //var_dump($doc);
+    $data = str_get_html($doc);
     $pages = $data->find('.search_pagination_right a', count($data->find('.search_pagination_right a')) - 2)->innertext;
 }
 //  логика получения отметки mark(количество минуть начала эпохиUnix)
@@ -28,13 +30,14 @@ if ($_GET['mark']) {
 // Начальная страница это $x = 1 (цифру можно изменить), конечная страница по умолчанию $pages (можно изменить на цифру). $x++ Вообще не трогаем.
 
     // Основная ссылка, с которой мы парсим игры
-    $page = file_get_html('http://store.steampowered.com/search/?sort_by=Released_DESC&page=' . $x, false, $context);
-
+    $doc = file_get_contents('http://store.steampowered.com/search/?sort_by=Released_DESC&page=' . $x, false, $context);
+    //var_dump($doc);
+    $page = str_get_html($doc);
     $titleArr = array();
     $priceArr = array();
     $ratingArr = array();
     $reviewsArr = array();
-    foreach ($page->find('.search_result_row') as $key => $val) {
+    foreach ($page->find('a[data-ds-appid]') as $key => $val) {
 
         $title = $page->find('.title', $key);
         ($title) ? $title = $title->innertext : $title = '';
@@ -84,10 +87,10 @@ if ($_GET['mark']) {
             $reviews = '';
         }
 
-        // $titleArr[] = $title;
-        // $priceArr[] = $price;
-        // $ratingArr[] = $rating;
-        // $reviewsArr[] = $reviews;
+        $titleArr[] = $title;
+        $priceArr[] = $price;
+        $ratingArr[] = $rating;
+        $reviewsArr[] = $reviews;
 
         // echo '<hr><hr>'.mysql_escape_string(trim($appid));
         // echo '<hr>'.mysql_escape_string(trim($title));
@@ -98,28 +101,27 @@ if ($_GET['mark']) {
         // echo '<hr>'.mysql_escape_string($reviews);
         // echo '<hr>'.mysql_escape_string($mark);
 
-        $appid   = mysql_escape_string(trim($appid));
-        $title   = mysql_escape_string(trim($title));
-        $link    = mysql_escape_string(trim($link));
-        $year    = mysql_escape_string(trim($year));
-        $price   = mysql_escape_string(trim($price));
-        $sprice  = mysql_escape_string(trim($sprice));
-        $rating  = mysql_escape_string($rating);
-        $reviews = mysql_escape_string($reviews);
-        $appsub  = mysql_escape_string($sub);
-        $mark    = mysql_escape_string($mark);
+        $appid   = _esc(trim($appid));
+        $title   = _esc(trim($title));
+        $link    = _esc(trim($link));
+        $year    = _esc(trim($year));
+        $price   = _esc(trim($price));
+        $sprice  = _esc(trim($sprice));
+        $rating  = _esc($rating);
+        $reviews = _esc($reviews);
+        $appsub  = _esc($sub);
+        $mark    = _esc($mark);
 
         arrayDB("INSERT INTO slist VALUES(null,'$appid','$title','$link','$year','$price','$sprice','$rating','$reviews','$appsub','$mark',null)");
     }
 
-    // $jsonInfo = array('pages' => $pages,
-    //                     'info' => array('title' => $titleArr,
-    //                                     'price' => $priceArr,
-    //                                     'rating'=> $ratingArr,
-    //                                     'views' => $reviewsArr)
-    //                     );
+    $jsonInfo = array('title' => $titleArr,
+                                        'price' => $priceArr,
+                                        'rating'=> $ratingArr,
+                                        'views' => $reviewsArr
+                        );
 
-    echo json_encode(array('pages' => $pages, 'mark' => $mark, 'errors' => $_ERRORS));
+    echo json_encode(array('pages' => $pages, 'mark' => $mark, 'info'=>$jsonInfo, 'errors' => $_ERRORS));
 
 else: ?>
 

@@ -38,15 +38,38 @@ function op_href($state = 'l1', $order_id = '', $item_id = ''){
 }
 
 
+function op_href2($arr = []){
+	$qs_obj = new QueryString();
+	foreach ($arr as $key => $val) $qs_obj->set($key,$val);
+	echo '?'.$qs_obj->give();
+}
+function op_hrefE($arr = []){
+	$qs_obj = new QueryString();
+	foreach ($arr as $key => $val) $qs_obj->set($key,$val);
+	echo '?'.$qs_obj->give();
+}
+function op_hrefR($arr = []){
+	$qs_obj = new QueryString();
+	foreach ($arr as $key => $val) $qs_obj->set($key,$val);
+	return '?'.$qs_obj->give();
+}
+
+
 function op_act($value='f'){
 	if(!isset($_GET['active'])) $_GET['active'] = ['act_all'];
 	if (in_array($value, $_GET['active'])) echo 'active';
 }
 
 
+function op_active($get, $val){
+	if($_GET[$get] == $val) echo 'active';
+}
+
+
 function get_orders($option){
 
 	if($option === null) return [];
+	if(isset($_REQUEST['q']) && $_REQUEST['q']) $option = 'search';
 	if(isset($_GET['offset']) && isset($_GET['limit'])){
 		$limit = 'LIMIT '.(int)$_GET['offset'].','.(int)$_GET['limit'];
 	}else{
@@ -67,6 +90,12 @@ function get_orders($option){
 			$_GET['count'] = arrayDB("SELECT count(*) as count FROM ebay_orders WHERE ShippedTime<>0");
 			$_GET['count'] = $_GET['count'][0]['count'];
 			return arrayDB("SELECT * FROM ebay_orders WHERE ShippedTime<>0 ORDER BY id DESC $limit");
+
+		case 'search':
+			$q = _esc(trim($_REQUEST['q']));
+			$_GET['count'] = arrayDB("SELECT count(*) as count FROM ebay_orders WHERE order_id LIKE '%{$q}%' OR BuyerUserID LIKE '%{$q}%' OR BuyerEmail LIKE '%{$q}%'");
+			$_GET['count'] = $_GET['count'][0]['count'];
+			return arrayDB("SELECT * FROM ebay_orders WHERE order_id LIKE '%{$q}%' OR BuyerUserID LIKE '%{$q}%' OR BuyerEmail LIKE '%{$q}%'");
 		
 		default: return [];
 	}
@@ -79,14 +108,9 @@ function chat_item_links(){
 	$goods = json_decode($order_info[0]['goods'], true);
 	$html_str = '';
 	foreach ($goods as $gk => $good) {
-		$query = $_SERVER['QUERY_STRING'];
-		parse_str($query, $query_arr);
 		$active = '';
-		if(@$query_arr['item_id'] === $good['itemid']) $active = 'active';
-		$query_arr['item_id'] = $good['itemid'];
-		$query = http_build_query($query_arr);
-		$query = preg_replace('/%5B[0-9]+%5D/simU', '[]', $query);
-		$html_str .= '<a class="op_modal_game_link '.$active.'" href="?'.$query.'">'.$good['title'].'</a><br>';
+		if($_GET['item_id'] === $good['itemid']) $active = 'active';
+		$html_str .= '<a class="op_modal_game_link '.$active.'" href="'.op_hrefR(['item_id'=>$good['itemid']]).'">'.$good['title'].'</a><br>';
 	}
 	return $html_str;
 }
@@ -151,32 +175,46 @@ function op_platiru_product(){
 
 function op_pagination()
 {	
-	$count = $_GET['count']-1;
-	$limit = $_GET['limit'];
-	$offset_prev = $_GET['offset']-$limit;
+	$count = (int)$_GET['count'];
+	$offset = (int)$_GET['offset'];
+	$limit = (int)$_GET['limit'];
+	if($limit > 500) $limit = 500;
+	$offset_prev = $offset - $limit;
 	if($offset_prev < 0) $offset_prev = 0;
-	$offset_next = $_GET['offset']+$limit;
-	if($offset_next > $count) $offset_next = $count-1;
+	$offset_next = $offset + $limit;
+	if($offset_next > $count) $offset_next = $offset;
 	//var_dump($count/$limit);
 	$str =
 	'<nav aria-label="Page navigation">
-	  <ul class="pagination">
+	  <ul class="pagination op-pagination">
 	    <li>
 	      <a href="?'.obj(QS)->SET('offset',$offset_prev)->give().'" aria-label="Previous">
 	        <span aria-hidden="true">&laquo;</span>
 	      </a>
-	    </li>'.
-	    // '<li><a href="#">1</a></li>
-	    // <li><a href="#">2</a></li>
-	    // <li><a href="#">3</a></li>
-	    // <li><a href="#">4</a></li>
-	    // <li><a href="#">5</a></li>'.
-	    '<li>
+	    </li>';
+	for ($i=-4; $i <= 4; $i++) {
+		$inoffset = $offset + ($limit * $i);
+		$num = floor($inoffset / $limit + 1);
+		$b = $count - $inoffset;
+		$a = $b - $limit + 1;
+		if($a < 0) $a = 1;
+		if ($inoffset < 0) {
+			continue;
+		}elseif ($inoffset > $count) {
+			break;
+		} elseif ($inoffset == $offset) {
+			$str .= '<li class="active"><a class="curren" title="'.$a.'-'.$b.'">'.$num.'</a></li>';
+			$epilog = $a.'-'.$b.' of '.$count.' results';
+		}else{
+			$str .= '<li><a href="'.op_hrefR(['offset'=>$inoffset]).'" title="'.$a.'-'.$b.'">'.$num.'</a></li>';
+		}
+	}
+	$str .= '<li>
 	      <a href="?'.obj(QS)->SET('offset',$offset_next)->give().'" aria-label="Next">
 	        <span aria-hidden="true">&raquo;</span>
 	      </a>
 	    </li>
-	  </ul><b>total: </b>'.$count.
+	  </ul><b>'.$epilog.'</b>'.
 	'</nav>';
 
 	echo $str;

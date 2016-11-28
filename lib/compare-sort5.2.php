@@ -3,8 +3,8 @@
 <?php
 //require_once 'lib/simple_html_dom.php';
 
-$t1 = readExcel('csv/sort5.2.xlsx', 0);
-$t2 = readExcel('csv/sort5.2.xlsx', 1);
+$t1 = readExcel('csv/sort5.2nov.xlsx', 0);
+$t2 = readExcel('csv/sort5.2nov.xlsx', 1);
 
 var_dump($t1_len = count($t1));
 var_dump($t2_len = count($t2));
@@ -46,7 +46,7 @@ foreach ($t1 as $k1 => $row) {
 }
 var_dump(count($cells));
 var_dump(count($valls));
-writeCell('csv/sort5.2res.xlsx', $cells, $valls);
+writeCell('csv/sort5.2nov_res.xlsx', $cells, $valls);
 // print_r($cells);
 // print_r($valls);
 ?>

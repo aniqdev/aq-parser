@@ -49,6 +49,13 @@ class ComposerStaticInit920844333485d70c18c57609e87d17fe
             'GuzzleHttp\\Promise\\' => 19,
             'GuzzleHttp\\' => 11,
         ),
+        'D' => 
+        array (
+            'Ddeboer\\Transcoder\\Tests\\' => 25,
+            'Ddeboer\\Transcoder\\' => 19,
+            'Ddeboer\\Imap\\Tests\\' => 19,
+            'Ddeboer\\Imap\\' => 13,
+        ),
         'C' => 
         array (
             'Curl\\' => 5,
@@ -56,6 +63,13 @@ class ComposerStaticInit920844333485d70c18c57609e87d17fe
         'A' => 
         array (
             'Automattic\\WooCommerce\\' => 23,
+            'Amenadiel\\JpGraph\\Util\\' => 23,
+            'Amenadiel\\JpGraph\\Themes\\' => 25,
+            'Amenadiel\\JpGraph\\Text\\' => 23,
+            'Amenadiel\\JpGraph\\Plot\\' => 23,
+            'Amenadiel\\JpGraph\\Image\\' => 24,
+            'Amenadiel\\JpGraph\\Graph\\' => 24,
+            'Amenadiel\\JpGraph\\' => 18,
         ),
     );
 
@@ -125,6 +139,22 @@ class ComposerStaticInit920844333485d70c18c57609e87d17fe
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
         ),
+        'Ddeboer\\Transcoder\\Tests\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/ddeboer/transcoder/tests',
+        ),
+        'Ddeboer\\Transcoder\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/ddeboer/transcoder/src',
+        ),
+        'Ddeboer\\Imap\\Tests\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/ddeboer/imap/tests',
+        ),
+        'Ddeboer\\Imap\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/ddeboer/imap/src',
+        ),
         'Curl\\' => 
         array (
             0 => __DIR__ . '/..' . '/php-curl-class/php-curl-class/src/Curl',
@@ -133,9 +163,44 @@ class ComposerStaticInit920844333485d70c18c57609e87d17fe
         array (
             0 => __DIR__ . '/..' . '/automattic/woocommerce/src/WooCommerce',
         ),
+        'Amenadiel\\JpGraph\\Util\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/amenadiel/jpgraph/src/util',
+        ),
+        'Amenadiel\\JpGraph\\Themes\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/amenadiel/jpgraph/src/themes',
+        ),
+        'Amenadiel\\JpGraph\\Text\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/amenadiel/jpgraph/src/text',
+        ),
+        'Amenadiel\\JpGraph\\Plot\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/amenadiel/jpgraph/src/plot',
+        ),
+        'Amenadiel\\JpGraph\\Image\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/amenadiel/jpgraph/src/image',
+        ),
+        'Amenadiel\\JpGraph\\Graph\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/amenadiel/jpgraph/src/graph',
+        ),
+        'Amenadiel\\JpGraph\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/amenadiel/jpgraph/src',
+        ),
     );
 
     public static $prefixesPsr0 = array (
+        'P' => 
+        array (
+            'PhpImap' => 
+            array (
+                0 => __DIR__ . '/..' . '/php-imap/php-imap/src',
+            ),
+        ),
         'I' => 
         array (
             'Imagine' => 

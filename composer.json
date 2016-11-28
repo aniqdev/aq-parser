@@ -6,6 +6,9 @@
         "zyberspace/steam-web-api-client": "^0.4.0",
         "php-curl-class/php-curl-class": "^6.0",
         "phpmailer/phpmailer": "^5.2",
-        "philo/laravel-blade": "3.*"
+        "philo/laravel-blade": "3.*",
+        "amenadiel/jpgraph": "^3.6",
+        "php-imap/php-imap": "~2.0",
+        "ddeboer/imap": "^0.5.2"
     }
 }

@@ -6,6 +6,21 @@ spl_autoload_register(function($class)
 	include_once __DIR__ . '/classes/' . $class . '.class.php';
 });
 
+if (function_exists('apc_load_constants')) {
+    function define_array($key, $arr, $case_sensitive = true)
+    {   if (!apc_load_constants($key, $case_sensitive)) {
+            apc_define_constants($key, $arr, $case_sensitive); } }
+} else { function define_array($key, $arr, $case_sensitive = true)
+    { foreach ($arr as $name => $value) define($name, $value, $case_sensitive); } }
+
+//in your code you just write something like this:
+
+define_array('CLASSES', Array(
+			'QS' => 'querystring',
+			'TWO' => 2,
+			'THREE' => 3,
+			));
+
 // функция для работы с SQLite3
 function aqSqlite($query,$multiquery = false){
 		
@@ -381,9 +396,9 @@ function arrToCsv($array, $file_path = 'result.csv', $options = array()){
 				}
 				if($c['keys_first_row']) fputcsv($fp, $keys, $c['delimetr']);
 				for ($i=0; $i < $count; $i++) {
-						if($c['encoding'] === 'windows-1251'){
+						if($c['encoding'] != 'utf-8'){
 								foreach ($array[$i] as &$cell) {
-										$cell = iconv('UTF-8', 'Windows-1251', $cell);
+										$cell = iconv('UTF-8', $c['encoding'], $cell);
 								}
 						}
 						fputcsv($fp, $array[$i], $c['delimetr']);
@@ -627,6 +642,21 @@ function view($view, $data){
 function obj($obj_name = false)
 {
 	if($obj_name) return new $obj_name();
+}
+
+
+function query_to_orders_page($options = []){
+	
+	$query_arr = array_merge([
+	'action'=>'orders-page',
+	'list_type'=>'all',
+	'order_id'=>'0',
+	'modal_type'=>'info',
+	'item_id'=>'0',
+	'offset'=>'0',
+	'limit'=>'100'],$options);
+
+	return http_build_query($query_arr);
 }
 
 ?>

@@ -5,29 +5,24 @@ $orders = get_orders($_GET['list_type']);
 <div class="ajax-loader ajaxed"></div>
 
 <div class="op-tab-navigator">
-	<div class="op-tab <?php op_act('act_all');?>">
-		<a href="<?php op_href('l1');?>">
+	<div class="op-tab <?php op_active('list_type','all');?>">
+		<a href="<?php op_href2(['list_type'=>'all','q'=>'0']);?>">
 			<i class="glyphicon glyphicon-star">&nbsp;</i>
 			All orders
 		</a>
 	</div>
-	<div class="op-tab <?php op_act('act_paid');?>">
-		<a href="<?php op_href('l2');?>">
+	<div class="op-tab <?php op_active('list_type','paid');?>">
+		<a href="<?php op_href2(['list_type'=>'paid','q'=>'0']);?>">
 			<i class="glyphicon glyphicon-euro">&nbsp;</i>
 			Paid orders
 		</a>
 	</div>
-	<div class="op-tab <?php op_act('act_shipped');?>">
-		<a href="<?php op_href('l3');?>">
+	<div class="op-tab <?php op_active('list_type','shipped');?>">
+		<a href="<?php op_href2(['list_type'=>'shipped','q'=>'0']);?>">
 			<i class="glyphicon glyphicon-euro">&nbsp;</i>
 			Shipped orders
 		</a>
 	</div>
-	<div class="op-tab"><a href="<?php op_href(1);?>"><i class="glyphicon glyphicon-star">&nbsp;</i>three</a></div>
-	<div class="op-tab"><a href="<?php op_href(1);?>"><i class="glyphicon glyphicon-star">&nbsp;</i>four</a></div>
-	<div class="op-tab"><a href="<?php op_href(1);?>"><i class="glyphicon glyphicon-star">&nbsp;</i>five</a></div>
-	<div class="op-tab"><a href="<?php op_href(1);?>"><i class="glyphicon glyphicon-star">&nbsp;</i>six</a></div>
-	<div class="op-tab"><a href="<?php op_href(1);?>"><i class="glyphicon glyphicon-star">&nbsp;</i>seven</a></div>
 </div>
 
 <div class="container-fluid">
@@ -36,18 +31,20 @@ $orders = get_orders($_GET['list_type']);
 		<?php op_pagination();?>
 	</div>
 	<div class="col-sm-4 col-md-3">
-	  <div class="input-group">
-	      <input type="text" class="form-control" placeholder="Search for...">
-	      <span class="input-group-btn">
-	        <button class="btn btn-default" type="button">Go!</button>
-	      </span>
-	   </div><!-- /input-group -->
+		<form action="" method="POST">
+		    <div class="input-group">
+		      <input type="search" class="form-control" name="q" placeholder="Search for...">
+		      <span class="input-group-btn">
+		        <button class="btn btn-default" type="submit">Go!</button>
+		      </span>
+		    </div><!-- /input-group -->
+	    </form>
 	</div>
 </div>
 </div>
 
 <div class="ppp-block" style="max-width:100%;">
-<table class="orders-table">
+<table class="orders-table op-orders-table">
 	<tr>
 		<th>#</th>
 		<th>Cntry</th>
@@ -71,13 +68,14 @@ $orders = get_orders($_GET['list_type']);
 foreach ($orders as $key => $order) {
 	$goods = json_decode($order['goods'], true);
 	$address = json_decode($order['ShippingAddress'], true);
-	echo '<tr>',
-			'<td>',$key+1,'</td>',
-			'<td title="',print_r($address['CountryName'],true),'"><a href="',op_href('open_modal',$order['id']),'">',@$address['Country'],'</td>',
+	echo '<tr class="',op_active('order_id',$order['id']),'">',
+			'<td>',$key+$_GET['offset']+1,'</td>',
+			'<td title="',print_r($address['CountryName'],true),'">
+				<a href="',op_hrefR(['order_id'=>$order['id'],'item_id'=>$goods[0]['itemid']]),'">',@$address['Country'],'</a></td>',
 			'<td>';foreach($goods as $g) echo $g['amount'],'<br>';echo '</td>',
 			'<td>';foreach($goods as $g) echo '<div class="op-titles">',$g['title'],'</div>';echo '</td>',
 			'<td>';foreach($goods as $g) echo $g['price'],'<br>';echo '</td>',
-			'<td>';foreach($goods as $g) echo '<a href="',$g['itemid'],'">link</a><br>';echo '</td>',
+			'<td>';foreach($goods as $g) echo '<a href="//www.ebay.de/itm/',$g['itemid'],'" target="_blank">link</a><br>';echo '</td>',
 			'<td>',$order['total_price'],'</td>',
 			'<td>',$order['BuyerUserID'],'</td>',
 			'<td>',$order['BuyerEmail'],'</td>',
@@ -102,7 +100,7 @@ if(isset($_GET['order_id']) && $_GET['order_id'] > 0 && $_GET['modal_type'] === 
 	$order_info['goods'] = json_decode($order_info['goods'], true);
 	$order_info['ShippingAddress'] = json_decode($order_info['ShippingAddress'], true);
 	$modal_array['header'] = $order_info['BuyerFirstName'].' '.$order_info['BuyerLastName'].' ('.$order_info['BuyerUserID'].')';
-	$modal_array['body'] = '<pre>'.print_r($order_info, true).'</pre>';
+	$modal_array['body'] = '<pre>'.print_r(array_collapser($order_info), true).'</pre>';
 
 }elseif(isset($_GET['order_id']) && $_GET['order_id'] > 0 && $_GET['modal_type'] === 'chat') {
 	
@@ -115,20 +113,19 @@ if(isset($_GET['order_id']) && $_GET['order_id'] > 0 && $_GET['modal_type'] === 
 }
 
 ?>
-<div class="op-main-modal <?php op_act('act_modal');?>">
+<div class="op-main-modal <?php if($_GET['order_id']!='0') echo 'active';?>">
 	<div class="op-modal-header">
 		[<?php echo $modal_array['header']; ?>]
 		<div class="op-modal-tabs pull-right">
-			<a href="<?php op_href('m1');?>" class="op-modal-tab <?php op_act('act_m1');?>">order info</a>
-			<a href="<?php op_href('m2');?>" class="op-modal-tab <?php op_act('act_m2');?>">chat</a>
-			<a href="<?php op_href('m3');?>" class="op-modal-tab <?php op_act('act_m3');?>">plati</a>
+			<a href="<?php op_href2(['modal_type'=>'info']);?>" class="op-modal-tab <?php op_active('modal_type','info');?>">order info</a>
+			<a href="<?php op_href2(['modal_type'=>'chat']);?>" class="op-modal-tab <?php op_active('modal_type','chat');?>">chat</a>
+			<a href="<?php op_href2(['modal_type'=>'plati']);?>" class="op-modal-tab <?php op_active('modal_type','plati');?>">plati</a>
 		</div>
 	</div>
 	<div class="op-modal-body">
 			<?php echo $modal_array['body']; ?>
 	</div>
 	<div class="op-modal-footer">
-		<button type="button" class="op-modal-btn" name="save">save</button>
-		<button type="button" class="op-modal-btn" name="cancel">cancel</button>
+		<a href="<?php op_href2(['order_id'=>'0','item_id'=>'0'])?>" class="op-modal-btn">close</a>
 	</div>
 </div>
