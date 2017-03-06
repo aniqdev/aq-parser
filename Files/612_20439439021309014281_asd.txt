@@ -1,0 +1,19 @@
+<VirtualHost *:80>
+  DocumentRoot "E:/xamp/htdocs"
+  ServerName localhost
+</VirtualHost>
+
+
+<VirtualHost *:80>
+  ServerAdmin webmaster@parser
+  DocumentRoot "E:/xamp/htdocs/parser/www"
+  ServerName parser
+  ServerAlias www.parser
+  ErrorLog "logs/parser-error.log"
+  CustomLog "logs/parser-access.log" common
+</VirtualHost>
+
+
+
+127.0.0.1 parser
+127.0.0.1 www.parser
