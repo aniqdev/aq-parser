@@ -7,7 +7,7 @@ body{
   background: #000;
   color: #eaeaea;
   margin: 0;
-  padding: 50px 10px 10px;
+  padding: 60px 10px 10px;
 }
 
 .clearfix:after,
@@ -428,6 +428,22 @@ input[type=file]{
 
 .navigate .logout-nav{
     float: right;
+    text-decoration: none;
+    color: #fff;
+    border: 1px solid #999;
+    background: red;
+    background: linear-gradient(to bottom, #f3c5bd 0%,#e86c57 50%,#ea2803 51%,#ff6600 75%,#c72200 100%);
+    padding: 3px 10px;
+    line-height: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 1px 3px 1px 4px;
+}
+
+.logout-nav2{
+    position: absolute;
+    right: 0;
+    top: 0;
     text-decoration: none;
     color: #fff;
     border: 1px solid #999;
@@ -1574,4 +1590,12 @@ button.load:after{
 
 .order-list .order-info{
   text-align: left;  
+}
+
+.navbar-inverse {
+    background: linear-gradient(to bottom, #222222 0%,#444444 100%);
+}
+
+.navbar-inverse .navbar-nav>li>a {
+    color: #eaeaea;
 }
