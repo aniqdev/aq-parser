@@ -53,6 +53,7 @@
 				<li><a href="?action=park-table-airport">Chart</a></li>
 			</ul>
         </li>
+
         <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Steam full <i class="caret"></i></a>
 			<ul class="dropdown-menu">
 				<li><a href="?action=steam">get&nbsp;Steam</a></li>
@@ -60,13 +61,16 @@
 				<li><a href="?action=getjson-steam-page">getjson&nbsp;Steam</a></li>
 			</ul>
         </li>
+
         <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Steam lite <i class="caret"></i></a>
 			<ul class="dropdown-menu">
 				<li><a href="?action=slist">get List</a></li>
 				<li><a href="?action=slistshow">show&nbsp;List</a></li>
 			</ul>
         </li>
+
         <li><a href="?action=sql">SQL</a></li>
+        
         <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Other <i class="caret"></i></a>
 			<ul class="dropdown-menu">
 		        <li><a href="?action=csv">Скачать&nbsp;Exel</a></li>
