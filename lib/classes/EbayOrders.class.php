@@ -81,7 +81,7 @@ class EbayOrders
 	    'X-EBAY-API-APP-NAME: Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
 	    'X-EBAY-API-CERT-NAME: PRD-ae576df59071-a52d-4e1b-8b78-9156',
 		"X-EBAY-API-CALL-NAME: GetOrders",
-		"X-EBAY-API-SITEID: 77",
+		"X-EBAY-API-SITEID: 0",
 		"Content-Type: text/xml");
 
 		$result = $this->request($this->api_url, $post, $headers);
@@ -167,6 +167,31 @@ class EbayOrders
 	    'X-EBAY-API-APP-NAME: Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
 	    'X-EBAY-API-CERT-NAME: PRD-ae576df59071-a52d-4e1b-8b78-9156',
 		"X-EBAY-API-CALL-NAME: AddMemberMessageAAQToPartner",
+		"X-EBAY-API-SITEID: 0",
+		"Content-Type: text/xml");
+
+		$result = $this->request($this->api_url, $post, $headers);
+		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
+
+
+	public function GetUser($username, $ItemID){
+
+		$post = '<?xml version="1.0" encoding="utf-8"?> 
+		<GetUserRequest xmlns="urn:ebay:apis:eBLBaseComponents"> 
+		  <RequesterCredentials> 
+			<eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken> 
+		  </RequesterCredentials> 
+		  <UserID>'.$username.'</UserID>
+		  <ItemID>'.$ItemID.'</ItemID>
+		  <DetailLevel>ReturnAll</DetailLevel>
+		</GetUserRequest> ';
+
+		$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
+	    'X-EBAY-API-DEV-NAME: c1f2f124-1232-4bc4-bf9e-8166329ce649',
+	    'X-EBAY-API-APP-NAME: Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
+	    'X-EBAY-API-CERT-NAME: PRD-ae576df59071-a52d-4e1b-8b78-9156',
+		"X-EBAY-API-CALL-NAME: GetUser",
 		"X-EBAY-API-SITEID: 0",
 		"Content-Type: text/xml");
 

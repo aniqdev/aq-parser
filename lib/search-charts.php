@@ -16,9 +16,9 @@ if (isset($_GET['s'])) {
     $search = $_GET['s'];
     $search = substr($search, 0, 64);
     $search = preg_replace("/[^\w\x7F-\xFF\s]/", " ", $search);
-    $good = trim(preg_replace("/\s(\S{1,2})\s/", " ", ereg_replace(" +", "  "," $search ")));
-    echo 'По запросу: <b>"',$good = ereg_replace(" +", " ", $good);
-    $query = "SELECT appid,price,title FROM slist WHERE title LIKE '%{$good}%' AND mark=(SELECT mark FROM slist ORDER BY id DESC LIMIT 1) LIMIT 100";
+    $good = trim(preg_replace("/\s(\S{1,2})\s/", " ", str_replace(" +", "  "," $search ")));
+    echo 'По запросу: <b>"',$good = str_replace(" +", " ", $good);
+    $query = "SELECT appid,old_price as price,title FROM slist WHERE title LIKE '%{$good}%' AND scan=(SELECT scan FROM slist ORDER BY id DESC LIMIT 1) LIMIT 100";
     $result = arrayDB($query);
     echo "\"</b> Найдено: <b>",count($result),'</b> штук<br><br>';
 

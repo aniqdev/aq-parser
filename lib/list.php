@@ -98,6 +98,7 @@ if ($_FILES) {
 			}else $need_title = 'no results';
 		}
 		echo '<tr>
+				<td>',$key+1,'</td>
 				<td>
 					<a href="index.php?action=list&delStr=',$game['id'],'" class="delbutton">×</a>
 					<input type="checkbox" class="chedit" id="chedit',$game['id'],'">

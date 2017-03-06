@@ -19,12 +19,8 @@ function getOrderArray(){
 	if(!isset($ord_arr['Ack']))
 		return ['success'=>0,'text'=>'нет данных от ebay api'];
 
-	// echo "<pre>";
-	// print_r($ord_arr);
-	// echo "</pre>";
-
-	if($ord_arr['Ack'] !== 'Success')
-		return ['success'=>0,'text'=>'ebay api вернул fail','Errors'=>$ord_arr['Errors']];
+	if($ord_arr['Ack'] === 'Failure')
+		return ['success'=>0,'text'=>'ebay api вернул fail','Errors'=>$ord_arr];
 
 	if(empty($ord_arr['OrderArray']))
 		return ['success'=>0,'text'=>'нет заказов'];
@@ -40,9 +36,6 @@ function getOrderArray(){
 
 function saveOrders($ord_arr = []){
 	
-	// echo "<pre>";
-	// print_r($ord_arr);
-	// echo "</pre>";
 	foreach ($ord_arr as $order) {
 		
 		$order_id = $order['OrderID'];
@@ -81,21 +74,25 @@ function saveOrders($ord_arr = []){
 
 		$CreatedTime = $order['CreatedTime'];
 		$d = new DateTime($CreatedTime);
+		$d->add(date_interval_create_from_date_string('1 hour'));
 		$CreatedTime = $d->format('Y-m-d H:i:s');
 
 		$LastModTime = $order['CheckoutStatus']['LastModifiedTime'];
 		$d = new DateTime($LastModTime);
+		$d->add(date_interval_create_from_date_string('1 hour'));
 		$LastModTime = $d->format('Y-m-d H:i:s');
 
 		if(isset($order['PaidTime'])){
 			$PaidTime = $order['PaidTime'];
 			$d = new DateTime($PaidTime);
+			$d->add(date_interval_create_from_date_string('1 hour'));
 			$PaidTime = $d->format('Y-m-d H:i:s');
 		}else $PaidTime = '';
 
 		if(isset($order['ShippedTime'])){
 			$ShippedTime = $order['ShippedTime'];
 			$d = new DateTime($ShippedTime);
+			$d->add(date_interval_create_from_date_string('1 hour'));
 			$ShippedTime = $d->format('Y-m-d H:i:s');
 		}else $ShippedTime = '';
 
@@ -151,6 +148,20 @@ function saveOrders($ord_arr = []){
 				'$LastModTime',
 				'$PaidTime',
 				'$ShippedTime',null)");
+
+
+			$gig_order_id = DB::getInstance()->lastid();
+			foreach ($goods as $key => $good) {
+				for ($i=0; $i < $good['amount']; $i++) { 
+					$title = _esc($good['title']);
+					$price = _esc($good['price']);
+					$amount = _esc($good['amount']);
+					$ebay_id = _esc($good['itemid']);
+					$shipped_time = _esc($ShippedTime);
+					arrayDB("INSERT INTO ebay_order_items (gig_order_id,title,price,amount,ebay_id,shipped_time)
+							VALUES('$gig_order_id','$title','$price','$amount','$ebay_id','$shipped_time')");
+				}
+			}
 		}
 
 

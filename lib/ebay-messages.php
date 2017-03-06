@@ -63,7 +63,7 @@ if (isset($_GET['correspondent'])) {
 	$data = ['correspondent'=>$_GET['correspondent'],
 			 'message_id'=>$_GET['message_id'],
 			 'game_name' => $item_title];
-	view('ebay-messages/send-form',['data'=>$data]);
+	view('ebay-messages+send-form',['data'=>$data]);
 }?>
 <ul class="chat">
 <?php

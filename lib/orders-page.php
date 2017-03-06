@@ -1,8 +1,20 @@
-<?php require_once __DIR__.'/orders-page-functions.php';
+<?php
+if (isset($_GET['sales-chart'])) {
+	header('Content-Type: application/json');
+	$res = arrayDB("SELECT DATE_FORMAT(ShippedTime, '%d-%m') as date ,count(ShippedTime) as count FROM ebay_orders WHERE ShippedTime > NOW() - INTERVAL 30 DAY GROUP BY day(ShippedTime) order by ShippedTime");
+	$ret = [['date','sales']];
+	foreach ($res as $val) {
+		$ret[] = [$val['date'], +$val['count']];
+	}
+	echo json_encode($ret);
+	die();
+}
+
+require_once __DIR__.'/orders-page-functions.php';
 
 $orders = get_orders($_GET['list_type']);
 ?>
-<div class="ajax-loader ajaxed"></div>
+
 
 <div class="op-tab-navigator">
 	<div class="op-tab <?php op_active('list_type','all');?>">
@@ -25,7 +37,7 @@ $orders = get_orders($_GET['list_type']);
 	</div>
 </div>
 
-<div class="container-fluid">
+<div class="container-fluid op-search-panel">
 <div class="row">
 	<div class="col-sm-4">
 		<?php op_pagination();?>
@@ -40,15 +52,26 @@ $orders = get_orders($_GET['list_type']);
 		    </div><!-- /input-group -->
 	    </form>
 	</div>
+	<div class="col-sm-4">
+		<button id="show-chrt" class="btn btn-success pull-right" title="last 30 days diagram">dia</button>
+	</div>
 </div>
+
+<div class="chart-wrapper">
+	<div id="chrt" style="height: 250px; background-color: #fff; padding: 10px;"></div>
+</div>
+
 </div>
 
 <div class="ppp-block" style="max-width:100%;">
 <table class="orders-table op-orders-table">
 	<tr>
 		<th>#</th>
-		<th>Cntry</th>
-		<th>Amnt</th>
+		<th title="Country">Cntry</th>
+		<th title="Status">Stts</th>
+		<th title="Comment">cmm</th>
+		<th title="Execution Method">EM</th>
+		<th title="Ammount">Amnt</th>
 		<th>Game title</th>
 		<th>Price</th>
 		<th>Link</th>
@@ -56,6 +79,8 @@ $orders = get_orders($_GET['list_type']);
 		<th>BuyerUserID</th>
 		<th>Buyer Email</th>
 		<th>Buyer Name</th>
+		<th>Rating</th>
+		<th>RegDate</th>
 		<th>PaidTime</th>
 		<th>ShippedTime</th>
 		<th>Pt</th>
@@ -68,10 +93,14 @@ $orders = get_orders($_GET['list_type']);
 foreach ($orders as $key => $order) {
 	$goods = json_decode($order['goods'], true);
 	$address = json_decode($order['ShippingAddress'], true);
+	$comm = ($order['comment'])?'<div class="glyphicon glyphicon-envelope" title="'.$order['comment'].'"></div>':'';
 	echo '<tr class="',op_active('order_id',$order['id']),'">',
-			'<td>',$key+$_GET['offset']+1,'</td>',
+			'<td title="',$order['id'],'">',$key+$_GET['offset']+1,'</td>',
 			'<td title="',print_r($address['CountryName'],true),'">
-				<a href="',op_hrefR(['order_id'=>$order['id'],'item_id'=>$goods[0]['itemid']]),'">',@$address['Country'],'</a></td>',
+				<a href="',op_hrefR(['order_id'=>$order['id'],'item_id'=>$goods[0]['itemid']]),'">[',@$address['Country'],']</a></td>',
+			'<td>',status_shorter($order['OrderStatus']),'</td>',
+			'<td>',$comm,'</td>',
+			'<td title="',$order['ExecutionMethod'],'">',ucfirst($order['ExecutionMethod'][0]),'</td>',
 			'<td>';foreach($goods as $g) echo $g['amount'],'<br>';echo '</td>',
 			'<td>';foreach($goods as $g) echo '<div class="op-titles">',$g['title'],'</div>';echo '</td>',
 			'<td>';foreach($goods as $g) echo $g['price'],'<br>';echo '</td>',
@@ -80,8 +109,10 @@ foreach ($orders as $key => $order) {
 			'<td>',$order['BuyerUserID'],'</td>',
 			'<td>',$order['BuyerEmail'],'</td>',
 			'<td>',$order['BuyerFirstName'],' ',$order['BuyerLastName'],'</td>',
-			'<td>',$order['PaidTime'],'</td>',
-			'<td>',$order['ShippedTime'],'</td>',
+			'<td>',$order['BuyerFeedbackScore'],'</td>',
+			'<td>',date_shorter($order['BayerRegistrationDate']),'</td>',
+			'<td>',date_shorter($order['PaidTime']),'</td>',
+			'<td>',date_shorter($order['ShippedTime']),'</td>',
 			'<td><button title="'.(($order['PaidTime']==0)?'mark as paid':'unmark as paid').'" class="op-markorder" name="mark_as_paid" value="',$order['order_id'],'">'.(($order['PaidTime']==0)?'+':'-').'</button></td>',
 			'<td><button title="'.(($order['ShippedTime']==0)?'mark as shipped':'unmark as shipped').'" class="op-markorder" name="mark_as_shipped" value="',$order['order_id'],'">'.(($order['ShippedTime']==0)?'+':'-').'</button></td>',
 		 '</tr>';
@@ -129,3 +160,41 @@ if(isset($_GET['order_id']) && $_GET['order_id'] > 0 && $_GET['modal_type'] === 
 		<a href="<?php op_href2(['order_id'=>'0','item_id'=>'0'])?>" class="op-modal-btn">close</a>
 	</div>
 </div>
+
+<style>
+.chart-wrapper{
+	height: 0;
+	transition: height .5s;
+	overflow: hidden;
+}
+.chart-wrapper.active{
+	height: 250px;
+}
+</style>
+<!--Load the AJAX API-->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+	google.charts.load('current', {'packages':['line']});
+	google.charts.setOnLoadCallback(function(){
+
+		$.get('ajax.php?action=orders-page&sales-chart',function(data) {
+	    	drawChart(data);
+	    },'json');
+
+	    $('#show-chrt').on('click', function(e) {
+	    	$('.chart-wrapper').toggleClass('active');
+	    })
+	});
+
+  function drawChart(danye) {
+
+    var data = google.visualization.arrayToDataTable(danye);
+    var options = {
+      title: 'Company Performance',
+      curveType: 'function',
+      legend: { position: 'bottom' }
+    };
+    var chart = new google.charts.Line(document.getElementById('chrt'));
+    chart.draw(data, options);
+  }
+</script>

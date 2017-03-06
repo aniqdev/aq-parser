@@ -17,7 +17,7 @@ function imagine_steam($header_path){
 } // imagine_steam()
 
 function imagine_3d($header_path){
-
+var_dump($header_path);
 	$imagine = new Imagine\Gd\Imagine();
 	$ramka = $imagine->open('images/3d.png');
 	$header = $imagine->open($header_path);
@@ -33,7 +33,7 @@ function imagine_3d($header_path){
 function get_steam_game_data($url){
 
 	// В следующей строчке Steam_Language=german, можно указывать другие языки вместо german
-	$options = array('http' => array('method' => "GET", 'header' => "Accept-language: de\r\n" . "Cookie: Steam_Language=german; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
+	$options = array('http' => array('method' => "GET", 'header' => "Accept-language: de\r\n" . "Cookie: Steam_Language=german; mature_content=1; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
 	$context = stream_context_create($options);
 	$dom = file_get_html($url, false, $context);
 	$steam_title = $dom->find('.apphub_AppName',0)->plaintext;
@@ -50,14 +50,16 @@ function get_steam_game_data($url){
 		//echo '<img src="',$src,'">';
 		$srcs[] = $src;
 	}
-	$desc_str = file_get_contents('lib/adds/opisanie_ebay_xmpl.html');
+	$desc_str = file_get_contents('lib/adds/responsive.html');
 	$search = array(
 		'{{TITLE}}',	'{{DE}}',	'{{DESCRIPTON}}',
-		'{{IMG1}}',		'{{IMG2}}',		'{{IMG3}}'
+		'{{IMG1}}',		'{{IMG2}}',		'{{IMG3}}',
+		'{{IMG3D}}'
 		);
 	$replace = array(
 		$steam_title,	$de,    $steam_description,
-		$srcs[0],		$srcs[1],		$srcs[2]
+		$srcs[0],		$srcs[1],		$srcs[2],
+		'images/test3d.png'
 		);
 	$desc_str = str_replace($search, $replace, $desc_str);
 	file_put_contents('lib/adds/opisanie_ebay.html', $desc_str);

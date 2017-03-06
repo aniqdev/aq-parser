@@ -50,7 +50,7 @@
 //============================================== 
 
 	if (isset($_POST['addSeller'])) {
-		$itemName = mysql_escape_string(trim(strip_tags((int)$_POST['seller'])));
+		$itemName = _esc(trim(strip_tags((int)$_POST['seller'])));
 		echo '<i>Вы добавили: "',$itemName,'" в конец списка</i>';
 		arrayDB("INSERT INTO blacklist VALUES (NULL, '$itemName', 'seller')");
 	}

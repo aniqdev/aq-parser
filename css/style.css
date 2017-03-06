@@ -4,10 +4,6 @@
 }
 
 body{
-  font-family: verdana, Geneva, sans-serif;
-  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-  font-size: 14px;
-  line-height: 1.42857143;
   background: #000;
   color: #eaeaea;
   margin: 0;
@@ -783,6 +779,10 @@ form.search-charts input{
     box-shadow: 1px -1px 2px rgba(255, 254, 254, 0.44);
 }
 
+.platitable .trusted{
+  background: #136909;
+}
+
 .ch-tab-navigator{
 	/*text-align: center;*/
 	    margin-bottom: 8px;
@@ -1036,14 +1036,16 @@ form.imagine-form input{
 }
 
 .frow1>.fcol3 table,
-.tch-smalltable{
+.tch-smalltable,
+.wbtable{
   width: 100%;
-  text-align: center;
 }
 
 .frow1>.fcol3 td,
-.tch-smalltable td{
+.tch-smalltable td,
+.wbtable td{
     border: 1px solid #ddd;
+  text-align: center;
 }
 
 .tch-smalltable td{
@@ -1135,13 +1137,23 @@ zz{
 
 .orders-table button{
       height: 18px;
+      width: 100%;
+      line-height: 12px;
 }
 
-.op-titles{
+.tch-orders .orders-table{
+  font-size: 12px;
+}
+
+.op-titles,
+.tch-orders-buy{
   max-width: 400px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.op-titles{
+  max-width: 330px;
 }
 
 .op-markorder{
@@ -1270,8 +1282,7 @@ background: #2e3337;
     background: linear-gradient(to bottom, #484d53 0%,#313439 100%);
     border: 1px solid #161b1f;
     color: #eaeaea;
-    font-family: sans-serif;
-        display: inline-block;
+    display: inline-block;
     text-align: center;
 }
 
@@ -1281,6 +1292,10 @@ background: #2e3337;
 
 .op-orders-table tr.active td{
   background: #364e6c;
+}
+
+.op-pagination{
+  margin: 0;
 }
 
 .op-pagination a.current{
@@ -1308,6 +1323,15 @@ button.load:after{
 .op_modal_game_link.active{
   color: #eaeaea;
   cursor: default;
+}
+
+.op-search-panel{
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.op-search-panel .navigation{
+  margin-left: -15px;
 }
 /*
 =========================================
@@ -1345,4 +1369,209 @@ button.load:after{
 
 .q-status .q-radio2:checked~.q-label2{
   background: rgba(0, 0, 255, 0.8);
+}
+
+.devzone-btn{
+    width: 100%;
+    height: 36px;
+    line-height: 36px;
+    padding: 0 2px;
+    font-size: 16px;
+    border-radius: 4px;
+    background: linear-gradient(to bottom, #484d53 0%,#313439 100%);
+    border: 1px solid #161b1f;
+    color: #eaeaea;
+    font-family: sans-serif;
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.devzone:active{
+  background: linear-gradient(to bottom, #5e646c 0%,#494d55 100%);
+}
+
+.al-table .op-titles{
+  color: #c7c7ff;
+}
+
+.al-table .op-titles:hover{
+  color: #8f8fff;
+}
+
+.js-ssm{
+  cursor: pointer;
+  color: #d7d7ff;
+}
+
+.js-ssm:focus{
+  color: white;
+}
+
+#steamModal .modal-body{
+  padding: 0;
+}
+
+#steamModal .modal-header{
+  padding: 8px 13px;
+}
+
+#steamModal #steam-frame{
+  width: 100%;
+  height: 650px;
+}
+@media (min-width: 992px){
+  #steamModal .modal-lg,
+  #addModal .modal-lg{
+    width: 1070px;
+  }
+}
+
+.adb{
+  display: block;
+}
+
+.js-add{
+    line-height: 14px;
+    margin: -1px;
+}
+
+.sysreq_contents {
+    margin: 10px -15px;
+    padding: 10px;
+    background: #1b2838;
+}
+
+.game_area_sys_req {
+  color: #66c0f4;
+    font-size: 12px;
+    font-family: "Motiva Sans",sans-serif;
+    font-weight: normal
+}
+
+.game_area_sys_req_full p {
+    margin-bottom: 10px
+}
+
+.game_area_sys_req strong {
+    font-weight: normal;
+    font-size: 11px;
+    color: #4582a5;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-right: 4px
+}
+
+.game_area_sys_req ul {
+    list-style-type: none;
+    margin-left: 0;
+    line-height: 18px
+}
+
+.game_area_sys_req ul li {
+    margin: 2px 0
+}
+
+.game_area_sys_req ul li strong {
+    color: #aab4bb;
+    font-size: 12px;
+    margin-right: 4px;
+    font-weight: normal;
+    margin-bottom: 2px;
+    text-transform: none
+}
+
+.game_area_sys_req_leftCol,.game_area_sys_req_rightCol {
+    float: left;
+    width: 450px
+}
+
+.help_sysreqs .game_area_sys_req_leftCol,.help_sysreqs .game_area_sys_req_rightCol {
+    width: 282px
+}
+
+.game_area_sys_req_rightCol {
+    margin-left: 8px
+}
+/* 
+==================================================================
+ */
+
+.game_area_description {
+    color: #acb2b8;
+    line-height: 1.5em;
+    font-size: 14px;
+    margin-top: 30px;
+    overflow: hidden;
+    font-family: "Motiva Sans",sans-serif;
+    font-weight: normal
+}
+
+.game_area_description p {
+    margin-bottom: 8px
+}
+
+.game_area_description p strong,.game_area_description strong {
+    font-family: "Motiva Sans",sans-serif;
+    font-weight: bold
+}
+
+.game_area_description h2 {
+    margin-bottom: 6px
+}
+
+.game_area_description h2.bb_tag {
+    margin-top: 18px;
+    margin-bottom: 0;
+    background-image: none;
+    font-size: 15px;
+    color: #2f89bc;
+    text-transform: none;
+    letter-spacing: 0
+}
+
+.game_area_description h2.bb_tag strong {
+    font-family: "Motiva Sans",sans-serif;
+    font-weight: 500
+}
+
+#addModal a[href*=itm]{
+  color: #901103;
+}
+
+#addModal .btn-primary {
+    color: #ffffff;
+}
+
+.alert a{
+  color: #337ab7;
+}
+
+.sl-tit-inp{
+  width: 100%;
+}
+
+#orderModal #order_modal_body{
+  min-height: 300px;
+  transition: all .2s;
+}
+
+.order-list{
+  color: #444;
+}
+
+.order-list .gd-item {
+    border-bottom: 1px solid #dbdbdb;
+    background: #fff;
+        padding: 15px 10px;
+}
+
+.order-modal-link{
+  color: #337ab7;
+}
+
+.order-list .order-info{
+  text-align: left;  
 }

@@ -25,7 +25,7 @@
 if (isset($_POST['send'])) {
 	$query = $_POST['sql'];
 	$res = arrayDB($query);
-	if (is_array($res)) {
+	if (is_array($res) && $res) {
 		echo "<table><tr><th>№</th>";
 		foreach ($res[0] as $key => $value) {
 			echo "<th>",$key,"</th>";
@@ -39,7 +39,7 @@ if (isset($_POST['send'])) {
 			echo '</tr>';
 		}
 	}else{
-		echo $res;
+		print_r($res);
 	}
 
 }

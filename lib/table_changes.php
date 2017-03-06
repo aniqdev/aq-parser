@@ -1,4 +1,3 @@
-<div class="ajax-loader ajaxed"></div>
 <style>
 .ppp-block,.ppp-table{
     max-width: initial;
@@ -21,16 +20,9 @@ if($exrate) $dataex = $exrate[0]['value'];
 	</form>
 <ul class="ppp-parses">
 <?php
-
 	$scans = arrayDB('SELECT scan as hash,`date` from items group by scan order by id desc');
 	$ebay_scan = arrayDB('SELECT DISTINCT scan FROM ebay_results ORDER BY scan DESC LIMIT 1');
 	$ebay_scan = $ebay_scan[0]['scan'];
-		// echo "<br><pre>\n";
-		// print_r($scans);
-		// echo '</pre>';
-// foreach ($scans as $value) {
-// 	echo '<li><a href="/index.php?action=table&scan=',$value['hash'],'" class="ppp-link">Парс ',$value['id'],' От ',$value['date'],' </a></li>';
-// }
 ?>
 </ul>
 </div>
@@ -61,28 +53,32 @@ if($exrate) $dataex = $exrate[0]['value'];
 <table class="orders-table">
 	<tr>
 		<th>#</th>
-		<th>Country</th>
-		<th>Amount</th>
+		<th>Cntry</th>
+		<th>Amnt</th>
 		<th>Game title</th>
 		<th>Price</th>
 		<th>Link</th>
 		<th>eBayID</th>
 		<th>Buyer email</th>
 		<th>Buyer name</th>
+		<th>Rating</th>
+		<th>RegDate</th>
+		<th>comm</th>
 		<th>PaidTime</th>
 		<th>CreatedTime</th>
 		<th>Sd</th>
 	</tr>
 <?php
 
-$orders = arrayDB("SELECT * FROM ebay_orders WHERE PaidTime<>0 AND ShippedTime=0 AND OrderStatus='Completed' LIMIT 20");
+$orders = arrayDB("SELECT * FROM ebay_orders WHERE PaidTime <> 0 AND ShippedTime = 0 AND OrderStatus = 'Completed' AND `show` = 'yes' LIMIT 50");
 
 foreach ($orders as $key => $order) {
 	$goods = json_decode($order['goods'], true);
 	$address = json_decode($order['ShippingAddress'], true);
 	//showArray($goods);
+	$comm = ($order['comment'])?'<div class="glyphicon glyphicon-envelope" data-toggle="tooltip" data-placement="right" title="'.$order['comment'].'"></div>':'';
 	echo '<tr>',
-			'<td>',$key+1,'</td>',
+			'<td title="',$order['id'],'">',$key+1,'</td>',
 			'<td title="',$address['CountryName'],'">',$address['Country'],'</td>',
 			'<td>';foreach($goods as $g) echo $g['amount'],'<br>';echo '</td>',
 			'<td class="tch-ord-title">';
@@ -99,8 +95,11 @@ foreach ($orders as $key => $order) {
 			'<td>',$order['BuyerUserID'],'</td>',
 			'<td>',$order['BuyerEmail'],'</td>',
 			'<td>',$order['BuyerFirstName'],' ',$order['BuyerLastName'],'</td>',
-			'<td>',$order['PaidTime'],'</td>',
-			'<td>',$order['CreatedTime'],'</td>',
+			'<td>',$order['BuyerFeedbackScore'],'</td>',
+			'<td>',date_shorter_dots($order['BayerRegistrationDate']),'</td>',
+			'<td>',$comm,'</td>',
+			'<td>',date_shorter_dots($order['PaidTime']),'</td>',
+			'<td>',date_shorter_dots($order['CreatedTime']),'</td>',
 			'<td><button 
 					orderid="',$order['order_id'],'"
 					class="mas"
@@ -194,6 +193,7 @@ function drowPlatiTable($res,$ids_arr){
 ?>
 <div class="ppp-block">
 	<input class="search" placeholder="Search">&nbsp;&nbsp;&nbsp;
+	total: <?= count($res);?>
 </div>
 <div class="ppp-block">
 <table class="ppp-table changes" style="width: 100%;">
@@ -431,14 +431,14 @@ foreach ($res as $key => $value) {
       		<input type="hidden" name="tch-order-itemid" value="" id="tch-order-itemid">
       		<input type="hidden" name="tch-order-orderid" value="" id="tch-order-orderid">
       		<input type="hidden" name="csrf-buy-time" value="" id="csrf-buy-time">
-      		<input type="hidden" name="csrf-buy-token" value="<?php echo($_SESSION['csrf-buy-token']);?>">
+      		<input type="hidden" name="csrf-buy-token" value="<?= $_SESSION['csrf-buy-token'];?>">
       		<button type="submit" class="btn btn-success">Buy</button>
       	</form>
       	<script>
 			$('#fBuyItem').submit(function(){if(!confirm("Покупаем?"))return false;});
 		</script>
       	<form class="btn-group" id="fChange">
-	        <button type="button" class="btn btn-info" id="fBanaddon">to ADDon</button>
+	        <button type="button" class="btn btn-info" id="fBanaddon">to Add-on</button>
 	        <button type="button" class="btn btn-warning" id="fBlacklist">to Blacklist</button>
 	        <button type="button" class="btn btn-danger" id="fRemove">Remove from Sale</button>
 	        <button type="submit" class="btn btn-primary">Change Price</button>

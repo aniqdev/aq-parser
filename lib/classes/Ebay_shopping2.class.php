@@ -53,7 +53,7 @@ class Ebay_shopping2{
 		}
 
 
-		static function getSingleItem($itemId){
+		static function getSingleItem($itemId, $as_array = 0){
 				$url = 'http://open.api.ebay.com/shopping';
 				$url .= '?callname=GetSingleItem';
 				$url .= '&responseencoding=JSON';
@@ -61,13 +61,14 @@ class Ebay_shopping2{
 		 $url .= '&siteid=77';
 				$url .= '&version=515';
 				$url .= '&ItemID='.$itemId;
-				$url .= '&IncludeSelector=Details';
+				$url .= '&IncludeSelector=Details,ItemSpecifics';
 		//  $url .= '&IncludeSelector=Details,Description';
 		//  $url .= '&IncludeSelector=Details,TextDescription';
 
 
 				// Открываем файл с помощью установленных выше HTTP-заголовков
 				$json = file_get_contents($url);
+				if($as_array) return json_decode($json, true);
 				return $json;
 		}
 
@@ -185,9 +186,9 @@ class Ebay_shopping2{
 
 		public function removeFromSale($item_id)
 		{
+				$item_id = preg_replace('/\D/', '', $item_id);
 				if(!$item_id) return false;
 
-				$item_id = preg_replace('/\D/', '', $item_id);
 
 				$headers = array
 						(
@@ -278,8 +279,20 @@ class Ebay_shopping2{
 		$res2 = $this->GetSellerListRequest(1, 200);
 
 		$ids_arr = [];
+		$completed_arr = [];
+		$pics_arr = [];
+		$regex = '#/[^s]/(.+)/#';
 		foreach ($res2['ItemArray']['Item'] as $key => $item) {
-			$ids_arr[$item['ItemID']] = $item['Title'];
+			if($item['SellingStatus']['ListingStatus'] === 'Completed') 
+				$completed_arr[] = $item['ItemID'];
+			else $ids_arr[$item['ItemID']] = $item['Title'];
+			if (isset($item['PictureDetails']['PictureURL'])) {
+				if (!is_array($item['PictureDetails']['PictureURL'])) {
+					$item['PictureDetails']['PictureURL'] = [$item['PictureDetails']['PictureURL']];
+				}
+				$found = preg_match($regex, $item['PictureDetails']['PictureURL'][0], $matches);
+				$pics_arr[$item['ItemID']] = $matches[1];
+			}
 		}
 
 		$pages = $res2['PaginationResult']['TotalNumberOfPages'];
@@ -287,11 +300,22 @@ class Ebay_shopping2{
 		for ($i=2; $i <= $pages; $i++) { 
 			$res2 = $this->GetSellerListRequest($i, 200);
 			foreach ($res2['ItemArray']['Item'] as $key => $item) {
-				$ids_arr[$item['ItemID']] = $item['Title'];
+				if($item['SellingStatus']['ListingStatus'] === 'Completed')
+					$completed_arr[] = $item['ItemID'];
+				else $ids_arr[$item['ItemID']] = $item['Title'];
+				if (isset($item['PictureDetails']['PictureURL'])) {
+					if (!is_array($item['PictureDetails']['PictureURL'])) {
+						$item['PictureDetails']['PictureURL'] = [$item['PictureDetails']['PictureURL']];
+					}
+					$found = preg_match($regex, $item['PictureDetails']['PictureURL'][0], $matches);
+					$pics_arr[$item['ItemID']] = $matches[1];
+				}
 			}
 		}
 
-		return $ids_arr;
+		return ['active' => $ids_arr, 
+				'completed' => $completed_arr,
+				'pictres' => $pics_arr];
 	}
 
 
@@ -419,6 +443,267 @@ class Ebay_shopping2{
 			"X-EBAY-API-CALL-NAME: AddMemberMessageRTQ",
 			"X-EBAY-API-SITEID: 0",
 			"Content-Type: text/xml");
+
+		$result = $this->request($this->api_url, $post, $headers);
+		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
+
+
+	public function updateItemTitle($item_id, $title)
+	{
+		$item_id = preg_replace('/\D/', '', $item_id);
+		if(!$item_id) return false;
+
+		$headers = array
+				(
+				'X-EBAY-API-COMPATIBILITY-LEVEL: ' . '837',
+				'X-EBAY-API-DEV-NAME: ' . 'c1f2f124-1232-4bc4-bf9e-8166329ce649',
+				'X-EBAY-API-APP-NAME: ' . 'Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
+				'X-EBAY-API-CERT-NAME: ' . 'PRD-ae576df59071-a52d-4e1b-8b78-9156',
+				'X-EBAY-API-CALL-NAME: ' . 'ReviseItem',
+				'X-EBAY-API-SITEID: ' . '77',
+		);
+
+		$xml = '<?xml version="1.0" encoding="utf-8"?>
+		<ReviseItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+			<RequesterCredentials>
+				<eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+			</RequesterCredentials>
+			<Item ComplexType="ItemType">
+				<ItemID>'.$item_id.'</ItemID>
+				<Title>'.htmlspecialchars($title).'</Title>
+			</Item>
+			<MessageID>1</MessageID>
+			<WarningLevel>High</WarningLevel>
+			<Version>837</Version>
+		</ReviseItemRequest>​';
+
+		$result = $this->request($this->api_url, $xml, $headers);
+		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
+
+
+	//функция для получения специализированных настроек для категории (в нашем случае для категории Компьютерные игры)
+	public function GetCategorySpecifics($categoryId){
+
+		$post = '<?xml version="1.0" encoding="utf-8"?>
+			<GetCategorySpecificsRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+			<WarningLevel>High</WarningLevel>
+			  <RequesterCredentials>
+				<eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+			  </RequesterCredentials>
+			  <CategorySpecific>
+				<CategoryID>'.$categoryId.'</CategoryID>
+			  </CategorySpecific>
+			  <MaxValuesPerName>999</MaxValuesPerName>
+			</GetCategorySpecificsRequest>';
+
+		$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
+		    'X-EBAY-API-DEV-NAME: c1f2f124-1232-4bc4-bf9e-8166329ce649',
+		    'X-EBAY-API-APP-NAME: Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
+		    'X-EBAY-API-CERT-NAME: PRD-ae576df59071-a52d-4e1b-8b78-9156',
+		"X-EBAY-API-CALL-NAME: GetCategorySpecifics",
+		"X-EBAY-API-SITEID: 77",
+		"Content-Type: text/xml");
+
+		$result = $this->request($this->api_url, $post, $headers);
+		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
+
+
+	public function UpdateCategorySpecifics($item_id, $specifics=[])
+	{
+		$item_id = preg_replace('/\D/', '', $item_id);
+		if(!$item_id || !$specifics) return false;
+
+		$headers = array
+				(
+				'X-EBAY-API-COMPATIBILITY-LEVEL: ' . '941',
+				'X-EBAY-API-DEV-NAME: ' . 'c1f2f124-1232-4bc4-bf9e-8166329ce649',
+				'X-EBAY-API-APP-NAME: ' . 'Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
+				'X-EBAY-API-CERT-NAME: ' . 'PRD-ae576df59071-a52d-4e1b-8b78-9156',
+				'X-EBAY-API-CALL-NAME: ' . 'ReviseItem',
+				'X-EBAY-API-SITEID: ' . '0',
+		);
+
+		$xml = '<?xml version="1.0" encoding="utf-8"?>
+		<ReviseItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+			<RequesterCredentials>
+				<eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+			</RequesterCredentials>
+			<Item ComplexType="ItemType">
+				<ItemID>'.$item_id.'</ItemID>';
+				$xml .= '<ItemSpecifics>';
+				foreach($specifics as $key => $specific){
+					if($specific){
+						$xml .= '<NameValueList><Name>'.$key.'</Name>';
+						if(is_array($specific)){
+								foreach($specific as $value){
+									$xml .= '<Value>'.htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</Value>';
+								}
+
+						}
+						else{
+							
+							$xml .= '	<Value>'.htmlspecialchars($specific, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</Value>';
+								
+						}
+						$xml .= '</NameValueList>';
+					}
+				}
+				$xml.= '</ItemSpecifics>';
+			$xml .= '</Item>
+			<MessageID>1</MessageID>
+			<WarningLevel>High</WarningLevel>
+			<Version>941</Version>
+			<ErrorLanguage>en_US</ErrorLanguage>
+		</ReviseItemRequest>​';
+
+		$result = $this->request($this->api_url, $xml, $headers);
+		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
+
+
+	public function updateItemPictureDetails($item_id, $urls = [])
+	{
+		$item_id = preg_replace('/\D/', '', $item_id);
+		if(!$item_id || !$urls || !is_array($urls)) return false;
+
+		$headers = array
+				(
+				'X-EBAY-API-COMPATIBILITY-LEVEL: ' . '983',
+				'X-EBAY-API-DEV-NAME: ' . 'c1f2f124-1232-4bc4-bf9e-8166329ce649',
+				'X-EBAY-API-APP-NAME: ' . 'Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
+				'X-EBAY-API-CERT-NAME: ' . 'PRD-ae576df59071-a52d-4e1b-8b78-9156',
+				'X-EBAY-API-CALL-NAME: ' . 'ReviseItem',
+				'X-EBAY-API-SITEID: ' . '77',
+		);
+
+		$xml = '<?xml version="1.0" encoding="utf-8"?>
+		<ReviseItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+			<RequesterCredentials>
+				<eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+			</RequesterCredentials>
+			<Item ComplexType="ItemType">
+				<ItemID>'.$item_id.'</ItemID>
+				<PictureDetails>';
+					foreach ($urls as $url) {
+						$xml .= '<PictureURL>'.$url.'</PictureURL>';
+					}
+		$xml .= '</PictureDetails>
+			</Item>
+			<MessageID>1</MessageID>
+			<WarningLevel>High</WarningLevel>
+			<Version>983</Version>
+		</ReviseItemRequest>​';
+
+		$result = $this->request($this->api_url, $xml, $headers);
+		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
+
+
+	public function addItem($item = [])
+	{
+		if(!$item) return false;
+
+		$post = '<?xml version="1.0" encoding="utf-8"?>
+			<AddItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+			<WarningLevel>High</WarningLevel>
+			  <RequesterCredentials>
+				<eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+			  </RequesterCredentials>
+			  <Item>
+				    <ProductListingDetails>
+						<EAN>Nicht zutreffend</EAN>
+					</ProductListingDetails>
+			   <Title>'.$item['Title'].'</Title>
+				<Description>'.htmlspecialchars($item['Description'], ENT_XML1 | ENT_QUOTES, 'UTF-8').'</Description>
+				<PrimaryCategory>
+				  <CategoryID>'.$item['CategoryID'].'</CategoryID>
+				</PrimaryCategory>
+				<ConditionID>'.$item['ConditionID'].'</ConditionID>
+				<Currency>EUR</Currency>
+				<ListingType>FixedPriceItem</ListingType>
+				<Quantity>'.$item['Quantity'].'</Quantity>';
+		
+		//если указана одна из категорий нашего магазина, то добавляем это в листинг
+		if($item['StoreCategory1'] || $item['StoreCategory2']){
+			$post .= '<Storefront>';
+			if(isset($item['StoreCategory1'])) $post .= '<StoreCategoryID>'.$item['StoreCategory1'].'</StoreCategoryID>';
+			if(isset($item['StoreCategory2'])) $post .= '<StoreCategory2ID>'.$item['StoreCategory1'].'</StoreCategory2ID>';
+			$post .= '</Storefront>';
+		}
+		
+		$post .= '<PictureDetails>';
+				foreach($item['PictureURL'] as $picture){
+					if($picture) $post .= '<PictureURL>'.$picture.'</PictureURL>';
+				}
+				$post .= '</PictureDetails>
+					<StartPrice currencyID="EUR">'.$item['price'].'</StartPrice>
+					<BestOfferDetails>
+						<BestOfferEnabled>'.$item['BestOfferEnabled'].'</BestOfferEnabled>
+					</BestOfferDetails>
+					<Site>Germany</Site>
+					<Country>DE</Country>
+					<DispatchTimeMax>3</DispatchTimeMax>
+					<ListingDuration>'.$item['ListingDuration'].'</ListingDuration>
+					<PostalCode>51145</PostalCode>
+					<PaymentMethods>PayPal</PaymentMethods>
+					<PaymentMethods>MoneyXferAccepted</PaymentMethods>
+					<PayPalEmailAddress>konstantin@gig-games.de</PayPalEmailAddress>
+					<ReturnPolicy>
+						<ReturnsAcceptedOption>ReturnsAccepted</ReturnsAcceptedOption>
+						<RefundOption>MoneyBack</RefundOption>
+						<ReturnsWithinOption>Days_30</ReturnsWithinOption>
+						<Description>If you are not satisfied, return the book for refund.</Description>
+						<ShippingCostPaidByOption>Buyer</ShippingCostPaidByOption>
+					</ReturnPolicy>
+					<ShippingDetails>
+						<ShippingType>Flat</ShippingType>
+						<ShippingServiceOptions>
+							<ShippingServicePriority>1</ShippingServicePriority>
+							<ShippingService>DE_Express</ShippingService>
+							<ShippingServiceCost>0</ShippingServiceCost>
+						</ShippingServiceOptions>
+					</ShippingDetails>
+					';
+
+				
+
+				if($item['specific']){
+					$post .= '<ItemSpecifics>';
+					foreach($item['specific'] as $key=>$specific){
+						if($specific){
+							$post .= '<NameValueList><Name>'.$key.'</Name>';
+							if(is_array($specific)){
+									foreach($specific as $value){
+										$post .= '<Value>'.htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</Value>';
+									}
+
+							}
+							else{
+								
+								$post .= '	<Value>'.htmlspecialchars($specific, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</Value>';
+									
+							}
+							$post .= '</NameValueList>';
+						}
+					}
+					$post.= '</ItemSpecifics>';
+				}
+				$post .=	'
+				</Item>
+	  <Version>967</Version>
+				</AddItemRequest>';
+
+		$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
+		    'X-EBAY-API-DEV-NAME: c1f2f124-1232-4bc4-bf9e-8166329ce649',
+		    'X-EBAY-API-APP-NAME: Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
+		    'X-EBAY-API-CERT-NAME: PRD-ae576df59071-a52d-4e1b-8b78-9156',
+			"X-EBAY-API-CALL-NAME: AddItem",
+			"X-EBAY-API-SITEID: 77",
+			"Content-Type: text/xml");
+		file_put_contents(__DIR__.'/../adds/add-item-post.xml', $post);
 
 		$result = $this->request($this->api_url, $post, $headers);
 		return json_decode(json_encode(simplexml_load_string($result)), true);

@@ -4,25 +4,32 @@ use PhpImap\Mailbox as ImapMailbox;
 use PhpImap\IncomingMail;
 use PhpImap\IncomingMailAttachment;
 
+// $server = new Server('imap.mail.ru');
+// $connection = $server->authenticate('thenav@mail.ru', 'kajmadaa');
+
 //4. argument is the directory into which attachments are to be saved:
-$mailbox = new PhpImap\Mailbox('{imap.strato.de:993/imap/ssl/validate-cert}INBOX', 'a3@gig-games.de', A3_GIG_MAIL_PWD, __DIR__.'/../Files');
+//$mailbox = new PhpImap\Mailbox('{imap.strato.de:993/imap/ssl/validate-cert}INBOX', 'a3@gig-games.de', A3_GIG_MAIL_PWD, __DIR__.'/../Files');
+
+$mailbox = new PhpImap\Mailbox('{imap.mail.ru:993/imap/ssl/validate-cert}INBOX', 'thenav@mail.ru', 'kajmadaa', __DIR__.'/../Files');
 
 // Read all messaged into an array:
 $mailsIds = $mailbox->searchMailbox('ALL');
 if(!$mailsIds) {
     die('Mailbox is empty');
 }
+print_r($mailsIds);  
 
-// Get the first message and save its attachment(s) to disk:
-$mail = $mailbox->getMail($mailsIds[0]);
 
 // for ($i=600; $i < 610; $i++) { 
 // 	print_r($mailbox->getMail($i));
 // 	echo "<hr>";
 // }
 
-print_r($mailsIds);                         //   DODELAT'  DDEBOER/IMAP
+// Get the first message and save its attachment(s) to disk:
+$mail = $mailbox->getMail(17676);                       //   DODELAT'  DDEBOER/IMAP
 print_r($mail);
+
+
 // echo "\n\n\n\n\n";
 // var_dump($mail->getAttachments());
 

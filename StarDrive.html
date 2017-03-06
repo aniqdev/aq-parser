@@ -20,6 +20,45 @@
     left: 0%;
   }
 }
+
+.gleft,
+.gmid{
+  position: relative;
+}
+
+.gleft:after,
+.gmid:after{
+    position: absolute;
+    left: 90%;
+    bottom: 90%;
+    display: block;
+    width: 100%;
+    background: #fff;
+    padding: 8px;
+    color: #555;
+    border: 1px solid #999;
+    border-radius: 4px;
+    box-shadow: 1px -1px 11px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    z-index: 1;
+    transition: all .5s;
+}
+
+.gleft:after{
+  content: "gig-games Inhaber: Konstantin Falke  Bergerstr. 179  51145 Köln support@gig-games.de Alle angegebenen Preise sind Endpreise zzgl. Liefer-/Versandkosten. Aufgrund des Kleinunternehmerstatus gem. § 19 UStG erheben wir keine Umsatzsteuer und weisen diese daher auch nicht aus. Die Europäische Kommission bietet eine Onlineplattform für Streitbeilegung an, die Sie hier finden: http://ec.europa.eu/consumers/odr/ Unter diesem Link finden Sie die Kontaktdaten der offiziellen Streitbeilegungsstellen: https://webgate.ec.europa.eu/odr/main/index.cfm?event=main.adr.show";
+}
+
+.gmid:after{
+  content: "In der Regel erfolgt die Lieferung innerhalb 2-3 Minuten! (wenn die technischen Voraussetzungen gegeben sind) Spätestens bis 21Uhr wird es geliefert. Wir behalten uns das Recht vor, den Käufer ggf. durch zusätzliche Verifizierung zu identifizieren um eBay-. PayPal-Betrug zu vermeiden.";
+}
+
+.gleft:hover:after,
+.gmid:hover:after{
+    opacity: 1;
+    visibility: visible;
+}
+
 .gig-panel-wrapper{
     text-align: center;
     width: 100%;

@@ -28,6 +28,7 @@ function request($url, $post, $headers) {
 }
 
 
+//139973
 //функция для получения специализированных настроек для категории (в нашем случае для категории Компьютерные игры)
 function GetCategorySpecifics($categoryId){
 	global $url, $token;
@@ -266,10 +267,10 @@ if($_POST){
 	//print_R($_POST);
 
 
-	$AddItem = AddItem($item);
+	//$AddItem = AddItem($item);
 
 	echo "<pre>";
-	print_r($AddItem);
+	print_r($item);
 	echo "</pre>";
 }
 

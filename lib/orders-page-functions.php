@@ -185,7 +185,7 @@ function op_pagination()
 	if($offset_next > $count) $offset_next = $offset;
 	//var_dump($count/$limit);
 	$str =
-	'<nav aria-label="Page navigation">
+	'<nav aria-label="Page navigation" class="navigation">
 	  <ul class="pagination op-pagination">
 	    <li>
 	      <a href="?'.obj(QS)->SET('offset',$offset_prev)->give().'" aria-label="Previous">
@@ -214,10 +214,23 @@ function op_pagination()
 	        <span aria-hidden="true">&raquo;</span>
 	      </a>
 	    </li>
-	  </ul><b>'.$epilog.'</b>'.
+	  </ul><br><b>'.$epilog.'</b>'.
 	'</nav>';
 
 	echo $str;
 
+}
+
+
+function status_shorter($status = ''){
+	
+	switch ($status) {
+		case 'Completed': return '<i class="glyphicon glyphicon-check" title="Completed"></i>';
+		case 'Cancelled': return '<i class="glyphicon glyphicon-stop" title="Cancelled"></i>';
+		case 'Active': return '<i class="glyphicon glyphicon-play" title="Active"></i>';
+		case 'CancelPending': return'<i class="glyphicon glyphicon-pause" title="CancelPending"></i>';
+		
+		default: return 'n/a';
+	}
 }
 ?>

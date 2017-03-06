@@ -73,20 +73,30 @@ elseif (isset($_POST['ebayId']) && isset($_POST['action']) && $_POST['action'] =
 	$ebayObj = new Ebay_shopping2();
 	$res = $ebayObj->GetSellerItemsArray();
 
-	$words_to_del = array(
-		'(PC)',' PC ','-Region free-','Region free','Multilanguage','steam',
-		'Multilang','Regfree','ENGLISH','-','–','&','Uplay','Game Of The Year Edition',
-		'DLC','regfr','Add On','Addon',' goty','Regionfree',':',"’s","'s","'","’",'Uplay');
-
-	$sql = 'TRUNCATE ebay_games;';
-	foreach ($res as $id => $title) {
-	    $title_clean = str_ireplace( $words_to_del, ' ', $title);
+	$titles = [];
+	$rr = ['/\sPC\s.+/i', '/\ssteam\sd.+/i', '/\ssteam\sli.+/i', '/\ssteam\seu.+/i'];
+	arrayDB('TRUNCATE ebay_games');
+	$columns = ['item_id','title','title_clean','picture_hash'];
+	foreach ($res['active'] as $id => $title) {
+	    $title_clean = preg_replace( $rr, ' ', $title);
+	    $title_clean = str_ireplace( 'Add-On', ' ', $title_clean);
 	    $title_clean = trim(preg_replace('/\s+/', ' ', $title_clean));
-		$sql .= "INSERT INTO ebay_games (item_id,title,title_clean) 
-			VALUES ('$id','"._esc($title)."','"._esc($title_clean)."');";
+		$records[] = [$id, _esc($title), _esc($title_clean), _esc($res['pictres'][$id])];
 	}
-	arrayDB($sql, true);
-	echo json_encode(['answer'=>'good','errors'=>$_ERRORS]);
+	$ebay_games_updated = DB::getInstance()->insert_multi('ebay_games', $columns, $records);
+
+	$sql2 = '';
+	foreach ($res['completed'] as $k => $ebay_id) {
+		$sql2 .= "UPDATE games SET ebay_id=null WHERE ebay_id='$ebay_id';";
+	}
+	$completed_ids_removed = arrayDB($sql2, true);
+
+	echo json_encode(['answer'=>'good',
+					//'titles' => $titles,
+					//'sql' => $sql1,
+					'ebay_games_updated'=>$ebay_games_updated,
+					'completed_ids_removed'=>$completed_ids_removed,
+					'errors'=>$_ERRORS]);
 
 }elseif (isset($_POST['insert_ebayID_to_games'])) {
 

@@ -22,17 +22,18 @@ define('ROOT', __DIR__);
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
 	<title>Aqs-Parser</title>
 	<!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/style.css?t=<?php echo date('d-m-y_H:i:s',filemtime ('css/style.css')); ?>">
 	<script src="js/jquery-2.1.3.min.js"></script>
-	<script src="js/bootstrap.min.js"></script>
 	<script src="js/list.min.js"></script>
 </head>
 <body>
-
+<div class="ajax-loader ajaxed"></div>
 <?php 
 include_once('lib/navigate.php');
 
@@ -56,6 +57,7 @@ if ($accessed) {
 
 }?>
 
+<script src="js/bootstrap.min.js"></script>
 <script src="js/main.js?t=<?php echo date('d-m-y_H:i:s',filemtime ('js/main.js')); ?>"></script>
 <?php
 if ($_ERRORS){

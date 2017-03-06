@@ -35,29 +35,29 @@ $( document ).ready(function() {
 	localStorage.setItem("exrate", dataex);
  }
 
-		 $('.chedit').change(function() {
-				if($(this).is(":checked")) {
-						//console.log($(this).parent().html());
-						$(this).siblings('.listitem').attr('contenteditable','true');
-						$(this).siblings('.listitem').focus();
-						
-				} else {
-					console.log('Down');
-					var ngame = $(this).parent().find('.listitem').text();
-					var igame = $(this).parent().find('.listitem').data('id');
-					var tgame = $('#have-data-table').data('table');
-					$(this).siblings('.listitem').removeAttr('contenteditable');
-					console.log(ngame);
-					$.post('lib/list_changer.php',
-					{id: igame, name: ngame, table: tgame},
-					 function(data) {
-						$('.result').html(data);
-						console.log('Загрузка завершена.'+data);
-					});
-
-				}
+ $('.chedit').change(function() {
+		if($(this).is(":checked")) {
+				//console.log($(this).parent().html());
+				$(this).siblings('.listitem').attr('contenteditable','true');
+				$(this).siblings('.listitem').focus();
 				
-		});
+		} else {
+			console.log('Down');
+			var ngame = $(this).parent().find('.listitem').text();
+			var igame = $(this).parent().find('.listitem').data('id');
+			var tgame = $('#have-data-table').data('table');
+			$(this).siblings('.listitem').removeAttr('contenteditable');
+			console.log(ngame);
+			$.post('lib/list_changer.php',
+			{id: igame, name: ngame, table: tgame},
+			 function(data) {
+				$('.result').html(data);
+				console.log('Загрузка завершена.'+data);
+			});
+
+		}
+		
+});
 
 
 
@@ -82,16 +82,45 @@ $( "#get-steam" ).click(function() {
 	getSteam(1);
 	$(this).attr('disabled','true');
 });
+
+// скрипт для страницы STEAM2
+function getSteam2 (offset, script) {
+	$( "#message li:first" ).before( "<li>Начали парсить offset "+offset+"</li>" );
+	$('.loading').addClass('inaction');
+	$.post( "lib/"+script+".php?offset="+offset, function( data ) {
+		$( "#message li:first" ).before( "<li>offset "+offset+" сохранена в базе</li>" );
+		offset = offset+30;
+		if (offset < data.count) {
+			getSteam2(offset, script);
+		}else{
+			$('.loading').removeClass('inaction');
+			$('.loading').html('Done!');
+			console.dir(data);
+			$( "#message li:first" ).before( "<li>или что-то пошло не так</li>" );
+		}
+	},'JSON');
+} // getSteam2()
+
+$( "#get-steam2" ).click(function() {
+	getSteam2(0, 'steam2');
+	$('.get-steam-btn').attr('disabled','true');
+});
+
+$( "#get-steam3" ).click(function() {
+	getSteam2(0, 'steam3');
+	$('.get-steam-btn').attr('disabled','true');
+});
 //================================
+
 // скрипт для страницы STEAM List
-function getSteamList (page,pages,mark) {
+function getSteamList (page,pages,scan) {
 	$( "#message li:first" ).before( "<li>Начали парсить страницу "+page+"</li>" );
 	$('.loading').addClass('inaction');
-	$.post( "lib/slist.php?page="+page+"&pages="+pages+"&mark="+mark, function( data ) {
+	$.post( "lib/slist.php?page="+page+"&pages="+pages+"&scan="+scan, function( data ) {
 		//console.dir(data);
 		$( "#message li:first" ).before( "<li>страница "+page+" сохранена в базе</li>" );
 		if (page < data.pages) {
-			getSteamList(++page,data.pages,data.mark);
+			getSteamList(++page,data.pages,data.scan);
 		}else{
 			$('.loading').removeClass('inaction');
 			$('.loading').html('Done!');
@@ -302,7 +331,7 @@ $(".res-item").click(function() {
 
 function formula (rurprice,exrate) {
 	rurprice = parseFloat(rurprice);
-	var res = ((rurprice/exrate)*1.0242+0.35)/((1-0.15)-0.019-0.08);
+	var res = ((rurprice/exrate)*1.00952+0.4165)/(1-(0.1+0.019+0.078)*1.19);
 	if(res < 1.5) res = 1.5;
 
 	return +res.toFixed(2);
@@ -407,7 +436,7 @@ $('#getjson_multi').click(function() {
 
 function getPlatiRu_m3 (start, end, scan, count) {
 	$( "#message1 li:first" ).before( "<li>Начали парсить игры с "+start+" по "+end+"</li>" );
-	$.post( "lib/getjson-multi3.php",
+	$.post( "ajax.php?action=getjson-multi3",
 	 {getjson:'true',start:start,end:end,scan:scan},
 		function( data ) {
 
@@ -434,6 +463,36 @@ $('#getjson_multi3').click(function() {
 		$('#getjson_multi3').attr('disabled','true');
 		$('.loading1').addClass('inaction');
 		getPlatiRu_m3(1, 10, '0', 0);
+});
+
+
+function getPlatiRu_steam (start, end, scan, count) {
+	$( "#message1 li:first" ).before( "<li>Начали парсить игры с "+start+" по "+end+"</li>" );
+	$.post( "ajax.php?action=getjson-steam-de",
+	 {getjson:'true', start:start, end:end, scan:scan},
+		function( data ) {
+
+			$( "#message1 li:first" ).before( "<li>игры "+start+"-"+end+" сохранены в базе</li>" );
+			if($('#message1 li').length > 20) {
+				$('#message1 li:last').remove();
+				$('#message1 li:last').remove();
+			}
+			if (data.num > end) {
+			 getPlatiRu_steam(start+10, end+10, data.scan, data.num);
+			}else{
+				console.log('PLati.ru done!');
+				console.dir(data);
+				$('.loading1').removeClass('inaction');
+				$('.loading1').html('PLati.ru done!');
+			}
+
+	},'json');
+}
+
+$('#getsteam_multi').click(function() {
+		$(this).attr('disabled','true');
+		$('.loading1').addClass('inaction');
+		getPlatiRu_steam(1, 10, '0', 0);
 });
 
 $('.ch-tab').click(function() {
@@ -1025,7 +1084,13 @@ $('#js-inv-sendemail-form').on('submit', function(e) {
 	$.post('/ajax.php?action=ajax-invoice-sender',
 		send_data,
 		function(data) {
-			$('#js-inv-sendemail-form button').addClass('glyphicon-ok');
+
+			if (data.sendemail_ans) $('#js-inv-sendemail').addClass('glyphicon-ok');
+			else $('#js-inv-sendemail').addClass('glyphicon-warning-sign');
+			
+			if (data.sendebay_ans.Ack === 'Success') $('#js-inv-sendebay').addClass('glyphicon-ok');
+			else $('#js-inv-sendebay').addClass('glyphicon-warning-sign');
+			
 		},'JSON');
 });
 
@@ -1040,7 +1105,9 @@ $('#js-inv-sendemail').on('click', function(e) {
 		email_subject:$('[name="email_subject"]').val(),
 		email_body:$('[name="email_body"]').val()},
 		function(data) {
-			$this.addClass('glyphicon-ok');
+			if (data.sendemail_ans) $this.addClass('glyphicon-ok');
+			else $this.addClass('glyphicon-warning-sign');
+			
 		},'JSON');
 });
 
@@ -1055,7 +1122,8 @@ $('#js-inv-sendebay').on('click', function(e) {
 		ebay_subject:$('[name="ebay_subject"]').val(),
 		ebay_body:$('[name="ebay_body"]').val()},
 		function(data) {
-			$this.addClass('glyphicon-ok');
+			if (data.sendebay_ans.Ack === 'Success') $this.addClass('glyphicon-ok');
+			else $this.addClass('glyphicon-warning-sign');
 		},'JSON');
 });
 
@@ -1109,21 +1177,21 @@ $('.list-id-save').on('click', function() {
 		},'JSON');
 });
 
-$('#fBuyItem').on('submit', {f:FF}, function(e) {
+// $('#fBuyItem').on('submit', {f:FF}, function(e) {
 
-	var F = e.data.f
-	console.dir(F);
-	if(F.ebayId){
-		$.post('ajax.php?action=ajax-ebay-api-price-changer',
-			{ action:'change_quantity3', ebayId:F.ebayId },
-			function (data) {
-				if (data.answer == 'good') {
+// 	var F = e.data.f
+// 	console.dir(F);
+// 	if(F.ebayId){
+// 		$.post('ajax.php?action=ajax-ebay-api-price-changer',
+// 			{ action:'change_quantity3', ebayId:F.ebayId },
+// 			function (data) {
+// 				if (data.answer == 'good') {
 
-				}
-		}, 'json');
-	}
+// 				}
+// 		}, 'json');
+// 	}
 
-});
+// });
 
 $('#ebay-msg-answer-form').on('submit', function function_name(e) {
 	e.preventDefault();
@@ -1192,8 +1260,6 @@ $('.orders-table').on('click', '.op-markorder', function(e) {
 		},'JSON');
 });
 
-
+$('[data-toggle="tooltip"]').tooltip();
 
 }); //document ready
-
-// update games set ebay_id=null where id=4168

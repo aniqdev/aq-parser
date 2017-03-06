@@ -1,4 +1,6 @@
 <?php
+ini_set("display_errors",1);
+error_reporting(E_ALL);
 require_once 'vendor/autoload.php';
 // require_once 'lib/kint-master/Kint.class.php';
 // require_once 'lib/PHPExcel.php';
@@ -65,10 +67,11 @@ if (isset($_POST['submitted'])) {
 </head>
 <body>
 	<form method="post">
-		<h2 align="center">Авторизуйтесь!</h2>
+		<h2 align="center">Authorization!</h2>
 		<input type="text" name="login" maxlength="100" placeholder="login">
 		<input type="password" name="password" maxlength="100" placeholder="password">
 		<button type="submit" name="submitted" value="Войти">Sign In!</button>
 	</form>
 </body>
 </html>
+<?php ?>

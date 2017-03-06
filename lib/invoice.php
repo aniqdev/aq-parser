@@ -1,5 +1,5 @@
 <?php
-ini_get('safe_mode') or set_time_limit(100); // Указываем скрипту, чтобы не обрывал связь.
+ini_get('safe_mode') or set_time_limit(120); // Указываем скрипту, чтобы не обрывал связь.
 
 
 function do_payment($itemid){
@@ -9,6 +9,14 @@ function do_payment($itemid){
 
   if($inv_res['success']){
 
+  $ebayObj = new Ebay_shopping2();
+  
+  if ($platiObj->isItemOnPlati($_GET['platiid'])) {
+    $response = $ebayObj->updateQuantity($_POST['tch-order-itemid'], 3);
+  }else{
+    $response = $ebayObj->removeFromSale($_POST['tch-order-itemid']);
+  }
+
   // payInvoice возвращает массив
   $pay_resp = $platiObj->payInvoice($inv_res['inv']['wm_inv'],$inv_res['inv']['wm_purse']);
 
@@ -16,36 +24,36 @@ function do_payment($itemid){
 
 //==============================================================
 // item sender
-$product = '';
-if($pay_resp['success']) $received_item = get_item_xml($receive_item_link);
-if($pay_resp['success'] === 'OK' && $received_item['success'] === 'OK'){
+  $product = '';
+  if($pay_resp['success']) $received_item = get_item_xml($receive_item_link);
+  if($pay_resp['success'] === 'OK' && $received_item['success'] === 'OK'){
 
-  $product = $received_item['result'];
-  echo "<pre>";
-  print_r($product);
-  echo "</pre>";
+    $product = $received_item['result'];
+    echo "<pre>";
+    print_r($product);
+    echo "</pre>";
 
-  if (isset($_POST['tch-order-orderid']) && isset($_POST['tch-order-itemid']) && $_POST['tch-order-orderid'] && $_POST['tch-order-itemid']) {
-    sugest_send_product($product);
+    if (isset($_POST['tch-order-orderid']) && isset($_POST['tch-order-itemid']) && $_POST['tch-order-orderid'] && $_POST['tch-order-itemid']) {
+      sugest_send_product($product);
+    }else{
+      echo 'Отсутствуют данные о заказе. Видимо товар куплен напрямую';
+    }
+
+  }elseif($pay_resp['success'] === 'OK'){
+
+    echo "<pre>";
+    print_r($received_item);
+    echo "</pre>";
+
   }else{
-    echo 'Отсутствуют данные о заказе. Видимо товар куплен напрямую';
+    echo "<pre>Платежь не прошел. Возможно закончились деньги</pre>";
   }
-
-}elseif($pay_resp['success'] === 'OK'){
-
-  echo "<pre>";
-  print_r($received_item);
-  echo "</pre>";
-
-}else{
-  echo "<pre>Платежь не прошел. Возможно закончились деньги</pre>";
-}
 //==============================================================
 
     echo '<iframe class="invoice-iframe" src="',$inv_res['inv']['link'],'&oper=checkpay">
         Ваш браузер не поддерживает плавающие фреймы!
      </iframe>';
-  }
+  } // if $inv_res['success']
     echo "<hr><pre>";
     print_r($inv_res);
     echo "</pre>";
@@ -70,18 +78,29 @@ if($pay_resp['success'] === 'OK' && $received_item['success'] === 'OK'){
   $product_frame_link   = isset($inv_res['inv']['link'])     ? _esc($inv_res['inv']['link']) : null;
   $product_api_link     = isset($receive_item_link)          ? _esc($receive_item_link) : null;
 
-  arrayDB("INSERT INTO ebay_invoices (parser_order_id, 
-                                      ebay_game_id, 
-                                      platiru_invoice_json, 
-                                      web_pay_json, 
-                                      product_frame_link, 
-                                      product_api_link) 
-                               VALUES('$parser_order_id', 
-                                      '$ebay_game_id', 
-                                      '$platiru_invoice_json', 
-                                      '$web_pay_json', 
-                                      '$product_frame_link', 
-                                      '$product_api_link')");
+  arrayDB("INSERT INTO ebay_invoices (ExecutionMethod,
+                                    parser_order_id, 
+                                    ebay_game_id, 
+                                    platiru_invoice_json, 
+                                    web_pay_json, 
+                                    product_frame_link, 
+                                    product_api_link) 
+                             VALUES('manually',
+                                    '$parser_order_id', 
+                                    '$ebay_game_id', 
+                                    '$platiru_invoice_json', 
+                                    '$web_pay_json', 
+                                    '$product_frame_link', 
+                                    '$product_api_link')");
+
+  arrayDB("UPDATE ebay_orders SET ExecutionMethod='manually' WHERE id='$parser_order_id'");
+
+  if ($received_item['success'] === 'OK' && $received_item['typegood'] === '1'){
+    $platiid = _esc($_GET['platiid']);
+    $trustee_check = arrayDB("SELECT id FROM gig_trustee_items WHERE plati_id='$platiid'");
+    if (!$trustee_check) arrayDB("INSERT INTO gig_trustee_items (plati_id) VALUES ('$platiid')");
+    else arrayDB("UPDATE `gig_trustee_items` SET `counter` = `counter` + 1 WHERE `plati_id` = '$platiid'");
+  }
 
 
 }
@@ -108,4 +127,3 @@ function do_invoice(){
 
 echo do_invoice();
 
-// $platiObj->payInvoice('639060131','R781352104789');

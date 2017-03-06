@@ -15,22 +15,22 @@ $context = stream_context_create($options);
 if ($_GET['pages']) {
     $pages = $_GET['pages'];
 }else{
-    $doc = file_get_contents('http://store.steampowered.com/search/?sort_by=Released_DESC&page=1', false, $context);
+    $doc = file_get_contents('http://store.steampowered.com/search/?sort_by=Name_ASC&category1=21,994,996,998&page=1', false, $context);
     //var_dump($doc);
     $data = str_get_html($doc);
     $pages = $data->find('.search_pagination_right a', count($data->find('.search_pagination_right a')) - 2)->innertext;
 }
-//  логика получения отметки mark(количество минуть начала эпохиUnix)
-if ($_GET['mark']) {
-    $mark = $_GET['mark'];
+//  логика получения отметки scan(количество секунд с начала эпохи Unix)
+if ($_GET['scan']) {
+    $scan = $_GET['scan'];
 }else{
-    $mark = (int)(time()/60);
+    $scan = time();
 }
 // Запускаем парсинг... от 1 до последней страницы
 // Начальная страница это $x = 1 (цифру можно изменить), конечная страница по умолчанию $pages (можно изменить на цифру). $x++ Вообще не трогаем.
 
     // Основная ссылка, с которой мы парсим игры
-    $doc = file_get_contents('http://store.steampowered.com/search/?sort_by=Released_DESC&page=' . $x, false, $context);
+    $doc = file_get_contents('http://store.steampowered.com/search/?sort_by=Name_ASC&category1=21,994,996,998&page=' . $x, false, $context);
     //var_dump($doc);
     $page = str_get_html($doc);
     $titleArr = array();
@@ -42,7 +42,7 @@ if ($_GET['mark']) {
         $title = $page->find('.title', $key);
         ($title) ? $title = $title->innertext : $title = '';
 
-        $link = $val->href;
+        $link = clean_url_from_query($val->href);
 
         $sub = explode('/', trim($link))[3];
 
@@ -55,20 +55,17 @@ if ($_GET['mark']) {
         $year = trim($val->find('.search_released', 0)->innertext);
         $year = substr($year, strlen($year) - 4, 4);
 
-        $price = strip_tags(preg_replace("'<span[^>]*?>.*?</span>'si", '', $val->find('.search_price', 0)->innertext));
-        $searchInPrice = array('p&#1091;&#1073;.','&#36;','$');
-        $price = str_replace("&nbsp;", " ", str_replace($searchInPrice, "", $price));
-        $price = (float)str_replace(",", ".", $price);
+        // ==> Дата релиза ($release)
+        $release = $val->find('.search_released', 0);
+        $release = $release ? $release->innertext : '';
 
-        $sprice = $page->find('.search_price', $key);
-        $strike = $sprice->find('strike',0);
-        //var_dump(!!$strike);
-        if(!!$strike) {
-            $sprice = $strike->plaintext;
-        }else{
-            $sprice = $sprice->plaintext;
-        } 
-        $sprice = str_replace("&nbsp;", " ", $sprice);
+        $price_block = $val->find('.search_price', 0);
+        $reg_price = strip_tags(preg_replace("'<span[^>]*>.*</span>'si", '', $price_block->innertext));
+        preg_match("'<span[^>]*>(.*)</span>'si", $price_block->innertext, $old_price);
+
+        $searchInPrice = array('p&#1091;&#1073;.','&#36;','$',"&nbsp;",);
+        $reg_price = trim(str_replace($searchInPrice, '', $reg_price));
+        $old_price = trim(str_replace($searchInPrice, '', strip_tags(@$old_price[1])));
 
         $revStr = $page->find('.search_reviewscore',$key);
         //echo $revStr;
@@ -88,40 +85,46 @@ if ($_GET['mark']) {
         }
 
         $titleArr[] = $title;
-        $priceArr[] = $price;
+        $priceArr[] = $reg_price;
         $ratingArr[] = $rating;
         $reviewsArr[] = $reviews;
 
-        // echo '<hr><hr>'.mysql_escape_string(trim($appid));
-        // echo '<hr>'.mysql_escape_string(trim($title));
-        // echo '<hr>'.mysql_escape_string(trim($link));
-        // echo '<hr>'.mysql_escape_string(trim($price));
-        // echo '<hr>'.mysql_escape_string(trim($sprice));
-        // echo '<hr>'.mysql_escape_string($rating);
-        // echo '<hr>'.mysql_escape_string($reviews);
-        // echo '<hr>'.mysql_escape_string($mark);
 
         $appid   = _esc(trim($appid));
         $title   = _esc(trim($title));
         $link    = _esc(trim($link));
         $year    = _esc(trim($year));
-        $price   = _esc(trim($price));
-        $sprice  = _esc(trim($sprice));
+        $release    = _esc(trim($release));
+        $reg_price   = _esc(trim($reg_price));
+        $old_price  = _esc(trim($old_price));
         $rating  = _esc($rating);
         $reviews = _esc($reviews);
         $appsub  = _esc($sub);
-        $mark    = _esc($mark);
+        $scan    = _esc($scan);
 
-        arrayDB("INSERT INTO slist VALUES(null,'$appid','$title','$link','$year','$price','$sprice','$rating','$reviews','$appsub','$mark',null)");
+        arrayDB("INSERT INTO slist VALUES(null,
+            '$appid',
+            '$title',
+            '$link',
+            '$year',
+            '$release',
+            '$reg_price',
+            '$old_price',
+            '$rating',
+            '$reviews',
+            '$appsub',
+            '$scan',
+            null)");
     }
 
-    $jsonInfo = array('title' => $titleArr,
-                                        'price' => $priceArr,
-                                        'rating'=> $ratingArr,
-                                        'views' => $reviewsArr
-                        );
+$jsonInfo = '';
+    // $jsonInfo = array('title' => $titleArr,
+    //                                     'price' => $priceArr,
+    //                                     'rating'=> $ratingArr,
+    //                                     'views' => $reviewsArr
+    //                     );
 
-    echo json_encode(array('pages' => $pages, 'mark' => $mark, 'info'=>$jsonInfo, 'errors' => $_ERRORS));
+    echo json_encode(array('pages' => $pages, 'scan' => $scan, 'info'=>$jsonInfo, 'errors' => $_ERRORS));
 
 else: ?>
 

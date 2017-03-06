@@ -4,7 +4,7 @@ ini_set("display_errors",1);
 error_reporting(E_ALL);
 set_time_limit(300); // Указываем скрипту, чтобы не обрывал связь.
 require_once('array_DB.php');
-
+$_GET['urls'] = [];
 // для функции uasort()
 function sortN($a,$b){ return $a['price']-$b['price'];}
 
@@ -12,7 +12,9 @@ function getResultsFromApi($request, $blacklist, $blacksell){
 	
 		$k = 0;
 		$url = "http://www.plati.ru/api/search.ashx?query={$request}&pagesize=500&response=json";
+		$_GET['urls'][] = $url;
 		$result = file_get_contents($url);
+		if(!$result) return [];
 		$result = json_decode($result);
 		$iQ = $result->total;
 		if ($iQ > 500) $iQ = 500;
@@ -175,9 +177,7 @@ if (isset($_POST['getjson'])) {
 		//========= function getResultsFromApi()
     $requests = requestToArr($request);
 
-    $arrItem = array();
     $arrItem1 = array();
-    $idsArr = array();
     foreach ($requests as $req) {
         $reqEnc = urlencode($req);
         $arrItem2 = getResultsFromApi($reqEnc, $blacklist, $blacksell);
@@ -185,10 +185,12 @@ if (isset($_POST['getjson'])) {
         $arrItem1 = array_merge($arrItem1, $arrItem2);
     }
 
+    $idsArr = array();
     foreach ($arrItem1 as $v) {
         $idsArr[$v['itemID']] = $v;
     }
 
+    $arrItem = array();
     foreach ($idsArr as $va) {
         $arrItem[] = $va;
     }
@@ -231,6 +233,7 @@ if (isset($_POST['getjson'])) {
 				'num'  => $num,
 				'games' => $game_list,
 				'errors' => $_ERRORS,
+				'urls' => $_GET['urls'],
 				];
 	echo json_encode($answer);
 }elseif(isset($_POST['setGigGamesIds'])){

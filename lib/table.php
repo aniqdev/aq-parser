@@ -50,6 +50,11 @@ foreach ($scans as $value) {
 	</div>
 	
 </div>
+
+<div class="ppp-block">
+	Green background color means that the item is in the trust list
+</div>
+
 <div class="ppp-block">
 <table class="ppp-table tch-table-deligator">
 	<thead><tr>
@@ -83,6 +88,13 @@ $n = 1;
 	// echo "<pre>";
 	// print_r($res);
 	// echo "</pre>";
+$tr_list = [];
+$tres = arrayDB("SELECT plati_id from gig_trustee_items");
+foreach ($tres as $v) $tr_list[] = $v['plati_id'];
+
+function isTtrusted(&$tr_list, $plati_id){
+	if (in_array($plati_id, $tr_list)) return 'trusted';
+}
 
 foreach ($res as $key => $value) {
 	// $euro = (($value['item1_price']/$exrate)*1.0242+0.35)/((1-0.15)-0.019-0.08);
@@ -91,17 +103,17 @@ foreach ($res as $key => $value) {
 				<td class="row1">',$n++,'</td>
 				<td class="row2">',$value['name'],'</td>
 				<td class="row3 js-change-delim" title="',$value['item1_name'],'">',$value['item1_price'],'</td>
-				<td class="row4" title="',$value['item1_name'],'">
+				<td class="row4 ',isTtrusted($tr_list,$value['item1_id']),'" title="',$value['item1_name'],'">
 					<a href="http://www.plati.ru/itm/',$value['item1_id'],'?ai=163508" target="_blank">link</a>
 					<a href="http://www.plati.ru/seller/info/',(int)$value['item1_desc'],'" target="_blank" title="seller">&nbsp;™</a>
 				</td>
 				<td class="row5 js-change-delim" title="',$value['item2_name'],'">',$value['item2_price'],'</td>
-				<td class="row6" title="',$value['item2_name'],'">
+				<td class="row6 ',isTtrusted($tr_list,$value['item2_id']),'" title="',$value['item2_name'],'">
 					<a href="http://www.plati.ru/itm/',$value['item2_id'],'?ai=163508" target="_blank">link</a>
 					<a href="http://www.plati.ru/seller/info/',(int)$value['item1_desc'],'" target="_blank" title="seller">&nbsp;™</a>
 				</td>
 				<td class="row7 js-change-delim" title="',$value['item3_name'],'">',$value['item3_price'],'</td>
-				<td class="row8" title="',$value['item3_name'],'">
+				<td class="row8 ',isTtrusted($tr_list,$value['item3_id']),'" title="',$value['item3_name'],'">
 					<a href="http://www.plati.ru/itm/',$value['item3_id'],'?ai=163508" target="_blank">link</a>
 					<a href="http://www.plati.ru/seller/info/',(int)$value['item1_desc'],'" target="_blank" title="seller">&nbsp;™</a>
 				</td>
@@ -146,7 +158,7 @@ foreach ($res as $key => $value) {
 <script>
 	var options = {
 	  valueNames: [ 'row1', 'row2', 'row3', 'row5', 'row7', 'row9' ],
-	  page: 2000
+	  page: 4000
 	};
 
 	var userList = new List('platitable', options);
