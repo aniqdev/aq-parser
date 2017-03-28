@@ -255,7 +255,7 @@ echo json_encode( array(
 
 else: ?>
 <h3>парсим игры Стим (подробно)</h3>
-<button id="get-steam" class="get-steam-btn">get-steam</button><br>
+<?= dz('<button id="get-steam" class="get-steam-btn">get-steam</button><br>')?>
 <button id="get-steam2" class="get-steam-btn">get-steam2</button>
 <?= dz('<br><button id="get-steam3" class="get-steam-btn">get-steam3</button>')?>
 <span class="loading"></span>

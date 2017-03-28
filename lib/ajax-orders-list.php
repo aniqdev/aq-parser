@@ -1,5 +1,6 @@
 <?php
 
+
 if (isset($_REQUEST['operation']) && $_REQUEST['operation'] === 'info') {
 
 	$ids = explode('-', $_REQUEST['ids']);
@@ -11,8 +12,8 @@ if (isset($_REQUEST['operation']) && $_REQUEST['operation'] === 'info') {
 
 	if($_SERVER['REQUEST_METHOD'] === 'POST') echo $order;
 	if($_SERVER['REQUEST_METHOD'] === 'GET') sa($order);
-
 }
+
 
 if (isset($_POST['operation']) && $_POST['operation'] === 'buy') {
 
@@ -27,6 +28,7 @@ if (isset($_POST['operation']) && $_POST['operation'] === 'buy') {
 	echo $order;
 }
 
+
 if (isset($_POST['operation']) && $_POST['operation'] === 'send') {
 
 	$ids = explode('-', $_REQUEST['ids']);
@@ -39,6 +41,7 @@ if (isset($_POST['operation']) && $_POST['operation'] === 'send') {
 
 	echo $order;
 }
+
 
 if (isset($_POST['operation']) && $_POST['operation'] === 'curr_price') {
 
@@ -53,6 +56,11 @@ if (isset($_POST['operation']) && $_POST['operation'] === 'curr_price') {
 
 
 
+if (isset($_POST['check_tem_on_plati_and_up_to_three'])) {
+	$plati_id = $_POST['plati_id'];
+	$ebay_id = $_POST['ebay_id'];
+	echo json_encode(check_tem_on_plati_and_up_to_three($plati_id, $ebay_id));
+}
 
 
 

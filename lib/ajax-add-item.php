@@ -2,9 +2,9 @@
 function ajax_add_item()
 {
 
-	if(!isset($_REQUEST['sid']) || $_REQUEST['sid'] < 1) return(json_encode(['success' => 0]));
+	if(!isset($_REQUEST['sid']) || $_REQUEST['sid'] < 1) return(['success' => 0]);
 
-	if(!isset($_REQUEST['price']) || (float)$_REQUEST['price'] < 1.5) return(json_encode(['success' => 0]));
+	if(!isset($_REQUEST['price']) || (float)$_REQUEST['price'] < 1.5) return(['success' => 0]);
 
 	$ret = [];
 
@@ -19,7 +19,7 @@ function ajax_add_item()
 	if ($steam_de) {
 		$steam_de = $steam_de[0];
 	}else{
-		return json_encode(['success' => 0]);
+		return ['success' => 0];
 	}
 
 	$item = [
@@ -59,6 +59,9 @@ function ajax_add_item()
 	$steam_link = $steam_de['link'];
 	$img_generator_res = file_get_contents('http://hot-body.net/img-generator/?url2017='.$steam_link);
 	$img_generator_res = json_decode($img_generator_res,1);
+	if (!$img_generator_res['image_link']) {
+		return ['success' => 0, 'resp' => false];
+	}
 
 	// Ниазвание товара
 	$item['Title'] = isset($_REQUEST['title']) ? substr($_REQUEST['title'], 0, 80) : add_words_to_game_name($steam_de['title']);
@@ -119,6 +122,8 @@ function ajax_add_item()
 			'resp' => $res,
 			'errors' => $_ERRORS];
 }
+
+
 if (isset($_GET['sid']) && isset($_GET['price'])) {
 	sa(ajax_add_item());
 }elseif (isset($_POST['sid']) && isset($_POST['price'])) {

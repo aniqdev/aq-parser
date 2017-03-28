@@ -1133,7 +1133,6 @@ $('.orders-table').on('click', '.mas', function(e) {
 	e.preventDefault();
 	$this = $(this);
 	var tr = $this.parent().parent();
-	console.dir(tr);
 	var orderid = $this.attr('orderid');
 	$.post('/ajax.php?action=ajax-mark-orders',
 		{mark_as_shipped : 'true',

@@ -17,6 +17,7 @@ class GigOrder
 	var $product = '';
 	var $frame_link = '';
 	var $curr_price = '';
+	var $is_order_blocked = false;
 
 	function __construct($opts=[])
 	{
@@ -28,6 +29,11 @@ class GigOrder
 			$this->setGoodInfo($gig_order_item_id);
 			$this->setPlatiInfo($this->good_info['ebay_id']);
 			$this->setEbayInfo($this->good_info['ebay_id']);
+			block_order($gig_order_id);
+			if(is_order_blocked($gig_order_id)){
+				$this->errors[] = 'Order is blocked for 5 minutes!';
+				$this->is_order_blocked = true;
+			}
 		}
 	}
 
@@ -100,6 +106,11 @@ class GigOrder
 
 	public function buy($plati_id)
 	{			
+		if($this->is_order_blocked){
+			$this->errors[] = 'Can not buy til order is blocked!';
+			return false;
+		}
+
 		$platiObj = new PlatiRuBuy();
 
 		$plati_id = (int)$plati_id;
@@ -108,7 +119,7 @@ class GigOrder
 			return false;
 		}
 
-		$this->country = $this->order_info['ShippingAddress']['Country'];
+		$country = $this->order_info['ShippingAddress']['Country'];
 		$this->msg_email = html_entity_decode(get_messages_for_send_producr($country, 'mail'));
 		$this->msg_ebay = html_entity_decode(get_messages_for_send_producr($country, 'ebay'));
 
@@ -155,7 +166,7 @@ class GigOrder
 		$product = get_urls_from_text($product);
 		$this->product = $product;
 
-		$msg_email = key_link_replacer($msg_email);
+		$this->msg_email = key_link_replacer($this->msg_email);
 
 		$this->msg_email = str_ireplace('{{PRODUCT}}', $product, $this->msg_email);
 		$this->msg_ebay = str_ireplace('{{EMAIL}}', $this->order_info['BuyerEmail'], $this->msg_ebay);

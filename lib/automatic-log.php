@@ -15,10 +15,13 @@ $automaticArr = arrayDB("SELECT
     ebay_orders.goods,
     ebay_orders.BuyerUserID,
     ebay_orders.BuyerEmail,
+    ebay_order_items.title,
     ebay_automatic_log.*
 FROM ebay_automatic_log
 JOIN ebay_orders
-ON ebay_orders.id=ebay_automatic_log.order_id
+ON ebay_automatic_log.order_id=ebay_orders.id
+JOIN ebay_order_items
+ON ebay_automatic_log.order_item_id=ebay_order_items.id
 ORDER BY ebay_automatic_log.id DESC $limit");
 
 ?><br>
@@ -61,7 +64,7 @@ foreach ($automaticArr as $key => $automatie):
 	echo "<tr>";
 	echo '<td>',$automatie['id'],'</td>';//ebay_game_id
 	echo '<td><a href="?',query_to_orders_page(['order_id'=>$automatie['order_id']]),'" target="_blank">',$automatie['order_id'],'</a></td>';
-	echo '<td><a href="http://www.ebay.de/itm/',$automatie['ebay_game_id'],'" target="_blank"><div class="op-titles">',$goods[0]->title,'</div></a></td>';
+	echo '<td><a href="http://www.ebay.de/itm/',$automatie['ebay_game_id'],'" target="_blank"><div class="op-titles">',$automatie['title'],'</div></a></td>';
 	echo '<td><a href="http://www.plati.com/itm/',$automatie['plati_id'],'" target="_blank">',$automatie['plati_id'],'</a></td>';
 	echo '<td>',$automatie['BuyerUserID'],'</td>';
 	echo '<td>',$automatie['BuyerEmail'],'</td>';

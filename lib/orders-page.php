@@ -1,12 +1,7 @@
 <?php
 if (isset($_GET['sales-chart'])) {
 	header('Content-Type: application/json');
-	$res = arrayDB("SELECT DATE_FORMAT(ShippedTime, '%d-%m') as date ,count(ShippedTime) as count FROM ebay_orders WHERE ShippedTime > NOW() - INTERVAL 30 DAY GROUP BY day(ShippedTime) order by ShippedTime");
-	$ret = [['date','sales']];
-	foreach ($res as $val) {
-		$ret[] = [$val['date'], +$val['count']];
-	}
-	echo json_encode($ret);
+	echo get_sales_chart_json();
 	die();
 }
 
@@ -161,16 +156,6 @@ if(isset($_GET['order_id']) && $_GET['order_id'] > 0 && $_GET['modal_type'] === 
 	</div>
 </div>
 
-<style>
-.chart-wrapper{
-	height: 0;
-	transition: height .5s;
-	overflow: hidden;
-}
-.chart-wrapper.active{
-	height: 250px;
-}
-</style>
 <!--Load the AJAX API-->
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">

@@ -1,41 +1,12 @@
-<?php ini_get('safe_mode') or set_time_limit(180); // Указываем скрипту, чтобы не обрывал связь.
+<?php ini_get('safe_mode') or set_time_limit(300); // Указываем скрипту, чтобы не обрывал связь.
 
 
 //$ord_arr = $ord_obj->getOrders(['order_status'=>'Completed','OrderIDArray'=>['216865269010','216842562010']]);
 
 
-
-
-function getOrderArray(){
-
-	$ord_obj = new EbayOrders;
-
-	$ord_arr = $ord_obj->getOrders(['NumberOfDays'=>1,'SortingOrder'=>'Ascending']);
-
-	//$ord_arr = $ord_obj->getOrders(['order_status'=>'Completed','OrderIDArray'=>['216865269010']]);
-
-	//$ord_arr = $ord_obj->getOrders(['order_status'=>'All','CreateTimeFrom'=>'2016-09-17T00:00:00.000Z','CreateTimeTo'=>'2016-09-18T00:01:00.000Z']);
-
-	if(!isset($ord_arr['Ack']))
-		return ['success'=>0,'text'=>'нет данных от ebay api'];
-
-	if($ord_arr['Ack'] === 'Failure')
-		return ['success'=>0,'text'=>'ebay api вернул fail','Errors'=>$ord_arr];
-
-	if(empty($ord_arr['OrderArray']))
-		return ['success'=>0,'text'=>'нет заказов'];
-
-	if(isset($ord_arr['OrderArray']['Order']['OrderID']))
-		$ord_arr['OrderArray']['Order'] = [$ord_arr['OrderArray']['Order']];
-	
-	// echo "<pre>";
-	// print_r($ord_arr['OrderArray']['Order'][0]);
-	// echo "</pre>";
-	return ['success'=>'OK','ord_arr'=>$ord_arr['OrderArray']['Order']];
-}
-
 function saveOrders($ord_arr = []){
 	
+	$order_id_checker = 0;
 	foreach ($ord_arr as $order) {
 		
 		$order_id = $order['OrderID'];
@@ -66,7 +37,7 @@ function saveOrders($ord_arr = []){
 
 		$BuyerUserID = $order['BuyerUserID'];
 
-		$BuyerEmail = $order['TransactionArray']['Transaction'][0]['Buyer']['Email'];
+		$BuyerEmail = _esc($order['TransactionArray']['Transaction'][0]['Buyer']['Email']);
 
 		$BuyerFirstName = _esc($order['TransactionArray']['Transaction'][0]['Buyer']['UserFirstName']);
 
@@ -149,17 +120,23 @@ function saveOrders($ord_arr = []){
 				'$PaidTime',
 				'$ShippedTime',null)");
 
-
+			$total = 0;
+			foreach ($goods as $key => $value) {
+				$total += (int)$value['amount'];
+			}
 			$gig_order_id = DB::getInstance()->lastid();
 			foreach ($goods as $key => $good) {
 				for ($i=0; $i < $good['amount']; $i++) { 
+
+					if ($order_id_checker === $order['OrderID']) $npp++;
+					else{ $order_id_checker = $order['OrderID']; $npp = 1; }
+
 					$title = _esc($good['title']);
 					$price = _esc($good['price']);
 					$amount = _esc($good['amount']);
 					$ebay_id = _esc($good['itemid']);
-					$shipped_time = _esc($ShippedTime);
-					arrayDB("INSERT INTO ebay_order_items (gig_order_id,title,price,amount,ebay_id,shipped_time)
-							VALUES('$gig_order_id','$title','$price','$amount','$ebay_id','$shipped_time')");
+					arrayDB("INSERT INTO ebay_order_items (gig_order_id,title,price,amount,ebay_id,npp,total)
+							VALUES('$gig_order_id','$title','$price','$amount','$ebay_id','$npp','$total')");
 				}
 			}
 		}

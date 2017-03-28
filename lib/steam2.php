@@ -17,21 +17,23 @@ $context = stream_context_create($options);
 
 if(!isset($_GET['offset'])) die;
 $offset = (int)$_GET['offset'];
-if(!$offset) arrayDB("TRUNCATE steam");
+//if(!$offset) arrayDB("TRUNCATE steam");
 
 $query = "SELECT * FROM slist 
 		  WHERE $whr_and scan = (select scan from slist order by id desc limit 1) 
 		  LIMIT $offset,30";
 $slist = arrayDB($query);
-   
+$affected = 0;
 foreach ($slist as $row) {
 
 // ==> Ссылка на игру ($link)
-    $link = $row['link'];
+    $link = _esc(clean_url_from_query(trim($row['link'])));
+    $exist = arrayDB("SELECT id from steam_de where link = '$link'");
+    if($exist) continue;
     $game_item = file_get_html($link, false, $context);
     // пропускаем игру в случае ошибки
     if (!is_object($game_item)) continue;
-
+    $affected++;
 // ==> Тип товара ($appsub['app','sub','dlc'])
     $appsub = $row['appsub'];
     $main_game_title = '';
@@ -253,7 +255,7 @@ $includes = implode(',', $includes);
         $main_game_link  = _esc(trim($main_game_link));
         $includes  = _esc($includes);
 
-        arrayDB("INSERT INTO steam (
+        arrayDB("INSERT INTO steam_de (
             `appid`,
             `type`,
             `title`,
@@ -312,6 +314,7 @@ $includes = implode(',', $includes);
 echo json_encode( array(
     'offset' => $offset,
     'count' => $count,
+    'affected' => $affected,
     'errors' => $_ERRORS
     ));
 

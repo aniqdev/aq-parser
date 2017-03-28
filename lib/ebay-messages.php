@@ -1,6 +1,8 @@
-<pre><?php
+<pre>
+Fixed displaying unanswered messages. Now all messages are displayed for the last 5 days instead of 2
+<?php
 
-$two_days_ago = date('Y-m-d', time()-(60*60*24*2));
+$days_ago = date('Y-m-d', time()-(60*60*24*5));
 
 if (isset($_GET['correspondent'])) {
 	$corresp = _esc($_GET['correspondent']);
@@ -10,16 +12,16 @@ if (isset($_GET['correspondent'])) {
 		SELECT *,'OUTBOX' as dir FROM ebay_msgs_outbox WHERE e_Correspondent='$corresp'
 		ORDER BY e_MessageID DESC");
 }elseif (@$_GET['show'] === 'not_answerd') {
-	$e_MessageID_list = arrayDB("SELECT MAX(e_MessageID) as e_MessageID FROM ebay_msgs_inbox WHERE e_ReceiveDate>'2016-11-06' GROUP BY e_Correspondent  ORDER BY e_MessageID DESC");
+	$e_MessageID_list = arrayDB("SELECT MAX(e_MessageID) as e_MessageID FROM ebay_msgs_inbox WHERE e_ReceiveDate>'$days_ago' GROUP BY e_Correspondent  ORDER BY e_MessageID DESC");
 	$MessageID_list = [];
 	foreach ($e_MessageID_list as $k => $val) {
 		$MessageID_list[$val['e_MessageID']] = $val['e_MessageID'];
 	}
 	$messages_all = arrayDB("
-		SELECT *,'INBOX' as dir FROM ebay_msgs_inbox WHERE e_ReceiveDate>'$two_days_ago'
+		SELECT *,'INBOX' as dir FROM ebay_msgs_inbox WHERE e_ReceiveDate>'$days_ago'
 		UNION
-		SELECT *,'OUTBOX' as dir FROM ebay_msgs_outbox WHERE e_ReceiveDate>'$two_days_ago'
-		ORDER BY e_MessageID ASC LIMIT 200");
+		SELECT *,'OUTBOX' as dir FROM ebay_msgs_outbox WHERE e_ReceiveDate>'$days_ago'
+		ORDER BY e_MessageID ASC LIMIT 800");
 	$answerd_list = [];
 	foreach ($messages_all as $key => $value) {
 		if ($value['dir'] === 'OUTBOX') {
@@ -29,7 +31,7 @@ if (isset($_GET['correspondent'])) {
 		}
 	}
 	$messages_list = arrayDB("
-		SELECT *,'INBOX' as dir FROM ebay_msgs_inbox WHERE e_ReceiveDate>'$two_days_ago' ORDER BY e_MessageID DESC LIMIT 200");
+		SELECT *,'INBOX' as dir FROM ebay_msgs_inbox WHERE e_ReceiveDate>'$days_ago' ORDER BY e_MessageID DESC LIMIT 800");
 	$messages_all = [];
 	foreach ($messages_list as $key => $v) {
 		if (isset($MessageID_list[$v['e_MessageID']]) && isset($answerd_list[$v['e_Correspondent']]) && $answerd_list[$v['e_Correspondent']] === 0 && $v['status'] === 'neutral') {
@@ -40,10 +42,10 @@ if (isset($_GET['correspondent'])) {
 	}
 }else{
 	$messages_all = arrayDB("
-		SELECT *,'INBOX' as dir FROM ebay_msgs_inbox WHERE e_ReceiveDate>'$two_days_ago'
+		SELECT *,'INBOX' as dir FROM ebay_msgs_inbox WHERE e_ReceiveDate>'$days_ago'
 		UNION
-		SELECT *,'OUTBOX' as dir FROM ebay_msgs_outbox WHERE e_ReceiveDate>'$two_days_ago'
-		ORDER BY e_MessageID DESC LIMIT 200");
+		SELECT *,'OUTBOX' as dir FROM ebay_msgs_outbox WHERE e_ReceiveDate>'$days_ago'
+		ORDER BY e_MessageID DESC LIMIT 800");
 }
 //print_r($messages_all);
 

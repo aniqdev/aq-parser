@@ -4,9 +4,9 @@
     <?php
     $orders = arrayDB(" SELECT *,ebay_order_items.id as gig_item_id,ebay_orders.id as gig_order_id
                         FROM ebay_orders 
-                        JOIN ebay_order_items
+                        LEFT JOIN ebay_order_items
                         ON ebay_orders.id = ebay_order_items.gig_order_id
-                        WHERE PaidTime <> 0 AND ShippedTime = 0 AND OrderStatus = 'Completed' AND `show` = 'yes' 
+                        WHERE PaidTime > (NOW() - INTERVAL 2 MONTH) AND shipped_time = 0 AND OrderStatus = 'Completed' AND `show` = 'yes' 
                         ORDER BY ebay_orders.id DESC
                         LIMIT 50");
     //sa($orders);
@@ -15,22 +15,12 @@
     foreach ($ebay_games as $getve) {
         $pics_hashes[$getve['item_id']] = $getve['picture_hash'];
     }
-    $order_id = 0;
     foreach ($orders as $key => $order):
     $address = json_decode($order['ShippingAddress'], true); //sa($order);
     $goods = json_decode($order['goods'], true); //sa($goods);
-    $tovarov = 0;
-    foreach ($goods as $key => $value) {
-        $tovarov += $value['amount'];
-    }
-    if ($order_id === $order['order_id']) {
-        $nomer++;
-    }else{
-        $nomer = 1;
-        $order_id = $order['order_id'];
-    }
+    $comment = $order['item_comment'] ? $order['item_comment'] : $order['comment'];
     ?>
-    <div class="cell gd-item flex-block flex-stretch flex-wrap">
+    <div class="cell gd-item flex-block flex-stretch flex-wrap <?= is_shipped($order)?>" id="id<?= $order['gig_order_id'];?>-<?= $order['gig_item_id'];?>">
         <div class="cell gd-box">
             <div class="cell gd-promo-brdr">
                 <div class="gd-img-cell pic-tooltip">
@@ -44,7 +34,7 @@
                 <div class="rel gd-info-cell">
                     <div class="cell text-13 p_b-10 title-fix">
                         <div class="cell3 fr txt-right no-adapt-480">
-                            <b><a class="orng g_statistic" href="/" rel="nofollow" title="">Item: (<?= $nomer?>/<?= $tovarov?>)</a></b>
+                            <b><a class="orng g_statistic" rel="nofollow" title="">Item: (<?= $order['npp']?>/<?= $order['total']?>)</a></b>
                         </div>
                         <b class="m_r-10"><a class="g_statistic" href="http://www.ebay.de/itm/<?= $order['ebay_id']?>" target="_blank" title=""><?= $order['title']?></a></b>
                     </div>
@@ -77,7 +67,15 @@
                     <div class="gd-zati4ka cell4">&nbsp;</div>
                     <div class="gd-price-box fl cell-330 cf">
                         <div class="gd-price-sum inl-bot">
-                            <div class="text-14 text-13-480 orng"><b><?= $order['price'];?> EUR</b></div>
+                            <div class="text-14 text-13-480 orng">
+                                <b><?= $order['price'];?> EUR</b>
+                                <button type="button" 
+                                    class="btn btn-warning btn-xs pull-right orl-mas" 
+                                    title="Mark as shipped" 
+                                    id="ids<?= $order['gig_order_id'];?>-<?= $order['gig_item_id'];?>"
+                                    lang="<?= $order['order_id'];?>"
+                                    >Shipped</button>
+                            </div>
                             <div class="text-14 text-12-640">
                                 <!-- <b>924 - 1&nbsp;640 грн</b> -->
                             </div>
@@ -87,7 +85,7 @@
                         </div>
                         <div class="gd-price-but inl-bot">
                             <div class="cell adapt-480 sales-a">
-                                <b><a class="orng" href="#sales" rel="nofollow" title="">Item: (<?= $nomer?>/<?= $tovarov?>)</a></b>
+                                <b><a class="orng" rel="nofollow" title="">Item: (<?= $order['npp']?>/<?= $order['total']?>)</a></b>
                             </div>
                             <div class="cell but-box m_t-10 js-checkout" title="<?= $order['gig_order_id'];?>-<?= $order['gig_item_id'];?>">Сheckout</div>
                         </div>

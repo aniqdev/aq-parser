@@ -10,8 +10,8 @@ $array = array();
 $whr = "appsub='app'";
 
 $count = (int)arrayDB("SELECT count(*) as count FROM slist WHERE $whr and scan = (select scan from slist order by id desc limit 1)")[0]['count'];
-// В следующей строчке Steam_Language=german, можно указывать другие языки вместо german
-$options = array('http' => array('method' => "GET", 'header' => "Accept-language: en-US\r\n" . "Cookie: Steam_Language=english; mature_content=1; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
+// В следующей строчке Steam_Language=german, можно указывать другие языки вместо german,english
+$options = array('http' => array('method' => "GET", 'header' => "Accept-language: en-US\r\n" . "Cookie: Steam_Language=german; mature_content=1; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
 $context = stream_context_create($options);
 
 if(!isset($_GET['offset'])) die;
@@ -27,7 +27,9 @@ $slist = arrayDB($query);
 foreach ($slist as $row) {
    
 // ==> Ссылка на игру ($link)
-        $link = $row['link'];
+        $link = _esc(clean_url_from_query(trim($row['link'])));
+        $exist = arrayDB("SELECT id from steam_de where link = '$link'");
+        if($exist) continue;
         $game_item = file_get_html($link, false, $context);
         // пропускаем игру в случае ошибки
         if (!is_object($game_item)) continue;
@@ -201,7 +203,7 @@ foreach ($slist as $row) {
         $title    = _esc(trim(html_entity_decode($title)));
         $appid    = _esc($appid);
         $type     = _esc($appsub);
-        $link     = _esc(clean_url_from_query(trim($link)));
+        $link     = _esc($link);
         $desc     = _esc(trim(html_entity_decode($desc)));
         $genres   = _esc($genres);
         $developer= _esc($developer);
@@ -222,30 +224,36 @@ foreach ($slist as $row) {
         $main_game_title  = _esc(trim($main_game_title));
         $main_game_link  = _esc(trim($main_game_link));
 
-        arrayDB("INSERT INTO steam_en VALUES (null, 
-            '$appid', 
-            '$type', 
-            '$title',
-            '$link',
-            '$genres',
-            '$developer',
-            '$publisher',
-            '$reg_price',
-            '$old_price',
-            '$year',
-            '$release',
-            '$specs',
-            '$lang',
-            '$desc',
-            '$os',
-            '$sys_req',
-            '$rating',
-            '$reviewss',
-            '$tags',
-            '$usk_links',
-            '$usk_age',
-            '$main_game_title',
-            '$main_game_link')");
+
+        if ($exist) {
+
+        }else{
+            arrayDB("INSERT INTO steam_de VALUES ( null,
+                '$appid', 
+                '$type', 
+                '$title',
+                '$link',
+                '$genres',
+                '$developer',
+                '$publisher',
+                '$reg_price',
+                '$old_price',
+                '$year',
+                '$release',
+                '$specs',
+                '$lang',
+                '$desc',
+                '$os',
+                '$sys_req',
+                '$rating',
+                '$reviewss',
+                '$tags',
+                '$usk_links',
+                '$usk_age',
+                '$main_game_title',
+                '$main_game_link')");
+        }
+    
 
 }//foreach по одной странице
 echo json_encode( array(

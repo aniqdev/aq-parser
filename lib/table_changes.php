@@ -48,7 +48,9 @@ if($exrate) $dataex = $exrate[0]['value'];
 		<input type="submit">
 	</form>
 </div>
-
+<?php
+function tch_orders(){
+?>
 <div class="ppp-block tch-orders">
 <table class="orders-table">
 	<tr>
@@ -112,7 +114,9 @@ foreach ($orders as $key => $order) {
 ?>
 </table>
 </div>
-
+<?php
+} //tch_orders(); // больше не выводим таблицу для оформления заказов
+?>
 <div class="ch-tab-panel" id="js-tch-deligator">
 <?php	
 	if (isset($_GET['scan'])) {

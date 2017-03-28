@@ -435,7 +435,7 @@ function get_a3_smtp_object(){ // 1
 	//$mail->SMTPSecure = 'ssl';                            // Enable TLS encryption,
 	$mail->SMTPAutoTLS = false;
 	$mail->Port = 25;
-	$mail->CharSet = "UTF-8";                               // TCP port to connect to
+	$mail->CharSet = "utf-8";                               // TCP port to connect to
 	$mail->setFrom('a3@gig-games.de', 'GiG-Games');
 	$mail->isHTML(true);                                  // Set email format to HTML
 
@@ -703,7 +703,17 @@ function query_to_orders_page($options = []){
 
 function add_comment_to_order($gig_order_id, $text, $show = 'yes'){
 	if($gig_order_id < 1) return false;
-	return arrayDB("UPDATE ebay_orders
+
+	if (is_array($gig_order_id)) {
+		$gig_order_item_id = $gig_order_id[1];
+		$gig_order_id = $gig_order_id[0];
+
+		arrayDB("UPDATE ebay_order_items
+		SET item_comment='$text'
+		WHERE id='$gig_order_item_id'");
+	}
+
+	arrayDB("UPDATE ebay_orders
 	SET comment='$text',
 		ExecutionMethod='cancelled',
 		`show`='yes'
@@ -1191,6 +1201,168 @@ function add_dlc_addon_to_desc($steam_arr){
 
 	return $steam_arr['desc'];
 }
+
+
+function getOrderArray(){
+
+	$ord_obj = new EbayOrders;
+
+	$ord_arr = $ord_obj->getOrders(['NumberOfDays'=>1,'SortingOrder'=>'Ascending']);
+
+	//$ord_arr = $ord_obj->getOrders(['order_status'=>'Completed','OrderIDArray'=>['216865269010']]);
+
+	//$ord_arr = $ord_obj->getOrders(['order_status'=>'All','CreateTimeFrom'=>'2016-09-17T00:00:00.000Z','CreateTimeTo'=>'2016-09-18T00:01:00.000Z']);
+
+	if(!isset($ord_arr['Ack']))
+		return ['success'=>0,'text'=>'нет данных от ebay api'];
+
+	if($ord_arr['Ack'] === 'Failure')
+		return ['success'=>0,'text'=>'ebay api вернул fail','Errors'=>$ord_arr];
+
+	if(empty($ord_arr['OrderArray']))
+		return ['success'=>0,'text'=>'нет заказов'];
+
+	if(isset($ord_arr['OrderArray']['Order']['OrderID']))
+		$ord_arr['OrderArray']['Order'] = [$ord_arr['OrderArray']['Order']];
+	
+	// echo "<pre>";
+	// print_r($ord_arr['OrderArray']['Order'][0]);
+	// echo "</pre>";
+	return ['success'=>'OK','ord_arr'=>$ord_arr['OrderArray']['Order']];
+}
+
+
+function ajax_mark_as_paid($OrderID, $status = 'true'){
+	
+	$ebayObj = new EbayOrders();
+	if($OrderID > 0){}else return false;
+	// MarkAsShipped($OrderID, $status = 'true')
+	$ret = $ebayObj->MarkAsPaid($OrderID, $status);
+	if ($ret['Ack'] == 'Success') {
+		if ($status === 'true') {
+			arrayDB("UPDATE ebay_orders SET PaidTime=CURRENT_TIMESTAMP WHERE order_id='$OrderID'");
+		}else{
+			arrayDB("UPDATE ebay_orders SET PaidTime=0 WHERE order_id='$OrderID'");
+		}
+	}
+	return $ret;
+}
+
+
+function ajax_mark_as_shipped($OrderID, $status = 'true'){
+	
+	$ebayObj = new EbayOrders();
+	if($OrderID > 0){}else return false;
+	// MarkAsShipped($OrderID, $status = 'true')
+	$ret = $ebayObj->MarkAsShipped($OrderID, $status);
+	if ($ret['Ack'] == 'Success') {
+		$podzapros = "SELECT id from ebay_orders where order_id = '$OrderID' order by id desc limit 1";
+		if ($status === 'true') {
+			arrayDB("UPDATE ebay_orders SET ShippedTime=CURRENT_TIMESTAMP WHERE order_id='$OrderID'");
+			if (isset($_POST['ebay_order_item_id'])) {
+				$ebay_order_item_id = _esc($_POST['ebay_order_item_id']);
+				arrayDB("UPDATE ebay_order_items SET shipped_time=CURRENT_TIMESTAMP WHERE id='$ebay_order_item_id'");
+			}else{
+				arrayDB("UPDATE ebay_order_items SET shipped_time=CURRENT_TIMESTAMP WHERE gig_order_id=($podzapros)");
+			}
+		}else{
+			arrayDB("UPDATE ebay_orders SET ShippedTime=0 WHERE order_id='$OrderID'");
+			if (isset($_POST['ebay_order_item_id'])) {
+				$ebay_order_item_id = _esc($_POST['ebay_order_item_id']);
+				arrayDB("UPDATE ebay_order_items SET shipped_time=0 WHERE id='$ebay_order_item_id'");
+			}else{
+				arrayDB("UPDATE ebay_order_items SET shipped_time=0 WHERE gig_order_id=($podzapros)");
+			}
+		}
+	}
+	return $ret;
+}
+
+
+function is_shipped($order){
+	if ($order['ShippedTime'] > $order['shipped_time']) {
+		return 'is-shipped';
+	}
+}
+
+
+//проверяем наличие товара на плати.ру и коректируем количествое на ибее
+function check_tem_on_plati_and_up_to_three($plati_id, $ebay_id)
+{
+  $platiObj = new PlatiRuBuy();
+  $ebayObj = new Ebay_shopping2();
+  
+  if ($platiObj->isItemOnPlati($plati_id)) {
+    return $ebayObj->updateQuantity($ebay_id, 3);
+  }else{
+    return $ebayObj->removeFromSale($ebay_id);
+  }
+}
+
+
+function is_order_blocked($gig_order_id)
+{
+	$gig_order_id = (int)$gig_order_id;
+	$block_ip = $_SERVER['REMOTE_ADDR'];
+	$block_time = time()-300;
+	$res = arrayDB("SELECT id FROM ebay_orders WHERE id='$gig_order_id' AND block_ip<>'$block_ip' AND block_time>'$block_time'");
+	if($res) return true;
+	else return false;
+}
+
+
+function block_order($gig_order_id)
+{
+	if(is_order_blocked($gig_order_id)) return false;
+	$gig_order_id = (int)$gig_order_id;
+	$block_ip = $_SERVER['REMOTE_ADDR'];
+	$block_time = time();
+	arrayDB("UPDATE ebay_orders SET block_ip='$block_ip', block_time='$block_time' WHERE id='$gig_order_id'");
+	return true;
+}
+
+
+function activation_data_for($country)
+{
+	if ($country === 'DE') {
+		return 'Ihre Bestellung: ';
+	}else{
+		return 'Your games: ';
+	}
+}
+
+
+function get_sales_chart_json()
+{
+	$res = arrayDB("SELECT DATE_FORMAT(ShippedTime, '%d-%m') as date ,count(*) as count FROM ebay_orders WHERE ShippedTime > NOW() - INTERVAL 27 DAY GROUP BY day(ShippedTime) order by ShippedTime");
+	$ret = [['date','sales']];
+	foreach ($res as $k => $val) {
+		if($k === 0) continue;
+		$ret[] = [$val['date'], +$val['count']];
+	}
+	return json_encode($ret);
+}
+
+
+function _get_steam_images($steam_link = ''){
+
+	if(!$steam_link) return [];
+	$options = array('http' => array('method' => "GET", 'header' => "Accept-language: de\r\n" . "Cookie: Steam_Language=german; mature_content=1; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
+	$context = stream_context_create($options);
+	$dom = file_get_html($steam_link, false, $context);
+
+	$srcs = [];
+	foreach ($dom->find('a[href*=1920x1080]') as $k => $img) {
+		$src = $img->getAttribute('href');
+		$src = parse_url( $src, PHP_URL_QUERY );
+		$src = str_replace(['url=','!1920x1080'], ['','600x338'], $src);
+		//echo '<img src="',$src,'">';
+		$srcs[] = $src;
+		if($k > 3) break;
+	}
+	return $srcs;
+}
+
 
 
 ?>

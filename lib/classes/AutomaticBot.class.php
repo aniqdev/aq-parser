@@ -11,6 +11,8 @@ class AutomaticBot
 	private static $chat_id = '278472749';
 
 	//чат по умолчанию для вызова методов объекта
+	// 278472749 => gig-automatic
+	// -195283152 => gig-automatic-group
 	function __construct($chat_id = '278472749')
 	{
 		self::$chat_id = $chat_id;

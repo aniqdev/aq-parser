@@ -710,5 +710,37 @@ class Ebay_shopping2{
 	}
 
 
+	public function updateItemDescription($item_id, $desc = false)
+	{
+		$item_id = preg_replace('/\D/', '', $item_id);
+		if(!$item_id || !$desc) return false;
+
+		$headers = array
+				(
+				'X-EBAY-API-COMPATIBILITY-LEVEL: ' . '983',
+				'X-EBAY-API-DEV-NAME: ' . 'c1f2f124-1232-4bc4-bf9e-8166329ce649',
+				'X-EBAY-API-APP-NAME: ' . 'Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
+				'X-EBAY-API-CERT-NAME: ' . 'PRD-ae576df59071-a52d-4e1b-8b78-9156',
+				'X-EBAY-API-CALL-NAME: ' . 'ReviseItem',
+				'X-EBAY-API-SITEID: ' . '77',
+		);
+
+		$xml = '<?xml version="1.0" encoding="utf-8"?>
+		<ReviseItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+			<RequesterCredentials>
+				<eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+			</RequesterCredentials>
+			<Item ComplexType="ItemType">
+				<ItemID>'.$item_id.'</ItemID>
+				<Description>'.htmlspecialchars($desc, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</Description>
+			</Item>
+			<MessageID>1</MessageID>
+			<WarningLevel>High</WarningLevel>
+			<Version>983</Version>
+		</ReviseItemRequest>​';
+
+		$result = $this->request($this->api_url, $xml, $headers);
+		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
 
 } // class Ebay_shopping 2

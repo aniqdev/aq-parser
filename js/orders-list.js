@@ -7,9 +7,9 @@ class OrderModalBody extends React.Component {
 	
 	constructor(props) {
 		console.log('constructor');
-	    super(props);
-	    this.buyBtnClick = this.buyBtnClick.bind(this);
-	    this.state = {tripleBtnIndex: 1,
+		super(props);
+		this.buyBtnClick = this.buyBtnClick.bind(this);
+		this.state = {tripleBtnIndex: 1,
 			chosen_title:this.props.data.plati_info.item1_name,
 			chosen_plati_id:this.props.data.plati_info.item1_id,
 			inputs:{
@@ -17,21 +17,21 @@ class OrderModalBody extends React.Component {
 				mail_body:this.props.data.msg_email,
 				ebay_title:this.props.data.msg_subject,
 				ebay_body:this.props.data.msg_ebay,
-				new_price:this.props.data.curr_price
+				new_price:this.props.data.plati_info.item1_recom
 			},
-			data:this.props.data};
-    	this.mailTitleInputChange = this.mailTitleInputChange.bind(this);
-    	this.mailBodyInputChange = this.mailBodyInputChange.bind(this);
-    	this.ebayTitleInputChange = this.ebayTitleInputChange.bind(this);
-    	this.ebayBodyInputChange = this.ebayBodyInputChange.bind(this);
-    	this.newPriceInputChange = this.newPriceInputChange.bind(this);
-    	this.sendAllClick = this.sendAllClick.bind(this);
-    	this.sendEmailClick = this.sendEmailClick.bind(this);
-    	this.sendEbayClick = this.sendEbayClick.bind(this);
-    	this.changePriceClick = this.changePriceClick.bind(this);
-    	this.toAddonClick = this.toAddonClick.bind(this);
-    	this.toBlacklistClick = this.toBlacklistClick.bind(this);
-    	this.itemRemoveClick = this.itemRemoveClick.bind(this);
+			data:this.props.data, emaild: '', ebaid: ''};
+		this.mailTitleInputChange = this.mailTitleInputChange.bind(this);
+		this.mailBodyInputChange = this.mailBodyInputChange.bind(this);
+		this.ebayTitleInputChange = this.ebayTitleInputChange.bind(this);
+		this.ebayBodyInputChange = this.ebayBodyInputChange.bind(this);
+		this.newPriceInputChange = this.newPriceInputChange.bind(this);
+		this.sendAllClick = this.sendAllClick.bind(this);
+		this.sendEmailClick = this.sendEmailClick.bind(this);
+		this.sendEbayClick = this.sendEbayClick.bind(this);
+		this.changePriceClick = this.changePriceClick.bind(this);
+		this.toAddonClick = this.toAddonClick.bind(this);
+		this.toBlacklistClick = this.toBlacklistClick.bind(this);
+		this.itemRemoveClick = this.itemRemoveClick.bind(this);
 	}
 
 	componentWillReceiveProps(nextProps){
@@ -41,8 +41,9 @@ class OrderModalBody extends React.Component {
 			this.setState({chosen_title:nextProps.data.plati_info.item1_name});
 			this.setState({chosen_plati_id:nextProps.data.plati_info.item1_id});
 			this.setState({inputs:{
-				mail_title:'',mail_body:'',ebay_title:'',ebay_body:''
-			}});
+				mail_title:'',mail_body:'',ebay_title:'',ebay_body:'',
+				new_price:nextProps.data.plati_info.item1_recom
+			}, emaild: '', ebaid: ''});
 			console.info('if');
 		}else{
 			console.info('else');
@@ -51,7 +52,7 @@ class OrderModalBody extends React.Component {
 				mail_body:nextProps.data.msg_email,
 				ebay_title:nextProps.data.msg_subject,
 				ebay_body:nextProps.data.msg_ebay,
-				new_price:nextProps.data.curr_price
+				new_price:nextProps.data.plati_info.item1_recom
 			}});
 		}
 	}
@@ -61,8 +62,9 @@ class OrderModalBody extends React.Component {
 		_aa.chosen_plati_id = _aa.data.plati_info['item'+index+'_id'];
 		this.setState({tripleBtnIndex: index,
 			chosen_title:this.props.data.plati_info['item'+index+'_name'],
-			chosen_plati_id:this.props.data.plati_info['item'+index+'_id'],
+			chosen_plati_id:this.props.data.plati_info['item'+index+'_id']
 		});
+		this.setState({inputs:{new_price:this.props.data.plati_info['item'+index+'_recom']}});
 		console.log(this.props.data.plati_info['item'+index+'_id']);
 	}
 
@@ -73,6 +75,7 @@ class OrderModalBody extends React.Component {
 	}
 
 	sendAllClick(){
+		var $this = this;
 		$.post('/ajax.php?action=ajax-invoice-sender',
 			{
 			sendemail:1,
@@ -80,6 +83,7 @@ class OrderModalBody extends React.Component {
 				user_email:this.props.data.order_info.BuyerEmail,
 				email_subject:this.state.inputs.mail_title,
 				email_body:this.state.inputs.mail_body,
+				ebay_order_item_id: _aa.ids.split('-')[1],
 			sendebay:1,
 				ebay_user:this.props.data.order_info.BuyerUserID,
 				ebay_item:this.props.data.good_info.ebay_id,
@@ -87,30 +91,46 @@ class OrderModalBody extends React.Component {
 				ebay_body:this.state.inputs.ebay_body
 			},
 			function(data) {
-
+				if(data.sendemail_ans !== 'no'){
+					$this.setState({emaild: 'glyphicon-ok'});
+					remove_order();
+				} 
+				else $this.setState({emaild: 'glyphicon-ban-circle'});
+				if(data.sendebay_ans !== 'no') $this.setState({ebaid: 'glyphicon-ok'});
+				else $this.setState({ebaid: 'glyphicon-ban-circle'});
 			},'JSON');
 	}
 
 	sendEmailClick(){
+		var $this = this;
 		$.post('/ajax.php?action=ajax-invoice-sender',
 			{sendemail:1,
 				ebay_orderid:this.props.data.order_info.order_id,
 				user_email:this.props.data.order_info.BuyerEmail,
 				email_subject:this.state.inputs.mail_title,
-				email_body:this.state.inputs.mail_body},
+				email_body:this.state.inputs.mail_body,
+				ebay_order_item_id: _aa.ids.split('-')[1]},
 			function(data) {
-
+				if(data.sendemail_ans !== 'no'){
+					$this.setState({emaild: 'glyphicon-ok'});
+					remove_order();
+				}
+				else $this.setState({emaild: 'glyphicon-ban-circle'});
 			},'JSON');
 	}
 
 	sendEbayClick(){
+		var $this = this;
 		$.post('/ajax.php?action=ajax-invoice-sender',
 			{sendebay:1,
 			ebay_user:this.props.data.order_info.BuyerUserID,
 			ebay_item:this.props.data.good_info.ebay_id,
 			ebay_subject:this.state.inputs.ebay_title,
 			ebay_body:this.state.inputs.ebay_body},
-			function(data) {  },'JSON');
+			function(data) { 
+				if(data.sendebay_ans !== 'no') $this.setState({ebaid: 'glyphicon-ok'});
+				else $this.setState({ebaid: 'glyphicon-ban-circle'});
+			},'JSON');
 	}
 
 	changePriceClick(e) {
@@ -167,43 +187,49 @@ class OrderModalBody extends React.Component {
 		return (
 		<div className="container-fluid"><div className="row"><div className="col-xs-12">
 
-			<h4 title={this.props.data.good_info.title} className="clip">{this.props.data.good_info.title}</h4>
+			<h4 title={this.props.data.good_info.title} className="clip">
+				<a className="order-modal-link"
+					target="_blank" 
+					href={'http://www.ebay.de/itm/'+this.props.data.good_info.ebay_id}>
+					{this.props.data.good_info.title}
+				</a>
+			</h4>
 
-<a className="order-modal-link" href={"http://www.ebay.de/sch/i.html?LH_PrefLoc=2&_sop=2&LH_BIN=1&_osacat=1249&_from=R40&_trksid=p2045573.m570.l1313.TR0.TRC0.H0.TRS0&_sacat=1249&_nkw="+this.props.data.plati_info.name} target="_blank">
-    <table className="wbtable">
-        <tbody>
-            <tr>
-                <td title={this.props.data.ebay_info.title1}>{this.props.data.ebay_info.price1}</td>
-                <td title={this.props.data.ebay_info.title2}>{this.props.data.ebay_info.price2}</td>
-                <td title={this.props.data.ebay_info.title3}>{this.props.data.ebay_info.price3}</td>
-                <td title={this.props.data.ebay_info.title4}>{this.props.data.ebay_info.price4}</td>
-                <td title={this.props.data.ebay_info.title5}>{this.props.data.ebay_info.price5}</td>
-            </tr>
-        </tbody>
-    </table>
-</a><br/>
+			<a className="order-modal-link" href={"http://www.ebay.de/sch/i.html?LH_PrefLoc=2&_sop=2&LH_BIN=1&_osacat=1249&_from=R40&_trksid=p2045573.m570.l1313.TR0.TRC0.H0.TRS0&_sacat=1249&_nkw="+this.props.data.plati_info.name} target="_blank">
+				<table className="wbtable">
+					<tbody>
+						<tr>
+							<td title={this.props.data.ebay_info.title1}>{this.props.data.ebay_info.price1}</td>
+							<td title={this.props.data.ebay_info.title2}>{this.props.data.ebay_info.price2}</td>
+							<td title={this.props.data.ebay_info.title3}>{this.props.data.ebay_info.price3}</td>
+							<td title={this.props.data.ebay_info.title4}>{this.props.data.ebay_info.price4}</td>
+							<td title={this.props.data.ebay_info.title5}>{this.props.data.ebay_info.price5}</td>
+						</tr>
+					</tbody>
+				</table>
+			</a><br/>
 
 			<div className="btn-group btn-group-justified" role="group" aria-label="...">
 			  <div className="btn-group" role="group">
-			    <button type="button" 
-			    	onClick={this.tripleBtnClick.bind(this,1)} 
-			    	className={this.state.tripleBtnIndex===1?'btn btn-success':'btn btn-default'}
-			    	title={this.props.data.plati_info['item1_price']+' rur'}
-			    	>{this.props.data.plati_info['item1_recom']}</button>
+				<button type="button" 
+					onClick={this.tripleBtnClick.bind(this,1)} 
+					className={this.state.tripleBtnIndex===1?'btn btn-success':'btn btn-default'}
+					title={this.props.data.plati_info['item1_price']+' rur'}
+					>{this.props.data.plati_info['item1_recom']}</button>
 			  </div>
 			  <div className="btn-group" role="group">
-			    <button type="button" 
-			    	onClick={this.tripleBtnClick.bind(this,2)} 
-			    	className={this.state.tripleBtnIndex===2?'btn btn-success':'btn btn-default'}
-			    	title={this.props.data.plati_info['item2_price']+' rur'}
-			    	>{this.props.data.plati_info['item2_recom']}</button>
+				<button type="button" 
+					onClick={this.tripleBtnClick.bind(this,2)} 
+					className={this.state.tripleBtnIndex===2?'btn btn-success':'btn btn-default'}
+					title={this.props.data.plati_info['item2_price']+' rur'}
+					>{this.props.data.plati_info['item2_recom']}</button>
 			  </div>
 			  <div className="btn-group" role="group">
-			    <button type="button" 
-			    	onClick={this.tripleBtnClick.bind(this,3)} 
-			    	className={this.state.tripleBtnIndex===3?'btn btn-success':'btn btn-default'}
-			    	title={this.props.data.plati_info['item3_price']+' rur'}
-			    	>{this.props.data.plati_info['item3_recom']}</button>
+				<button type="button" 
+					onClick={this.tripleBtnClick.bind(this,3)} 
+					className={this.state.tripleBtnIndex===3?'btn btn-success':'btn btn-default'}
+					title={this.props.data.plati_info['item3_price']+' rur'}
+					>{this.props.data.plati_info['item3_recom']}</button>
 			  </div>
 			</div>
 			<h5><a href={'https://www.plati.ru/itm/'+this.state.chosen_plati_id+'?ai=163508'}
@@ -215,13 +241,14 @@ class OrderModalBody extends React.Component {
 			<div className="row">
 				<div className="col-sm-6">
 					<button onClick={this.buyBtnClick} type="button" className="btn btn-primary">Buy</button>
-					<b className="pull-right">paid price: {this.props.data.good_info.price}</b>
+					<b className="pull-right"> paid: {this.props.data.good_info.price} | 
+					current: {this.props.data.curr_price}</b><br/><br/>
 				</div>
 				<div className="col-sm-6">
 					<div className="input-group">
 					  <input onChange={this.newPriceInputChange} value={this.state.inputs.new_price} title="current price" type="text" className="form-control" placeholder="Current price"/>
 					  <span className="input-group-btn">
-					    <button onClick={this.changePriceClick} className="btn btn-primary" type="button">Change Price</button>
+						<button onClick={this.changePriceClick} className="btn btn-primary" type="button">Change Price</button>
 					  </span>
 					</div>
 				</div>
@@ -231,25 +258,25 @@ class OrderModalBody extends React.Component {
 			<div className="row"><div className="col-sm-12">
 				<div className="btn-group btn-group-justified">
 				  <div className="btn-group" role="group">
-			        <button onClick={this.toAddonClick} type="button" className="btn btn-info">to Add-on</button>
-			      </div>
+					<button onClick={this.toAddonClick} type="button" className="btn btn-info">to Add-on</button>
+				  </div>
 				  <div className="btn-group" role="group">
-			        <button onClick={this.toBlacklistClick} type="button" className="btn btn-warning">to Blacklist</button>
-			      </div>
+					<button onClick={this.toBlacklistClick} type="button" className="btn btn-warning">to Blacklist</button>
+				  </div>
 				  <div className="btn-group" role="group">
-			        <button onClick={this.itemRemoveClick} type="button" className="btn btn-danger">Remove from Sale</button>
-			      </div>
-		        </div>
-	        </div></div>
+					<button onClick={this.itemRemoveClick} type="button" className="btn btn-danger">Remove from Sale</button>
+				  </div>
+				</div>
+			</div></div>
 
 			<hr/>
-            {this.props.data.errors.map(function(error, i) {
-                    return(<div key={i} className="alert alert-danger" role="alert">
+			{this.props.data.errors.map(function(error, i) {
+					return(<div key={i} className="alert alert-danger" role="alert">
 							  <span className="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
 							  <span className="sr-only">Error:</span>
 							  {error}
 							</div>)
-                })}
+				})}
 			<div className="bs-callout bs-callout-info" id="callout-type-b-i-elems">
 				<h4>Товар:</h4> 
 				<p>{this.props.data.product}</p> 
@@ -262,7 +289,7 @@ class OrderModalBody extends React.Component {
 						
 					</textarea><br/>
 					<button onClick={this.sendAllClick} className="op-modal-btn" type="submit"><i className="glyphicon"></i>Send All</button>
-					<button onClick={this.sendEmailClick} className="op-modal-btn pull-right" type="button"><i className="glyphicon"></i>Send Email</button><br/><br/>
+					<button onClick={this.sendEmailClick} className="op-modal-btn pull-right" type="button"><i className={'glyphicon '+this.state.emaild}></i>Send Email</button><br/><br/>
 				</div>
 
 				<div className="col-sm-6">
@@ -270,15 +297,15 @@ class OrderModalBody extends React.Component {
 					<textarea onChange={this.ebayBodyInputChange} value={this.state.inputs.ebay_body} className="form-control" cols="30" rows="11">
 						
 					</textarea><br/>
-					<button onClick={this.sendEbayClick} className="op-modal-btn pull-right" type="button"><i className="glyphicon"></i>Send Message</button><br/>
+					<button onClick={this.sendEbayClick} className="op-modal-btn pull-right" type="button"><i className={'glyphicon '+this.state.ebaid}></i>Send Message</button><br/>
 				</div>
 			</div><hr/>
 
 			<h5>Product frame:</h5>
 			<iframe className="invoice-iframe"
 				src={this.props.data.frame_link?this.props.data.frame_link+'&oper=checkpay':''}>
-		        Ваш браузер не поддерживает плавающие фреймы!
-		    </iframe>
+				Ваш браузер не поддерживает плавающие фреймы!
+			</iframe>
 
 		</div></div></div>
 		)
@@ -303,7 +330,7 @@ function ajax_order_modal_body(ids) {
 		dataType: 'json'
 	})
 	  .done(function(data) {
-	  	_aa.chosen_plati_id = data.plati_info.item1_id;
+		_aa.chosen_plati_id = data.plati_info.item1_id;
 		_aa.data = data;
 		ReactDOM.render(<OrderModalBody data={data} index={1} reset={true}/>, _aa.modal_body);
 	  })
@@ -322,9 +349,10 @@ function ajax_buy(ids, plati_id) {
 		dataType: 'json'
 	})
 	  .done(function(data) {
-	  	_aa.chosen_plati_id = data.plati_info.item1_id;
 		_aa.data = data;
 		ReactDOM.render(<OrderModalBody data={data}/>, _aa.modal_body);
+		if(data.is_order_blocked === false) check_tem_on_plati_and_up_to_three(plati_id, data.good_info.ebay_id);
+		_aa.chosen_plati_id = data.plati_info.item1_id;
 	  })
 	  .fail(function() {
 		_aa.data = {};
@@ -332,6 +360,19 @@ function ajax_buy(ids, plati_id) {
 	  });
 }
 
+
+function remove_order() {
+	$('#id'+_aa.ids).remove();
+}
+
+
+function check_tem_on_plati_and_up_to_three(plati_id, ebay_id) {
+		$.post('ajax.php?action=ajax-orders-list',
+			{check_tem_on_plati_and_up_to_three:'true',
+			plati_id:plati_id,
+			ebay_id:ebay_id},
+			function(data) {  },'JSON');
+}
 
 
 $('#js-listdeligator').on('click', '.js-checkout', function(e) {
@@ -344,7 +385,22 @@ $('#js-listdeligator').on('click', '.js-checkout', function(e) {
 });	
 
 
-
+$('#js-listdeligator').on('click', '.orl-mas', (e) => {
+	if (!confirm("Уверены?")) return false;
+	var ids=e.target.id.replace('ids','');
+	var ebay_order_item_id = ids.split('-')[1];
+	var ebay_order_id = e.target.lang;
+	if(!ebay_order_id) return false;
+	$.post('/ajax.php?action=ajax-mark-orders',
+		{mark_as_shipped:'true',
+			ebay_order_id:ebay_order_id,			
+			ebay_order_item_id:ebay_order_item_id},
+		function(data) {
+			if(data.Ack == 'Success'){
+				$('#id'+ids).remove();
+			}
+		},'JSON');
+});
 
 
 

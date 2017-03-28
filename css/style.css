@@ -1134,6 +1134,7 @@ zz{
     height: 620px;
     border: none;
     background: #fff;
+    border: 1px solid #cacaca;
 }
 
 .orders-table{
@@ -1598,4 +1599,17 @@ button.load:after{
 
 .navbar-inverse .navbar-nav>li>a {
     color: #eaeaea;
+}
+
+.order-list .is-shipped{
+  background: #ffd5d5;
+}
+
+.op-search-panel .chart-wrapper{
+  height: 0;
+  transition: height .5s;
+  overflow: hidden;
+}
+.op-search-panel .chart-wrapper.active{
+  height: 250px;
 }

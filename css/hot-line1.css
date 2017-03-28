@@ -1031,12 +1031,6 @@ img {
 }
 
 @media (max-width: 1023px) {
-    body {
-        background-image:none!important;
-        background-color: #fff!important;
-        padding: 0!important
-    }
-
     .m-0-1024 {
         margin: 0!important
     }
