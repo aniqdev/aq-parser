@@ -11,8 +11,8 @@ $whr_and = "appsub='sub' AND";
 $whr_and = '';
 
 $count = (int)arrayDB("SELECT count(*) as count FROM slist WHERE $whr_and scan = (select scan from slist order by id desc limit 1)")[0]['count'];
-// В следующей строчке Steam_Language=german, можно указывать другие языки вместо german
-$options = array('http' => array('method' => "GET", 'header' => "Accept-language: en-US\r\n" . "Cookie: Steam_Language=german; mature_content=1; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
+// В следующей строчке Steam_Language=german,russian,english,french,spanish,italian можно указывать другие языки
+$options = array('http' => array('method' => "GET", 'header' => "Accept-language: en-US\r\n" . "Cookie: Steam_Language=italian; mature_content=1; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
 $context = stream_context_create($options);
 
 if(!isset($_GET['offset'])) die;
@@ -27,8 +27,8 @@ $affected = 0;
 foreach ($slist as $row) {
 
 // ==> Ссылка на игру ($link)
-    $link = _esc(clean_url_from_query(trim($row['link'])));
-    $exist = arrayDB("SELECT id from steam_de where link = '$link'");
+    $link = _esc(clean_steam_url(trim($row['link'])));
+    $exist = arrayDB("SELECT id from steam_it where link = '$link'");
     if($exist) continue;
     $game_item = file_get_html($link, false, $context);
     // пропускаем игру в случае ошибки
@@ -231,7 +231,7 @@ $includes = implode(',', $includes);
         $title    = _esc(trim(html_entity_decode($title)));
         $appid    = _esc($appid);
         $type     = _esc($appsub);
-        $link     = _esc(clean_url_from_query(trim($link)));
+        $link     = $link;
         $desc     = _esc(trim(html_entity_decode($desc)));
         $genres   = _esc($genres);
         $developer= _esc($developer);
@@ -255,7 +255,7 @@ $includes = implode(',', $includes);
         $main_game_link  = _esc(trim($main_game_link));
         $includes  = _esc($includes);
 
-        arrayDB("INSERT INTO steam_de (
+        arrayDB("INSERT INTO steam_it (
             `appid`,
             `type`,
             `title`,

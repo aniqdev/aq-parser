@@ -95,10 +95,10 @@ class DB
     }
     public function __destruct()
     {
-        if( $this->link)
-        {
-            $this->disconnect();
-        }
+        // if( $this->link)
+        // {
+        //     $this->disconnect();
+        // }
     }
     /**
      * Sanitize user data
@@ -903,5 +903,6 @@ class DB
     public function disconnect()
     {
         $this->link->close();
+        self::$inst = null;
     }
 } //end class DB

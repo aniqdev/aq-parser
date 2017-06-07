@@ -36,7 +36,7 @@ class EbayOrders
 	public function getOrders($c = [])
 	{
 		$c = array_merge([  'order_status'=>'All',
-							'EntriesPerPage'=>'100',
+							'EntriesPerPage'=>'200',
 							'PageNumber'=>'1',
 							'CreateTimeFrom'=>false,
 							'CreateTimeTo'=>false,
@@ -74,6 +74,7 @@ class EbayOrders
 	      		<PageNumber>'.$c['PageNumber'].'</PageNumber>
 			  </Pagination>
 			  <SortingOrder>'.$c['SortingOrder'].'</SortingOrder>
+			  <WarningLevel>Low</WarningLevel>
 			</GetOrdersRequest>';
 
 		$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",

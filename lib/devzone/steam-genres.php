@@ -1,6 +1,6 @@
 <pre><?php
 
-$res = arrayDB("SELECT genres FROM steam limit 2000,10000");
+$res = arrayDB("SELECT genres FROM steam_de");
 
 $genres = [];
 foreach ($res as $k => $v) {

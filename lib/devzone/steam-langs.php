@@ -1,23 +1,12 @@
 <pre><?php
+ini_get('safe_mode') or set_time_limit(1300); // Указываем скрипту, чтобы не обрывал связь.
 
-$res = arrayDB("SELECT lang FROM steam limit 2000,8000");
+$genres = get_steam_languages();
 
-$genres = [];
-foreach ($res as $k => $v) {
-	$genreses = explode(',', $v['lang']);
-	foreach ($genreses as $val) {
-		$genres[$val] = $val;
-	}
-}
-
-$gens = []; $i = 1;
-foreach ($genres as $value) {
-	$gens[$i++] = $value;
-}
 
 var_dump(count($genres));
+print_r($genres);
 
-print_r(array_flip($gens));
 
 
 

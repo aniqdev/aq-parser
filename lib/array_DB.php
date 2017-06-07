@@ -796,6 +796,13 @@ function aqs_pagination($table_name, $count = false){
 
 	echo $str;
 
+	// далее определяем лимит для внешнего запроса
+	if(isset($_GET['offset']) && isset($_GET['limit'])){
+		$limit = (int)$_GET['offset'].','.(int)$_GET['limit'];
+	}else{
+		$limit = '10';
+	}
+	return $limit;
 }
 
 
@@ -873,6 +880,10 @@ function is_utf8($str){
 
 function clean_url_from_query($url=''){
 	return preg_replace('/\?.*$/', '', $url);
+}
+
+function clean_steam_url($url=''){
+	return preg_replace('#(http://store\.steampowered\.com/.+?/.+?/).+#', "$1", $url);
 }
 
 function kostyl($str='')
@@ -1183,16 +1194,36 @@ function get_steam_miracle_where(){
 }
 
 
-function add_dlc_addon_to_desc($steam_arr){
+function add_dlc_addon_to_desc($steam_arr, $lang = false){
+
+	$dlc_texts = [
+		'de' => 'Dieses Produkt benötigt zum Spielen die Steam-Version des Hauptspiels',
+		'en' => 'This content requires the base game',
+		'fr' => 'Questo contenuto ha bisogno del gioco di base',
+		'es' => 'Este contenido requiere el juego base',
+		'it' => 'Ce contenu nécessite le jeu de base',
+	];
+
+	if(!isset($dlc_texts[$lang])) $lang = 'de';
+
+	$sub_texts = [
+		'de' => 'In diesem Paket enthaltenen Artikel',
+		'en' => 'Items included in this package',
+		'fr' => 'Articles inclus dans ce package',
+		'es' => 'Artículos incluidos en este pack',
+		'it' => 'Oggetti inclusi in questo pacchetto',
+	];
+
+	if(!isset($sub_texts[$lang])) $lang = 'de';
 	
 	if ($steam_arr['main_game_link']) {
-		$l = '<h4 class="gig-dlc-hh">Dieses Produkt benötigt zum Spielen die Steam-Version des Hauptspiels <a target="_blank" href="'.$steam_arr['main_game_link'].'">'.$steam_arr['main_game_title'].'.</a></h4>';
+		$l = '<h4 class="gig-dlc-hh">'.$dlc_texts[$lang].' <a target="_blank" href="'.$steam_arr['main_game_link'].'">'.$steam_arr['main_game_title'].'.</a></h4>';
 		$steam_arr['desc'] = $l.$steam_arr['desc'];
 
 	}elseif ($steam_arr['includes']) {
 		$includes_arr = explode(',', $steam_arr['includes']);
 		$titles_arr = explode('<br>', $steam_arr['desc']);
-		$x = '<h4 class="gig-sub-hh">In diesem Paket enthaltenen Artikel:</h4>';
+		$x = '<h4 class="gig-sub-hh">'.$sub_texts[$lang].':</h4>';
 		foreach ($includes_arr as $k => $sid) {
 			$x .= '<a class="gig-sub-link" target="_blank" href="http://store.steampowered.com/app/'.$sid.'/">'.$titles_arr[$k].'</a><br>';
 		}
@@ -1207,11 +1238,13 @@ function getOrderArray(){
 
 	$ord_obj = new EbayOrders;
 
-	$ord_arr = $ord_obj->getOrders(['NumberOfDays'=>1,'SortingOrder'=>'Ascending']);
+	$ord_arr = $ord_obj->getOrders(['NumberOfDays'=>1,'SortingOrder'=>'Ascending','PageNumber'=>'1']);
 
 	//$ord_arr = $ord_obj->getOrders(['order_status'=>'Completed','OrderIDArray'=>['216865269010']]);
 
-	//$ord_arr = $ord_obj->getOrders(['order_status'=>'All','CreateTimeFrom'=>'2016-09-17T00:00:00.000Z','CreateTimeTo'=>'2016-09-18T00:01:00.000Z']);
+	// $ord_arr = $ord_obj->getOrders(['order_status'=>'All',
+	// 	'CreateTimeFrom'=>date('Y-m-d\TH:i:s.000\Z', time()-(2*24*60*60)),
+	// 	'CreateTimeTo'=>date('Y-m-d\TH:i:s.000\Z', time())]);
 
 	if(!isset($ord_arr['Ack']))
 		return ['success'=>0,'text'=>'нет данных от ebay api'];
@@ -1361,6 +1394,242 @@ function _get_steam_images($steam_link = ''){
 		if($k > 3) break;
 	}
 	return $srcs;
+}
+
+
+function is_eve($ebay_item_id)
+{
+	$plexes = [ '121962440805',
+				'121962439324',
+				'112090853589',
+				'112353147792',];
+	if (in_array($ebay_item_id, $plexes)) return true;
+	return false;
+}
+
+
+function _get_urls_of_real_img($item_id){
+
+	$res = Ebay_shopping2::getSingleItem($item_id, JSON_OBJECT_AS_ARRAY);
+	if($res['Ack'] === 'Failure'){ echo 'Failure'; return 0; }
+	$PictureURL = $res['Item']['PictureURL'][0];
+	$found = preg_match('#/[^s]/(.+)/#', $PictureURL, $matches);
+	if(!$found) return 0;
+	$url_of_real_img = 'http://i.ebayimg.com/images/g/'.$matches[1].'/s-l500.jpg';
+	return $url_of_real_img;
+}
+
+
+function _get_item_specs($item_id=''){
+
+	if(!$item_id) return false;
+	$res = Ebay_shopping2::getSingleItem($item_id);
+	$specifics = json_decode($res, true)['Item']['ItemSpecifics']['NameValueList'];
+	$specs = [];
+	foreach ($specifics as $val) $specs[$val['Name']] = $val['Value'][0];
+	return $specs;
+}
+
+
+function parse_item_specifics($item_id='')
+{
+	if(!$item_id) return false;
+	$dom = file_get_html('http://www.ebay.de/itm/'.$item_id);
+	$res = $dom->find('.attrLabels');
+	$specs = [];
+	foreach ($res as $key => $value) {
+		$specs[str_replace(':','',trim($value->plaintext))] = trim($value->nextSibling()->plaintext);
+	}
+	return $specs;
+}
+
+
+function in_multi_array($needle, $haystack)
+{
+	foreach ($haystack as $value) {
+		if (is_array($value)) {
+			if (in_multi_array($needle, $value)) {
+				return true;
+			}
+		}else{
+			if(strtolower($needle) === strtolower($value)) return true;
+		}
+	}
+	return false;
+}
+
+
+function convert_settings($res)
+{
+	$ret = [];
+	foreach ($res as $v) $ret[$v['name']] = $v['value'];
+	return $ret;
+}
+
+
+function get_settins_by_category($cat)
+{
+	if(!$cat) return false;
+	$cat = _esc($cat);
+	$settings = arrayDB("SELECT name,value FROM aq_settings WHERE category = '$cat'");
+	return convert_settings($settings);
+}
+
+
+function set_settings_to_category($cat, $settings)
+{
+	if(!$cat) return false;
+	$cat = _esc($cat);
+	foreach ($settings as $key => $value) {
+		$key = _esc($key);
+		$value = _esc($value);
+		if (arrayDB("SELECT id FROM aq_settings WHERE category = '$cat' AND name = '$key'")) {
+			arrayDB("UPDATE aq_settings SET value = '$value' WHERE category = '$cat' AND name = '$key'");
+		}else{
+			arrayDB("INSERT INTO aq_settings (name, value, category) VALUES('$key','$value','$cat')");
+		}
+	}
+}
+
+function get_country_code($country = false)
+{
+	$countries = [
+	    'Englisch' => 'EN',
+	    'Deutsch' => 'DE',
+	    'Französisch' => 'FR',
+	    'Italienisch' => 'IT',
+	    'Spanisch' => 'SP',
+	    'Arabisch' => 'AR',
+	    'Bulgarisch' => 'BG',
+	    'Tschechisch' => 'CS',
+	    'Dänisch' => 'DA',
+	    'Niederländisch' => 'NL',
+	    'Finnisch' => 'FI',
+	    'Griechisch' => 'GR',
+	    'Ungarisch' => 'HU',
+	    'Japanisch' => 'JP',
+	    'Koreanisch' => 'KO',
+	    'Norwegisch' => 'NO',
+	    'Polnisch' => 'PL',
+	    'Portugiesisch' => 'PT',
+	    'Brasilianisches Portugiesisch' => 'PT',
+	    'Rumänisch' => 'RO',
+	    'Russisch' => 'RU',
+	    'Chinesisch (vereinfacht)' => 'CN',
+	    'Schwedisch' => 'SV',
+	    'Thai' => 'TH',
+	    'Chinesisch (traditionell)' => 'CN',
+	    'Türkisch' => 'TR',
+	    'Ukrainisch' => 'UA',
+	    'Chinesisch(vereinfacht)' => 'CN',
+	    'BrasilianischesPortugiesisch' => 'PT',
+	    'Chinesisch(traditionell)' => 'CN',
+	    'Slowakisch' => 'SK',
+	];
+	if($country){
+		if(isset($countries[$country])) return $countries[$country];
+	} 
+	else return $countries;
+}
+
+function get_steam_languages()
+{
+	$res = arrayDB("SELECT lang FROM steam_de");
+	//sa($res);
+	$genres = [];
+	foreach ($res as $k => $v) {
+		$genreses = explode(',', $v['lang']);
+		foreach ($genreses as $val) {
+			if($val && strpos($val, '#') === false && strpos($val, 'alle') === false){
+				$genres[$val] = get_country_code($val);
+			}
+		}
+	}
+	return $genres;
+}
+
+
+function getSingleItem($itemId, $o = []){
+
+		$c = array_merge([
+			'as_array'=>false,
+			'IncludeSelector'=>'Details', //Details,Description,ItemSpecifics,TextDescription
+			],$o);
+
+		$url = 'http://open.api.ebay.com/shopping';
+		$url .= '?callname=GetSingleItem';
+		$url .= '&responseencoding=JSON';
+		// $url .= '&appid=Aniq6478a-a8de-47dd-840b-8abca107e57';
+		$url .= '&appid=Konstant-Projekt1-PRD-bae576df5-1c0eec3d';
+		$url .= '&siteid=77';
+		$url .= '&version=515';
+		$url .= '&ItemID='.$itemId;
+		$url .= '&IncludeSelector='.$c['IncludeSelector'];
+
+
+		// Открываем файл с помощью установленных выше HTTP-заголовков
+		$json = file_get_contents($url);
+		if($c['as_array']) return json_decode($json, true);
+		return $json;
+}
+
+function os_shorter($oss)
+{
+	$ret = [];
+	if(stripos($oss, 'win') !== false) $ret[] = 'Win';
+	if(stripos($oss, 'mac') !== false) $ret[] = 'Mac';
+	if(stripos($oss, 'linux') !== false) $ret[] = 'Linux';
+	return implode(', ', $ret);
+}
+
+function hoodItemSync($items_arr = [])
+{
+	$myCurl = curl_init('http://hood.gig-games.de/api/import');
+	curl_setopt_array($myCurl, [
+	    CURLOPT_RETURNTRANSFER => true,
+	    CURLOPT_POST => true,
+	    CURLOPT_POSTFIELDS => http_build_query($items_arr)
+	]);
+	$response = curl_exec($myCurl);
+	curl_close($myCurl);
+	$ret = json_decode($response,1);
+
+	foreach ($ret as $key => $element) {
+		if($element['status'] === 'success'){
+			$ebay_id = _esc($key);
+			$hood_id = isset($element['idAuction']) ? $element['idAuction'] : '';
+			arrayDB("UPDATE games SET hood_id= '$hood_id' WHERE ebay_id = '$ebay_id'");
+			$check = arrayDB("SELECT * FROM hood_last_update WHERE ebay_id = '$ebay_id'");
+			if ($check) {
+				arrayDB("UPDATE hood_last_update SET last_update = CURRENT_TIMESTAMP WHERE ebay_id = '$ebay_id'");
+			}else{
+				arrayDB("INSERT INTO hood_last_update (ebay_id,last_update)VALUES($ebay_id,CURRENT_TIMESTAMP)");
+			}
+			
+		}
+	}
+	return $ret;
+}
+
+
+function tab_active($get, $val){
+	if(isset($_GET[$get]) && $_GET[$get] == $val) echo 'active';
+}
+
+
+function post_curl($url, $post){
+	$ch = curl_init($url);
+	curl_setopt_array($ch, [
+	    CURLOPT_RETURNTRANSFER => true,
+	    CURLOPT_POST => true,
+	    CURLOPT_POSTFIELDS => http_build_query($post)
+	]);
+	$resp = curl_exec($ch);
+	curl_close($ch);
+	if ($decoded = json_decode($resp,1)) {
+		return $decoded;
+	}
+	return $resp;
 }
 
 

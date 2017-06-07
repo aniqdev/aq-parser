@@ -53,7 +53,7 @@ if ($accessed) {
 
 } else {
 
-	echo "<h2>Home page</h2>";
+	echo '<h2 id="h-page" title="Main page">Home page</h2>';
 
 }?>
 

@@ -27,13 +27,13 @@ if($exrate) $dataex = $exrate[0]['value'];
 </ul>
 </div>
 <div class="ch-tab-navigator">
-	<div class="ch-tab active" data-tab="platitable1">All</div>
-	<div class="ch-tab" data-tab="platitable2">Подорожал</div>
-	<div class="ch-tab" data-tab="platitable3">Подешевел</div>
-	<div class="ch-tab" data-tab="platitable5">Появился</div>
-	<div class="ch-tab" data-tab="platitable6">Пропал</div>
-	<div class="ch-tab" data-tab="platitable7">Не появился</div>
-	<div class="ch-tab" data-tab="platitable4">Не изменился</div>
+	<a href="?action=table_changes&tab=1" class="ch-tab <?= tab_active('tab','1');?>">All</a>
+	<a href="?action=table_changes&tab=2" class="ch-tab <?= tab_active('tab','2');?>">Подорожал</a>
+	<a href="?action=table_changes&tab=3" class="ch-tab <?= tab_active('tab','3');?>">Подешевел</a>
+	<a href="?action=table_changes&tab=5" class="ch-tab <?= tab_active('tab','5');?>">Появился</a>
+	<a href="?action=table_changes&tab=6" class="ch-tab <?= tab_active('tab','6');?>">Пропал</a>
+	<a href="?action=table_changes&tab=7" class="ch-tab <?= tab_active('tab','7');?>">Не появился</a>
+	<a href="?action=table_changes&tab=4" class="ch-tab <?= tab_active('tab','4');?>">Не изменился</a>
 	<form method="POST" class="choose-old">
 		<select name="old">
 			<?php $scans_q = count($scans);
@@ -138,7 +138,7 @@ foreach ($orders as $key => $order) {
 $queryNew = "SELECT 
 new.item1_id, games.name, new.newPrice, new.newPrice-old.oldPrice as differ, 
 old.oldPrice, new.item1_name as n_name, old.item1_name as o_name,
-games.id as game_id, games.ebay_id, games.woo_id,
+games.id as game_id, games.ebay_id, woo_id, hood_id,
 ebay.itemid1 as e_id1, ebay.title1 as e_title1, ebay.price1 as e_price1,
 ebay.itemid2 as e_id2, ebay.title2 as e_title2, ebay.price2 as e_price2,
 ebay.itemid3 as e_id3, ebay.title3 as e_title3, ebay.price3 as e_price3,
@@ -206,6 +206,7 @@ function drowPlatiTable($res,$ids_arr){
 		<th class="sort" data-sort="row2">Product title</th>
 		<th>eBay</th>
 		<th>Woo</th>
+		<th>Hood</th>
 		<th title="One Click Price Changer">All</th>
 		<th class="sort" data-sort="row3">Differ</th>
 		<th class="sort" data-sort="row5">New Price</th>
@@ -232,18 +233,21 @@ foreach ($res as $key => $value) {
 	if (isset($ids_arr[$value['e_id4']])) $gig4 = 'gig';
 	if (isset($ids_arr[$value['e_id5']])) $gig5 = 'gig';
 
-	$good_e = isset($value['ebay_id']) ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty';
-	$good_w = isset($value['woo_id']) ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty';
+	$good_e = $value['ebay_id'] ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty';
+	$good_w = $value['woo_id'] ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty';
+	$good_h = $value['hood_id'] ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty';
 
 	echo   '<tr
 			   data-gameid="',$value['game_id'],'"
 			   data-ebayid="',$value['ebay_id'],'"
 			   data-wooid="',$value['woo_id'],'"
+			   data-hoodid="',$value['hood_id'],'"
 			   data-plati1id="',$value['item1_id'],'">
 				<td class="row1">',$n++,'</td>
 				<td class="row2 tch-merged">',$value['name'],'</td>
 				<td><a href="#ebayModal" class="tc-ebay ',$good_e,'"></a></td>
 				<td><a href="#wooModal" class="tc-woo ',$good_w,'"></a></td>
+				<td><a href="#hoodModal" class="tc-hood ',$good_h,'"></a></td>
 				<td title="',$value['n_name'],'" class="text-center p0">
 					<a href="#mChange" class="mChange tch-mbtn glyphicon glyphicon-ok"></a>
 					<a href="#mRemove" class="mRemove tch-mbtn glyphicon glyphicon-remove"></a>
@@ -269,42 +273,19 @@ foreach ($res as $key => $value) {
 </div> <!-- ppp-block -->
 <?php
 } // drowPlatiTable()
+echo '<div id="platitable1" class="platitable">';
+parse_str($_SERVER['QUERY_STRING'], $query_arr);
+switch (isset($query_arr['tab']) ? $query_arr['tab'] : '2') {
+	case '1': drowPlatiTable($res,$ids_arr); break;
+	case '2': drowPlatiTable($gameChangedP,$ids_arr); break;
+	case '3': drowPlatiTable($gameChangedM,$ids_arr); break;
+	case '4': drowPlatiTable($gameChangedZ,$ids_arr); break;
+	case '5': drowPlatiTable($gameAppeared,$ids_arr); break;
+	case '6': drowPlatiTable($gameDisappeared,$ids_arr); break;
+	case '7': drowPlatiTable($gameStayed,$ids_arr); break;
+}
 ?>
-<!--===========platitable1===================-->
-<div id="platitable1" class="platitable fade visible in">
-<?php drowPlatiTable($res,$ids_arr); ?>
-</div> <!-- platitable -->
-
-<!--===========platitable2===================-->
-<div id="platitable2" class="platitable fade">
-<?php drowPlatiTable($gameChangedP,$ids_arr); ?>
-</div> <!-- platitable -->
-
-<!--===========platitable3===================-->
-<div id="platitable3" class="platitable fade">
-<?php drowPlatiTable($gameChangedM,$ids_arr); ?>
-</div> <!-- platitable -->
-
-<!--===========platitable4===================-->
-<div id="platitable4" class="platitable fade">
-<?php drowPlatiTable($gameChangedZ,$ids_arr); ?>
-</div> <!-- platitable -->
-
-<!--===========platitable5===================-->
-<div id="platitable5" class="platitable fade">
-<?php drowPlatiTable($gameAppeared,$ids_arr); ?>
-</div> <!-- platitable -->
-
-<!--===========platitable6===================-->
-<div id="platitable6" class="platitable fade">
-<?php drowPlatiTable($gameDisappeared,$ids_arr); ?>
-</div> <!-- platitable -->
-
-<!--===========platitable7===================-->
-<div id="platitable7" class="platitable fade">
-<?php drowPlatiTable($gameStayed,$ids_arr); ?>
-</div> <!-- platitable -->
-
+</div> <!-- /platitable -->
 </div> <!-- /ch-tab-panel -->
 
 <!--===========ebay modal===================-->
@@ -393,6 +374,36 @@ foreach ($res as $key => $value) {
 </div>
 <!--===========/woo modal===================-->
 
+<!--===========hood modal===================-->
+<div class="modal fade" id="hoodModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title col555">Hood add id</h4>
+      </div>
+      <div class="modal-body">
+
+        <form class="form-inline" id="hood-check-form">
+		  <div class="form-group js-hood-id-input-holder">
+		    <label for="hood-item-id-input">Hood Item Id: </label>
+		    <input type="text" class="form-control" id="hood-item-id-input" placeholder="Item Id">
+		  </div>
+		  <button type="submit" class="btn btn-success" id="hood-check">Check!</button>
+		</form><hr>
+		<p class="titles-info">Hood.de title:</p>&nbsp;
+		<b id="modal-hood-price"></b>
+		<h3 id="modal-hood-title">...</h3>
+
+      </div>
+      <div class="modal-footer">
+
+      </div>
+    </div>
+  </div>
+</div>
+<!--===========/hood modal===================-->
+
 
 <!--=========== Merged modal ===================-->
 <div class="modal fade" role="dialog" id="mergedModal">
@@ -419,6 +430,12 @@ foreach ($res as $key => $value) {
           <div class="col-sm-7 fcol fcol2 clip"><img src="images/more-loading.gif" alt="loading"></div>
           <div class="col-sm-1 fcol fcol3"><b>.</b></div>
           <div class="col-sm-2 fcol fcol4"><input id="js-fWprice" type="text" class="form-control h28"></div>
+        </div>
+        <div class="row frow frow5">
+          <div class="col-sm-2">Hood</div>
+          <div class="col-sm-7 fcol fcol2 clip"><img src="images/more-loading.gif" alt="loading"></div>
+          <div class="col-sm-1 fcol fcol3"><b>.</b></div>
+          <div class="col-sm-2 fcol fcol4"><input id="js-fHprice" type="text" class="form-control h28"></div>
         </div>
         <div class="row frow frow4">
           <div class="col-sm-2">Plati.ru <b>: <i id="consec"></i></b></div>
@@ -456,17 +473,21 @@ foreach ($res as $key => $value) {
 <script>
 	var options = {
 	  valueNames: [ 'row1', 'row2', 'row3', 'row5', 'row7', 'row9' ],
-	  page: 2000
+	  page: 5000
 	};
 
 	var userList = new List('platitable1', options);
-	var userList = new List('platitable2', options);
-	var userList = new List('platitable3', options);
-	var userList = new List('platitable4', options);
-	var userList = new List('platitable5', options);
-	var userList = new List('platitable6', options);
-	var userList = new List('platitable7', options);
-
-
+	// var userList = new List('platitable2', options);
+	// var userList = new List('platitable3', options);
+	// var userList = new List('platitable4', options);
+	// var userList = new List('platitable5', options);
+	// var userList = new List('platitable6', options);
+	// var userList = new List('platitable7', options);
 
 </script>
+
+<script src="js/react.min.js"></script>
+<script src="js/react-dom.min.js"></script>
+<script src="js/babel-core.min.js"></script>
+
+<script src="js/table_changes.jsx" type="text/babel"></script>

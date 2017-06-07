@@ -22,7 +22,7 @@ function set_item_specifics($item_id, $steam_arr = []){
 
 	$specifics = [];
 
-	$specs = get_item_specs('112174430780');
+	$specs = get_item_specs($item_id);
 
 	if($steam_arr['usk_links']) {
 		$specifics['USK-Einstufung'] = 'USK ab '.$steam_arr['usk_age'];
@@ -158,10 +158,30 @@ function set_item_specifics($item_id, $steam_arr = []){
 
 $excel_list = readExcel('csv/ebay_steam1.xlsx', 0);
 
+$fails = '121531573314
+111977393666
+121965995104
+121965995153
+111977928469
+121965995251
+121772453698
+111730686106
+121968062501
+121968062431
+112262376884
+122175707094
+122179208018
+121526107522
+111583549338
+121606660970';
+$fails = explode(PHP_EOL, $fails);
+
 foreach ($excel_list as $row => $col) {
-	break;
+	//break;
+	$ebay_id = trim($col['B']);
 	//if(!in_array($row, [1104,1136])) continue;
-	if($row < 951 || $row > 1200) continue;
+	if($row < 0 || $row > 120) continue;
+	if(!in_array($ebay_id, $fails)) continue;
 	echo '<hr><b>row = ',$row,'</b><br>';
 	$link = $col['F'];
 	if(!$link) {echo "<i>! в excel нет ссылки</i>"; continue;}
@@ -176,7 +196,7 @@ foreach ($excel_list as $row => $col) {
 	if(count($steam_arr) > 1) {echo "<i>! в базе больше 1 записи</i>"; continue;}
 	$steam_arr = $steam_arr[0];
 
-	echo set_item_specifics($col['B'], $steam_arr);
+	echo set_item_specifics($ebay_id, $steam_arr);
 }
 
 //68

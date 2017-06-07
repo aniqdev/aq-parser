@@ -158,7 +158,7 @@ foreach ($res as $key => $value) {
 <script>
 	var options = {
 	  valueNames: [ 'row1', 'row2', 'row3', 'row5', 'row7', 'row9' ],
-	  page: 4000
+	  page: 6000
 	};
 
 	var userList = new List('platitable', options);

@@ -495,14 +495,14 @@ $('#getsteam_multi').click(function() {
 		getPlatiRu_steam(1, 10, '0', 0);
 });
 
-$('.ch-tab').click(function() {
-	$('.ch-tab').removeClass('active');
-	$('.platitable').removeClass('visible in');
-	$(this).addClass('active');
-	var tab = $(this).data('tab');
-	console.log(tab);
-	$('#'+tab).addClass('visible in');
-});
+// $('.ch-tab').click(function() {
+// 	$('.ch-tab').removeClass('active');
+// 	$('.platitable').removeClass('visible in');
+// 	$(this).addClass('active');
+// 	var tab = $(this).data('tab');
+// 	console.log(tab);
+// 	$('#'+tab).addClass('visible in');
+// });
 
 
 	var exrate = 0;
@@ -739,9 +739,66 @@ var EbayObj = {
 
 
 
+// ========= HOOD MODAL =========
+var HoodObj = {
+	hoodModal:$('#hoodModal'),
+	modal_hood_title: $('#modal-hood-title'),
+	modal_hood_price: $('#modal-hood-price'),
+	hood_check_form: $('#hood-check-form'),
+	hood_item_id_input: $('#hood-item-id-input'),
+	hood_id_input_holder: $('.js-hood-id-input-holder'),
+};
+// open modal
+GenObj.js_tch_deligator.on('click', '.tc-hood', function(e){
+
+	var tr = $(this).parent().parent();
+	var hood_id = tr.attr('data-hoodid');
+	HoodObj.ebay_id = tr.attr('data-ebayid');
+	// console.log(hood_id);
+	HoodObj.hood_item_id_input[0].value = hood_id;
+	HoodObj.hoodModal.modal('show');
+	HoodObj.modal_hood_title.html('<img src="images/more-loading.gif" alt="loading">');
+
+	if (hood_id) {
+		HoodObj.hood_id_input_holder.removeClass('has-error');
+		HoodObj.hood_id_input_holder.addClass('has-success');
+		$.post('/ajax.php?action=ajax-hood',
+			{hood_get_price:'true',
+			 hood_id:hood_id},function (data) {
+			 	if (data.status === 'success') {
+			 		HoodObj.modal_hood_price.html(data.price);
+			 		HoodObj.modal_hood_title.html(data.title);
+			 	}else{
+			 		HoodObj.modal_hood_title.html(data.error);
+			 	}
+			 },'json');
+	}else{
+		HoodObj.hood_id_input_holder.removeClass('has-success');
+		HoodObj.hood_id_input_holder.addClass('has-error');
+	}
+});
+// check id
+$('#hood-check').on('click', (e) => {
+	e.preventDefault();
+  var inp_val = HoodObj.hood_item_id_input[0].value;
+  console.log(inp_val);
+	$.post('/ajax.php?action=ajax-hood',
+			{hood_get_price: 'true',
+			 hood_check: 'true',
+			 ebay_id: HoodObj.ebay_id,
+		   hood_id: inp_val},function (data) {
+			 	if (data.status === 'success') {
+			 		HoodObj.modal_hood_price.html(data.price);
+			 		HoodObj.modal_hood_title.html(data.title);
+			 	}else{
+			 		HoodObj.modal_hood_title.html(data.error);
+			 	}
+			 },'json');
+});
+// ========= /HOOD MODAL =========
+
 
 // ========= change price merged ===========
-
 var FF = {
 	mergedModal : $('#mergedModal'),
 	js_modal_ebay_title : $('.frow2>.fcol2'),
@@ -750,6 +807,9 @@ var FF = {
 	js_modal_woo_title :  $('.frow3>.fcol2'),
 	js_modal_woo_price : $('.frow3>.fcol3>b'),
 	js_modal_woo_input : $('#js-fWprice'),
+	js_modal_hood_title :  $('.frow5>.fcol2'),
+	js_modal_hood_price : $('.frow5>.fcol3>b'),
+	js_modal_hood_input : $('#js-fHprice'),
 	js_modal_parser_title : $('.frow1>.fcol2'),
 	js_modal_plati_title : $('.frow4>.fcol2 .jsm-plati-title'),
 	js_modal_plati_price : $('.frow4>.fcol4'),
@@ -807,6 +867,7 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
 	F.gameId = FF.gameId = F.tr.attr('data-gameid');
 	F.ebayId = F.tr.attr('data-ebayid');
 	F.wooId = F.tr.attr('data-wooid');
+	F.hoodId = F.tr.attr('data-hoodid');
 	F.js_csrf_buy_time_input.val(((new Date().getTime())/1000).toFixed(0));
 	F.js_modal_buy_button.attr('action', 'http://parser.gig-games.de/index.php?action=invoice&platiid='+F.tr.attr('data-plati1id'));
 	F.rurprice = +F.tr.find('.row5').text();
@@ -818,14 +879,22 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
 	F.js_modal_plati_title.text(F.tr.find('.row5').attr('title')).pickText(['free','row']);
 	F.js_modal_plati_title.attr('href', F.tr.find('.row8 a').attr('href'));
 	F.js_modal_parser_title.text(F.tr.find('.row2').text());
+	// сброс строки ebay
 	if(F.ebayId) F.js_modal_ebay_title.html('<img src="images/more-loading.gif" alt="loading">');
 	else F.js_modal_ebay_title.html('no id');
 	F.js_modal_ebay_price.text('.');
 	F.js_modal_ebay_input.val(F.europrice);
+	//сброс строки woocommerce
 	if(F.wooId) F.js_modal_woo_title.html('<img src="images/more-loading.gif" alt="loading">');
 	else F.js_modal_woo_title.html('no id');
 	F.js_modal_woo_price.text('.');
 	F.js_modal_woo_input.val((F.europrice*0.95).toFixed(2));
+	// сброс строки hood
+	if(F.hoodId) F.js_modal_hood_title.html('<img src="images/more-loading.gif" alt="loading">');
+	else F.js_modal_hood_title.html('no id');
+	F.js_modal_hood_price.text('.');
+	F.js_modal_hood_input.val((F.europrice*0.95).toFixed(2)); // уточнить формулу скидки hood
+
 	F.js_modal_ebay_prices.html(F.tr.find('td[iid]').clone());
 	F.js_modal_plati_price.html('<img src="images/more-loading.gif" alt="loading">');
 
@@ -860,6 +929,15 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
 		}, 'json');
 	}
 
+	if(F.hoodId){
+		$.post('/ajax.php?action=ajax-hood',
+			{hood_get_price:'true',
+			 hood_id:F.hoodId},function (data) {
+				F.js_modal_hood_title.text(data.title);
+				F.js_modal_hood_price.text(parseFloat(data.price).toFixed(2));
+			 },'json');
+	}
+
 });
 
 // Изменение инпута WooCommerce
@@ -875,21 +953,16 @@ $('#fChange').on('submit', {f:FF}, function(e) {
 	var F = e.data.f
 	var fEprice = F.js_modal_ebay_input.val().replace(',','.');
 	var fWprice = F.js_modal_woo_input.val().replace(',','.');
+	var fHprice = F.js_modal_hood_input.val().replace(',','.');
 
 	if(F.ebayId && FF.rurprice){
 		$.post('ajax.php?action=ajax-ebay-api-price-changer',
 			{ action: 'change', ebayId: F.ebayId, price: fEprice },
 			function (data) {
 				if (data.answer == 'good') {
-					// if(F.one_changed) F.mergedModal.modal('hide');
-					// else F.one_changed = true;
 					F.tr.find('.tc-ebay').parent().addClass('pchanged');
-				}else{
-
 				}
 		}, 'json');
-	}else{
-		F.one_changed = true;
 	}
 
 	if(F.wooId && FF.rurprice){
@@ -897,15 +970,19 @@ $('#fChange').on('submit', {f:FF}, function(e) {
 			{ action: 'change', wooId: F.wooId, price: fWprice },
 			function (data) {
 				if (data.answer == 'good') {
-					// if(F.one_changed) F.mergedModal.modal('hide');
-					// else F.one_changed = true;
 					F.tr.find('.tc-woo').parent().addClass('pchanged');
-				}else{
-
 				}
 		}, 'json');
-	}else{
-		F.one_changed = true;
+	}
+
+	if(F.hoodId && FF.rurprice){
+		$.post('ajax.php?action=ajax-hood',
+			{ hood_change_price: 'true', hoodId: F.hoodId, newPrice: fHprice },
+			function (data) {
+				if (data.status == 'success') {
+					F.tr.find('.tc-hood').parent().addClass('pchanged');
+				}
+		}, 'json');
 	}
 	
 });
@@ -923,12 +1000,8 @@ $('#fRemove').on('click', {f:FF}, function(e) {
 				if (data.answer == 'good') {
 					if(F.one_removed) F.mergedModal.modal('hide');
 					else F.one_removed = true;
-				}else{
-
 				}
 		}, 'json');
-	}else{
-		F.one_removed = true;
 	}
 
 	if(F.wooId){
@@ -938,12 +1011,8 @@ $('#fRemove').on('click', {f:FF}, function(e) {
 				if (data.answer == 'good') {
 					if(F.one_removed) F.mergedModal.modal('hide');
 					else F.one_removed = true;
-				}else{
-
 				}
 		}, 'json');
-	}else{
-		F.one_removed = true;
 	}
 
 });
@@ -1201,7 +1270,8 @@ $('#ebay-msg-answer-form').on('submit', function function_name(e) {
 		data_send,
 		function(data) {
 			if(data.reload === 'yes') window.location.reload();
-			$this.html('<pre>'+data.sendebay_ans+'</pre>');
+			$this.html('<div class="alert alert-info"><b>'+
+				data.sendebay_ans.Ack+'</b></div>');
 		},'JSON');
 });
 
@@ -1262,3 +1332,20 @@ $('.orders-table').on('click', '.op-markorder', function(e) {
 $('[data-toggle="tooltip"]').tooltip();
 
 }); //document ready
+
+
+//**************************************
+
+// function drawSnowFlake(n) {
+// 	var c = Math.round((n-1)/2);
+// 	for (var i = n - 1; i >= 0; i--) {
+// 		var s = '';
+// 		for (var j = n - 1; j >= 0; j--) {
+// 			if (i===j || i+j===n-1 || i===c || j===c) s+='*';
+// 			else s+='-';
+// 		}
+// 		console.log(s);
+// 	}
+// }
+
+// drawSnowFlake(25);

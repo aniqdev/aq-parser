@@ -1,5 +1,5 @@
 <?php
-ini_get('safe_mode') or set_time_limit(300); // Указываем скрипту, чтобы не обрывал связь.
+ini_get('safe_mode') or set_time_limit(1200); // Указываем скрипту, чтобы не обрывал связь.
 
 if (isset($_POST['ebayId']) && isset($_POST['action']) && $_POST['action'] == 'check') {
 

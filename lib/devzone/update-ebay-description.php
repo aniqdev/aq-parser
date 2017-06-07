@@ -3,7 +3,7 @@ ini_get('safe_mode') or set_time_limit(2500); // Указываем скрипт
 
 function url_exist($url='')
 {
-	if (!@fopen('http://site.ru/images/image.png','r')) return false;
+	if (!@fopen($url,'r')) return false;
 	return true;
 }
 
@@ -20,7 +20,7 @@ function url_exist($url='')
 $items = arrayDB("SELECT ebay_games.*, games.id as gid, games.steam_link, games.extra_field from ebay_games
 				join games
 				on ebay_games.item_id = games.ebay_id
-				where picture_hash = '' AND steam_link <> ''");
+				where steam_link <> ''");
 
 
 foreach ($items as $key => $val) {

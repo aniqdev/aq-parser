@@ -184,6 +184,50 @@ class Ebay_shopping2{
 				return false;
 		}
 
+		public function updateProductPrice2($item_id, $price)
+		{
+			if(!$price || !$item_id) return false;
+
+			$item_id = preg_replace('/\D/', '', $item_id);
+
+			$headers = array
+					(
+					'X-EBAY-API-COMPATIBILITY-LEVEL: ' . '837',
+					'X-EBAY-API-DEV-NAME: ' . 'c1f2f124-1232-4bc4-bf9e-8166329ce649',
+					'X-EBAY-API-APP-NAME: ' . 'Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
+					'X-EBAY-API-CERT-NAME: ' . 'PRD-ae576df59071-a52d-4e1b-8b78-9156',
+					'X-EBAY-API-CALL-NAME: ' . 'ReviseItem',
+					'X-EBAY-API-SITEID: ' . '77',
+			);
+
+			$xml = '<?xml version="1.0" encoding="utf-8"?>
+			<ReviseItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+				<RequesterCredentials>
+					<eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+				</RequesterCredentials>
+				<Item ComplexType="ItemType">
+					<ItemID>'.$item_id.'</ItemID>
+					<Quantity>3</Quantity>
+					<StartPrice>'.$price.'</StartPrice>
+				</Item>
+				<MessageID>1</MessageID>
+				<WarningLevel>High</WarningLevel>
+				<Version>837</Version>
+			</ReviseItemRequest>​';
+
+			$ch  = curl_init($this->api_url);     
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);                  
+			curl_setopt($ch, CURLOPT_POST, true);              
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $xml); 
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);    
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			$responseXML = curl_exec($ch);
+			curl_close($ch);
+
+			return simplexml_load_string($responseXML);
+		}
+
 		public function removeFromSale($item_id)
 		{
 				$item_id = preg_replace('/\D/', '', $item_id);
@@ -423,7 +467,7 @@ class Ebay_shopping2{
 
 
 	//ответ на вопрос от пользователя
-	function AnswerQuestion($RecipientID, $ParentMessageID, $text){
+	function AnswerQuestion($RecipientID, $ParentMessageID, $text, $is_public = 'false'){
 
 	$post = '<?xml version="1.0" encoding="utf-8"?>
 			<AddMemberMessageRTQRequest xmlns="urn:ebay:apis:eBLBaseComponents">
@@ -432,7 +476,7 @@ class Ebay_shopping2{
 			  </RequesterCredentials>
 			  <MemberMessage>
 			    <Body>'.htmlspecialchars($text).'</Body>
-			    <DisplayToPublic>true</DisplayToPublic>
+			    <DisplayToPublic>'.$is_public.'</DisplayToPublic>
 			    <EmailCopyToSender>true</EmailCopyToSender>
 			    <ParentMessageID>'.$ParentMessageID.'</ParentMessageID>
 			    <RecipientID>'.$RecipientID.'</RecipientID>
@@ -588,7 +632,7 @@ class Ebay_shopping2{
 				<ItemID>'.$item_id.'</ItemID>
 				<PictureDetails>';
 					foreach ($urls as $url) {
-						$xml .= '<PictureURL>'.$url.'</PictureURL>';
+						$xml .= '<PictureURL>'.trim($url).'</PictureURL>';
 					}
 		$xml .= '</PictureDetails>
 			</Item>
@@ -741,6 +785,67 @@ class Ebay_shopping2{
 
 		$result = $this->request($this->api_url, $xml, $headers);
 		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
+
+
+	public function test($item_id, $desc = false)
+	{
+
+		$headers = array
+				(
+				'X-EBAY-API-COMPATIBILITY-LEVEL: ' . '983',
+				'X-EBAY-API-DEV-NAME: ' . 'c1f2f124-1232-4bc4-bf9e-8166329ce649',
+				'X-EBAY-API-APP-NAME: ' . 'Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
+				'X-EBAY-API-CERT-NAME: ' . 'PRD-ae576df59071-a52d-4e1b-8b78-9156',
+				'X-EBAY-API-CALL-NAME: ' . 'ReviseItem',
+				'X-EBAY-API-SITEID: ' . '77',
+				'Content-Type' . 'application/x-www-form-urlencoded',
+				'Authorization:' . 'Bearer v^1.1#i^1#f^0#r^0#p^3#I^3#t^H4sIAAAAAAAAAOVXW2wUVRje7Q2x1AspKlBgmUI0kNk9Z3Z2dnforixtkaaUrt1y1QpnZs5sB2ZnNnNpuyHGUgJGCEF9ECQBGiWoGOUqGo3hAdRoICEBAkqABEPUhMRbjBq0emZ7YVu1pS0PTdyXzZzzX77/+7//zBzQXjR+zuZFm38tcY/L62wH7XluNywG44sK596Xnzel0AVyDNyd7bPaCzryv60wUUpN8w3YTOuaiT1tKVUz+exihLINjdeRqZi8hlLY5C2RT8TqFvOMF/BpQ7d0UVcpT01VhBICmAtxAoBBFgUhwmRV643ZqEcoUeAAgkJIYnFACCGG7JumjWs000KaFaEY4kkDlgZcI+B4P+Ah9MJweBXlWYYNU9E1YuIFVDQLl8/6GjlYB4eKTBMbFglCRWtiCxP1sZqq6iWNFb6cWNEeHhIWsmyz/1OlLmHPMqTaePA0ZtaaT9iiiE2T8kW7M/QPysd6wYwAfpZqjpUCTJgLSjAAkBAI3xUqF+pGClmD43BWFImWs6Y81izFygzFKGFDWItFq+dpCQlRU+Vx/p60karICjYiVPWC2MqlieoGypOIxw29RZGw5FQKuRAT9ocAAZtUknTSQdSToztQD8MDklTqmqQ4fJmeJbq1ABPAeCAtTA4txKheqzdisuWAybUL9dEXWOX0s7uBttWsOS3FKcKBJ/s4NPm9arjd/7umByAxEMsoKDIywBL4dz04sz48TUSdtsTicR8WUIZOIWMdttIqEjEtEmrtFDYUiWdZgeWQKNN+JiTSRJkiHQ4HMM1gDnMM8rNAZv8nsrAsQxFsC/dJY+BGtr4IlRD1NI7rqiJmqIEm2VOmRwhtZoRqtqw07/O1trZ6W/1e3Uj6GACgb0Xd4oTYjFOI6rNVhjamlawkRHI4E3veyqQJmjaiOJJcS1JRvyHFkWFlElhVyUKvXvthiw5c/Y8iTafIsVWe42+SACiteB1Je0U95dMRGV9naXUWsedOjHwmIcjbPRAkstfASNI1NTMS52H4KFoLEZVuZIZM6Mz6YAGGkRSJom5r1khq7HEdhodsq7Kiqs7sjCRhjvtwYGpIzViKaPalHJXwY+l0jTS2hF+rd78KaHKIrsXrLEjHG6poAeFAkJPkAA1FgLHol0ZVt4RbFBGvVsZY7ZqtqqOqqy451koKsWGOCUI/R7wqfGTWy0dRXhVuGWtyFaHMyJBhacj4GZoVRJYW5DCmQ5Dj/ExYxBwbHlVLK1WFHBGNmbH2glqkmxYe3RRWkg/DsVWUc9T0njRhEIQ0CjASzWIo0CEhGKLDMMDdackDFnI+tP7xae3rf62NurI/2OF+D3S4D5ObMfCB2bAczCzKX1qQP2GKqVjYqyDZaypJjdzWDOxdhzNppBh5Re6nyg69tTrnIt3ZBB7pu0qPz4fFOfdqUHZ7pxDe/3AJDAIWcIDzAwhXgfLbuwXwoYLS0i/3iNOfPvfb8cu0q3rSvAdPntpTC0r6jNzuQldBh9vV2bDo1slrXx90HS4AO6rWnO7aun1h158lO6e+Gom4jx6rfOly3by80khw4vIZpdPqZqmn761auW/+jydubt93dqKveEPpsa3bZt3TvGL6F51nrz62683tG5der71w8NbeFxuZ2j8enfHy9ZvNP2/ad7JV+uqKd+Jrv/Cuj5ovHjh+KX3epZS9c+X32qufH3jj0oXaV/bv+L6pKbxbmAwvpt9u6Zr9IY1vHtlWO+eT4mvlR6Y2TMqfkjn7wdwn9hecuHFGnnv4fXPj+p0fn3rh+aOvryn/qxBNmF/ftPfipS2h5T/hM7b97MxPd3UJn40r8+1/d/cD35zfMLliQ/DAuaZpR9bbz2g/PL7iRtuh576bvSnZ3b6/AdLalI/iEAAA',
+		);
+
+		$xml = '';
+
+		$url = 'https://api.ebay.com/sell/analytics/v1/traffic_report?filter=marketplace_ids:%7BEBAY_US%7D,date_range:%5B20160601..20160828%5D&dimension=DAY&metric=LISTING_IMPRESSION_SEARCH_RESULTS_PAGE,LISTING_IMPRESSION_STORE,SALES_CONVERSION_RATE';
+
+		$params = [
+			'filter' => 'marketplace_ids:{EBAY_DE},date_range:[20170220..20170320],listing_ids:{111613110094}',
+			'dimension' => 'DAY',
+			'metric' => 'LISTING_IMPRESSION_SEARCH_RESULTS_PAGE,LISTING_IMPRESSION_TOTAL,SALES_CONVERSION_RATE,SALES_CONVERSION_RATE',
+		];
+		$url = 'https://api.ebay.com/sell/analytics/v1/traffic_report?' . http_build_query($params);
+
+		// $url = 'https://api.ebay.com/sell/analytics/v1/traffic_report?filter=marketplace_ids:%7BEBAY_US%7D,date_range:%5B20161007..20161009%5D&dimension=LISTING&metric=LISTING_IMPRESSION_SEARCH_RESULTS_PAGE,LISTING_IMPRESSION_STORE,SALES_CONVERSION_RATE&sort=LISTING_IMPRESSION_STORE';
+
+		$res = $this->request($url, $xml, $headers);
+   		//$res = file_get_contents($url);
+		return json_decode($res,1);
+		return json_decode(json_encode(simplexml_load_string($res)), true);
+	}
+
+
+	public function getToken($item_id, $desc = false)
+	{
+
+		$headers = array
+				(
+				'Content-Type:' . 'application/x-www-form-urlencoded',
+				'Authorization:' . 'Basic '.base64_encode('Konstant-Projekt1-PRD-bae576df5-1c0eec3d:PRD-ae576df59071-a52d-4e1b-8b78-9156'),
+		);
+
+		$xml = http_build_query(['grant_type'=>'authorization_code',
+    'code'=>'v^1.1#i^1#p^3#f^0#r^1#I^3#t^Ul41Xzg6QkU1QTM1OTlCOTM4MDk5MzA4QkY5ODkzRTU0NUQyNENfMl8xI0VeMjYw',
+    'redirect_uri'=>'Konstantin_Falk-Konstant-Projek-dtvnra']);
+
+		// $xml = http_build_query(['grant_type'=>'authorization_code',
+  //   'code'=>'v^1.1#i^1#f^0#I^3#p^3#r^1#t^Ul41XzM6RjU4ODc3OEJFRkZENDZBNjQ2OEJDMTQ2OUNCQTEwRThfMF8xI0VeMjYw',
+  //   'redirect_uri'=>'Konstantin_Falk-Konstant-Projek-dtvnra']);
+
+		$url = 'https://api.ebay.com/identity/v1/oauth2/token';
+
+		$res = $this->request($url, $xml, $headers);
+   		//$res = file_get_contents($url);
+		return json_decode($res,1);
+		return json_decode(json_encode(simplexml_load_string($res)), true);
 	}
 
 } // class Ebay_shopping 2

@@ -20,7 +20,7 @@
           <ul class="dropdown-menu">
 			<li><a href="?action=list">List</a></li>
 			<li><a href="?action=table">Table</a></li>
-			<li><a href="?action=table_changes">Changes</a></li>
+			<li><a href="?action=table_changes&tab=2">Changes</a></li>
 			<li><a href="?action=orders-list">Orders&nbsp;list</a></li>
 			<li><a href="?action=table_all&amp;lim=5">Full&nbsp;Table</a></li>
 			<li><a href="?action=getjson">get&nbsp;JSON</a></li>
@@ -33,17 +33,24 @@
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">eBay.com <i class="caret"></i></a>
           <ul class="dropdown-menu">
-			<li><a href="?action=ebay-messages">Messages</a></li>
-			<li><a href="?<?= query_to_orders_page();?>">Orders&nbsp;Page</a></li>
-			<li><a href="?action=automatic-log&offset=0&limit=30">Automatic&nbsp;log</a></li>
-<!-- 		<li><a href="?action=orders">Orders&nbsp;API</a></li>
-			<li><a href="?action=orders-page-full">Orders&nbsp;Full</a></li> -->
-			<li><a target="_blank" href="http://hot-body.net/panel/api/v1/counter">Counter</a></li>
-			<li><a target="_blank" href="http://hot-body.net/panel/api/v1/update/gig-games">Update</a></li>
-			<li><a href="?action=ebay_table">Table</a></li>
-			<li><a href="?action=ebay_excel">Excel</a></li>
-			<li><a href="?action=ebay_getprices">get&nbsp;Prices</a></li>
-			<li><a href="?action=add-item">add&nbsp;Item</a></li>
+      <li><a href="?action=ebay-messages">Messages</a></li>
+      <li><a href="?<?= query_to_orders_page();?>">Orders&nbsp;Page</a></li>
+      <li><a href="?action=automatic-log&offset=0&limit=30">Automatic&nbsp;log</a></li>
+<!--    <li><a href="?action=orders">Orders&nbsp;API</a></li>
+      <li><a href="?action=orders-page-full">Orders&nbsp;Full</a></li> -->
+      <li><a target="_blank" href="http://hot-body.net/panel/api/v1/counter">Counter</a></li>
+      <li><a target="_blank" href="http://hot-body.net/panel/api/v1/update/gig-games">Update</a></li>
+      <li><a href="?action=ebay_table">Table</a></li>
+      <li><a href="?action=ebay_excel">Excel</a></li>
+      <li><a href="?action=ebay_getprices">get&nbsp;Prices</a></li>
+      <li><a href="?action=add-item">add&nbsp;Item</a></li>
+          </ul>
+        </li>
+
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Hood.de <i class="caret"></i></a>
+          <ul class="dropdown-menu">
+      <li><a href="?action=hood-sync">Hood import</a></li>
           </ul>
         </li>
 

@@ -59,7 +59,7 @@ function ajax_add_item()
 	$steam_link = $steam_de['link'];
 	$img_generator_res = file_get_contents('http://hot-body.net/img-generator/?url2017='.$steam_link);
 	$img_generator_res = json_decode($img_generator_res,1);
-	if (!$img_generator_res['image_link']) {
+	if ($img_generator_res['msg']) {
 		return ['success' => 0, 'resp' => false];
 	}
 

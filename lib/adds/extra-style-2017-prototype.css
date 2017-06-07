@@ -1,0 +1,54 @@
+.gig-slider-block11:before{content: '{{PRICE11}}€';}
+.gig-slider-block12:before{content: '{{PRICE12}}€';}
+.gig-slider-block13:before{content: '{{PRICE13}}€';}
+.gig-slider-block14:before{content: '{{PRICE14}}€';}
+.gig-slider-block15:before{content: '{{PRICE15}}€';}
+.gig-slider-block16:before{content: '{{PRICE16}}€';}
+
+.gig-slider-block21:before{content: '{{PRICE21}}€';}
+.gig-slider-block22:before{content: '{{PRICE22}}€';}
+.gig-slider-block23:before{content: '{{PRICE23}}€';}
+.gig-slider-block24:before{content: '{{PRICE24}}€';}
+.gig-slider-block25:before{content: '{{PRICE25}}€';}
+.gig-slider-block26:before{content: '{{PRICE26}}€';}
+
+
+
+.gig-slider-block11:after{content: "{{TITLE11}}";}
+.gig-slider-block12:after{content: "{{TITLE12}}";}
+.gig-slider-block13:after{content: "{{TITLE13}}";}
+.gig-slider-block14:after{content: "{{TITLE14}}";}
+.gig-slider-block15:after{content: "{{TITLE15}}";}
+.gig-slider-block16:after{content: "{{TITLE16}}";}
+
+.gig-slider-block21:after{content: "{{TITLE21}}";}
+.gig-slider-block22:after{content: "{{TITLE22}}";}
+.gig-slider-block23:after{content: "{{TITLE23}}";}
+.gig-slider-block24:after{content: "{{TITLE24}}";}
+.gig-slider-block25:after{content: "{{TITLE25}}";}
+.gig-slider-block26:after{content: "{{TITLE26}}";}
+
+
+
+.gig-slider-block11{background: url('{{IMAGE11}}')}
+.gig-slider-block12{background: url('{{IMAGE12}}')}
+.gig-slider-block13{background: url('{{IMAGE13}}')}
+.gig-slider-block14{background: url('{{IMAGE14}}')}
+.gig-slider-block15{background: url('{{IMAGE15}}')}
+.gig-slider-block16{background: url('{{IMAGE16}}')}
+
+.gig-slider-block21{background: url('{{IMAGE21}}')}
+.gig-slider-block22{background: url('{{IMAGE22}}')}
+.gig-slider-block23{background: url('{{IMAGE23}}')}
+.gig-slider-block24{background: url('{{IMAGE24}}')}
+.gig-slider-block25{background: url('{{IMAGE25}}')}
+.gig-slider-block26{background: url('{{IMAGE26}}')}
+
+
+
+
+.gig-slider-block{
+    background-size: 108%;
+    background-position: center;
+    background-repeat: no-repeat;
+}

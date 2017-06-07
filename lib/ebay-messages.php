@@ -1,11 +1,9 @@
-<pre>
-Fixed displaying unanswered messages. Now all messages are displayed for the last 5 days instead of 2
-<?php
+<hr><?php
 
 $days_ago = date('Y-m-d', time()-(60*60*24*5));
 
 if (isset($_GET['correspondent'])) {
-	$corresp = _esc($_GET['correspondent']);
+	$corresp = _esc(trim($_GET['correspondent']));
 	$messages_all = arrayDB("
 		SELECT *,'INBOX' as dir FROM ebay_msgs_inbox WHERE e_Correspondent='$corresp'
 		UNION
@@ -49,11 +47,27 @@ if (isset($_GET['correspondent'])) {
 }
 //print_r($messages_all);
 
-?></pre>
+?>
 <div class="container">
+<div class="row">
+	<div class="col-sm-4">
+		<a href="?action=ebay-messages&show=not_answerd" class="btn btn-default">New Messages <small>(beta)</small></a>
+		<a href="?action=ebay-messages" class="btn btn-default">All Messages</a>
+	</div>
+	<div class="col-sm-4">
+		<form action="" method="GET">
+		    <div class="input-group">
+		      <input type="search" class="form-control" name="correspondent" placeholder="Enter userID" value="<?= isset($_GET['correspondent'])?strip_tags($_GET['correspondent']):'';?>">
+		      <input type="hidden" name="action" value="ebay-messages">
+		      <span class="input-group-btn">
+		        <button class="btn btn-default" type="submit">Go!</button>
+		      </span>
+		    </div><!-- /input-group -->
+		</form>
+	</div>
+</div>
 
-<a href="?action=ebay-messages&show=not_answerd" class="btn btn-default">New Messages <small>(beta)</small></a>
-<a href="?action=ebay-messages" class="btn btn-default">All Messages</a>
+
 <br><br>
 <?php if (isset($_GET['correspondent']) && isset($_GET['message_id'])){
 	$item_title = $messages_all[0]['e_ItemTitle'];
@@ -64,8 +78,9 @@ if (isset($_GET['correspondent'])) {
 	}
 	$data = ['correspondent'=>$_GET['correspondent'],
 			 'message_id'=>$_GET['message_id'],
-			 'game_name' => $item_title];
-	view('ebay-messages+send-form',['data'=>$data]);
+			 'game_name' => $item_title,
+			 'disabled' => ($_GET['can_be_published']) ? '' : 'disabled="disabled"'];
+	view('ebay-messages/send-form',['data'=>$data]);
 }?>
 <ul class="chat">
 <?php
@@ -73,6 +88,7 @@ function is_chkd($a, $b){if ($a === $b) echo 'checked';}
 
 	foreach ($messages_all as $key => $msg) {
 		if ($msg['dir'] === 'INBOX') {
+			$can_be_published = (!$msg['e_transId']) ? 1 : 0;
 ?>
 	<li class="left clearfix">
 		<div class="chat-img pull-left">
@@ -86,7 +102,7 @@ function is_chkd($a, $b){if ($a === $b) echo 'checked';}
 		</div>
 		<div class="chat-body clearfix">
 			<div class="header">
-				<a title="<?php echo $msg['e_Subject'];?>" href="?action=ebay-messages&correspondent=<?php echo $msg['e_Correspondent'];?>&message_id=<?php echo $msg['e_ExternalMessageID'];?>"><strong class="primary-font"><?php echo $msg['e_Correspondent']; ?></strong></a>
+				<a title="<?php echo $msg['e_Subject'];?>" href="?action=ebay-messages&correspondent=<?= $msg['e_Correspondent'];?>&message_id=<?= $msg['e_ExternalMessageID'];?>&can_be_published=<?= $can_be_published;?>"><strong class="primary-font"><?php echo $msg['e_Correspondent']; ?></strong></a>
 				<a href="?<?php echo query_to_orders_page(['order_id'=>'0','q'=>$msg['e_transId']]);?>"><small class="text-muted"><?php echo $msg['e_ItemTitle']; ?></small></a>
 				<small class="pull-right text-muted">
 					<span class="glyphicon glyphicon-time"></span><?php echo $msg['e_ReceiveDate']; ?></small>

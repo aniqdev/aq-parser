@@ -29,6 +29,11 @@
 				<li><a href="?action=add-item">add&nbsp;Item</a></li>
 			</ul>
         </li>
+        <li><a href="#">Hood.de</a>
+			<ul>
+				<li><a href="?action=hood-sync">Hood import</a></li>
+			</ul>
+        </li>
         <li><a href="#">Parkovka</a>
 			<ul>
 				<li><a href="?action=park-table">Table</a></li>

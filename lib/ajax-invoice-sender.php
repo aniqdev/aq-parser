@@ -1,8 +1,13 @@
 <?php
 
-// echo '{"sendebay_ans":{"Timestamp":"2017-03-08T08:33:54.829Z","Ack":"Success","Version":"963","Build":"E963_CORE_APIMSG_17909225_R1"},"sendemail_ans":true,"marked":"no","reload":"no","post":{"sendemail":"1","ebay_orderid":"122325326998-1760861005002","user_email":"cobo2004@web.de","email_subject":"Activation data for: DiRT 3 Complete Edition PC spiel","email_body":"<p>Thank you for your order!<\/p>\n<p>Activation link\/key:<\/p>\n<p>BMZ7L-Q0802-AY3LV<\/p>\n<br>\n<p>\nKind regards, Team gig-games.de<\/p>\n","ebay_order_item_id":"5557","sendebay":"1","ebay_user":"cobo2004","ebay_item":"122325326998","ebay_subject":"Activation data for: DiRT 3 Complete Edition PC spiel","ebay_body":"Thank you for your order! The activation data for the game have already been sent to your email address cobo2004@web.de, please check it (and Spam folder too \u00a0:) )\nKind Regards, GIG Games Team\n"},"mark_as_shipped_ans":{"Timestamp":"2017-03-08T08:33:53.252Z","Ack":"Success","Version":"1001","Build":"E1001_CORE_APIXO_18331499_R1"},"errors":[]}';
-// die;
+$test = '{"sendebay_ans":{"Timestamp":"2017-03-08T08:33:54.829Z","Ack":"Success","Version":"963","Build":"E963_CORE_APIMSG_17909225_R1"},"sendemail_ans":true,"marked":"no","reload":"no","post":{"sendemail":"1","ebay_orderid":"122325326998-1760861005002","user_email":"cobo2004@web.de","email_subject":"Activation data for: DiRT 3 Complete Edition PC spiel","email_body":"<p>Thank you for your order!<\/p>\n<p>Activation link\/key:<\/p>\n<p>BMZ7L-Q0802-AY3LV<\/p>\n<br>\n<p>\nKind regards, Team gig-games.de<\/p>\n","ebay_order_item_id":"5557","sendebay":"1","ebay_user":"cobo2004","ebay_item":"122325326998","ebay_subject":"Activation data for: DiRT 3 Complete Edition PC spiel","ebay_body":"Thank you for your order! The activation data for the game have already been sent to your email address cobo2004@web.de, please check it (and Spam folder too \u00a0:) )\nKind Regards, GIG Games Team\n"},"mark_as_shipped_ans":{"Timestamp":"2017-03-08T08:33:53.252Z","Ack":"Success","Version":"1001","Build":"E1001_CORE_APIXO_18331499_R1"},"errors":[], "POST":'.json_encode($_POST).'}';
 
+
+
+if (defined('DEV_MODE')) {
+	echo $test;
+	die;
+}
 
 function axaj_send_email(){
 	
@@ -35,7 +40,8 @@ function ajax_send_answer(){
 
 	if(!isset($_POST['correspondent']) || !isset($_POST['message_id'])) return false;
 	$ebayObj = new Ebay_shopping2();
-	return $ebayObj->AnswerQuestion($_POST['correspondent'], $_POST['message_id'], $_POST['text']);
+	$is_public = isset($_POST['is_public']) ? 'true' : 'false';
+	return $ebayObj->AnswerQuestion($_POST['correspondent'], $_POST['message_id'], $_POST['text'], $is_public);
 }
 
 

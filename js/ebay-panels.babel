@@ -1,0 +1,163 @@
+
+
+const data_arr = JSON.parse(decodeURIComponent(document.getElementById('json_data').value));
+
+window.right_panel_arr = {
+	block11: {block: 'block11', title:'asd', price:0, image:'', use: true},
+	block12: {block: 'block12', title:'', price:0, image:'', use: false},
+	block13: {block: 'block13', title:'', price:0, image:'', use: false},
+	block14: {block: 'block14', title:'', price:0, image:'', use: false},
+	block15: {block: 'block15', title:'', price:0, image:'', use: false},
+	block16: {block: 'block16', title:'', price:0, image:'', use: false},
+	block17: {block: 'block17', title:'', price:0, image:'', use: false},
+	block18: {block: 'block18', title:'', price:0, image:'', use: false},
+};
+
+
+// for (var i in right_panel_arr) {
+// 	console.log(i);
+// }
+
+window.bottom_panel_arr = {
+	block21: {block: 'block21', title:'', price:0, image:'', use: false},
+	block22: {block: 'block22', title:'', price:0, image:'', use: false},
+	block23: {block: 'block23', title:'', price:0, image:'', use: false},
+	block24: {block: 'block24', title:'', price:0, image:'', use: false},
+	block25: {block: 'block25', title:'', price:0, image:'', use: false},
+	block26: {block: 'block26', title:'', price:0, image:'', use: false},
+	block27: {block: 'block27', title:'', price:0, image:'', use: false},
+	block28: {block: 'block28', title:'', price:0, image:'', use: false},
+};
+
+window.zz = function () {
+	console.dir(right_panel_arr);
+}
+
+class FormRow extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			title:this.props.title,
+			price:this.props.price,
+			image:this.props.image,
+			use:this.props.use,
+			filtered_arr:[]
+		};
+		this.searchChange = this.searchChange.bind(this);
+		this.searchClick = this.searchClick.bind(this);
+		this.titleChange = this.titleChange.bind(this);
+		this.priceChange = this.priceChange.bind(this);
+		this.imageChange = this.imageChange.bind(this);
+		this.handleChangeChk = this.handleChangeChk.bind(this);
+	}
+
+	searchChange(event) {
+		var value = event.target.value
+		if(value.length > 0) this.setState({filtered_arr: data_arr.filter(
+				(el) => el.title.toLowerCase().indexOf(value.toLowerCase()) !== -1
+			)});
+		else this.setState({filtered_arr:[]})
+	}
+
+	searchClick(el) {
+		this.setState({
+			title:el.title,
+			price:el.price,
+			image:el.picture_hash,
+			use: true,
+			filtered_arr:[]
+		});
+	}
+
+	titleChange(e){
+		this.setState({title:e.target.value});
+		window[this.props.panel+'_panel_arr'][this.props.block].title = e.target.value;
+	}
+	priceChange(e){
+		this.setState({price:e.target.value});
+		window[this.props.panel+'_panel_arr'][this.props.block].price = e.target.value;
+	}
+	imageChange(e){
+		this.setState({image:e.target.value});
+		window[this.props.panel+'_panel_arr'][this.props.block].image = e.target.value;
+	}
+	handleChangeChk(e){
+		this.setState({use:!this.state.use});
+		window[this.props.panel+'_panel_arr'][this.props.block].use = !this.state.use;
+	}
+	
+	render(){
+		return(
+	<div className="row">
+		<div className="col-sm-1">{this.props.jey}</div>
+		<div className="col-sm-1">
+			<img src={'http://i.ebayimg.com/images/g/'+this.state.image+'/s-l100.jpg'} alt=""/>
+		</div>
+		<div className="col-sm-10">
+			<form className="form-inline" method="POST">
+			  <div className="form-group pos-rel">
+			    <input onChange={this.searchChange} type="text" className="form-control" placeholder="search..."/>
+			    <div className="auto-res">
+			    	{this.state.filtered_arr.map((el,i)=>{if(i<5)return(<div onClick={this.searchClick.bind(this,el)}>{el.title}</div>)})}
+			    </div>
+			  </div>
+			  <div className="form-group">
+			    <input value={this.state.title} onChange={this.titleChange} type="text" className="form-control" placeholder="title"/>
+			  </div>
+			  <div className="form-group">
+			    <input value={this.state.price} onChange={this.priceChange} type="text" className="form-control" placeholder="price"/>
+			  </div>
+			  <div className="form-group">
+			    <input value={this.state.image} onChange={this.imageChange} type="text" className="form-control" placeholder="image"/>
+			  </div>
+			    <div className="checkbox">
+				    <label>
+				      <input type="checkbox" checked={this.state.use} onChange={this.handleChangeChk}/> Submit
+				    </label>
+				</div>
+			</form>
+		</div>
+	</div>
+		)
+	}
+}
+
+class App extends React.Component {
+	constructor(props) {
+	  super(props);
+	  this.state = {};
+	  console.dir(data_arr);
+	}
+	saveClick(){
+
+	}
+	applyClick(){
+		
+	}
+
+  render() {
+    return (
+		<div className="container">
+			<h4>Right panel</h4><hr/>
+			{Object.keys(right_panel_arr).map((key,i) => {
+				var el = right_panel_arr[key];
+				return(<FormRow jey={i+1} panel="right" block={el.block} title={el.title} price={el.price} image={el.image} use={el.use}/>)
+			})}
+			<button onClick={this.saveClick} type="button" className="btn btn-success">Save!</button>
+			<button onClick={this.applyClick} type="button" className="btn btn-primary">Apply!</button>
+			<br/><br/><br/>
+			<h4>Bottom panel</h4><hr/>
+			{Object.keys(bottom_panel_arr).map((key,i) => {
+				var el = bottom_panel_arr[key];
+				return(<FormRow jey={i+1} panel="bottom" block={el.block} title={el.title} price={el.price} image={el.image} use={el.use}/>)
+			})}
+			<button onClick={this.saveClick} type="button" className="btn btn-success">Save!</button>
+			<button onClick={this.applyClick} type="button" className="btn btn-primary">Apply!</button>
+		</div>
+    	);
+  }
+}
+
+
+
+ReactDOM.render(<App/>, document.getElementById('main-component'));

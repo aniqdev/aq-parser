@@ -66,6 +66,8 @@ if ($_GET['scan']) {
         $searchInPrice = array('p&#1091;&#1073;.','&#36;','$',"&nbsp;",);
         $reg_price = trim(str_replace($searchInPrice, '', $reg_price));
         $old_price = trim(str_replace($searchInPrice, '', strip_tags(@$old_price[1])));
+        $reg_price = str_replace(',', '.', $reg_price);
+        $old_price = str_replace(',', '.', $old_price);
 
         $revStr = $page->find('.search_reviewscore',$key);
         //echo $revStr;

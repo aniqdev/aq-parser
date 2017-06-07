@@ -107,10 +107,7 @@ foreach ($orders as $k => $order):
 
 // 3.0 Исключение исков, плексов.
 // Входные данные: $ebay_item_id
-	$plexes = [ '121962440805',
-				'121962439324',
-				'112090853589',];
-	if (in_array($ebay_item_id, $plexes)) {
+	if (is_eve($ebay_item_id)) {
 		add_comment_to_order([$gig_order_id, $gig_order_item_id], 'ISK or PLEX');
 		continue;
 	}
