@@ -40,8 +40,9 @@ class HsForm extends React.Component {
 	$.post('/ajax.php?action=hood-sync',{ebay_id:ebay_id}, function(data){
 		// console.log(data.ans[ebay_id]);
 		// console.log($this.state.cons_arr);
-		$this.state.cons_arr.unshift(data.ans[ebay_id]);
-		if(data.ans[ebay_id].status === 'success') el.eq(frm-1).find('.timestamp').text(data.date);
+		if(data.ans) $this.state.cons_arr.unshift(data.ans[ebay_id]);
+		else $this.state.cons_arr.unshift({status:'null'});
+		if(data.ans && data.ans[ebay_id].status === 'success') el.eq(frm-1).find('.timestamp').text(data.date);
 		if(frm < to) $this.syncronize(frm+1, to);
 		else $this.state.cons_arr.unshift({status:'Done!'});
 		$this.setState({cons_arr:$this.state.cons_arr});

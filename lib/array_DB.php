@@ -669,7 +669,7 @@ function array_collapser($array){
 // function use custom blade templater from laravel 5.1
 // more info: https://laravel.com/docs/5.1/blade
 // example: view('ebay-messages/send-form',['data'=>$data]);
-function view($view, $data){
+function view($view, $data = []){
 
 	$views = __DIR__ . '/../views';
 	$cache = __DIR__ . '/../cache';
@@ -1626,12 +1626,73 @@ function post_curl($url, $post){
 	]);
 	$resp = curl_exec($ch);
 	curl_close($ch);
-	if ($decoded = json_decode($resp,1)) {
+	$decoded = json_decode($resp,1);
+	if ($decoded !== null) {
 		return $decoded;
 	}
 	return $resp;
 }
 
+function round_hood_price($price)
+{
+	if (!$price) return false;
 
+    $round = array(
+        1 => 0, 2 => 0, 3 => 5, 4 => 5, 5 => 5,
+        6 => 5, 7 => 5, 8 => 9, 9 => 9, 0 => 0,
+    );
+	$price = round($price, 2);
+	if ($price < 5) $price = $price - 0.05;
+	else			$price = $price * 0.99;
+	
+	$price = number_format($price, 2);
+	$price = substr_replace($price, $round[+$price[strlen($price)-1]],-1);
+	return $price;
+}
+
+
+function add_hours($date, $hours)
+{
+	return (new DateTime($date))
+		->add(date_interval_create_from_date_string($hours.' hour'))
+		->format('Y-m-d H:i:s');
+}
+
+
+function hood_date_format($time_string='')
+{
+	if(!$time_string) return '0000-00-00 00:00:00';
+
+	$time_string = str_replace(['um',"\r\n",'.'], ['','','-'], $time_string);
+
+	$dt = DateTime::CreateFromFormat("d-m-y H:i:s", $time_string);
+	return $dt->format('Y-m-d H:i:s');
+}
+
+function draw_messages_submenu($page = 'ebay')
+{
+?>
+<hr><div class="op-tab-navigator">
+	<div class="op-tab <?= ($page === 'ebay')?'active':'';?>">
+		<a href="?action=ebay-messages">
+			<i class="glyphicon glyphicon-envelope">&nbsp;</i>
+			eBay messages
+		</a>
+	</div>
+	<div class="op-tab <?= ($page === 'hood')?'active':'';?>">
+		<a href="?action=hood-messages">
+			<i class="glyphicon glyphicon-envelope">&nbsp;</i>
+			Hood messages
+		</a>
+	</div>
+	<div class="op-tab <?= ($page === 'email')?'active':'';?>">
+		<a href="?action=ebay-messages">
+			<i class="glyphicon glyphicon-envelope">&nbsp;</i>
+			Email messages
+		</a>
+	</div>
+</div><hr>
+<?php
+}
 
 ?>

@@ -12,9 +12,9 @@ function ajax_add_item()
 
 	$steam_de = arrayDB("SELECT steam_de.*,steam.usk_links as pegi_links,steam.usk_age as pegi_age 
 						FROM steam_de
-						JOIN steam
+						LEFT JOIN steam
 						ON steam_de.link = steam.link
-						WHERE steam_de.id = '$sid'");
+						WHERE steam_de.id = '$sid' LIMIT 1");
 
 	if ($steam_de) {
 		$steam_de = $steam_de[0];
@@ -79,19 +79,27 @@ function ajax_add_item()
 	];
 
 	// Описание товара
-	$desc_str = file_get_contents(__DIR__.'/adds/responsive.html');
-	$steam_de['desc'] = add_dlc_addon_to_desc($steam_de);
-	$search = [
-		'{{TITLE}}',	'{{DE}}',	'{{ABOUT}}',
-		'{{IMG1}}',	'{{IMG2}}',	'{{IMG3}}',
-		'{{IMG3D}}',
-		];
-	$replace = [
-		$img_generator_res['steam_title'],	$img_generator_res['de'],    $steam_de['desc'],
-		$img_generator_res['img1_src'], $img_generator_res['img2_src'], $img_generator_res['img3_src'],
-		$img_generator_res['img3d_src'],
-		];
-	$item['Description'] = str_replace($search, $replace, $desc_str);
+	$desc_obj = new CreateDesc2017(0);
+
+	if (!$desc_obj->getSteamLinkBySteamId($sid))	return ['success' => 0, 'resp' => 'no steam link',
+		'text' => $desc_obj->error_text, 'sl' => $desc_obj->_steam_link];
+
+	$desc_obj->setImagesArr([
+			$img_generator_res['img1_src'],
+			$img_generator_res['img2_src'],
+			$img_generator_res['img3_src'],
+		]);
+
+	if (!$desc_obj->readSteamDe())  return ['success' => 0, 'resp' => 'no readSteamDe'];
+	if (!$desc_obj->readSteamEn())  return ['success' => 0, 'resp' => 'no readSteamEn'];
+	if (!$desc_obj->readSteamFr())	return ['success' => 0, 'resp' => 'no readSteamFr'];
+	if (!$desc_obj->readSteamEs())	return ['success' => 0, 'resp' => 'no readSteamEs'];
+	if (!$desc_obj->readSteamIt())	return ['success' => 0, 'resp' => 'no readSteamIt'];
+
+	if (!$desc_obj->getDataArray())	return ['success' => 0, 'resp' => 'no getDataArray!'];
+
+	if(!$desc = $desc_obj->getNewFullDesc()) return "<h3>Fuck!</h3>";
+	$item['Description'] = $desc;
 
 	// Спецификации
 	$item['specific'] = build_item_specifics_array($steam_de);

@@ -25,7 +25,12 @@
 })( jQuery );
 
 
-
+function round_hood_price(prc) {
+	var z = {0:'0',1:'0',2:'0',3:'5',4:'5',
+					 5:'5',6:'5',7:'5',8:'9',9:'9'};
+	prc = ((prc < 5) ? (prc-0.05) : (prc*0.99)).toFixed(2);
+	return prc.slice(0,prc.length-1) + z[prc.slice(-1)];
+}
 
 
 $( document ).ready(function() {
@@ -84,14 +89,16 @@ $( "#get-steam" ).click(function() {
 });
 
 // скрипт для страницы STEAM2
-function getSteam2 (offset, script) {
+function getSteam2 (offset, script, table) {
 	$( "#message li:first" ).before( "<li>Начали парсить offset "+offset+"</li>" );
 	$('.loading').addClass('inaction');
-	$.post( "lib/"+script+".php?offset="+offset, function( data ) {
+	$.post( "/ajax.php?action="+script+"&offset="+offset,
+				{offset:offset,table:table},
+				function( data ) {
 		$( "#message li:first" ).before( "<li>offset "+offset+" сохранена в базе</li>" );
 		offset = offset+30;
 		if (offset < data.count) {
-			getSteam2(offset, script);
+			getSteam2(offset, script, table);
 		}else{
 			$('.loading').removeClass('inaction');
 			$('.loading').html('Done!');
@@ -110,6 +117,12 @@ $( "#get-steam3" ).click(function() {
 	getSteam2(0, 'steam3');
 	$('.get-steam-btn').attr('disabled','true');
 });
+
+$('.js-get-steam2').click(function() {
+	// this.value содержит имя таблицы MySQL
+	getSteam2(0, 'steam2', this.value);
+	$('.get-steam-btn').attr('disabled','true');
+})
 //================================
 
 // скрипт для страницы STEAM List
@@ -841,6 +854,7 @@ $('.jsm-arr').click(function(e) {
 	FF.js_modal_buy_button.attr('action', 'http://parser.gig-games.de/index.php?action=invoice&platiid='+FF.game_line['item'+FF.consec+'_id']);
 	FF.js_modal_ebay_input.val(FF['europrice'+FF.consec]);
 	FF.js_modal_woo_input.val((FF['europrice'+FF.consec]*0.95).toFixed(2));
+	FF.js_modal_hood_input.val(round_hood_price(FF['europrice'+FF.consec]));
 
 	$('.tch-smalltable .gig').removeClass('gig');
 	$('.rp'+FF.consec).addClass('gig');
@@ -859,7 +873,7 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
 	FF.europrice2 = 0;
 	FF.europrice3 = 0;
 	var F = e.data.f
-	F.one_removed = false;
+	F.one_removed = 0;
 	F.one_changed = false;
 	F.mergedModal.modal('show');
 	F.tr = $(this).parent();
@@ -893,9 +907,9 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
 	if(F.hoodId) F.js_modal_hood_title.html('<img src="images/more-loading.gif" alt="loading">');
 	else F.js_modal_hood_title.html('no id');
 	F.js_modal_hood_price.text('.');
-	F.js_modal_hood_input.val((F.europrice*0.95).toFixed(2)); // уточнить формулу скидки hood
+	F.js_modal_hood_input.val(round_hood_price(F.europrice));
 
-	F.js_modal_ebay_prices.html(F.tr.find('td[iid]').clone());
+	F.js_modal_ebay_prices.html(F.tr.find('[iid]').clone());
 	F.js_modal_plati_price.html('<img src="images/more-loading.gif" alt="loading">');
 
 	if(F.ebayId){
@@ -943,6 +957,7 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
 // Изменение инпута WooCommerce
 FF.js_modal_ebay_input.on('change', function() {
 	FF.js_modal_woo_input.val((parseFloat(FF.js_modal_ebay_input.val().replace(',','.'))*0.95).toFixed(2));
+	FF.js_modal_hood_input.val(round_hood_price(FF.js_modal_ebay_input.val().replace(',','.')));
 })
 
 // Изменение цен
@@ -998,8 +1013,8 @@ $('#fRemove').on('click', {f:FF}, function(e) {
 			{ action:'remove', ebayId:F.ebayId },
 			function (data) {
 				if (data.answer == 'good') {
-					if(F.one_removed) F.mergedModal.modal('hide');
-					else F.one_removed = true;
+					if(F.one_removed > 1) F.mergedModal.modal('hide');
+					else F.one_removed += 1;
 				}
 		}, 'json');
 	}
@@ -1009,8 +1024,19 @@ $('#fRemove').on('click', {f:FF}, function(e) {
 			{ action:'remove', wooId:F.wooId },
 			function (data) {
 				if (data.answer == 'good') {
-					if(F.one_removed) F.mergedModal.modal('hide');
-					else F.one_removed = true;
+					if(F.one_removed > 1) F.mergedModal.modal('hide');
+					else F.one_removed  += 1;
+				}
+		}, 'json');
+	}
+
+	if(F.hoodId){
+		$.post('ajax.php?action=ajax-hood',
+			{ hood_remove: 'true', hoodId: F.hoodId },
+			function (data) {
+				if (data.status == 'success') {
+					if(F.one_removed > 1) F.mergedModal.modal('hide');
+					else F.one_removed  += 1;
 				}
 		}, 'json');
 	}
@@ -1056,10 +1082,11 @@ GenObj.js_tch_deligator.on('click', '.mChange', function(e) {
 	M.gameId = tr.attr('data-gameid');
 	M.ebayId = tr.attr('data-ebayid');
 	M.wooId = tr.attr('data-wooid');
+	M.hoodId = tr.attr('data-hoodid');
 	M.rurprice = +tr.find('.row5').text();
 	var exrate = 0;
 	if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
-	M.europrice = formula(M.rurprice, exrate).toFixed(1);
+	M.europrice = formula(M.rurprice, exrate).toFixed(2);
 	if(M.europrice < 1.5) M.europrice = 1.5;
 
 	if(M.ebayId && M.rurprice){
@@ -1076,12 +1103,24 @@ GenObj.js_tch_deligator.on('click', '.mChange', function(e) {
 
 	if(M.wooId && M.rurprice){
 		$.post('ajax.php?action=ajax-woo',
-			{ action: 'change', wooId: M.wooId, price: M.europrice },
+			{ action: 'change', wooId: M.wooId, price: (M.europrice*0.95).toFixed(2) },
 			function (data) {
 				if (data.answer == 'good') {
 					M.tr.find('.tc-woo').addClass('color-green');
 				}else{
 					M.tr.find('.tc-woo').addClass('color-red');
+				}
+		}, 'json');
+	}
+
+	if(M.hoodId && M.rurprice){
+		$.post('ajax.php?action=ajax-hood',
+			{ hood_change_price: 'true', hoodId: M.hoodId, newPrice: round_hood_price(M.europrice) },
+			function (data) {
+				if (data.status == 'success') {
+					M.tr.find('.tc-hood').addClass('color-green');
+				}else{
+					M.tr.find('.tc-hood').addClass('color-red');
 				}
 		}, 'json');
 	}
@@ -1100,6 +1139,7 @@ GenObj.js_tch_deligator.on('click', '.mRemove', function(e) {
 	M.gameId = tr.attr('data-gameid');
 	M.ebayId = tr.attr('data-ebayid');
 	M.wooId = tr.attr('data-wooid');
+	M.hoodId = tr.attr('data-hoodid');
 
 	if(M.ebayId){
 		$.post('ajax.php?action=ajax-ebay-api-price-changer',
@@ -1124,9 +1164,21 @@ GenObj.js_tch_deligator.on('click', '.mRemove', function(e) {
 				}
 		}, 'json');
 	}
-});
 
+	if(M.hoodId){
+		$.post('ajax.php?action=ajax-hood',
+			{ hood_remove: 'true', hoodId: M.hoodId },
+			function (data) {
+				if (data.status == 'success') {
+					M.tr.find('.tc-hood').addClass('color-green');
+				}else{
+					M.tr.find('.tc-hood').addClass('color-red');
+				}
+		}, 'json');
+	}
+});
 // =========2 /change price merged 2===========
+
 var ajax_loader = $('.ajax-loader');
 	ajax_loader.removeClass('ajaxed');
 $( document ).ajaxSend(function() {
@@ -1276,24 +1328,31 @@ $('#ebay-msg-answer-form').on('submit', function function_name(e) {
 });
 
 
-$('.q-radio').change(function(e) {
+$('#em-deligator').on('change', '.q-radio', function(e) {
   console.log(this.value);
   console.log(this.name);
-  console.log(this.name.split('us')[1]);
   var value = this.value;
   var name = this.name;
-  send_obj = {msg_id : name.split('us')[1]};
-  if (value === 'asked') {
-  	send_obj.mark_as_asked = 1;
-  }else if (value === 'answerd') {
-  	send_obj.mark_as_answerd = 1;
-  }
+  send_obj = {msg_id : name};
+  send_obj['mark_as_'+value] = 1;
   $.post('ajax.php?action=ajax-mark-messages',
   	send_obj,
-  	function (data) {
-  		// body...
-  	});
+  	function (data) {});
 });
+
+
+$('#hm-deligator').on('change', '.q-radio', function(e) {
+  console.log(this.value);
+  console.log(this.name);
+  var value = this.value;
+  var name = this.name;
+  send_obj = {msg_id : name};
+  send_obj['mark_hood_as_'+value] = 1;
+  $.post('ajax.php?action=ajax-mark-messages',
+  	send_obj,
+  	function (data) {});
+});
+
 
 $('.orders-table').on('click', '.op-markorder', function(e) {
 	console.log(this.name);
@@ -1349,3 +1408,9 @@ $('[data-toggle="tooltip"]').tooltip();
 // }
 
 // drawSnowFlake(25);
+
+
+
+
+
+

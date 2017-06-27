@@ -2,17 +2,26 @@
 if (isset($_GET['offset'])):
 header('Content-Type: text/html; charset=utf-8');
 ini_get('safe_mode') or set_time_limit(2500); // Указываем скрипту, чтобы не обрывал связь.
-include('simple_html_dom.php');
+include_once('simple_html_dom.php');
 //include('PHPExcel.php');
 require_once('array_DB.php');
 $array = array();
+
+$table_langs = [
+    'steam_de' => 'german',
+    'steam_en' => 'english',
+    'steam_fr' => 'french',
+    'steam_es' => 'spanish',
+    'steam_it' => 'italian',
+];
+$table = $_POST['table'];
 
 $whr_and = "appsub='sub' AND";
 $whr_and = '';
 
 $count = (int)arrayDB("SELECT count(*) as count FROM slist WHERE $whr_and scan = (select scan from slist order by id desc limit 1)")[0]['count'];
 // В следующей строчке Steam_Language=german,russian,english,french,spanish,italian можно указывать другие языки
-$options = array('http' => array('method' => "GET", 'header' => "Accept-language: en-US\r\n" . "Cookie: Steam_Language=italian; mature_content=1; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
+$options = array('http' => array('method' => "GET", 'header' => "Accept-language: en-US\r\n" . "Cookie: Steam_Language=".$table_langs[$table]."; mature_content=1; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
 $context = stream_context_create($options);
 
 if(!isset($_GET['offset'])) die;
@@ -28,7 +37,7 @@ foreach ($slist as $row) {
 
 // ==> Ссылка на игру ($link)
     $link = _esc(clean_steam_url(trim($row['link'])));
-    $exist = arrayDB("SELECT id from steam_it where link = '$link'");
+    $exist = arrayDB("SELECT id from $table where link = '$link'");
     if($exist) continue;
     $game_item = file_get_html($link, false, $context);
     // пропускаем игру в случае ошибки
@@ -255,7 +264,7 @@ $includes = implode(',', $includes);
         $main_game_link  = _esc(trim($main_game_link));
         $includes  = _esc($includes);
 
-        arrayDB("INSERT INTO steam_it (
+        arrayDB("INSERT INTO $table (
             `appid`,
             `type`,
             `title`,
@@ -313,6 +322,8 @@ $includes = implode(',', $includes);
 }//foreach по одной странице
 echo json_encode( array(
     'offset' => $offset,
+    'table' => $table,
+    'language' => $table_langs[$table],
     'count' => $count,
     'affected' => $affected,
     'errors' => $_ERRORS

@@ -8,7 +8,7 @@
 class CreateDesc2017
 {
 	private $_ebay_id;
-	private $_steam_link;
+	public $_steam_link;
 	private $_ebay_data;
 	private $_steam_de;
 	private $_steam_en;
@@ -16,9 +16,11 @@ class CreateDesc2017
 	private $_steam_es;
 	private $_steam_it;
 	private $_data_array;
+	private $_images_arr;
 	private $_extra_field;
+	public $error_text = 'good';
 
-	function __construct($ebay_id)
+	function __construct($ebay_id = 0)
 	{
 		$this->_ebay_id = $ebay_id;
 	}
@@ -48,13 +50,29 @@ class CreateDesc2017
 		return true;
 	}
 
-	function readEbayData()
+	public function getSteamLinkBySteamId($sid)
+	{
+		$steam_link = arrayDB("SELECT link FROM steam_de WHERE id = '$sid'");
+		$this->_steam_link = $steam_link[0]['link'];
+		if(!$steam_link){
+			$this->error_text = "SELECT link FROM steam_de WHERE id = '$sid'";
+			return false;
+		}
+		return true;
+	}
+
+	public function readEbayData()
 	{
 		$ebay_id = _esc($this->_ebay_id);
 		$ebay_data = arrayDB("SELECT img3d,images,game_desc FROM ebay_data WHERE ebay_id = '$ebay_id' order by id desc limit 1");
 		if(!$ebay_data) return false;
 		$this->_ebay_data = $ebay_data[0];
 		return true;
+	}
+
+	public function setImagesArr($images_arr)
+	{
+		$this->_images_arr = $images_arr;
 	}
 
 	public function readSteamDe()
@@ -123,11 +141,16 @@ class CreateDesc2017
 			$this->_data_array['langs'] = 'EN';
 		}
 		$this->_data_array['plattform'] = os_shorter($this->_steam_de['os']);
-		if ($this->_ebay_data['images']) {
+
+		if ($this->_ebay_data && $this->_ebay_data['images']) {
 			$images = explode(',', $this->_ebay_data['images']);
 			$this->_data_array['img1'] = $images[0];
 			$this->_data_array['img2'] = $images[1];
 			$this->_data_array['img3'] = $images[2];
+		}elseif ($this->_images_arr) {
+			$this->_data_array['img1'] = $this->_images_arr[0];
+			$this->_data_array['img2'] = $this->_images_arr[1];
+			$this->_data_array['img3'] = $this->_images_arr[2];
 		}else{
 			return false;
 		}
@@ -150,7 +173,7 @@ class CreateDesc2017
 
 	public function getNewFullDesc()
 	{
-		$proto = file_get_contents('http://info-rim.ru/ebay-2017/index.html');
+		$proto = file_get_contents('http://parser.gig-games.de/ebay-2017/index.html');
 		if(!$proto) return false;
 		$search = [
 			'href="style-2017.css"',
@@ -163,7 +186,7 @@ class CreateDesc2017
 		$new_full_desc = str_replace($search, $replace, $proto);
 
 		$search = [
-			'/(">).*(<\/h1><!--title)/',
+			'/(gig-title">).*(<\/h1><!--title-->)/',
 			'/(gig-aliases">).*(<\/span><!--aliases-end-->)/',
 			'/(gig-platts">).*(<\/span><!--platts-end-->)/',
 			'/(data-img1a src=").*(" data-img1b)/',
@@ -186,24 +209,24 @@ class CreateDesc2017
 		];
 
 		$replace = [
-			'$1'.$this->_data_array['title'].'$2',
-			'$1'.$this->_data_array['langs'].'$2',
-			'$1'.$this->_data_array['plattform'].'$2',
-			'$1'.$this->_data_array['img1'].'$2',
-			'$1'.$this->_data_array['img2'].'$2',
-			'$1'.$this->_data_array['img3'].'$2',
-			'$1'.$this->_data_array['img4'].'$2',
-			'$1'.$this->_steam_link.'$2',
-			'$1'.$this->_data_array['about_de'].'$2',
-			'$1'.$this->_data_array['about_en'].'$2',
-			'$1'.$this->_data_array['about_fr'].'$2',
-			'$1'.$this->_data_array['about_es'].'$2',
-			'$1'.$this->_data_array['about_it'].'$2',
-			'$1'.$this->_data_array['sydreq_de'].'$2',
-			'$1'.$this->_data_array['sydreq_en'].'$2',
-			'$1'.$this->_data_array['sydreq_fr'].'$2',
-			'$1'.$this->_data_array['sydreq_es'].'$2',
-			'$1'.$this->_data_array['sydreq_it'].'$2',
+			'${1}'.$this->_data_array['title'].'$2',
+			'${1}'.$this->_data_array['langs'].'$2',
+			'${1}'.$this->_data_array['plattform'].'$2',
+			'${1}'.$this->_data_array['img1'].'$2',
+			'${1}'.$this->_data_array['img2'].'$2',
+			'${1}'.$this->_data_array['img3'].'$2',
+			'${1}'.$this->_data_array['img4'].'$2',
+			'${1}'.$this->_steam_link.'$2',
+			'${1}'.$this->_data_array['about_de'].'$2',
+			'${1}'.$this->_data_array['about_en'].'$2',
+			'${1}'.$this->_data_array['about_fr'].'$2',
+			'${1}'.$this->_data_array['about_es'].'$2',
+			'${1}'.$this->_data_array['about_it'].'$2',
+			'${1}'.$this->_data_array['sydreq_de'].'$2',
+			'${1}'.$this->_data_array['sydreq_en'].'$2',
+			'${1}'.$this->_data_array['sydreq_fr'].'$2',
+			'${1}'.$this->_data_array['sydreq_es'].'$2',
+			'${1}'.$this->_data_array['sydreq_it'].'$2',
 			'item='.$this->_ebay_id.'$2',
 			'iid='.$this->_ebay_id.'$2',
 		];
@@ -218,6 +241,7 @@ class CreateDesc2017
 
 	public function run()
 	{
+		var_dump($this->_ebay_data);
 		// sa($this->_data_array);
 		// sa($this->_ebay_data);
 	}

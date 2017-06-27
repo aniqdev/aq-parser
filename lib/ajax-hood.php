@@ -26,6 +26,34 @@ if ($_POST && isset($_POST['hood_change_price'])) {
 	echo json_encode($res);	
 }
 
+if ($_POST && isset($_POST['hood_change_price_no_id'])) {
+	$url = 'http://hood.gig-games.de/api/changeItemPriceQuantity';
+	$ebay_id = $_POST['ebayId'];
+	$hoodId = arrayDB("SELECT hood_id FROM games WHERE ebay_id = '$ebay_id'");
+	if ($hoodId) $hoodId = $hoodId[0]['hood_id'];
+	else echo json_encode(['status' => 'error', 'error' => 'no hood id']);	
+	$res = post_curl($url, ['hoodId'=>$hoodId,'newPrice'=>$_POST['newPrice']]);
+	echo json_encode($res);	
+}
+
+
+
+if ($_POST && isset($_POST['hood_remove'])) {
+	$url = 'http://hood.gig-games.de/api/removeFromSale';
+	$res = post_curl($url, $_POST);
+	echo json_encode($res);	
+}
+
+if ($_POST && isset($_POST['hood_remove_no_id'])) {
+	$url = 'http://hood.gig-games.de/api/removeFromSale';
+	$ebay_id = $_POST['ebayId'];
+	$hoodId = arrayDB("SELECT hood_id FROM games WHERE ebay_id = '$ebay_id'");
+	if ($hoodId) $hoodId = $hoodId[0]['hood_id'];
+	else echo json_encode(['status' => 'error', 'error' => 'no hood id']);	
+	$res = post_curl($url, ['hoodId'=>$hoodId]);
+	echo json_encode($res);	
+}
+
 
 
 

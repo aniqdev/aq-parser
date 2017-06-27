@@ -588,8 +588,7 @@ span.loading.inaction,
     background: #181818 url(../images/loading-round.gif) center no-repeat;
 }
 
-.getjson-btn,
-.get-steam-btn{
+.getjson-btn{
   display: block;
 }
 
@@ -1647,6 +1646,11 @@ form label{
       background: rgba(0, 0, 0, 0.14);
           max-height: 400px;
     overflow-y: auto;
+    transition: .3s;
+}
+
+.hs-console:hover{
+      background: rgba(0, 0, 0, 1);
 }
 
 .hs-console input{
@@ -1669,3 +1673,65 @@ form label{
   -o-animation: hsaddfirst 1s;
   animation: hsaddfirst 1s;
 }
+
+.parse-steam-form{
+  margin: 5px;
+  padding: 5px;
+  border: 1px solid #999;
+  display: inline-block;
+}
+
+
+/* =========== Task Manager =========== */
+.task-panel{
+  background-color: #222;
+  color: #58c0e5;
+  /* color: #a4e2f8; */
+  border-radius: 0;
+  border: 0;
+
+}
+
+.task-panel .panel-heading{
+  background-color: #58c0e5;
+  color: #fff;
+  border-radius: 0;
+  border: 0;
+  padding: 0;
+      line-height: 30px;
+    padding-left: 10px;
+}
+
+.task-panel .panel-body+.table{
+  border-top: none;
+}
+
+.task-panel th{
+      color: #58c0e5;s
+}
+
+.task-panel .panel-body{
+  padding: 0;
+  /* display: none; */
+}
+
+.task-panel button{
+  border: 0;
+  border-radius: 0;
+  background-color: #42ab9e;
+  background-image: linear-gradient(to right, rgba(78,170,158,1) 0%,rgb(72, 149, 139) 100%);
+  color: #fff;
+}
+
+.task-panel button:hover{
+  background-image: initial;
+}
+/* =========== /Task Manager =========== */
+
+.hm-btns.active{
+    border-bottom: 1px solid #9bc9db;
+    cursor: default;
+}
+
+
+

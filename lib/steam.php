@@ -255,9 +255,13 @@ echo json_encode( array(
 
 else: ?>
 <h3>парсим игры Стим (подробно)</h3>
-<?= dz('<button id="get-steam" class="get-steam-btn">get-steam</button><br>')?>
-<button id="get-steam2" class="get-steam-btn">get-steam2</button>
-<?= dz('<br><button id="get-steam3" class="get-steam-btn">get-steam3</button>')?>
+<form id="parse_steam" class="parse-steam-form">
+    <button name="steam2" value="steam_de" type="button" class="js-get-steam2 get-steam-btn">Steam DE</button>
+    <button name="steam2" value="steam_en" type="button" class="js-get-steam2 get-steam-btn">Steam EN</button>
+    <button name="steam2" value="steam_fr" type="button" class="js-get-steam2 get-steam-btn">Steam FR</button>
+    <button name="steam2" value="steam_es" type="button" class="js-get-steam2 get-steam-btn">Steam ES</button>
+    <button name="steam2" value="steam_it" type="button" class="js-get-steam2 get-steam-btn">Steam IT</button>
+</form><br><br><br>
 <span class="loading"></span>
 <h3>Состояние процесса:</h3>
 <ul id="message" class="message"><li></li></ul>

@@ -18,21 +18,24 @@ function updateOneDesc($ebay_id, $key, $title)
 
 	if (!$desc_obj->readSteamDe())  return "<h3>$ebay_id no readSteamDe!</h3>";	
 
-	$desc_obj->goDeutchToAll();
+	// $desc_obj->goDeutchToAll();
 
-	// if (!$desc_obj->readSteamEn())  return "<h3>$ebay_id no readSteamEn!</h3>";
-	// if (!$desc_obj->readSteamFr())	return "<h3>$ebay_id no readSteamFr!</h3>";
-	// if (!$desc_obj->readSteamEs())	return "<h3>$ebay_id no readSteamEs!</h3>";
-	// if (!$desc_obj->readSteamIt())	return "<h3>$ebay_id no readSteamIt!</h3>";
+	if (!$desc_obj->readSteamEn())  return "<h3>$ebay_id no readSteamEn!</h3>";
+	if (!$desc_obj->readSteamFr())	return "<h3>$ebay_id no readSteamFr!</h3>";
+	if (!$desc_obj->readSteamEs())	return "<h3>$ebay_id no readSteamEs!</h3>";
+	if (!$desc_obj->readSteamIt())	return "<h3>$ebay_id no readSteamIt!</h3>";
 
+	// $desc_obj->setImagesArr(['http://hot-body.net/img-generator/folders/s21130/1.jpg',
+	// 						'http://hot-body.net/img-generator/folders/s21130/2.jpg',
+	// 						'http://hot-body.net/img-generator/folders/s21130/3.jpg',]);
 	if (!$desc_obj->getDataArray())	return "<h3>$ebay_id no getDataArray!</h3>";
 
-	if($desc_obj->scip()) return;
+	// if($desc_obj->scip()) return;
 	// if($desc_obj->scip()) return "<h3>skipped!</h3>";
 
 	//echo $desc_obj->getNewFullDesc();
 	if(!$desc = $desc_obj->getNewFullDesc()) return "<h3>Fuck!</h3>";
-
+	
 	// echo $desc;
 	echo "<BR>";
 // return;
@@ -48,7 +51,7 @@ function updateOneDesc($ebay_id, $key, $title)
 	}
 }
 
-$ebay_id = '111978074604';
+$ebay_id = '112187660970';
 // echo updateOneDesc($ebay_id, 1, 'silent');
 
 // $games = arrayDB("SELECT item_id,title,steam_link,extra_field
@@ -57,7 +60,7 @@ $ebay_id = '111978074604';
 // on ebay_games.item_id = games.ebay_id
 // where steam_link <> ''");
 
-$games = arrayDB("SELECT item_id,title from ebay_games");
+$games = arrayDB("SELECT item_id,title from ebay_games order by title limit 55");
 
 
 foreach ($games as $key => $game) {

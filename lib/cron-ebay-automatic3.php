@@ -203,14 +203,14 @@ foreach ($orders as $k => $order):
 
 // 7. Исключение пользователей с низким рейтингом(меньше 5).
 // Входные данные: $BuyerFeedbackScore
-	if ($BuyerFeedbackScore < 5 && $order['total_price'] > 5) {
+	if ($BuyerFeedbackScore < 5 && $order['total_price'] > 4) {
 		add_comment_to_order($gig_order_id, 'Buyers FeedbackScore less then 5 and order price more then 5eur');
 		continue;
 	}
 
 
 // 7.2 Исключение новых аккаунтов(меньше месяца).
-	if (time() - (new DateTime($BayerRegistrationDate))->getTimestamp() < 60*60*24*30) {
+	if ((time() - (new DateTime($BayerRegistrationDate))->getTimestamp()) < 60*60*24*30 && $order['total_price'] > 4) {
 		add_comment_to_order($gig_order_id, 'This user account has been created in the previous 30 days');
 		continue;
 	}

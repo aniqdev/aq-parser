@@ -1,21 +1,21 @@
 <?php
+$str = 'феврал';
+// echo substr_replace($str,'я',-1);
+sa($_SERVER);
+var_dump(file_get_contents('http://'.$_SERVER['HTTP_HOST'].'/ajax.php?action=cron-hood-messages'));
+
+// $body = post_curl('http://hood.gig-games.de/api/getMessageText', ['messageId' => '8923934']);
+// sa($body);
 
 
+	// $res = post_curl('http://hood.gig-games.de/api/getOutboxMessages', ['lastInboxMessageId' => 0, 'lastOutboxMessageId' => 0]);
+	// sa($res);
 
 function round_price($price)
     {
-
         $array_round = array(
-            1 => 0,
-            2 => 0,
-            3 => 5,
-            4 => 5,
-            5 => 5,
-            6 => 5,
-            7 => 5,
-            8 => 9,
-            9 => 9,
-            0 => 0,
+            1 => 0, 2 => 0, 3 => 5, 4 => 5, 5 => 5,
+            6 => 5, 7 => 5, 8 => 9, 9 => 9, 0 => 0,
         );
         if ($price == '') return FALSE;
         $price = str_replace(",", ".", $price);
@@ -23,8 +23,7 @@ function round_price($price)
         if ($price * 0.01 < 0.05) {
             return $price - 0.05;
         }
-
-        $price_new = $price - ($price * 0.01);
+        $price_new = $price * 0.99;
 
         $res = round($price_new, 2);
         $end_price = explode('.', $res);
@@ -42,27 +41,38 @@ function round_price($price)
 
 function aqs_round_price($price='')
 {
-	if (!$price) {
-		return false;
-	}
+	if (!$price) return false;
+
+    $round = array(
+        1 => 0, 2 => 0, 3 => 5, 4 => 5, 5 => 5,
+        6 => 5, 7 => 5, 8 => 9, 9 => 9, 0 => 0,
+    );
 	$price = round($price, 2);
-	$minus = $price*1000 % 50;
-	$price = $price - ($minus===0?0.05:$minus/1000);
+	if ($price < 5) $price = $price - 0.05;
+	else			$price = $price * 0.99;
+	
+	$price = number_format($price, 2);
+	$price = substr_replace($price, $round[+$price[strlen($price)-1]],-1);
 	return $price;
 }
+// var_dump(round(5.555,2));
+// var_dump(number_format(5.555,2));
 
-sa([aqs_round_price('5.01'),round_price('5.01')]);
-sa([aqs_round_price('5.14'),round_price('5.14')]);
-sa([aqs_round_price('5.23'),round_price('5.23')]);
-sa([aqs_round_price('5.30'),round_price('5.30')]);
-sa([aqs_round_price('5.49'),round_price('5.49')]);
-sa([aqs_round_price('5.51'),round_price('5.51')]);
-sa([aqs_round_price('5.65'),round_price('5.65')]);
-sa([aqs_round_price('5.76'),round_price('5.76')]);
-sa([aqs_round_price('5.83'),round_price('5.83')]);
-sa([aqs_round_price('5.99'),round_price('5.99')]);
+// sa([$n = '2.06',aqs_round_price($n),round_price($n)]);
+// sa([$n = '4.9',aqs_round_price($n),round_price($n)]);
+// sa([$n = '5.23',aqs_round_price($n),round_price($n)]);
+// sa([$n = '5.3',aqs_round_price($n),round_price($n)]);
+// sa([$n = '5.400',aqs_round_price($n),round_price($n)]);
+// sa([$n = '5.51',aqs_round_price($n),round_price($n)]);
+// sa([$n = '5.65',aqs_round_price($n),round_price($n)]);
+// sa([$n = '5.76',aqs_round_price($n),round_price($n)]);
+// sa([$n = '5.83',aqs_round_price($n),round_price($n)]);
+// sa([$n = '5.999',aqs_round_price($n),round_price($n)]);
+// $a = 5.1*100;
+// var_dump($a);
+// var_dump($a%5);
 
-var_dump(5.1*100%5);
+// sa(hoodItemSync(['122455219488']));
 
 // function printArray($array) 
 // { 
@@ -86,19 +96,49 @@ var_dump(5.1*100%5);
 // 	array_push($tri,$added); 
 // }
 
+
+$time_string = '14.06.17
+um 17:08:07';
+
+$format = hood_date_format($time_string);
+var_dump($format);
+echo "<hr>";
+
+// var_dump(json_decode('[]',1));
+
+
+
+// 	$res = post_curl('http://hood.gig-games.de/api/getInboxMessages', ['lastInboxMessageId' => '8972780']);
+// var_dump($res);
+// 	foreach ($res as $k => $msg) {
+// 		var_dump($msg['idMessage']);
+// 		echo "<br>";
+// 	}
+// 	sa($res);
+
+
+
+
+
+
+
+
+
 // sa(hoodItemSync(['122478213637','112394797943','112334597943']));
 
+// 	$myCurl = curl_init('http://hood.gig-games.de/api/import');
+// 	curl_setopt_array($myCurl, [
+// 	    CURLOPT_RETURNTRANSFER => true,
+// 	    CURLOPT_POST => true,
+// 	    CURLOPT_POSTFIELDS => http_build_query(['122455219488'])
+// 	]);
+// 	$response = curl_exec($myCurl);
+// 	curl_close($myCurl);
+// var_dump($response);
 
-	// $ch = curl_init('http://hood.gig-games.de/api/getItemPrice');
-	// curl_setopt_array($ch, [
-	//     CURLOPT_RETURNTRANSFER => true,
-	//     CURLOPT_POST => true,
-	//     CURLOPT_POSTFIELDS => http_build_query(['hood_id' => '697305312'])
-	// ]);
-	// $resp = curl_exec($ch);
-	// curl_close($ch);
+// sa(post_curl('http://hood.gig-games.de/api/getMessageText', ['messageId' => '8951628']));
 
-	// sa($resp);
+// sa(post_curl('http://hood.gig-games.de/api/getInboxMessages', ['lastInboxMessageId' => '8950917']));
 
 
 // $a = 0;
@@ -206,7 +246,7 @@ var_dump(5.1*100%5);
 
 
 
-
+// (new CreateDesc2017(0))->run();
 
 
 

@@ -192,7 +192,39 @@ $gameChangedZ    = [];
 
 //$ids_arr = unserialize(file_get_contents(__DIR__.'/../settings/ids_arr.txt'));
 $ids_arr = include(__DIR__.'/../settings/ids_arr.php');
-
+?>
+<style>
+.ppp-table.changes{
+	border-top: 1px solid #777;
+	border-left: 1px solid #777;
+}
+.ppp-table.changes .row>div{
+	float: left;
+	padding: 0 2px;
+	border-right: 1px #777;
+}
+.ppp-table.changes .row{
+	margin: 0;
+	border-bottom: 1px solid #777;
+}
+.qol1 {width: 2.8148%;}
+.qol2 {width: 26.9629%;}
+.qol3 {width: 4.7407%;}
+.qol4 {width: 4.7407%;}
+.qol5 {width: 4.7407%;}
+.qol6 {width: 3.3333%;}
+.qol7 {width: 5.1852%;}
+.qol8 {width: 7.0370%;}
+.qol9 {width: 7.0370%;}
+.qol10{width: 4.9630%;}
+.qol11{width: 4.6666%;}
+.qol12{width: 4.6666%;}
+.qol13{width: 4.6666%;}
+.qol14{width: 4.6666%;}
+.qol15{width: 4.6666%;}
+.qol16{width: 5.1111%;}
+</style>
+<?php
 function drowPlatiTable($res,$ids_arr){
 ?>
 <div class="ppp-block">
@@ -200,26 +232,26 @@ function drowPlatiTable($res,$ids_arr){
 	total: <?= count($res);?>
 </div>
 <div class="ppp-block">
-<table class="ppp-table changes" style="width: 100%;">
-	<thead><tr>
-		<th class="sort asc" data-sort="row1">#</th>
-		<th class="sort" data-sort="row2">Product title</th>
-		<th>eBay</th>
-		<th>Woo</th>
-		<th>Hood</th>
-		<th title="One Click Price Changer">All</th>
-		<th class="sort" data-sort="row3">Differ</th>
-		<th class="sort" data-sort="row5">New Price</th>
-		<th class="sort" data-sort="row7">Old Price</th>
-		<th>Link</th>
-		<th>ebay 1</th>
-		<th>ebay 2</th>
-		<th>ebay 3</th>
-		<th>ebay 4</th>
-		<th>ebay 5</th>
-		<th>Link</th>
-	</tr></thead>
-	<tbody class="list tch-table-deligator">
+<div class="ppp-table changes" style="width: 100%;">
+	<div class="row">
+		<div class="qol1 sort asc" data-sort="row1">#</div>
+		<div class="qol2 sort" data-sort="row2">Product title</div>
+		<div class="qol3">eBay</div>
+		<div class="qol4">Woo</div>
+		<div class="qol5">Hood</div>
+		<div class="qol6" title="One Click Price Changer">All</div>
+		<div class="qol7 sort" data-sort="row3">Differ</div>
+		<div class="qol8 sort" data-sort="row5">New Price</div>
+		<div class="qol9 sort" data-sort="row7">Old Price</div>
+		<div class="qol10">Link</div>
+		<div class="qol11">ebay 1</div>
+		<div class="qol12">ebay 2</div>
+		<div class="qol13">ebay 3</div>
+		<div class="qol14">ebay 4</div>
+		<div class="qol15">ebay 5</div>
+		<div class="qol16">Link</div>
+	</div>
+	<div class="list tch-table-deligator">
 <?php
 $n = 1;
 
@@ -239,39 +271,40 @@ foreach ($res as $key => $value) {
 
 	global $dataex;
 	$europrice = formula ($value['newPrice'], $dataex);
-	echo   '<tr
+	$hood_price = round_hood_price($europrice);
+	echo   '<div class="row"
 			   data-gameid="',$value['game_id'],'"
 			   data-ebayid="',$value['ebay_id'],'"
 			   data-wooid="',$value['woo_id'],'"
 			   data-hoodid="',$value['hood_id'],'"
 			   data-plati1id="',$value['item1_id'],'">
-				<td class="row1">',$n++,'</td>
-				<td class="row2 tch-merged">',$value['name'],'</td>
-				<td><a href="#ebayModal" class="tc-ebay ',$good_e,'"></a></td>
-				<td><a href="#wooModal" class="tc-woo ',$good_w,'"></a></td>
-				<td><a href="#hoodModal" class="tc-hood ',$good_h,'"></a></td>
-				<td title="',$value['n_name'],'" class="text-center p0">
+				<div class="qol1 row1">',$n++,'</div>
+				<div class="qol2 row2 tch-merged">',$value['name'],'</div>
+				<div class="qol3"><a href="#ebayModal" class="tc-ebay ',$good_e,'"></a></div>
+				<div class="qol4"><a href="#wooModal" class="tc-woo ',$good_w,'"></a></div>
+				<div class="qol5"><a href="#hoodModal" class="tc-hood ',$good_h,'"></a></div>
+				<div class="qol6 text-center p0" title="',$value['n_name'],'">
 					<a href="#mChange" class="mChange tch-mbtn glyphicon glyphicon-ok"></a>
 					<a href="#mRemove" class="mRemove tch-mbtn glyphicon glyphicon-remove"></a>
-				</td>
-				<td class="row3">',round($value['differ'],2),'</td>
-				<td class="row5" title="',$value['n_name'],'">',$value['newPrice'],'</td>
-				<td class="row7" title="',$value['o_name'],'">',$value['oldPrice'],'</td>
-				<td class="row8" title="',$value['n_name'],'"><a href="http://www.plati.ru/itm/',$value['item1_id'],'?ai=163508" target="_blank">Ссылка</a></td>
-				<td class="',$gig1,'" iid="',$value['e_id1'],'" title="',$value['e_title1'],'">',$value['e_price1'],'</td>
-				<td class="',$gig2,'" iid="',$value['e_id2'],'" title="',$value['e_title2'],'">',$value['e_price2'],'</td>
-				<td class="',$gig3,'" iid="',$value['e_id3'],'" title="',$value['e_title3'],'">',$value['e_price3'],'</td>
-				<td class="',$gig4,'" iid="',$value['e_id4'],'" title="',$value['e_title4'],'">',$value['e_price4'],'</td>
-				<td class="',$gig5,'" iid="',$value['e_id5'],'" title="',$value['e_title5'],'">',$value['e_price5'],'</td>
-				<td><a href="http://www.ebay.de/sch/i.html?_odkw=Rust+Steam&LH_PrefLoc=2&_sop=2&LH_BIN=1&_osacat=1249&_from=R40&_trksid=p2045573.m570.l1313.TR0.TRC0.H0.TRS0&_sacat=1249&_nkw=',$value['name'],'" target="_blank">Ссылка</a></td>
-			</tr>';
+				</div>
+				<div class="qol7 row3">',round($value['differ'],2),'</div>
+				<div class="qol8 row5" title="',$value['n_name'],'">',$value['newPrice'],'</div>
+				<div class="qol9 row7" title="',$value['o_name'],'">',$value['oldPrice'],'</div>
+				<div class="qol10 row8" title="',$value['n_name'],'"><a href="http://www.plati.ru/itm/',$value['item1_id'],'?ai=163508" target="_blank">Ссылка</a></div>
+				<div class="qol11 ',$gig1,'" iid="',$value['e_id1'],'" title="',$value['e_title1'],'">',$value['e_price1'],'</div>
+				<div class="qol12 ',$gig2,'" iid="',$value['e_id2'],'" title="',$value['e_title2'],'">',$value['e_price2'],'</div>
+				<div class="qol13 ',$gig3,'" iid="',$value['e_id3'],'" title="',$value['e_title3'],'">',$value['e_price3'],'</div>
+				<div class="qol14 ',$gig4,'" iid="',$value['e_id4'],'" title="',$value['e_title4'],'">',$value['e_price4'],'</div>
+				<div class="qol15 ',$gig5,'" iid="',$value['e_id5'],'" title="',$value['e_title5'],'">',$value['e_price5'],'</div>
+				<div class="qol16"><a href="http://www.ebay.de/sch/i.html?_odkw=Rust+Steam&LH_PrefLoc=2&_sop=2&LH_BIN=1&_osacat=1249&_from=R40&_trksid=p2045573.m570.l1313.TR0.TRC0.H0.TRS0&_sacat=1249&_nkw=',$value['name'],'" target="_blank">Ссылка</a></div>
+			</div>';
 }
 		// echo "<br><pre>\n";
 		// print_r($res);
 		// echo '</pre>';
 ?>
-	</tbody>
-</table>
+	</div>
+</div>
 </div> <!-- ppp-block -->
 <?php
 } // drowPlatiTable()

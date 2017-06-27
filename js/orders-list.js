@@ -139,7 +139,13 @@ class OrderModalBody extends React.Component {
 			{action:'change',
 			ebayId:this.props.data.good_info.ebay_id,
 			price:this.state.inputs.new_price},
-			function(data) {  },'JSON');
+			function(data) { },'JSON');
+
+		$.post('ajax.php?action=ajax-hood',
+			{ hood_change_price_no_id: 'true',
+			ebayId:this.props.data.good_info.ebay_id,
+			newPrice: round_hood_price(this.state.inputs.new_price) },
+			function (data) { }, 'json');
 	}
 
 	toAddonClick(e){
@@ -173,13 +179,17 @@ class OrderModalBody extends React.Component {
 			{action:'remove',
 			ebayId:this.props.data.good_info.ebay_id},
 			function(data) {  },'JSON');
+
+		$.post('ajax.php?action=ajax-hood',
+			{ hood_remove_no_id: 'true',
+			ebayId:this.props.data.good_info.ebay_id },
+			function (data) { }, 'json');
 	}
 
 	mailTitleInputChange(e){this.setState({inputs:{mail_title:e.target.value}})}
 	mailBodyInputChange(e){this.setState({inputs:{mail_body:e.target.value}})}
 	ebayTitleInputChange(e){this.setState({inputs:{ebay_title:e.target.value}})}
 	ebayBodyInputChange(e){this.setState({inputs:{ebay_body:e.target.value}})}
-
 	newPriceInputChange(e){this.setState({inputs:{new_price:e.target.value}})}
 
 	render() {

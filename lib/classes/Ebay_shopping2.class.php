@@ -660,7 +660,7 @@ class Ebay_shopping2{
 				    <ProductListingDetails>
 						<EAN>Nicht zutreffend</EAN>
 					</ProductListingDetails>
-			   <Title>'.$item['Title'].'</Title>
+			   <Title>'.htmlspecialchars($item['Title']).'</Title>
 				<Description>'.htmlspecialchars($item['Description'], ENT_XML1 | ENT_QUOTES, 'UTF-8').'</Description>
 				<PrimaryCategory>
 				  <CategoryID>'.$item['CategoryID'].'</CategoryID>

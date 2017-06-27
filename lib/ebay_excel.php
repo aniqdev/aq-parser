@@ -18,7 +18,7 @@ foreach ($scans as $key => $value) {
 <?php
 
 if (isset($_POST['scan'])) {
-	include(__DIR__.'/PHPExcel.php');
+	// include(__DIR__.'/PHPExcel.php');
 	$scan = $_POST['scan'];
 	$list = arrayDB("SELECT ebay_list.name,  ebay_results.price1, ebay_results.price2,
 							ebay_results.price3, ebay_results.price4, ebay_results.price5

@@ -25,7 +25,7 @@ $ebay_games = arrayDB("SELECT item_id,title_clean,last_update
 from ebay_games
 left join hood_last_update
 on ebay_games.item_id = hood_last_update.ebay_id
-order by ebay_games.id");
+order by last_update");
 
 
 ?>

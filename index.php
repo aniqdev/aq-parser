@@ -35,7 +35,7 @@ define('ROOT', __DIR__);
 <body>
 <div class="ajax-loader ajaxed"></div>
 <?php 
-include_once('lib/navigate2.php');
+include_once('lib/navigate.php');
 
 $isset_get_action = isset($_GET['action']);
 $accessed = ($isset_get_action AND ($_SESSION['page_list_name'] === 'admin' || in_array($_GET['action'], $_SESSION['user_white_list'])));
@@ -53,7 +53,7 @@ if ($accessed) {
 
 } else {
 
-	echo '<h2 id="h-page" title="Main page">Home page</h2>';
+	include_once('lib/task-manager.php');
 
 }?>
 
