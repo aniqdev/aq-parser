@@ -8,8 +8,8 @@ class WooCommerceApi{
 
 				$this->woocommerce = new \Automattic\WooCommerce\Client(
 						'http://gig-games.de/', // Your store URL
-						'ck_cd110abae068e9cb3d5947123523a2eb84706c50', // Your consumer key
-						'cs_9c9a63643a3cbe04cf23b059356e3789dadcb985', // Your consumer secret
+						WOO_CK, // Your consumer key
+						WOO_CS, // Your consumer secret
 						['version' => 'v3',
 						 'verify_ssl'=>false,
 						 'ssl_enabled'=>true,
