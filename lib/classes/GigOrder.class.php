@@ -94,11 +94,10 @@ class GigOrder
 
 	public function setEbayInfo($ebay_id)
 	{
-		$query = "SELECT * FROM ebay_results 
+		$res = arrayDB("SELECT * FROM ebay_results 
 					WHERE game_id = (select id from games where ebay_id = '$ebay_id' LIMIT 1)
 					ORDER BY id DESC
-					LIMIT 1";
-		$res = arrayDB($query);
+					LIMIT 1");
 		if($res) $res = $res[0];
 		$this->ebay_info = $res;
 	}
@@ -127,7 +126,7 @@ class GigOrder
 			$this->errors[] = 'Please check out the original message!';
 			return false;
 		}
-		$item_title = cut_steam_from_title($this->good_info['title']);
+		$item_title = clean_ebay_title2($this->good_info['title']);
 		$this->msg_subject = "Activation data for: $item_title";
 
 		if(defined('DEV_MODE')) return false;
@@ -161,6 +160,7 @@ class GigOrder
 			$this->errors[] = 'Can not get the product on the link: '.$receive_item_link;
 			return false;
 		}
+
 		$product = $received_item['result'];
 		$product = get_steam_key_from_text($product);
 		$product = get_urls_from_text($product);
@@ -168,7 +168,11 @@ class GigOrder
 
 		$this->msg_email = key_link_replacer($this->msg_email);
 
-		$this->msg_email = str_ireplace('{{PRODUCT}}', $product, $this->msg_email);
+		$this->msg_email = str_ireplace('{{PRODUCT}}', product_html($item_title, $product), $this->msg_email);
+		// $this->msg_email = str_ireplace('{{EMAIL_SLUG}}', $email_slug, $this->msg_email);
+		$this->msg_email = str_ireplace('{{USER_EMAIL}}', $this->order_info['BuyerEmail'], $this->msg_email);
+		$this->msg_email = fill_email_item_panel($this->msg_email);
+
 		$this->msg_ebay = str_ireplace('{{EMAIL}}', $this->order_info['BuyerEmail'], $this->msg_ebay);
 
 		unset($inv_res['xml']);

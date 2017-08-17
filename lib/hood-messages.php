@@ -1,4 +1,42 @@
-<style>
+<?php
+
+$sent = '';
+if (isset($_POST['send'])) {
+	$user_id = isset($_GET['user_id']) ? $_GET['user_id'] : $_POST['user_id'];
+	$text = $_POST['text'];
+	$res = post_curl('http://hood.gig-games.de/api/createMessage', ['userId' => $user_id, 'messageText' => $text]);
+	// sa($res);
+	$sent = '<div class="container"><div class="alert alert-success alert-dismissible" role="alert">
+	  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.print_r($res,1).'</div></div>';
+	file_get_contents('http://'.$_SERVER['HTTP_HOST'].'/ajax.php?action=cron-hood-messages');
+	if ($_POST['send'] === 'ajax') {
+		echo json_encode(['status' => 'success', '$res' => $res]);
+		die;
+	}
+}
+
+
+if (isset($_POST['action']) && $_POST['action'] === 'new_msg_count') {
+
+	$messages_all = arrayDB("SELECT * FROM hood_messages WHERE date_time > NOW() - INTERVAL 5 DAY order by date_time DESC");
+	$skip = [];
+	$i = 0;
+	foreach ($messages_all as $key => $msg){
+			if(!isset($skip[$msg['user_id']])){
+				if($msg['dir'] === 'outbox' || $msg['status'] === 'answerd') {
+					  $skip[$msg['user_id']] = true;
+				}else $skip[$msg['user_id']] = false;
+			}
+			if($msg['status'] === 'asked') $skip[$msg['user_id']] = false;
+			// пропускаем сообщение, у которого верхнее сообщение исходящее
+			if ($skip[$msg['user_id']]) continue;
+			++$i;
+	}
+	echo $i;
+	die;
+}
+
+?><style>
 .chat
 {
     list-style: none;
@@ -65,18 +103,7 @@ draw_messages_submenu('hood');
 
 $days_ago = date('Y-m-d', time()-(60*60*24*5));
 
-if (isset($_POST['send'])) {
-	$user_id = $_GET['user_id'];
-	$text = $_POST['text'];
-	$res = post_curl('http://hood.gig-games.de/api/createMessage', ['userId' => $user_id, 'messageText' => $text]);
-	// sa($res);
-	echo '<div class="container"><div class="alert alert-success alert-dismissible" role="alert">
-	  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.
-	  print_r($res,1).
-	  '</div></div>';
-	file_get_contents('http://'.$_SERVER['HTTP_HOST'].'/ajax.php?action=cron-hood-messages');
-}
-
+echo $sent;
 
 if (isset($_GET['search_user']) && $_GET['search_user']) {
 	$user_name = _esc($_GET['search_user']);
@@ -86,8 +113,7 @@ if (isset($_GET['search_user']) && $_GET['search_user']) {
 	$messages_all = arrayDB("SELECT * FROM hood_messages WHERE user_id='$user_id' order by date_time DESC LIMIT 200");
 	view('hood-messages/send-form');
 }else{
-	// потом изменить лимит 200 на сообщения за последние 5 дней
-	$messages_all = arrayDB("SELECT * FROM hood_messages WHERE date_time>'$days_ago' order by date_time DESC");
+	$messages_all = arrayDB("SELECT * FROM hood_messages WHERE date_time > NOW() - INTERVAL 5 DAY order by date_time DESC");
 }
 
 // sa($messages_all);
@@ -183,3 +209,4 @@ function is_chkd($a, $b){if ($a === $b) echo 'checked';}
 ?>
 </ul>
 </div>
+

@@ -1,14 +1,19 @@
 <?php
 
 class WooCommerceApi{
+
+		private $woocommerce;
 		
 		function __construct(){
 
 				$this->woocommerce = new \Automattic\WooCommerce\Client(
 						'http://gig-games.de/', // Your store URL
-						'ck_410bb472d79a017b47c7ff2b70cfee4120904b09', // Your consumer key
-						'cs_db96dd892f781080643d93f966246b8a78704a4a', // Your consumer secret
-						['version' => 'v3'] // WooCommerce API version
+						'ck_cd110abae068e9cb3d5947123523a2eb84706c50', // Your consumer key
+						'cs_9c9a63643a3cbe04cf23b059356e3789dadcb985', // Your consumer secret
+						['version' => 'v3',
+						 'verify_ssl'=>false,
+						 'ssl_enabled'=>true,
+						 'user_agent'=>'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'] // WooCommerce API version
 				);
 		}
 
@@ -39,8 +44,8 @@ class WooCommerceApi{
 				try{
 						$item = $this->woocommerce->get('products/'.(int)$item_id);
 				}catch (Exception $e) {
-						//echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
-						//var_dump($e);
+						echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
+						sa($e);
 				}
 
 				return $item;
@@ -60,8 +65,8 @@ class WooCommerceApi{
 				try{
 						$item = $this->woocommerce->put("products/$id", $data);
 				}catch (Exception $e) {
-						//echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
-						//var_dump($e);
+						echo 'Выброшено исключение: ',  $e->getMessage(), "\n";
+						sa($e);
 				}
 
 				return $item;

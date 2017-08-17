@@ -42,13 +42,13 @@ class PlatiRuBuy
 															
 			$context  = stream_context_create($opts);
 			$responseXML = file_get_contents($endpoint, false, $context);
-			$responseObj = simplexml_load_string( str_replace('&', '&amp;', $responseXML) );
+			$responseObj = simplexml_load_string( str_replace(['&','windows-1251'], ['&amp;','utf-8'], $responseXML) );
 
 			if($responseXML === false){
 				return [
 					'success'=>false,
 					'text'=>'Ошибка при парсинге XML',
-					'xml'=>htmlentities(iconv('windows-1251', 'utf-8', $responseXML)),
+					'xml'=>htmlentities($responseXML),
 				];
 			}
 
@@ -56,17 +56,17 @@ class PlatiRuBuy
 				return [
 					'success'=>false,
 					'text'=>'Ошибка при выписке счета',
-					'xml'=>htmlentities(iconv('windows-1251', 'utf-8', $responseXML)),
+					'xml'=>htmlentities($responseXML),
 					'retval'=>(string)$responseObj->retval,
 					'retdesc'=>(string)$responseObj->retdesc,
+					// 'retdesc'=>(string)$responseObj->retdesc,
 					];
 			}
 
 			return [
 				'success'=>'OK',
 				'text'=>'счет выписан',
-				'xml'=>htmlentities(iconv('windows-1251', 'utf-8', $responseXML)),
-				'xml1251'=>htmlentities($responseXML),
+				'xml'=>htmlentities($responseXML),
 				'retval'=>(string)$responseObj->retval,
 				'retdesc'=>(string)$responseObj->retdesc,
 				'inv'=>(array)$responseObj->inv,

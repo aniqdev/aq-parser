@@ -1,4 +1,92 @@
-<style>
+<?php
+
+
+  $Woo = new WooCommerceApi();
+  $woo_item = $Woo->checkProductById('138');
+  // $woo_item = $Woo->updateProductPrice('7428', 2.1);
+
+  sa($woo_item);
+
+
+return;
+
+$automaticArr = arrayDB("SELECT 
+    ebay_orders.ExecutionMethod,
+    ebay_orders.goods,
+    ebay_orders.BuyerUserID,
+    ebay_orders.BuyerEmail,
+    ebay_order_items.title,
+    ebay_order_items.shipped_time,
+    ebay_automatic_log.*
+FROM ebay_automatic_log
+JOIN ebay_orders
+ON ebay_automatic_log.order_id=ebay_orders.id
+JOIN ebay_order_items
+ON ebay_automatic_log.order_item_id=ebay_order_items.id
+ORDER BY ebay_automatic_log.id DESC limit 0,30");
+
+sa($automaticArr);
+
+
+return;
+
+$order = new GigOrder();
+return;
+$title = 'Lethal League PC spiel Steam Download Digital Link DE/EU/USA Key Code Gift';
+
+sa(cut_steam_from_title($title));
+sa(clean_ebay_title2($title));
+
+return;
+    $continue = false;
+  $suitables = get_suitables2('112127391106');
+  $suitable = ['item1_id' => '0']; // костыль
+  if (count($suitables) > 1) {
+
+    $continue = true;
+  }elseif (count($suitables) < 1) {
+
+    $continue = true;
+  }else $suitable = $suitables[0];
+
+  var_dump($continue);
+  sa($suitable);
+
+return;
+
+$two_week_res = arrayDB("SELECT tt.*, ebay_games.title_clean, ebay_games.picture_hash FROM (select title,price,ebay_id,shipped_time,count(*) as count from ebay_order_items group by ebay_id) tt
+JOIN ebay_games
+ON tt.ebay_id = ebay_games.item_id
+WHERE picture_hash <> '' AND shipped_time > NOW() - INTERVAL 14 DAY
+order by count desc
+limit 10");
+
+sa($two_week_res);
+
+return;
+    $email_body = file_get_contents('http://info-rim.ru/mail2017/res2.html');
+
+    $mail = get_a3_smtp_object();
+    $mail->addAddress('nameaniq@gmail.com');
+    $mail->addBCC('thenav@mail.ru');
+    $mail->addBCC('store@gig-games.de');
+    $mail->Subject = 'res2 test 7';
+    $mail->Body    = $email_body;
+    $mail->AltBody = strip_tags($email_body);
+
+    $is_email_sent = $mail->send();
+    var_dump($is_email_sent);
+
+
+return;
+sa(date('m/d/Y', time()-60*60*24));
+
+return;
+sa((new DateTime(str_replace(["{ts '","'}"], '', "{ts '2017-06-29 12:46:32'}")))->format('d-m-Y H:i:s'));
+
+
+return;
+?><style>
       /* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
       #map {

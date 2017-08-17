@@ -16,6 +16,7 @@ $automaticArr = arrayDB("SELECT
     ebay_orders.BuyerUserID,
     ebay_orders.BuyerEmail,
     ebay_order_items.title,
+    ebay_order_items.shipped_time,
     ebay_automatic_log.*
 FROM ebay_automatic_log
 JOIN ebay_orders
@@ -48,6 +49,7 @@ ORDER BY ebay_automatic_log.id DESC $limit");
 		<th title="Ebay sending result">ebayd</th>
 		<th title="Marked as shipped">mrkd</th>
 		<th title="Timestamp">Timestamp</th>
+		<th title="shipped_time">shipped</th>
 	</tr>
 <?php
 function table_inners($automaticArr){
@@ -76,6 +78,7 @@ foreach ($automaticArr as $key => $automatie):
 	echo '<td>',$ebay_send_resp->Ack==='Success'?'OK':$ebay_send_resp->Ack,'</td>';
 	echo '<td>',$ebay_shipped_resp->Ack==='Success'?'OK':$ebay_shipped_resp->Ack,'</td>';
 	echo '<td>',$automatie['created_at']?date_shorter_dots($automatie['created_at']):'','</td>';
+	echo '<td>',$automatie['shipped_time']?date_shorter_dots($automatie['shipped_time']):'','</td>';
 	echo "</tr>";
 
 endforeach;

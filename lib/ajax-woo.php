@@ -1,4 +1,6 @@
 <?php
+header('Access-Control-Allow-Origin: http://parser.gig-games.de');
+
 if (isset($_POST['wooId']) && isset($_POST['action']) && $_POST['action'] == 'check') {
 
 	$Woo = new WooCommerceApi();

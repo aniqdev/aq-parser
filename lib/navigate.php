@@ -22,7 +22,7 @@
 			<li><a href="?action=table">Table</a></li>
 			<li><a href="?action=table_changes&tab=2">Changes</a></li>
 			<li><a href="?action=orders-list">Orders&nbsp;list</a></li>
-			<li><a href="?action=table_all&amp;lim=5">Full&nbsp;Table</a></li>
+			<!-- <li><a href="?action=table_all&amp;lim=5">Full&nbsp;Table</a></li> -->
 			<li><a href="?action=getjson">get&nbsp;JSON</a></li>
 			<li><a href="?action=blackl">BlackList</a></li>
 			<li><a href="?action=platiru_settings">Settings</a></li>
@@ -32,6 +32,7 @@
 
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">eBay.com <i class="caret"></i></a>
+          <?= draw_unread();?>
           <ul class="dropdown-menu">
       <li><a href="?action=ebay-messages">Messages</a></li>
       <li><a href="?<?= query_to_orders_page();?>">Orders&nbsp;Page</a></li>
@@ -41,7 +42,8 @@
       <li><a target="_blank" href="http://hot-body.net/panel/api/v1/counter">Counter</a></li>
       <li><a target="_blank" href="http://hot-body.net/panel/api/v1/update/gig-games">Update</a></li>
       <li><a href="?action=ebay_table">Table</a></li>
-      <li><a href="?action=ebay_excel">Excel</a></li>
+      <li><a href="?action=order-messages">Order messages</a></li>
+      <!-- <li><a href="?action=ebay_excel">Excel</a></li> -->
       <li><a href="?action=ebay_getprices">get&nbsp;Prices</a></li>
       <li><a href="?action=ebay-panels">Top Sales</a></li>
           </ul>
@@ -51,6 +53,8 @@
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Hood.de <i class="caret"></i></a>
           <ul class="dropdown-menu">
       <li><a href="?action=hood-sync">Hood import</a></li>
+      <li><a href="?action=hood-orders&offset=0&limit=100">Hood orders</a></li>
+      <li><a href="?action=hood-messages&show=all">Hood messages</a></li>
           </ul>
         </li>
 

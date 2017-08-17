@@ -23,12 +23,7 @@ WHERE picture_hash <> '' AND shipped_time > NOW() - INTERVAL 14 DAY
 order by count desc
 limit 10");
 
-$one_month_res = arrayDB("SELECT tt.*, ebay_games.title_clean, ebay_games.picture_hash FROM (select title,price,ebay_id,shipped_time,count(*) as count from ebay_order_items group by ebay_id) tt
-JOIN ebay_games
-ON tt.ebay_id = ebay_games.item_id
-WHERE picture_hash <> '' AND shipped_time > NOW() - INTERVAL 1 MONTH
-order by count desc
-limit 10");
+$one_month_res = one_month_top();
 
 $top_items = [];
 

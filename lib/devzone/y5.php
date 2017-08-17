@@ -1,4 +1,190 @@
+<script>
+// var url = 'http://info-rim.ru/cors.php';
+// // var url = 'https://graph.facebook.com/me';
+// $.ajax({
+//     url: url,
+//     type: 'POST',
+//     success: function (data) {
+//         // body...
+//     },
+//     data: {access_token:'EAAGwIZBbQ34gBAKFDvZBqq9iQuo5PtC9zTd6X14zugEcAKTwZBBl2JXQTwAHgE1H1StEBLEpUcJzfBfUb1Yoxzip0gVXomyOE9c5okt5P92CSwjhZBVaNLBW1ghXWB6JAzA64BOlyoMF7by2ry9lkhEVU0sdbyCGx3xo04jW5g4NLRdD3KmXuLtykuM3qBYZD'},
+
+//     xhrFields: {
+//         withCredentials: true
+//     },
+//   });
+</script>
 <?php
+$str = "<script type=\"text/javascript\">(function(w,doc) {
+                        if (!w.__utlWdgt ) {
+                            w.__utlWdgt = true;
+                            var d = doc, s = d.createElement('script'), g = 'getElementsByTagName';
+                            s.type = 'text/javascript'; s.charset='UTF-8'; s.async = true;
+                            s.src = ('https:' == w.location.protocol ? 'https' : 'http')  + '://w.uptolike.com/widgets/v1/uptolike.js';
+                            var h=d[g]('body')[0];
+                            h.appendChild(s);
+                        }})(window,document);
+                    </script>".'
+                    <div data-background-alpha="0.0" 
+                    data-buttons-color="#FFFFFF" 
+                    data-counter-background-color="#ffffff" 
+                    data-share-counter-size="12" 
+                    data-top-button="false" 
+                    data-share-counter-type="separate" 
+                    data-share-style="1" data-mode="share" 
+                    data-like-text-enable="false" 
+                    data-mobile-view="false" 
+                    data-icon-color="#ffffff" 
+                    data-orientation="horizontal" 
+                    data-text-color="#ffffff" 
+                    data-share-shape="round-rectangle" 
+                    data-sn-ids="fb.gp." 
+                    data-share-size="30" 
+                    data-background-color="#ffffff" 
+                    data-preview-mobile="false" 
+                    data-mobile-sn-ids="fb.gp." 
+                    data-pid="1683037" 
+                    data-counter-background-alpha="0.0" 
+                    data-following-enable="false" 
+                    data-exclude-show-more="true" 
+                    data-selection-enable="false" 
+                    class="uptolike-buttons" ></div>';
+
+$str = '<span class="switch on">mit Facebook verbunden</span>';
+sa(htmlentities($str));
+sa(htmlspecialchars($str));
+
+return;
+$res = post_curl('http://hood.gig-games.de/api/listOrder', ['statusChange','startDate'=>'06/29/2017','endDate'=>'06/29/2017']);
+if (isset($res['orderItems'])) $res = [$res];
+sa($res);
+
+$res = post_curl('http://hood.gig-games.de/api/listOrder', ['statusChange','startDate'=>'08/05/2017']);
+if (isset($res['orderItems'])) $res = [$res];
+sa($res);
+
+return;
+
+$res = post_curl('http://hood.gig-games.de/api/listOrder', ['statusChange','startDate'=> date('m/d/Y', time()-60*60*24)]);
+if (isset($res['orderItems'])) $res = [$res];
+sa($res);
+return;
+
+$txt = 'Key:SDF-G5YY4-YS45Y-S5YS4
+Sdfsdf';
+$key = get_steam_key_from_text($txt);
+sa($key);
+
+return;
+$res = file_get_contents('https://graph.facebook.com/me?access_token=EAAGwIZBbQ34gBAKFDvZBqq9iQuo5PtC9zTd6X14zugEcAKTwZBBl2JXQTwAHgE1H1StEBLEpUcJzfBfUb1Yoxzip0gVXomyOE9c5okt5P92CSwjhZBVaNLBW1ghXWB6JAzA64BOlyoMF7by2ry9lkhEVU0sdbyCGx3xo04jW5g4NLRdD3KmXuLtykuM3qBYZD');
+var_dump($res);
+sa(json_decode($res,1));
+return;
+
+$query = "select * from `ebay_inv_messages_copy` limit 5,10";
+$res = get_table_name($query);
+
+sa($res);
+
+
+return;
+
+        $msg_email = html_entity_decode(html_entity_decode(html_entity_decode(get_messages_for_send_producr('DE', 'mail'))));
+        $msg_ebay = html_entity_decode(get_messages_for_send_producr('DE', 'ebay'));
+
+sa($msg_email);
+sa($msg_ebay);
+
+return;
+
+        AutomaticBot::sendMessage(['text' => date('H:i:s').' there are NO any games suitable from the Games Table: '.'--']);
+        return;
+
+// sa(clean_ebay_title2('ArcaniA: Fall of Setarrif PC spiel Steam Download Link DE/EU/USA Key Code'));
+
+
+// return;
+
+
+
+
+
+
+//     $suitables = get_suitables($ebay_id = '111630067823');
+
+// sa($suitables);
+
+//     $suitables = get_suitables2($ebay_id = '111630067823');
+
+// sa($suitables);
+
+// return;
+
+
+
+
+var_dump((int)[45,24] < 1);
+var_dump((int)[]);
+
+
+return;
+
+
+
+
+
+
+
+
+
+$xml = '<?xml version="1.0" encoding="windows-1251"?>
+<digiseller.response>
+    <retval>0</retval>
+    <retdesc></retdesc>
+    <inv>
+        <id>64823378</id>
+        <name><![CDATA[GTA 5, CS GO, XCOM 2, ROCKET LEAGUE +  ПОДАРКИ ЗА ОТЗЫВ]]></name>
+        <type_good>1</type_good>
+        <wm_id>164322596678</wm_id>
+        <link>https://www.oplata.info/info/buy.asp?id_i=64823378&uid=23CAE9F194D049DC81AF33F018A6761C</link>
+        <wm_inv>693559165</wm_inv>
+        <wm_purse>R939284726752</wm_purse>
+        <uid>папа</uid>
+    </inv>
+</digiseller.response>';
+
+$res = simplexml_load_string(str_replace(['&','windows-1251'], ['&amp;','utf-8'], $xml));
+
+sa($res);
+
+
+
+
+
+
+return;
+
+$platiObj = new PlatiRuBuy();
+
+$itemid = '1739981';
+
+$res = $platiObj->getInvoice($itemid);
+
+sa($res);
+
+
+
+
+
+
+
+// AutomaticBot::sendMessage(['text' => date('H:i:s').'tesst']);
+
+
+
+return;
+
+
 $str = 'феврал';
 // echo substr_replace($str,'я',-1);
 sa($_SERVER);

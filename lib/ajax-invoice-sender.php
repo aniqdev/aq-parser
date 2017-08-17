@@ -13,15 +13,28 @@ function axaj_send_email(){
 	
 	if(!filter_var(trim($_POST['user_email']), FILTER_VALIDATE_EMAIL)) return 'no email ('.$_POST['user_email'].')';
 
+	$email_slug = get_email_slug();
+	$_POST['email_body'] = str_ireplace('{{EMAIL_SLUG}}', $email_slug, trim($_POST['email_body']));
+
+	$email_alt_body = strip_tags($_POST['email_body']);
+	$email_subject = trim($_POST['email_subject']." ");
+
 	$mail = get_a3_smtp_object();
 	$mail->addAddress($_POST['user_email']);
 	$mail->addBCC('thenav@mail.ru');
 	$mail->addBCC('store@gig-games.de');
-	$mail->Subject = trim($_POST['email_subject']." ");
-	$mail->Body    = trim($_POST['email_body']);
-	$mail->AltBody = strip_tags($_POST['email_body']);
+	$mail->Subject = $email_subject;
+	$mail->Body    = $_POST['email_body'];
+	$mail->AltBody = $email_alt_body;
 
-	return $mail->send();	
+	if (!$mail->send()) return false;
+
+	$email_subject = _esc($email_subject);
+	$email_body = _esc($_POST['email_body']);
+	arrayDB("INSERT INTO gig_email_saver (email,email_slug,subject,body_html) 
+			VALUES ('"._esc($_POST['user_email'])."','$email_slug','$email_subject','$email_body')");
+
+	return true;
 }
 
 function axaj_send_ebay(){

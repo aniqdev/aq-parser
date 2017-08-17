@@ -92,13 +92,14 @@ foreach ($games as $k => $game) {
 }
 
 foreach ($res as $key => $value) {
-	$re_arr = [];
-	$one = parse_str($value['category'], $re_arr);
-	echo '<tr>
+	parse_str($value['category'], $re_arr);
+	if(isset($garr[$re_arr['game_id']])){
+	  echo '<tr>
 		<td><a href="index.php?action=blackl&delStr=',$value['id'],'" class="delbutton">×</a></td>
 		<td class="col1">',$garr[$re_arr['game_id']],'</td>
 		<td class="col2">',$re_arr['game_name'],'</td>
 	  </tr>';
+	}
 }
 
 ?>

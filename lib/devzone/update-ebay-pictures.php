@@ -24,11 +24,12 @@ $items = arrayDB("SELECT ebay_games.*, games.id as gid, games.steam_link, games.
 
 
 foreach ($items as $key => $val) {
+	break;
 	if($key < 0 || $key > 180 || $val['extra_field'] === 'updated' || $val['extra_field'] === 'DescPicsed') continue;
 	do_update($val['item_id'], $val['steam_link'], $val['title'], $val['gid']);
 }
 
-function do_update($item_id, $steam_link, $title, $gid)
+function do_update($item_id, $steam_link, $title, $gid = 0)
 {
 	// $item_id = '122352311179';
 	// $steam_link = 'http://store.steampowered.com/app/92000/';
@@ -59,6 +60,6 @@ function do_update($item_id, $steam_link, $title, $gid)
 	echo '<br><a href="http://www.ebay.de/itm/'.$item_id.'" target="_blank">'.$title.'</a><hr>';
 }
 
-//do_update('112306447002', $url, 'Asd');
+do_update('122389025535', 'http://store.steampowered.com/app/375850/', 'Asd');
 
 ?>

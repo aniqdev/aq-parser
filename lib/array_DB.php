@@ -17,8 +17,6 @@ if (function_exists('apc_load_constants')) {
 
 define_array('CLASSES', Array(
 			'QS' => 'QueryString',
-			'TWO' => 2,
-			'THREE' => 3,
 			));
 
 // функция для работы с SQLite3
@@ -493,8 +491,10 @@ function get_item_xml($receive_item_link){
 
 
 function get_steam_key_from_text($text){
-	if (preg_match('/[A-Z0-9]{5}(-[A-Z0-9]{5}){2,4}/', $text, $matches)) {
+	// ищет от 3х до 5и групп по 5 символов разделенных дефисом
+	if (preg_match('/[A-Z0-9]{3,5}(-[A-Z0-9]{5}){2,4}/', $text, $matches)) {
 		return $matches[0];
+	// ищет 5 групп по 4 символа разделенных дефисом
 	}elseif(preg_match('/[A-Z0-9]{4}(-[A-Z0-9]{4}){4}/', $text, $matches)){
 		return $matches[0];
 	}else{
@@ -654,6 +654,24 @@ function array_walk_callback_clean_ebay_titles(&$title){
 
 }
 
+
+function clean_ebay_title($title){
+	$words_to_del = array(
+		'(PC)',' PC ','-Region free-','Region free','Multilanguage','steam',
+		'Multilang','Regfree','ENGLISH','-','–','&','Uplay','Game Of The Year Edition',
+		'DLC','regfr','Add On','Addon',' goty','Regionfree',':',"’s","'s","'","’",'Uplay');
+    return trim(preg_replace('/\s+/', ' ', str_ireplace( $words_to_del, ' ', $title)));
+}
+
+
+function clean_ebay_title2($title)
+{
+	$rr = ['/\sPC\s.+/i', '/\ssteam\sd.+/i', '/\ssteam\sli.+/i', '/\ssteam\seu.+/i'];
+    $title_clean = preg_replace( $rr, ' ', $title);
+    $title_clean = str_ireplace( 'Add-On', ' ', $title_clean);
+    return trim(preg_replace('/\s+/', ' ', $title_clean));
+}
+
 // преобразует многомерный массив в одномерный
 // ключи в значениях которых массивы не сохраняются
 function array_collapser($array){
@@ -705,8 +723,8 @@ function add_comment_to_order($gig_order_id, $text, $show = 'yes'){
 	if($gig_order_id < 1) return false;
 
 	if (is_array($gig_order_id)) {
-		$gig_order_item_id = $gig_order_id[1];
 		$gig_order_id = $gig_order_id[0];
+		$gig_order_item_id = $gig_order_id[1];
 
 		arrayDB("UPDATE ebay_order_items
 		SET item_comment='$text'
@@ -1612,12 +1630,12 @@ function hoodItemSync($items_arr = [])
 }
 
 
-function tab_active($get, $val){
-	if(isset($_GET[$get]) && $_GET[$get] == $val) echo 'active';
+function tab_active($get, $val, $css_class = 'active'){
+	if(isset($_GET[$get]) && $_GET[$get] == $val) echo $css_class;
 }
 
 
-function post_curl($url, $post){
+function post_curl($url, $post = []){
 	$ch = curl_init($url);
 	curl_setopt_array($ch, [
 	    CURLOPT_RETURNTRANSFER => true,
@@ -1674,19 +1692,21 @@ function draw_messages_submenu($page = 'ebay')
 ?>
 <hr><div class="op-tab-navigator">
 	<div class="op-tab <?= ($page === 'ebay')?'active':'';?>">
-		<a href="?action=ebay-messages">
-			<i class="glyphicon glyphicon-envelope">&nbsp;</i>
+		<a href="?action=ebay-messages&show=all" class="op-tab-link">
+			<span class="glyphicon glyphicon-envelope"></span>
 			eBay messages
 		</a>
+		<a href="?action=ebay-messages&show=not_answerd" class="js-ebay-count msg-count-badge">.</a>
 	</div>
 	<div class="op-tab <?= ($page === 'hood')?'active':'';?>">
-		<a href="?action=hood-messages">
-			<i class="glyphicon glyphicon-envelope">&nbsp;</i>
+		<a href="?action=hood-messages&show=all" class="op-tab-link">
+			<span class="glyphicon glyphicon-envelope"></span>
 			Hood messages
 		</a>
+		<a href="?action=hood-messages&show=not_answerd" class="js-hood-count msg-count-badge">.</a>
 	</div>
 	<div class="op-tab <?= ($page === 'email')?'active':'';?>">
-		<a href="?action=ebay-messages">
+		<a href="?action=ebay-messages" class="op-tab-link">
 			<i class="glyphicon glyphicon-envelope">&nbsp;</i>
 			Email messages
 		</a>
@@ -1694,5 +1714,134 @@ function draw_messages_submenu($page = 'ebay')
 </div><hr>
 <?php
 }
+
+
+// возвращает результаты с ПОСЛЕДНЕГО ПАРСА (может не вернуть ничего если парс не полный)
+function get_suitables($ebay_id = ''){
+    if(!$ebay_id) return [];
+    return arrayDB("SELECT * FROM (SELECT * FROM items WHERE scan = (select scan from items order by id desc limit 1)) as its
+    JOIN games
+    ON games.id=its.game_id
+    WHERE ebay_id = '$ebay_id'");
+}
+
+// в отличие от get_suitables, эта версия берет ПОСЛЕДНИЙ ДОСТУПНЫЙ РЕЗУЛЬТАТ
+function get_suitables2($ebay_id = ''){
+    if(!$ebay_id) return [];
+    $games = arrayDB("SELECT id FROM games WHERE ebay_id = '$ebay_id'");
+    $ret = [];
+    foreach ($games as $game) {
+    	$game_id = $game['id'];
+    	$ret = array_merge($ret,  arrayDB("SELECT * FROM items WHERE game_id = '$game_id' ORDER BY id DESC LIMIT 1"));
+    }
+    return $ret;
+}
+
+
+function draw_unread()
+{
+return '<div href="?action=ebay-messages&show=not_answerd" class="all-msg-count-badge">
+            <a href="?action=ebay-messages&show=not_answerd" class="js-ebay-count" title="ebay messages">.</a> /
+            <a href="?action=hood-messages&show=not_answerd" class="js-hood-count" title="hood messages">.</a>
+        </div>';
+}
+
+
+function get_table_name($query='')
+{	
+	if (stripos($query, 'select') === false) return false;
+    $res = preg_match('/from.*?\b(\S+)\b/', $query, $result);
+    if(isset($result[1])) return(trim($result[1]));
+    else return false;
+}
+
+
+function _op_href2($arr = []){
+	$qs_obj = new QueryString();
+	foreach ($arr as $key => $val) $qs_obj->set($key,$val);
+	echo '?'.$qs_obj->give();
+}
+
+
+function op_tab_navigator()
+{ ?>
+<div class="op-tab-navigator">
+	<div class="op-tab <?php tab_active('list_type','all');?>">
+		<a class="op-tab-link" href="<?php _op_href2(['action'=>'orders-page','list_type'=>'all','q'=>'0','order_id'=>'0','modal_type'=>'info']);?>">
+			<i class="glyphicon glyphicon-star">&nbsp;</i>
+			All orders
+		</a>
+	</div>
+	<div class="op-tab <?php tab_active('list_type','paid');?>">
+		<a class="op-tab-link" href="<?php _op_href2(['action'=>'orders-page','list_type'=>'paid','q'=>'0','order_id'=>'0','modal_type'=>'info']);?>">
+			<i class="glyphicon glyphicon-euro">&nbsp;</i>
+			Paid orders
+		</a>
+	</div>
+	<div class="op-tab <?php tab_active('list_type','shipped');?>">
+		<a class="op-tab-link" href="<?php _op_href2(['action'=>'orders-page','list_type'=>'shipped','q'=>'0','order_id'=>'0','modal_type'=>'info']);?>">
+			<i class="glyphicon glyphicon-euro">&nbsp;</i>
+			Shipped orders
+		</a>
+	</div>
+	<div class="op-tab <?php tab_active('action','hood-orders');?>">
+		<a class="op-tab-link" href="?action=hood-orders&offset=0&limit=100">
+			<i class="glyphicon glyphicon-euro">&nbsp;</i>
+			Hood orders
+		</a>
+	</div>
+</div>
+<?php }
+
+
+function one_month_top()
+{
+	return arrayDB("SELECT tt.*, ebay_games.title_clean, ebay_games.picture_hash FROM (select title,price,ebay_id,shipped_time,count(*) as count from ebay_order_items group by ebay_id) tt
+	JOIN ebay_games
+	ON tt.ebay_id = ebay_games.item_id
+	WHERE picture_hash <> '' AND shipped_time > NOW() - INTERVAL 1 MONTH
+	order by count desc
+	limit 10");
+}
+
+
+function fill_email_item_panel($msg_email = false, $top_arr = [])
+{
+	if(!$msg_email) return false;
+
+	if(!$top_arr) $top_arr = one_month_top();
+	if(!$top_arr) return $msg_email;
+
+	$msg_email = str_ireplace(['{{PRICE1}}','{{PRICE2}}','{{PRICE3}}','{{PRICE4}}'],
+					[$top_arr[0]['price'],$top_arr[1]['price'],$top_arr[2]['price'],$top_arr[3]['price']], $msg_email);
+	$msg_email = str_ireplace(['{{IMAGE1}}','{{IMAGE2}}','{{IMAGE3}}','{{IMAGE4}}'],
+					[$top_arr[0]['picture_hash'],$top_arr[1]['picture_hash'],$top_arr[2]['picture_hash'],$top_arr[3]['picture_hash']], $msg_email);
+	$msg_email = str_ireplace(['{{TITLE1}}','{{TITLE2}}','{{TITLE3}}','{{TITLE4}}'],
+					[$top_arr[0]['title'],$top_arr[1]['title'],$top_arr[2]['title'],$top_arr[3]['title']], $msg_email);
+	$msg_email = str_ireplace(['{{EBAY_ID1}}','{{EBAY_ID2}}','{{EBAY_ID3}}','{{EBAY_ID4}}'],
+					[$top_arr[0]['ebay_id'],$top_arr[1]['ebay_id'],$top_arr[2]['ebay_id'],$top_arr[3]['ebay_id']], $msg_email);
+
+	return $msg_email;
+}
+
+
+function get_email_slug(){
+
+	return time().'-'.md5(rand(101,998));
+}
+
+
+function product_html($title, $product){
+	
+	return '<div style="color:#feb32c;font-weight:bold;margin-bottom:5px;padding-left:10px">'.$title.':</div>
+			<div style="color:#fff;margin-bottom:10px;padding-left:10px">'.$product.'</div>';
+}
+
+
+
+
+
+
+
 
 ?>

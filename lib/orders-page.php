@@ -8,30 +8,10 @@ if (isset($_GET['sales-chart'])) {
 require_once __DIR__.'/orders-page-functions.php';
 
 $orders = get_orders($_GET['list_type']);
+
+
+op_tab_navigator();
 ?>
-
-
-<div class="op-tab-navigator">
-	<div class="op-tab <?php op_active('list_type','all');?>">
-		<a href="<?php op_href2(['list_type'=>'all','q'=>'0']);?>">
-			<i class="glyphicon glyphicon-star">&nbsp;</i>
-			All orders
-		</a>
-	</div>
-	<div class="op-tab <?php op_active('list_type','paid');?>">
-		<a href="<?php op_href2(['list_type'=>'paid','q'=>'0']);?>">
-			<i class="glyphicon glyphicon-euro">&nbsp;</i>
-			Paid orders
-		</a>
-	</div>
-	<div class="op-tab <?php op_active('list_type','shipped');?>">
-		<a href="<?php op_href2(['list_type'=>'shipped','q'=>'0']);?>">
-			<i class="glyphicon glyphicon-euro">&nbsp;</i>
-			Shipped orders
-		</a>
-	</div>
-</div>
-
 <div class="container-fluid op-search-panel">
 <div class="row">
 	<div class="col-sm-4">
@@ -40,7 +20,7 @@ $orders = get_orders($_GET['list_type']);
 	<div class="col-sm-4 col-md-3">
 		<form action="" method="POST">
 		    <div class="input-group">
-		      <input type="search" class="form-control" name="q" placeholder="Search for...">
+		      <input type="search" class="form-control" name="q" value="<?= @$_REQUEST['q']?$_REQUEST['q']:''?>" placeholder="Search for...">
 		      <span class="input-group-btn">
 		        <button class="btn btn-default" type="submit">Go!</button>
 		      </span>

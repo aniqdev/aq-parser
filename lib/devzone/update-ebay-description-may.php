@@ -14,7 +14,7 @@ function updateOneDesc($ebay_id, $key, $title)
 
 	if (!$desc_obj->getSteamLink())	return "<h3>$ebay_id no steam link!</h3>";
 
-	if (!$desc_obj->readEbayData())	return "<h3>$ebay_id no readEbayData!</h3>";
+	// if (!$desc_obj->readEbayData())	return "<h3>$ebay_id no readEbayData!</h3>";
 
 	if (!$desc_obj->readSteamDe())  return "<h3>$ebay_id no readSteamDe!</h3>";	
 
@@ -25,9 +25,9 @@ function updateOneDesc($ebay_id, $key, $title)
 	if (!$desc_obj->readSteamEs())	return "<h3>$ebay_id no readSteamEs!</h3>";
 	if (!$desc_obj->readSteamIt())	return "<h3>$ebay_id no readSteamIt!</h3>";
 
-	// $desc_obj->setImagesArr(['http://hot-body.net/img-generator/folders/s21130/1.jpg',
-	// 						'http://hot-body.net/img-generator/folders/s21130/2.jpg',
-	// 						'http://hot-body.net/img-generator/folders/s21130/3.jpg',]);
+	$desc_obj->setImagesArr(['http://hot-body.net/img-generator/folders/v307780/1.jpg',
+							 'http://hot-body.net/img-generator/folders/v307780/2.jpg',
+							 'http://hot-body.net/img-generator/folders/v307780/3.jpg',]);
 	if (!$desc_obj->getDataArray())	return "<h3>$ebay_id no getDataArray!</h3>";
 
 	// if($desc_obj->scip()) return;
@@ -51,8 +51,8 @@ function updateOneDesc($ebay_id, $key, $title)
 	}
 }
 
-$ebay_id = '112187660970';
-// echo updateOneDesc($ebay_id, 1, 'silent');
+$ebay_id = '112303174819';
+echo updateOneDesc($ebay_id, 1, 'silent');
 
 // $games = arrayDB("SELECT item_id,title,steam_link,extra_field
 // from games

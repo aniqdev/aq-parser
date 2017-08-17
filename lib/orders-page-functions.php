@@ -92,8 +92,11 @@ function get_orders($option){
 			return arrayDB("SELECT * FROM ebay_orders WHERE ShippedTime<>0 ORDER BY id DESC $limit");
 
 		case 'search':
-			$q = _esc(trim($_REQUEST['q']));
-			$_GET['count'] = arrayDB("SELECT count(*) as count FROM ebay_orders WHERE order_id LIKE '%{$q}%' OR BuyerUserID LIKE '%{$q}%' OR BuyerEmail LIKE '%{$q}%'");
+			$q = _esc(str_replace('_', '\_', trim($_REQUEST['q'])));
+			$_GET['count'] = arrayDB("SELECT count(*) as count FROM ebay_orders 
+				WHERE order_id LIKE '%{$q}%' 
+				OR BuyerUserID LIKE '%{$q}%' 
+				OR BuyerEmail LIKE '%{$q}%'");
 			$_GET['count'] = $_GET['count'][0]['count'];
 			return arrayDB("SELECT * FROM ebay_orders WHERE order_id LIKE '%{$q}%' OR BuyerUserID LIKE '%{$q}%' OR BuyerEmail LIKE '%{$q}%'");
 		
@@ -120,11 +123,16 @@ function op_sugest_send_product(){
 
 	if(!isset($_GET['item_id']) || !$_GET['item_id']) return '';
 	$order_info = get_order_data_for_senders($_GET['order_id'], $_GET['item_id']);
+	$item_title = $order_info['item_title'];
+	$item_title_clean = clean_ebay_title2($item_title);
 
 	$msg_email = arrayDB('SELECT * FROM ebay_inv_messages WHERE country_alias="EN" AND ebay_or_mail="mail" LIMIT 1')[0]['message'];
+	$msg_email = str_ireplace('{{PRODUCT}}', product_html($item_title_clean,'{{PRODUCT}}'), $msg_email);
+	$msg_email = str_ireplace('{{USER_EMAIL}}', $order_info['bayer_email'], $msg_email);
+	$msg_email = fill_email_item_panel($msg_email);
 	$msg_ebay = arrayDB('SELECT * FROM ebay_inv_messages WHERE country_alias="EN" AND ebay_or_mail="ebay" LIMIT 1')[0]['message'];
+	$msg_ebay = str_ireplace('{{EMAIL}}', $order_info['bayer_email'], $msg_ebay);
 
-	$item_title = $order_info['item_title'];
 	
 	return '<br>
 	<div class="container-fluid">
@@ -214,7 +222,7 @@ function op_pagination()
 	        <span aria-hidden="true">&raquo;</span>
 	      </a>
 	    </li>
-	  </ul><br><b>'.$epilog.'</b>'.
+	  </ul><br><b>'.@$epilog.'</b>'.
 	'</nav>';
 
 	echo $str;

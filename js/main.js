@@ -32,6 +32,10 @@ function round_hood_price(prc) {
 	return prc.slice(0,prc.length-1) + z[prc.slice(-1)];
 }
 
+function ajax_woo_url() {
+	return 'http://hot-body.net/parser/ajax.php?action=ajax-woo';
+}
+
 
 $( document ).ready(function() {
 
@@ -583,7 +587,7 @@ var WooObj = {
 		GenObj.js_modal_europrice.text('€'+WooObj.europrice+'0');
 		WooObj.woo_item_price_input.val(WooObj.europrice);
 		if(!WooObj.wooId) return false;
-		$.post('ajax.php?action=ajax-woo',
+		$.post(ajax_woo_url(),
 			{ action:'check', wooId:WooObj.wooId, gameId:WooObj.gameId },
 			function (data) {
 				WooObj.modal_woo_title.text(data.woo_title);
@@ -602,7 +606,7 @@ var WooObj = {
 		var wooId = +WooObj.woo_item_id_input.val();
 		
 		if(!wooId) return false;
-		$.post('ajax.php?action=ajax-woo',
+		$.post(ajax_woo_url(),
 			{ action:'check', wooId:wooId, gameId:WooObj.gameId, update:'true' },
 			function (data) {
 				if (data.answer === 'good') {
@@ -622,7 +626,7 @@ var WooObj = {
 		WooObj.woo_change_price.attr('disabled', true);
 		WooObj.woo_remove.attr('disabled', true);
 		var europrice = parseFloat(WooObj.woo_item_price_input.val().replace(',','.'));
-		$.post('ajax.php?action=ajax-woo',
+		$.post(ajax_woo_url(),
 			{ action:'change', wooId:WooObj.wooId, price:europrice },
 			function (data) {
 				if (data.answer == 'good') {
@@ -636,7 +640,7 @@ var WooObj = {
 		if(!WooObj.wooId) return false;
 		WooObj.woo_change_price.attr('disabled', true);
 		WooObj.woo_remove.attr('disabled', true);
-		$.post('ajax.php?action=ajax-woo',
+		$.post(ajax_woo_url(),
 			{ action:'remove', wooId:WooObj.wooId },
 			function (data) {
 				if (data.answer == 'good') {
@@ -934,7 +938,7 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
 	}
 
 	if(F.wooId){
-		$.post('ajax.php?action=ajax-woo',
+		$.post(ajax_woo_url(),
 			{ action:'check', wooId:F.wooId, gameId:F.gameId },
 			function (data) {
 				F.js_modal_woo_title.text(data.woo_title);
@@ -981,7 +985,7 @@ $('#fChange').on('submit', {f:FF}, function(e) {
 	}
 
 	if(F.wooId && FF.rurprice){
-		$.post('ajax.php?action=ajax-woo',
+		$.post(ajax_woo_url(),
 			{ action: 'change', wooId: F.wooId, price: fWprice },
 			function (data) {
 				if (data.answer == 'good') {
@@ -1020,7 +1024,7 @@ $('#fRemove').on('click', {f:FF}, function(e) {
 	}
 
 	if(F.wooId){
-			$.post('ajax.php?action=ajax-woo',
+			$.post(ajax_woo_url(),
 			{ action:'remove', wooId:F.wooId },
 			function (data) {
 				if (data.answer == 'good') {
@@ -1102,7 +1106,7 @@ GenObj.js_tch_deligator.on('click', '.mChange', function(e) {
 	}
 
 	if(M.wooId && M.rurprice){
-		$.post('ajax.php?action=ajax-woo',
+		$.post(ajax_woo_url(),
 			{ action: 'change', wooId: M.wooId, price: (M.europrice*0.95).toFixed(2) },
 			function (data) {
 				if (data.answer == 'good') {
@@ -1154,7 +1158,7 @@ GenObj.js_tch_deligator.on('click', '.mRemove', function(e) {
 	}
 
 	if(M.wooId){
-			$.post('ajax.php?action=ajax-woo',
+			$.post(ajax_woo_url(),
 			{ action:'remove', wooId:M.wooId },
 			function (data) {
 				if (data.answer == 'good') {
@@ -1389,6 +1393,24 @@ $('.orders-table').on('click', '.op-markorder', function(e) {
 });
 
 $('[data-toggle="tooltip"]').tooltip();
+
+
+
+// ====== вывод количества непрочитанных сообщений =====
+
+$.post('ajax.php?action=ebay-messages&show=not_answerd',
+	{action:'new_msg_count'},
+	function(data) {
+		$('.js-ebay-count').html(data);
+	});
+
+$.post('ajax.php?action=hood-messages',
+	{action:'new_msg_count'},
+	function(data) {
+		$('.js-hood-count').html(data);
+	});
+
+// ====== вывод количества непрочитанных сообщений =====
 
 }); //document ready
 
