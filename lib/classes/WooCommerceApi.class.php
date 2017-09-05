@@ -7,13 +7,16 @@ class WooCommerceApi{
 		function __construct(){
 
 				$this->woocommerce = new \Automattic\WooCommerce\Client(
-						'http://gig-games.de/', // Your store URL
+						'https://gig-games.de/', // Your store URL
 						WOO_CK, // Your consumer key
 						WOO_CS, // Your consumer secret
 						['version' => 'v3',
 						 'verify_ssl'=>false,
-						 'ssl_enabled'=>true,
-						 'user_agent'=>'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'] // WooCommerce API version
+						 // 'ssl_enabled'=>false,
+						 'query_string_auth' => true,
+						 // 'oauth_timestamp' => time() + (60*60)
+						 // 'user_agent'=>'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'
+						 ]
 				);
 		}
 

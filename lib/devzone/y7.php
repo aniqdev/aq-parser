@@ -1,11 +1,58 @@
 <?php
+phpinfo();
+// $imagine = new Imagine\Gd\Imagine();
 
+$from = 'pictures/Gruppenbild_LunaLupis.tif';
+$to = 'pictures/Gruppenbild_LunaLupis.png';
+
+// $imagine->open($from)->save($to);
+
+
+ // $image = new Imagick($from);
+ //    $image->setImageFormat('png');
+
+ //    echo $image;
+    // or
+    // $image->writeImage('something.png');
+
+return;
+
+  $ord_obj = new EbayOrders;
+
+  $ord_arr = $ord_obj->getOrders(['NumberOfDays'=>3,'SortingOrder'=>'Ascending','PageNumber'=>'1']);
+
+sa($ord_arr);
+
+return;
+
+$url = 'http://store.steampowered.com/app/375850/Island_Defense/';
+  $game_id = preg_replace('/.*\/(\d+)\/.*/', '\1', $url);
+  sa($game_id);
+  $app_sub = preg_replace('/.*\/(\w+)\/\d+\/.*/', '\1', $url);
+  sa($app_sub);
+
+return;
 
   $Woo = new WooCommerceApi();
   $woo_item = $Woo->checkProductById('138');
   // $woo_item = $Woo->updateProductPrice('7428', 2.1);
 
   sa($woo_item);
+
+
+return;
+$res = arrayDB("SELECT item_id FROM ebay_games");
+
+foreach ($res as $k => &$v) $v = $v['item_id'];
+
+$res = array_flip($res);
+
+sa($res);
+
+
+$ids_arr = include(__DIR__.'/../../settings/ids_arr.php');
+
+sa($ids_arr);
 
 
 return;

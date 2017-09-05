@@ -1,4 +1,5 @@
 <?php
+ini_get('safe_mode') or set_time_limit(300); // Указываем скрипту, чтобы не обрывал связь.
 
 
 if (isset($_POST['action']) && $_POST['action'] === 'edit') {
@@ -27,8 +28,11 @@ $table_name = get_table_name(@$_POST['sql']);
 </style>
 
 <form action="index.php?action=sql" method="POST">
-	<textarea name="sql" cols="50" rows="10" placeholder="Введите запрос SQL. Будьте осторожны, вы можете повредить базу данных"><?php if (@$_POST['sql']) echo $_POST['sql'];?></textarea>
-	<br><button name="send">Send</button> <button name="edit">Edit</button>
+	<textarea autofocus="autofocus" name="sql" cols="50" rows="10" placeholder="Введите запрос SQL. Будьте осторожны, вы можете повредить базу данных"><?php if (@$_POST['sql']) echo $_POST['sql'];?></textarea>
+	<!-- <input autofocus="autofocus" name="sql" cols="50" rows="10" placeholder="Введите запрос SQL. Будьте осторожны, вы можете повредить базу данных" value="<?php if (@$_POST['sql']) echo $_POST['sql'];?>"> -->
+	<br>
+	<button name="send">Send</button>
+	<button name="edit">Edit</button>
 	<?php if (@$_POST['sql']) echo $_POST['sql'];?>
 </form><br>
 <h4>table: <?= $table_name;?></h4>
@@ -55,7 +59,12 @@ if (isset($_POST['edit']) && $table_name) {
 		print_r($res);
 	}
 }elseif (isset($_POST['send']) || isset($_POST['edit'])) {
-	$res = arrayDB($_POST['sql']);
+	if (!$_POST['sql']) {
+		$res = 'Empty query!';
+	}else{
+		$res = arrayDB($_POST['sql']);
+	}
+	
 	if (is_array($res) && $res) {
 		echo "<table><tr><th>№</th>";
 		foreach ($res[0] as $key => $value) {

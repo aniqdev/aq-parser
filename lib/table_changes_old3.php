@@ -67,20 +67,8 @@ if($exrate) $dataex = $exrate[0]['value'];
 		$scanOld = 0;
 	}
 
-switch (isset($_GET['tab']) ? $_GET['tab'] : '2') {
-	case '1': $tab_where = ''; break;
-	case '2': $tab_where = 'WHERE oldPrice > 0 AND newPrice > oldPrice'; break; // Игра подорожала
-	case '3': $tab_where = 'WHERE newPrice > 0 AND newPrice < oldPrice'; break; // Игра подешевела
-	case '4': $tab_where = 'WHERE newPrice > 0 AND newPrice = oldPrice'; break; // Цена не изменилась
-	case '5': $tab_where = 'WHERE newPrice > 0 AND oldPrice = 0'; break; // Игра появилась
-	case '6': $tab_where = 'WHERE newPrice = 0 AND oldPrice > 0'; break; // Игра пропала
-	case '7': $tab_where = 'WHERE newPrice = 0 AND oldPrice = 0'; break; // Игра НЕ появилась
-	default: $tab_where = '';
-}
-
 $queryNew = "SELECT 
-new.item1_id, games.name, new.newPrice,
--- new.item1_id, games.name, new.newPrice, new.newPrice-old.oldPrice as differ, 
+new.item1_id, games.name, new.newPrice, new.newPrice-old.oldPrice as differ, 
 old.oldPrice, new.item1_name as n_name, old.item1_name as o_name,
 games.id as game_id, games.ebay_id, woo_id, hood_id,
 itemid1, title1, price1,
@@ -100,8 +88,7 @@ INNER JOIN (SELECT items.game_id,items.item1_price as oldPrice, items.item1_name
 ON games.id=old.game_id
 
 LEFT OUTER JOIN (SELECT * FROM ebay_results WHERE scan='$ebay_scan') as ebay
-ON games.id=ebay.game_id
-$tab_where";
+ON games.id=ebay.game_id";
 
 // file_put_contents(__DIR__.'/adds/query.txt', $queryNew);
 
@@ -137,19 +124,19 @@ $tab_where";
 	// 	}
 	// }
 
-// $res = array_filter($res, function ($val){
+$res = array_filter($res, function ($val){
 
-// 	switch (isset($_GET['tab']) ? $_GET['tab'] : '2') {
-// 		case '1': return true; break;
-// 		case '2': if ($val['newPrice'] > $val['oldPrice']) return true; break; // Игра подорожала
-// 		case '3': if ($val['newPrice'] < $val['oldPrice']) return true; break; // Игра подешевела
-// 		case '4': if ($val['newPrice'] == $val['oldPrice'] && $val['newPrice'] != 0) return true; break; // Цена не изменилась
-// 		case '5': if ($val['newPrice'] != 0 && $val['oldPrice'] == 0) return true; break; // Игра появилась
-// 		case '6': if ($val['newPrice'] == 0 && $val['oldPrice'] != 0) return true; break; // Игра пропала
-// 		case '7': if ($val['newPrice'] == 0 && $val['oldPrice'] == 0) return true; break; // Игра НЕ появилась
-// 		default: return false;
-// 	}
-// });
+	switch (isset($_GET['tab']) ? $_GET['tab'] : '2') {
+		case '1': return true; break;
+		case '2': if ($val['newPrice'] > $val['oldPrice']) return true; break; // Игра подорожала
+		case '3': if ($val['newPrice'] < $val['oldPrice']) return true; break; // Игра подешевела
+		case '4': if ($val['newPrice'] == $val['oldPrice'] && $val['newPrice'] != 0) return true; break; // Цена не изменилась
+		case '5': if ($val['newPrice'] != 0 && $val['oldPrice'] == 0) return true; break; // Игра появилась
+		case '6': if ($val['newPrice'] == 0 && $val['oldPrice'] != 0) return true; break; // Игра пропала
+		case '7': if ($val['newPrice'] == 0 && $val['oldPrice'] == 0) return true; break; // Игра НЕ появилась
+		default: return false;
+	}
+});
 
 $ids_arr = arrayDB("SELECT item_id FROM ebay_games");
 foreach ($ids_arr as $k => &$v) $v = $v['item_id'];
@@ -196,7 +183,7 @@ foreach ($res as $key => $value) {
 	if (isset($ids_arr[$value['itemid5']])) $gig5 = 'gig';
 
 	$good_e = $value['ebay_id'] ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty';
-	$good_w = $value['woo_id']  ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty';
+	$good_w = $value['woo_id'] ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty';
 	$good_h = $value['hood_id'] ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty';
 
 	global $dataex;
@@ -215,10 +202,9 @@ foreach ($res as $key => $value) {
 				<td title="',$value['n_name'],'" class="text-center p0">
 					<a href="#mChange" class="mChange tch-mbtn glyphicon glyphicon-ok"></a>
 					<a href="#mRemove" class="mRemove tch-mbtn glyphicon glyphicon-remove"></a>
-				</td>'.
-				// '<td class="row3">',round($value['differ'],2),'</td>'.
-				'<td class="row3">',round($value['newPrice']-$value['oldPrice'],2),'</td>'.
-				'<td class="row5" title="',$value['n_name'],'">',$value['newPrice'],'</td>
+				</td>
+				<td class="row3">',round($value['differ'],2),'</td>
+				<td class="row5" title="',$value['n_name'],'">',$value['newPrice'],'</td>
 				<td class="row7" title="',$value['o_name'],'">',$value['oldPrice'],'</td>
 				<td class="row8" title="',$value['n_name'],'"><a href="http://www.plati.ru/itm/',$value['item1_id'],'?ai=163508" target="_blank">Ссылка</a></td>
 				<td class="',$gig1,'" iid="',$value['itemid1'],'" title="',$value['title1'],'">',$value['price1'],'</td>

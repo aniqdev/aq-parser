@@ -124,7 +124,7 @@ $( "#get-steam3" ).click(function() {
 
 $('.js-get-steam2').click(function() {
 	// this.value содержит имя таблицы MySQL
-	getSteam2(0, 'steam2', this.value);
+	getSteam2(15830, 'steam2', this.value);
 	$('.get-steam-btn').attr('disabled','true');
 })
 //================================
@@ -148,7 +148,7 @@ function getSteamList (page,pages,scan) {
 } // getSteamList()
 
 $( "#get-slist" ).click(function() {
-	getSteamList(1,0,0);
+	getSteamList('1','0','0');
 	$(this).attr('disabled','true');
 });
 

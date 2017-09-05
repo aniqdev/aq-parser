@@ -16,7 +16,7 @@ $table_langs = [
 ];
 $table = $_POST['table'];
 
-$whr_and = "appsub='sub' AND";
+// $whr_and = "appsub='sub' AND";
 $whr_and = '';
 
 $count = (int)arrayDB("SELECT count(*) as count FROM slist WHERE $whr_and scan = (select scan from slist order by id desc limit 1)")[0]['count'];
@@ -37,9 +37,38 @@ foreach ($slist as $row) {
 
 // ==> Ссылка на игру ($link)
     $link = _esc(clean_steam_url(trim($row['link'])));
-    $exist = arrayDB("SELECT id from $table where link = '$link'");
-    if($exist) continue;
-    $game_item = file_get_html($link, false, $context);
+    $game_exists = arrayDB("SELECT id from $table where link = '$link'");
+
+    $dest = ROOT.'/steam-images/'.$row['appsub'].'s-'.$row['appid'];
+    $img_exists = file_exists($dest);
+    if (!$img_exists) {
+        $img_src = 'http://cdn.akamai.steamstatic.com/steam/'.$row['appsub'].'s/'.$row['appid'].'/header.jpg';
+        @mkdir($dest, 0777, true);
+        $copied = copy($img_src, $dest.'/header.jpg');
+        if (!$copied){
+            $href = 'http://store.steampowered.com/'.$row['appsub'].'/'.$row['appid'].'/';
+            copy(ROOT.'/images/noimage.png', $dest.'/header.jpg');
+        }
+
+        $game_item = file_get_html($link, false, $context);
+
+        $srcs = [];
+        foreach ($game_item->find('a[href*=1920x1080]') as $kk => $img) {
+            $src = $img->getAttribute('href');
+            $src = parse_url( $src, PHP_URL_QUERY );
+
+            $src = str_replace('url=', '', $src);
+            copy($src, $dest.'/big'.($kk+1).'.jpg');
+
+            $src = str_replace('1920x1080', '600x338', $src);
+            copy($src, $dest.'/small'.($kk+1).'.jpg');
+
+            if($kk > 2) break;
+        }
+    }
+
+    if($game_exists) continue;
+    if ($img_exists) $game_item = file_get_html($link, false, $context);
     // пропускаем игру в случае ошибки
     if (!is_object($game_item)) continue;
     $affected++;
@@ -54,7 +83,7 @@ foreach ($slist as $row) {
 			$main_game = $glance_details[0]->find('a', 0);
             $main_game_title = $main_game->plaintext;
             $main_game_link = $main_game->href;
-        } 
+        }
     }
 	$appid = $row['appid'];
 

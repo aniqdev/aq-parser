@@ -175,14 +175,9 @@ class CreateDesc2017
 	{
 		$proto = file_get_contents('http://parser.gig-games.de/ebay-2017/index.html');
 		if(!$proto) return false;
-		$search = [
-			'href="style-2017.css"',
-		];
 
-		$replace = [
-			'href="http://hot-body.net/gig-less/css/style-2017.css"',
-		];
-
+		$search = 'href="style-2017.css"';
+		$replace = 'href="http://hot-body.net/gig-less/css/style-2017.css"';
 		$new_full_desc = str_replace($search, $replace, $proto);
 
 		$search = [

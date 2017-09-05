@@ -98,7 +98,7 @@ function ajax_add_item()
 
 	if (!$desc_obj->getDataArray())	return ['success' => 0, 'resp' => 'no getDataArray!'];
 
-	if(!$desc = $desc_obj->getNewFullDesc()) return "<h3>Fuck!</h3>";
+	if(!$desc = $desc_obj->getNewFullDesc()) return ['success' => 0, 'resp' => 'no getNewFullDesc!'];
 	$item['Description'] = $desc;
 
 	// Спецификации
