@@ -76,7 +76,7 @@ class AddModalBody extends React.Component {
 				if (data.resp && data.resp.ItemID) {
 					elink = '<b>Success!</b><br><a target="_blank" href="http://www.ebay.de/itm/'+data.resp.ItemID+'">'+data.item.Title+'</a>';
 				}else{
-					elink = '<b>Fail!</b>'
+					elink = '<b>Fail! ('+data.resp+')</b>'
 				}
 				_aa.this.setState({alertHtml: elink});
 				if(data.success){

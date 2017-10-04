@@ -1399,7 +1399,8 @@ button.load:after{
     border-radius: 4px;
     background: linear-gradient(to bottom, #484d53 0%,#313439 100%);
     border: 1px solid #161b1f;
-    color: #eaeaea;
+    color: #fff;
+    text-shadow: 1px 1px 3px #000;
     font-family: sans-serif;
     display: inline-block;
     text-align: center;
@@ -1843,4 +1844,18 @@ form label{
 
 .ho-modal{
   position: static;
+}
+
+.propos.highlight{
+    background: #a31e1e;
+    display: inline-block;
+}
+
+.add-cdvet-pic1{
+  max-width: 100%;
+}
+
+.add-cdvet-textfield{
+    outline: 1px solid #ccc;
+    padding: 10px;
 }

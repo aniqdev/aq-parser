@@ -37,6 +37,7 @@ if($dataex < 40){
 //========== Начало основного цикла обработки =============================================
 foreach ($orders as $k => $order):
 
+	// if($k == 1) break;
 	$username = $order['BuyerUserID'];
 	$goods = json_decode($order['goods'],true);
 	$address = json_decode($order['ShippingAddress'], true);
@@ -380,7 +381,7 @@ foreach ($orders as $k => $order):
 
 // 13. Проверить наличие товара на Плати.ру.
 // Входные данные:
-	if (!$continue) {
+	if (!$continue) { 
 		if ($chosen_item_id && $platiObj->isItemOnPlati($chosen_item_id)) {
 
 			AutomaticBot::sendMessage(['text' => 'if 1: ' . $chosen_item_id]);

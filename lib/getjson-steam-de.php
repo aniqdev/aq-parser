@@ -66,7 +66,7 @@ $where = get_steam_miracle_where();
 	    $_GET['results'][$j] = [];
 	    foreach ($requests as $k => $req) {
 	        $reqEnc = rawurlencode($req);
-	        $url = "http://www.plati.ru/api/search.ashx?query={$reqEnc}&pagesize=500&response=json&rkey={$k}&jkey={$j}";
+	        $url = "http://www.plati.io/api/search.ashx?query={$reqEnc}&pagesize=500&response=json&rkey={$k}&jkey={$j}";
 	        $multi_curl->addGet($url);
 	    }
 	}

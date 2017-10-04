@@ -137,6 +137,7 @@ use \Curl\MultiCurl;
 
 // Requests in parallel with callback functions.
 $multi_curl = new MultiCurl();
+$multi_curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
 
 $multi_curl->success(function($instance) {
     $_GET['results'][] = $instance->response;

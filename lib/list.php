@@ -109,7 +109,7 @@ if ($_FILES) {
 				<td>
 					<input class="list-id-input" value="',$game['ebay_id'],'">&nbsp;<button class="list-id-save">save</button>
 				</td>
-				<td><button ebayid="',$need_id,'" class="fill-input"><<</button> <span class="propos">',$need_title,'</span></td>
+				<td><button ebayid="',$need_id,'" class="fill-input"><<</button> <span class="propos ',temp_sep($need_id, $res),'">',$need_title,'</span></td>
 			</tr>';
 	}
 ?>

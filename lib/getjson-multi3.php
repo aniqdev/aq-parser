@@ -9,6 +9,7 @@ set_time_limit(300); // Указываем скрипту, чтобы не об�
 
 // Requests in parallel with callback functions.
 $multi_curl = new \Curl\MultiCurl();
+$multi_curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
 
 $multi_curl->success(function($instance) {
 
@@ -18,10 +19,12 @@ $multi_curl->success(function($instance) {
 	$jkey = $queryArr['jkey'];
 
     $_GET['results'][$jkey][$rkey] = $instance->response;
+    // sa($instance->response);
 
 });
 $multi_curl->error(function($instance) {
 	global $_ERRORS;
+	$_ERRORS[] = 'THAT WAS multi_curl ERROR!!!';
     $_ERRORS[] = $instance->errorMessage;
 });
 
@@ -73,7 +76,7 @@ if (isset($_POST['getjson'])) {
 	    foreach ($requests as $k => $req) {
 	        $reqEnc = rawurlencode($req);
 	        $url = "http://www.plati.ru/api/search.ashx?query={$reqEnc}&pagesize=500&response=json&rkey={$k}&jkey={$j}";
-	        //echo "<br>",$url,'<hr>';
+	        // echo "<br>",$url,'<hr>';
 	        $multi_curl->addGet($url);
 	    }
 	}

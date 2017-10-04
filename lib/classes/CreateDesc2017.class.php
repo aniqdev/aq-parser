@@ -50,6 +50,16 @@ class CreateDesc2017
 		return true;
 	}
 
+	public function getSteamLink2()
+	{
+		$ebay_id = _esc($this->_ebay_id);
+		$steam_link = arrayDB("SELECT steam_link,extra_field FROM games WHERE old_ebay_id = '$ebay_id'");
+		if(!$steam_link) return false;
+		$this->_steam_link = $steam_link[0]['steam_link'];
+		$this->_extra_field = $steam_link[0]['extra_field'];
+		return true;
+	}
+
 	public function getSteamLinkBySteamId($sid)
 	{
 		$steam_link = arrayDB("SELECT link FROM steam_de WHERE id = '$sid'");
@@ -154,9 +164,9 @@ class CreateDesc2017
 		}else{
 			return false;
 		}
-		if (strpos($this->_steam_link, 'sub') !== false)
-			$this->_data_array['img4'] = 'http://cdn.akamai.steamstatic.com/steam/subs/'.$this->_steam_de['appid'].'/header_586x192.jpg';
-		else $this->_data_array['img4'] = 'http://cdn.akamai.steamstatic.com/steam/apps/'.$this->_steam_de['appid'].'/header.jpg';
+		$app_sub = $this->_steam_de['type'];
+		if($app_sub === 'dlc') $app_sub = 'app';
+		$this->_data_array['img4'] = 'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$this->_steam_de['appid'].'/header.jpg';
 
 		$this->_data_array['about_de'] = add_dlc_addon_to_desc($this->_steam_de, 'de');
 		$this->_data_array['about_en'] = add_dlc_addon_to_desc($this->_steam_en, 'en');

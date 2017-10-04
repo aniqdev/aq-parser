@@ -1,6 +1,6 @@
 <?php
 
-$days_ago = date('Y-m-d', time()-(60*60*24*5));
+$days_ago = date('Y-m-d', time()-(60*60*24*30));
 
 if (isset($_GET['correspondent'])) {
 	$corresp = _esc(trim($_GET['correspondent']));
@@ -19,7 +19,7 @@ if (isset($_GET['correspondent'])) {
 		SELECT *,'INBOX' as dir FROM ebay_msgs_inbox WHERE e_ReceiveDate>'$days_ago'
 		UNION
 		SELECT *,'OUTBOX' as dir FROM ebay_msgs_outbox WHERE e_ReceiveDate>'$days_ago'
-		ORDER BY e_MessageID ASC LIMIT 800");
+		ORDER BY e_MessageID ASC LIMIT 4000");
 	$answerd_list = [];
 	foreach ($messages_all as $key => $value) {
 		if ($value['dir'] === 'OUTBOX') {
@@ -29,7 +29,7 @@ if (isset($_GET['correspondent'])) {
 		}
 	}
 	$messages_list = arrayDB("
-		SELECT *,'INBOX' as dir FROM ebay_msgs_inbox WHERE e_ReceiveDate>'$days_ago' ORDER BY e_MessageID DESC LIMIT 800");
+		SELECT *,'INBOX' as dir FROM ebay_msgs_inbox WHERE e_ReceiveDate>'$days_ago' ORDER BY e_MessageID DESC LIMIT 2000");
 	$messages_all = [];
 	foreach ($messages_list as $key => $v) {
 		if (isset($MessageID_list[$v['e_MessageID']]) && isset($answerd_list[$v['e_Correspondent']]) && $answerd_list[$v['e_Correspondent']] === 0 && $v['status'] === 'neutral') {

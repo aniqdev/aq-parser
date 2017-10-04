@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: application/json');
 
 
 $app_sub = @$_GET['app_sub'];

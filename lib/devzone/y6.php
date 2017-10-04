@@ -1,6 +1,17 @@
 <?php
 ini_get('safe_mode') or set_time_limit(4000); // Указываем скрипту, чтобы не обрывал связь.
 
+
+
+
+
+$res = (new Ebay_shopping2)->GetCategorySpecifics('66780');
+
+sa($res);
+
+
+
+return;
 function get_urls_of_real_img($item_id){
 	$res = Ebay_shopping2::getSingleItem($item_id, JSON_OBJECT_AS_ARRAY);
 

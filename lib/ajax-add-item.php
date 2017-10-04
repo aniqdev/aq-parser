@@ -19,7 +19,14 @@ function ajax_add_item()
 	if ($steam_de) {
 		$steam_de = $steam_de[0];
 	}else{
-		return ['success' => 0];
+		return ['success' => 0, 'resp' => 'No steam info!'];
+	}
+
+	$steam_link = $steam_de['link'];
+
+	$item_exists = arrayDB("SELECT id FROM games WHERE steam_link = '$steam_link' AND ebay_id <> ''");
+	if ($item_exists) {
+		return ['success' => 0, 'resp' => 'Item already exists!'];
 	}
 
 	$item = [
@@ -30,38 +37,15 @@ function ajax_add_item()
 	    'Currency' => 'EUR', 
 	    'Description' => 'Дескрипшн',
 	    'price' => '9.99',
-	    'PictureURL' => array
-	        (
-	            '0' => 'http://hot-body.net/img-generator/folders/s340220/ramka.jpg'
-	        ),
+	    'PictureURL' => [],
 	    'BestOfferEnabled' => 'true',
 	    'SalesTaxPercent' => 0,
 	    'ListingDuration' => 'GTC',
-	    'specific' => array
-	        (
-	            'Marke' => 'lego',
-	            'Herstellernummer' => 'n',
-	            'Plattform' => 'Multi-Plattform',
-	            'Regionalcode' => 'Regionalcode-frei',
-	            'Genre' => 'Arcade',
-	            'USK-Einstufung' => 'USK ab 6',
-	            'Erscheinungsjahr' => '2010',
-	            'Besonderheiten' => 'Multiplayer',
-	            'Herausgeber' => 'Microsoft',
-	            'Herstellergarantie' => 'Keine',
-	            'Herstellungsland und -region' => '',
-	        ),
+	    'specific' => [],
 	    'StoreCategory1' => '10866044010',
 	];
 
 	$eBay_obj = new Ebay_shopping2();
-
-	$steam_link = $steam_de['link'];
-	$img_generator_res = file_get_contents('http://hot-body.net/img-generator/?url2017='.$steam_link);
-	$img_generator_res = json_decode($img_generator_res,1);
-	if ($img_generator_res['msg']) {
-		return ['success' => 0, 'resp' => false];
-	}
 
 	// Ниазвание товара
 	$item['Title'] = isset($_REQUEST['title']) ? substr($_REQUEST['title'], 0, 80) : add_words_to_game_name($steam_de['title']);
@@ -70,13 +54,25 @@ function ajax_add_item()
 	$item['price'] = (float)$_REQUEST['price'];
 
 	// Картинки
-	$item['PictureURL'] = [
-		$img_generator_res['image_link'],
-		$img_generator_res['img1_src'],
-		$img_generator_res['img2_src'],
-		$img_generator_res['img3_src'],
-		$img_generator_res['img4_src'],
-	];
+	$app_id = $steam_de['appid'];
+	$app_sub = $steam_de['type'];
+	if($app_sub === 'dlc') $app_sub = 'app';
+	$img_generator_url = 'http://hot-body.net/img-generator/?app_id='.$app_id.'&app_sub='.$app_sub.'&ramka_september_2017=true';
+	$img_generator_res = file_get_contents($img_generator_url);
+	$img_generator_res = json_decode($img_generator_res,1);
+	if (!$img_generator_res['msg']) {
+		return ['success' => 0, 'resp' => 'no images!'];
+	}
+
+	// steam-images checker
+	$checker = file_get_contents('http://parser.gig-games.de/steam-images-checker.php?app_id='.$app_id.'&app_sub='.$app_sub);
+	$chr = json_decode($checker, true);
+
+	$item['PictureURL'][] = $img_generator_res['image_link'];
+	if (in_array('big1.jpg', $chr))	$item['PictureURL'][] = 'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/big1.jpg';
+	if (in_array('big2.jpg', $chr))	$item['PictureURL'][] = 'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/big2.jpg';
+	if (in_array('big3.jpg', $chr))	$item['PictureURL'][] = 'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/big3.jpg';
+	if (in_array('big4.jpg', $chr))	$item['PictureURL'][] = 'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/big4.jpg';
 
 	// Описание товара
 	$desc_obj = new CreateDesc2017(0);
@@ -85,9 +81,9 @@ function ajax_add_item()
 		'text' => $desc_obj->error_text, 'sl' => $desc_obj->_steam_link];
 
 	$desc_obj->setImagesArr([
-			$img_generator_res['img1_src'],
-			$img_generator_res['img2_src'],
-			$img_generator_res['img3_src'],
+			in_array('small1.jpg',$chr)?'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/small1.jpg':'http://parser.gig-games.de/images/no-image-available.png',
+			in_array('small2.jpg',$chr)?'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/small2.jpg':'http://parser.gig-games.de/images/no-image-available.png',
+			in_array('small3.jpg',$chr)?'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/small3.jpg':'http://parser.gig-games.de/images/no-image-available.png',
 		]);
 
 	if (!$desc_obj->readSteamDe())  return ['success' => 0, 'resp' => 'no readSteamDe'];
@@ -113,8 +109,14 @@ function ajax_add_item()
 		$ebay_id = _esc($res['ItemID']);
 		$steam_link = _esc($steam_de['link']);
 		$plati_id = _esc((int)$_POST['plati_id']);
-		arrayDB("INSERT INTO games (name, ebay_id, steam_link, extra_field) 
-			VALUES('$name', '$ebay_id', '$steam_link', '$id')");
+		$game_check = arrayDB("SELECT id FROM games WHERE steam_link = '$steam_link' AND ebay_id = ''");
+		if ($game_check) {
+			arrayDB("UPDATE games SET ebay_id = '$ebay_id' WHERE steam_link = '$steam_link' AND ebay_id = ''");
+		}else{
+			arrayDB("INSERT INTO games (name, ebay_id, steam_link) 
+					VALUES('$name', '$ebay_id', '$steam_link')");
+		}
+		
 		arrayDB("UPDATE steam_de SET is_on_ebay = 'yes', ebay_id = '$ebay_id' WHERE id = '$id'");
 		arrayDB("INSERT INTO gig_trustee_items (plati_id) VALUES('$plati_id')");
 

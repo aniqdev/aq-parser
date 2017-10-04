@@ -293,7 +293,7 @@ if (is_array($cell) && is_array($value)) {
 //===================================================================================
 //===================================================================================
 // $inputArr = [1=>['A'=>'value']]
-function writeExcel($file_path, $inputArr, $sheetIndex){
+function writeExcel($file_path, $inputArr, $sheetIndex = 0){
 
 	if (!is_array($inputArr)) return;
 
@@ -1222,8 +1222,6 @@ function add_dlc_addon_to_desc($steam_arr, $lang = false){
 		'it' => 'Ce contenu nécessite le jeu de base',
 	];
 
-	if(!isset($dlc_texts[$lang])) $lang = 'de';
-
 	$sub_texts = [
 		'de' => 'In diesem Paket enthaltenen Artikel',
 		'en' => 'Items included in this package',
@@ -1232,7 +1230,7 @@ function add_dlc_addon_to_desc($steam_arr, $lang = false){
 		'it' => 'Oggetti inclusi in questo pacchetto',
 	];
 
-	if(!isset($sub_texts[$lang])) $lang = 'de';
+	if(!isset($dlc_texts[$lang])) $lang = 'de';
 	
 	if ($steam_arr['main_game_link']) {
 		$l = '<h4 class="gig-dlc-hh">'.$dlc_texts[$lang].' <a target="_blank" href="'.$steam_arr['main_game_link'].'">'.$steam_arr['main_game_title'].'.</a></h4>';
@@ -1838,10 +1836,266 @@ function product_html($title, $product){
 }
 
 
+function get_item_price_from_ebay_results($itemid)
+{
+	if(!$itemid) return 0;
+	$option = [];
+	$option[] = @arrayDB("SELECT price1 as price,`time` FROM ebay_results WHERE itemid1 = '$itemid' order by id desc limit 1")[0];
+	$option[] = @arrayDB("SELECT price2 as price,`time` FROM ebay_results WHERE itemid2 = '$itemid' order by id desc limit 1")[0];
+	$option[] = @arrayDB("SELECT price3 as price,`time` FROM ebay_results WHERE itemid3 = '$itemid' order by id desc limit 1")[0];
+	$option[] = @arrayDB("SELECT price4 as price,`time` FROM ebay_results WHERE itemid4 = '$itemid' order by id desc limit 1")[0];
+	$option[] = @arrayDB("SELECT price5 as price,`time` FROM ebay_results WHERE itemid5 = '$itemid' order by id desc limit 1")[0];
+
+	$fresh = 0;
+	$price = 0;
+	foreach ($option as $key => $value) {
+	  if (isset($value['time']) && (new DateTime($value['time']))->getTimestamp() > $fresh) {
+	    $fresh = (new DateTime($value['time']))->getTimestamp();
+	    $price = $value['price'];
+	  }
+	}
+	return $price;
+}
+
+
+function get_item_price_from_ebay_orders($itemid)
+{
+	if(!$itemid) return 0;
+	$itemid = _esc($itemid);
+	$res = arrayDB("SELECT price FROM ebay_order_items WHERE ebay_id = '$itemid' ORDER BY id DESC LIMIT 1");
+
+	$price = 0;
+	if ($res) $price = $res[0]['price'];
+	return $price;
+}
+
+
+function ajax_recovery_item($itemid, $steam_link) // запись со steam_de
+{
+	$ret = [];
+
+	$steam_link = _esc($steam_link);
+
+	$steam_de = arrayDB("SELECT steam_de.*,steam.usk_links as pegi_links,steam.usk_age as pegi_age 
+						FROM steam_de
+						LEFT JOIN steam
+						ON steam_de.link = steam.link
+						WHERE steam_de.link = '$steam_link' LIMIT 1");
+
+	if ($steam_de) {
+		$steam_de = $steam_de[0];
+	}else{
+		return ['success' => 0, 'resp' => 'no steam_de!'];
+	}
+
+	$item = [
+	    'Title' => 'Название',
+	    'CategoryID' => '139973',
+	    'Quantity' => 3,
+	    'ConditionID' => 1000,
+	    'Currency' => 'EUR', 
+	    'Description' => 'Дескрипшн',
+	    'price' => '9.99',
+	    'PictureURL' => [],
+	    'BestOfferEnabled' => 'true',
+	    'SalesTaxPercent' => 0,
+	    'ListingDuration' => 'GTC',
+	    'specific' => [],
+	    'StoreCategory1' => '10866044010',
+	];
+
+	// Цена товара
+	$item['price'] = get_item_price_from_ebay_results($itemid);
+
+	if (!$item['price']) get_item_price_from_ebay_orders($itemid);
+
+	if (!$item['price']){
+		arrayDB("UPDATE games SET extra_field = 'no item price' WHERE steam_link = '$steam_link'");
+		return ['success' => 0, 'resp' => 'no item price!'];
+	} 
+
+	$eBay_obj = new Ebay_shopping2();
+
+	$app_id = $steam_de['appid'];
+	$app_sub = $steam_de['type'];
+	if($app_sub === 'dlc') $app_sub = 'app';
+	$img_generator_url = 'http://hot-body.net/img-generator/?app_id='.$app_id.'&app_sub='.$app_sub.'&ramka_september_2017=true';
+	$img_generator_res = file_get_contents($img_generator_url);
+	$img_generator_res = json_decode($img_generator_res,1);
+	if (!$img_generator_res['msg']) {
+		arrayDB("UPDATE games SET extra_field = 'no image' WHERE steam_link = '$steam_link'");
+		return ['success' => 0, 'resp' => 'img generator error!', 'img_gen_resp' => $img_generator_res, 'img_generator_url' => $img_generator_url];
+	}
+
+	// steam-images checker
+	$checker = file_get_contents('http://parser.gig-games.de/steam-images-checker.php?app_id='.$app_id.'&app_sub='.$app_sub);
+	$chr = json_decode($checker, true);
+
+	// Ниазвание товара
+	$item['Title'] = add_words_to_game_name($steam_de['title']);
+
+	// Картинки
+	$item['PictureURL'][] = $img_generator_res['image_link'];
+	if (in_array('big1.jpg', $chr))	$item['PictureURL'][] = 'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/big1.jpg';
+	if (in_array('big2.jpg', $chr))	$item['PictureURL'][] = 'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/big2.jpg';
+	if (in_array('big3.jpg', $chr))	$item['PictureURL'][] = 'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/big3.jpg';
+	if (in_array('big4.jpg', $chr))	$item['PictureURL'][] = 'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/big4.jpg';
+
+
+	// Описание товара
+	$desc_obj = new CreateDesc2017($itemid);
+
+	if (!$desc_obj->getSteamLink2())	return ['success' => 0, 'resp' => 'no steam link',
+		'text' => $desc_obj->error_text, 'sl' => $desc_obj->_steam_link];
+
+	$desc_obj->setImagesArr([
+			in_array('small1.jpg',$chr)?'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/small1.jpg':'http://parser.gig-games.de/images/no-image-available.png',
+			in_array('small2.jpg',$chr)?'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/small2.jpg':'http://parser.gig-games.de/images/no-image-available.png',
+			in_array('small3.jpg',$chr)?'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/small3.jpg':'http://parser.gig-games.de/images/no-image-available.png',
+		]);
+
+	if (!$desc_obj->readSteamDe())  return ['success' => 0, 'resp' => 'no readSteamDe'];
+	if (!$desc_obj->readSteamEn())  return ['success' => 0, 'resp' => 'no readSteamEn'];
+	if (!$desc_obj->readSteamFr())	return ['success' => 0, 'resp' => 'no readSteamFr'];
+	if (!$desc_obj->readSteamEs())	return ['success' => 0, 'resp' => 'no readSteamEs'];
+	if (!$desc_obj->readSteamIt())	return ['success' => 0, 'resp' => 'no readSteamIt'];
+
+	if (!$desc_obj->getDataArray())	return ['success' => 0, 'resp' => 'no getDataArray!'];
+
+	if(!$desc = $desc_obj->getNewFullDesc()) return ['success' => 0, 'resp' => 'no getNewFullDesc!'];
+	$item['Description'] = $desc;
+
+	// Спецификации
+	$item['specific'] = build_item_specifics_array($steam_de);
+
+	$res = $eBay_obj->addItem($item);
+
+	if (isset($res['Ack']) && $res['Ack'] !== 'Failure' && isset($res['ItemID'])) {
+		$id = $steam_de['id'];
+
+		$new_ebay_id = _esc($res['ItemID']);
+		// НАДО ПОДУМАТЬ
+		arrayDB("UPDATE games SET ebay_id = '$new_ebay_id' WHERE old_ebay_id = '$itemid'");
+
+		$success = 1;
+	}else{
+		$success = 0;
+	}
+	unset($res['Fees']);
+	unset($item['Description']);
+	global $_ERRORS;
+	return ['success' => $success,
+			'item' => $item,
+			'resp' => $res,
+			'errors' => $_ERRORS];
+}
+
+
+function temp_sep($need_id, &$games)
+{
+	foreach ($games as $game) {
+		if ($game['ebay_id'] === $need_id) {
+			return '';
+		}
+	}
+	return 'highlight" title="игра не закреплена в системе';
+}
+
+
+function getSslPage($url) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($ch, CURLOPT_HEADER, false);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_REFERER, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return $result;
+}
+
+
+function isItemOnPlati($item_id)
+{	
+	$page = getSslPage('https://plati.market/itm/'.$item_id);
+	$dom = str_get_html($page);
+	$is_class_there = $dom->find('.goods_order_form_quanuty');
+	return(!!$is_class_there);
+}
 
 
 
+function _get_files($dir='.')
+{
+	$files = [];
+	if ($handle = opendir($dir)){
+		while(false !== ($item = readdir($handle))){
+			if (is_file("$dir/$item")) {
+				$files[] = "$dir/$item";
+			}elseif (is_dir("$dir/$item") && ($item != ".") && ($item != "..")){
+				$files = array_merge($files, get_filess("$dir/$item"));
+			}
+		}
+		closedir($handle);
+	}
+	return $files; 
+}
 
 
+function cd_ebay_cat_sort($cats)
+{
+	$cats_arr = [];
+	foreach ($cats as $k => $row) {
+		if ((int)$row['D']) {
+			$cats_arr[$row['D']][$row['E']]['eBayKategorie'] = $row['C'];
+			$cats_arr[$row['D']][$row['E']]['eBayShopKAtegorieID'] = $row['B'];
+		}
+	}
+	return $cats_arr;
+}
+
+
+function get_ebay_cat($cd_item, &$categories)
+{	
+	$how_match_first = 0;
+	$ret = [];
+	$item_cats = explode('|', $cd_item['L']);
+	shuffle($item_cats);
+	foreach ($item_cats as $val) {
+		if (isset($categories[$val])) { // главное совпадение
+			foreach ($item_cats as $value) {
+				if (isset($categories[$val][$value])) { // первое совпадение
+					$ret[] = $categories[$val][$value];
+				}
+			}
+			$how_match_first++;
+			break;
+		}
+	}
+	$ret['how match first'] = $how_match_first;
+	return $ret;
+}
+
+
+function get_zusammen($long_desc)
+{
+	$long_desc = preg_replace('/.+Zusammensetzung(.+?)<\/div>.*/', '$1', $long_desc);
+
+	$long_desc = preg_replace('/<[^>].+?>/', '', $long_desc);
+
+	return trim(str_replace(':', '', $long_desc));
+}
+
+
+function get_gehalte($long_desc)
+{
+	$long_desc = preg_replace('/.+Analytische Bestandteile und Gehalte(.+?)<\/div>.*/', '$1', $long_desc);
+
+	$long_desc = preg_replace('/<[^>].+?>/', '', $long_desc);
+	$long_desc = preg_replace('/(\d),(\d)/', '$1.$2', $long_desc);
+
+	return trim(str_replace(':', '', $long_desc));
+}
 
 ?>

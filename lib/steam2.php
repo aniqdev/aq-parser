@@ -41,7 +41,7 @@ foreach ($slist as $row) {
 
     $dest = ROOT.'/steam-images/'.$row['appsub'].'s-'.$row['appid'];
     $img_exists = file_exists($dest);
-    if (!$img_exists) {
+    if (!$img_exists && !defined('DEV_MODE')) {
         $img_src = 'http://cdn.akamai.steamstatic.com/steam/'.$row['appsub'].'s/'.$row['appid'].'/header.jpg';
         @mkdir($dest, 0777, true);
         $copied = copy($img_src, $dest.'/header.jpg');
@@ -68,7 +68,7 @@ foreach ($slist as $row) {
     }
 
     if($game_exists) continue;
-    if ($img_exists) $game_item = file_get_html($link, false, $context);
+    if ($img_exists || defined('DEV_MODE')) $game_item = file_get_html($link, false, $context);
     // пропускаем игру в случае ошибки
     if (!is_object($game_item)) continue;
     $affected++;
@@ -95,6 +95,12 @@ foreach ($slist as $row) {
 
 // ==> Год ($year)
     $year = $row['year'];
+
+
+// ==> purchase_note
+    $notice = '';
+    $purchase_note = $game_item->find('#purchase_note', 0);
+    if($purchase_note) $notice = $purchase_note->plaintext;
 
 
 // ==> game_area_details_specs ($details_specs)
@@ -272,6 +278,7 @@ $includes = implode(',', $includes);
         $link     = $link;
         $desc     = _esc(trim(html_entity_decode($desc)));
         $genres   = _esc($genres);
+        $notice   = _esc(trim($notice));
         $developer= _esc($developer);
         $publisher= _esc($publisher);
         $reg_price= _esc($reg_price);
@@ -299,6 +306,7 @@ $includes = implode(',', $includes);
             `title`,
             `link`,
             `genres`,
+            `notice`,
             `developer`,
             `publisher`,
             `reg_price`,
@@ -326,6 +334,7 @@ $includes = implode(',', $includes);
             '$title',
             '$link',
             '$genres',
+            '$notice',
             '$developer',
             '$publisher',
             '$reg_price',

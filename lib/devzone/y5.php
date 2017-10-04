@@ -1,58 +1,125 @@
-<script>
-// var url = 'http://info-rim.ru/cors.php';
-// // var url = 'https://graph.facebook.com/me';
-// $.ajax({
-//     url: url,
-//     type: 'POST',
-//     success: function (data) {
-//         // body...
-//     },
-//     data: {access_token:'EAAGwIZBbQ34gBAKFDvZBqq9iQuo5PtC9zTd6X14zugEcAKTwZBBl2JXQTwAHgE1H1StEBLEpUcJzfBfUb1Yoxzip0gVXomyOE9c5okt5P92CSwjhZBVaNLBW1ghXWB6JAzA64BOlyoMF7by2ry9lkhEVU0sdbyCGx3xo04jW5g4NLRdD3KmXuLtykuM3qBYZD'},
+<?php ini_get('safe_mode') or set_time_limit(200); // Указываем скрипту, чтобы не обрывал связь.
 
-//     xhrFields: {
-//         withCredentials: true
-//     },
-//   });
-</script>
-<?php
-$str = "<script type=\"text/javascript\">(function(w,doc) {
-                        if (!w.__utlWdgt ) {
-                            w.__utlWdgt = true;
-                            var d = doc, s = d.createElement('script'), g = 'getElementsByTagName';
-                            s.type = 'text/javascript'; s.charset='UTF-8'; s.async = true;
-                            s.src = ('https:' == w.location.protocol ? 'https' : 'http')  + '://w.uptolike.com/widgets/v1/uptolike.js';
-                            var h=d[g]('body')[0];
-                            h.appendChild(s);
-                        }})(window,document);
-                    </script>".'
-                    <div data-background-alpha="0.0" 
-                    data-buttons-color="#FFFFFF" 
-                    data-counter-background-color="#ffffff" 
-                    data-share-counter-size="12" 
-                    data-top-button="false" 
-                    data-share-counter-type="separate" 
-                    data-share-style="1" data-mode="share" 
-                    data-like-text-enable="false" 
-                    data-mobile-view="false" 
-                    data-icon-color="#ffffff" 
-                    data-orientation="horizontal" 
-                    data-text-color="#ffffff" 
-                    data-share-shape="round-rectangle" 
-                    data-sn-ids="fb.gp." 
-                    data-share-size="30" 
-                    data-background-color="#ffffff" 
-                    data-preview-mobile="false" 
-                    data-mobile-sn-ids="fb.gp." 
-                    data-pid="1683037" 
-                    data-counter-background-alpha="0.0" 
-                    data-following-enable="false" 
-                    data-exclude-show-more="true" 
-                    data-selection-enable="false" 
-                    class="uptolike-buttons" ></div>';
 
-$str = '<span class="switch on">mit Facebook verbunden</span>';
-sa(htmlentities($str));
-sa(htmlspecialchars($str));
+
+
+
+$cd_arr = json_decode(file_get_contents('csv/eBayArtikel.json'), true);
+$categories = json_decode(file_get_contents('csv/eBayArtikel_s2.json'), true);
+
+foreach ($cd_arr as $key => $value) {
+    $sorted_cats = cd_ebay_cat_sort($categories);
+    $res = get_ebay_cat($value, $sorted_cats);
+
+    echo ($key);
+    sa($res);
+
+    // if ($key > 100) {
+    //     break;
+    // }
+}
+
+
+
+
+
+return;
+$str = '<div align="left">Entlastung der Entgiftungsorgane durch hohe Verf&uuml;gbarkeit von Calcium und Magnesium.</div>
+<div align="left">&nbsp;</div>
+<div align="left">Eine optimale Versorgung mit Mineralstoffen, Spurenelementen und Vitaminen unterst&uuml;tzt die physiologischen Organfunktionen und Stoffwechselvorg&auml;nge und ist Voraussetzung f&uuml;r ein gesundes Leben.</div>
+<div align="left">&nbsp;</div>
+<div align="left">Mineralerg&auml;nzungsfuttermittel f&uuml;r Schweine und Rinder</div>
+<div align="left">&nbsp;</div>
+
+
+<div align="left"><b><u>Zusammensetzung: </u></b>Algenkalk, Bierhefe, Malzkeime, Seealgenmehl, Traubenkerne extrahiert</div>
+<div align="left">&nbsp;</div>
+<div align="left"><b><u>Analytische Bestandteile und Gehalte</u></b>: Calcium 16,0%, Magnesium 1,00%, Phosphor &lt; 0,25%, Natrium 0,55%, salzs&auml;ureunl&ouml;sliche Asche 4,0%, Lysin 0,46%, Methionin 0,16%</div>
+<div align="left">&nbsp;</div>
+<div align="left"><b><u>F&uuml;tterungsempfehlung</u></b>: Rinder: 80g - 100g je nach Milchleistung und Mineralfuttergabe; Schweine: 3kg/t Babyferkel, 2kg/t Vormast, 1kg/t Endmast</div>
+<div align="left"></div>';
+
+$ddd = preg_match('/(.*)(<div[^\/]+Zusammensetzung.*)/s', $str, $matches);
+
+var_dump($ddd);
+sa($matches);
+
+
+return;
+sa(date('Y-m-d', time()-(60*60*24*30)));
+
+return;
+$csv = readExcel('csv/ebay art 18-09-2.xlsx');
+
+sa($csv);
+
+for ($i=2; $i < count($csv); $i++) { 
+    
+    break;
+
+    $new_ebay_id = $csv[$i]['A'];
+
+    $old_ebay_id = trim($csv[$i]['C']);
+
+    if (!$old_ebay_id){
+        continue;
+    }
+
+    arrayDB("UPDATE games SET ebay_id = '$new_ebay_id' WHERE old_ebay_id = '$old_ebay_id'");
+}
+
+for ($i=2; $i < count($csv); $i++) { 
+    
+    break;
+
+    $new_ebay_id = $csv[$i]['A'];
+
+    $title = _esc(trim($csv[$i]['B']));
+
+    $old_ebay_id = arrayDB("SELECT item_id FROM ebay_games WHERE title = '$title'");
+
+    if (!$old_ebay_id){
+        sa($csv[$i]);
+        continue;
+    } 
+
+    $old_ebay_id = $old_ebay_id[0]['item_id'];
+
+    $csv[$i]['C'] = $old_ebay_id;
+
+    arrayDB("UPDATE games SET ebay_id = '$new_ebay_id' WHERE old_ebay_id = '$old_ebay_id'");
+}
+
+// writeExcel('csv/ebay art 18-09-2.xlsx', $csv);
+
+
+return;
+$path = __DIR__.'/../../pictures/';
+$from = __DIR__.'/../../pictures/Gruppenbild_LunaLupis.tif';
+$to = __DIR__.'/../../pictures/Gruppenbild_LunaLupis.png';
+
+// $imagine->open($from)->save($to);
+
+
+$dir = scandir($path . 'tif/');
+
+// sa($dir);
+$format = 'png';
+
+// sa(get_defined_constants());
+
+    $imagick = new Imagick($path . 'tif/ArthroGreen_Classic.tif');
+    $imagick->setImageFormat($format);
+    $imagick->mergeImageLayers(imagick::LAYERMETHOD_UNDEFINED);
+    // $imagick->scaleImage(1200, 1200, true);
+    $imagick->scaleImage(
+        min($imagick->getImageWidth(),  1200),
+        min($imagick->getImageHeight(), 1200),
+        true
+    );
+    // $imagick->adaptiveResizeImage(1200, 1200, true);
+    var_dump($imagick->writeImage($path . $format.'/ArthroGreen_Classic.' . $format));
+
 
 return;
 $res = post_curl('http://hood.gig-games.de/api/listOrder', ['statusChange','startDate'=>'06/29/2017','endDate'=>'06/29/2017']);

@@ -24,6 +24,13 @@
 
 })( jQuery );
 
+function log(a) {
+	return console.log(a);
+}
+
+function dir(a) {
+	return console.dir(a);
+}
 
 function round_hood_price(prc) {
 	var z = {0:'0',1:'0',2:'0',3:'5',4:'5',
@@ -124,7 +131,7 @@ $( "#get-steam3" ).click(function() {
 
 $('.js-get-steam2').click(function() {
 	// this.value содержит имя таблицы MySQL
-	getSteam2(15830, 'steam2', this.value);
+	getSteam2(0, 'steam2', this.value);
 	$('.get-steam-btn').attr('disabled','true');
 })
 //================================
@@ -1394,6 +1401,41 @@ $('.orders-table').on('click', '.op-markorder', function(e) {
 
 $('[data-toggle="tooltip"]').tooltip();
 
+
+
+function ins_msg(msg) {
+	$( "#message li:first" ).before( "<li>"+msg+"</li>" );
+	// if($('#message li').length > 1000) {
+	// 	$('#message li:last').remove();
+	// }
+}
+
+function ebay_recovery(offset) {
+	$.post('ajax.php?action=ajax-ebay-recovery',
+		{offset:offset},
+		function (data) {
+			if (offset < data.count) {
+			// if (offset < 3000) {
+				if (data.added.success) {
+					ins_msg(offset+': '+data.added.resp.Ack+
+						'<br><a href="http://www.ebay.de/itm/'+
+						data.added.resp.ItemID+
+						'" target="_blank">'+
+						data.added.item.Title+'</a>');
+				}else{
+					ins_msg(offset+': '+data.added.resp);
+				}
+				// ebay_recovery(offset + 1);
+			}else{
+				ins_msg('Done!');
+			}
+		},'json');
+}
+
+$('#js_recovery').on('click', function() {
+	console.log('go!');
+	ebay_recovery(217);
+});
 
 
 // ====== вывод количества непрочитанных сообщений =====

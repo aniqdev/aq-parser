@@ -551,6 +551,7 @@ class Ebay_shopping2{
 		"Content-Type: text/xml");
 
 		$result = $this->request($this->api_url, $post, $headers);
+		// return $result;
 		return json_decode(json_encode(simplexml_load_string($result)), true);
 	}
 

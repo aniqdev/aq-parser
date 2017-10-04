@@ -124,8 +124,11 @@ class PlatiRuBuy
 
 
 	function isItemOnPlati($item_id)
-	{
-		$dom = file_get_html('http://www.plati.com/itm/'.$item_id);
+	{	
+		return isItemOnPlati($item_id);
+
+		// Это не работет
+		$dom = file_get_html('https://plati.market/itm/'.$item_id);
 		$is_class_there = $dom->find('.goods_order_form_quanuty');
 		return(!!$is_class_there);
 	}
