@@ -7,6 +7,7 @@
 function saveOrders($ord_arr = []){
 	
 	$order_id_checker = 0;
+	$update_query = '';
 	foreach ($ord_arr as $order) {
 		
 		$order_id = $order['OrderID'];
@@ -69,7 +70,7 @@ function saveOrders($ord_arr = []){
 
 		$check = arrayDB("SELECT id FROM ebay_orders WHERE order_id='$order_id'");
 		if ($check) {
-			$query = "UPDATE ebay_orders 
+			$update_query .= "UPDATE ebay_orders 
 				SET PaidTime='$PaidTime',
 				 BuyerFirstName='$BuyerFirstName',
 				 BuyerLastName='$BuyerLastName',
@@ -79,12 +80,12 @@ function saveOrders($ord_arr = []){
 				 OrderStatus='$OrderStatus',
 				 PaymentMethod='$PaymentMethod',
 				 ShippingAddress='$ShippingAddress'
-				WHERE order_id='$order_id'";
-			arrayDB($query);
+				WHERE order_id='$order_id';";
+			// arrayDB($query);
 
-	echo "<pre>";
-	print_r($query);
-	echo "</pre>";
+	// echo "<pre>";
+	// print_r($query);
+	// echo "</pre>";
 
 		}else{
 			arrayDB("INSERT INTO ebay_orders (id,
@@ -138,6 +139,8 @@ function saveOrders($ord_arr = []){
 					arrayDB("INSERT INTO ebay_order_items (gig_order_id,title,price,amount,ebay_id,npp,total)
 							VALUES('$gig_order_id','$title','$price','$amount','$ebay_id','$npp','$total')");
 				}
+				// убираем товар со стим_де
+				arrayDB("UPDATE steam_de SET instock = 'no' WHERE $ebay_id = 'ebay_id'");
 			}
 		}
 
@@ -152,8 +155,10 @@ function saveOrders($ord_arr = []){
 	print_r($goods);
 	var_dump($PaidTime);
 	var_dump($ShippedTime);
+	// echo $update_query;
 	echo "</pre>";
 	}
+	arrayDB($update_query, true);
 }
 
 
@@ -166,4 +171,5 @@ $ord_array = getOrderArray();
 	echo "<pre>";
 	if($ord_array['success'] === 'OK') saveOrders($ord_array['ord_arr']);
 	else print_r($ord_array);
+	print_r($_ERRORS);
 	echo "</pre>";

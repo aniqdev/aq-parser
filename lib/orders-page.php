@@ -1,8 +1,12 @@
 <?php
+
 if (isset($_GET['sales-chart'])) {
+	$res = arrayDB("SELECT DATE_FORMAT(ShippedTime, '%d-%m') as date ,count(*) as count FROM ebay_orders WHERE ShippedTime > NOW() - INTERVAL 28 DAY GROUP BY day(ShippedTime) order by ShippedTime");
+	$ret = [['date','sales']];
+	foreach ($res as $k => $val) if($k > 0) $ret[] = [$val['date'], +$val['count']];
 	header('Content-Type: application/json');
-	echo get_sales_chart_json();
-	die();
+	echo json_encode($ret);
+	return;
 }
 
 require_once __DIR__.'/orders-page-functions.php';
@@ -71,7 +75,7 @@ foreach ($orders as $key => $order) {
 	$comm = ($order['comment'])?'<div class="glyphicon glyphicon-envelope" title="'.$order['comment'].'"></div>':'';
 	echo '<tr class="',op_active('order_id',$order['id']),'">',
 			'<td title="',$order['id'],'">',$key+$_GET['offset']+1,'</td>',
-			'<td title="',print_r($address['CountryName'],true),'">
+			'<td title="',htmlspecialchars(print_r($address['CountryName'],true)),'">
 				<a href="',op_hrefR(['order_id'=>$order['id'],'item_id'=>$goods[0]['itemid']]),'">[',@$address['Country'],']</a></td>',
 			'<td>',status_shorter($order['OrderStatus']),'</td>',
 			'<td>',$comm,'</td>',
@@ -81,7 +85,7 @@ foreach ($orders as $key => $order) {
 			'<td>';foreach($goods as $g) echo $g['price'],'<br>';echo '</td>',
 			'<td>';foreach($goods as $g) echo '<a href="//www.ebay.de/itm/',$g['itemid'],'" target="_blank">link</a><br>';echo '</td>',
 			'<td>',$order['total_price'],'</td>',
-			'<td>',$order['BuyerUserID'],'</td>',
+			'<td>',$order['BuyerUserID'],' ',user_star_sign($order),'</td>',
 			'<td>',$order['BuyerEmail'],'</td>',
 			'<td>',$order['BuyerFirstName'],' ',$order['BuyerLastName'],'</td>',
 			'<td>',$order['BuyerFeedbackScore'],'</td>',
@@ -142,16 +146,16 @@ if(isset($_GET['order_id']) && $_GET['order_id'] > 0 && $_GET['modal_type'] === 
 	google.charts.load('current', {'packages':['line']});
 	google.charts.setOnLoadCallback(function(){
 
-		$.get('ajax.php?action=orders-page&sales-chart',function(data) {
-	    	drawChart(data);
-	    },'json');
-
 	    $('#show-chrt').on('click', function(e) {
-	    	$('.chart-wrapper').toggleClass('active');
-	    })
+	    	if ($('.chart-wrapper').toggleClass('active').hasClass('active')) {
+				$.get('ajax.php?action=orders-page&sales-chart',function(data) {
+			    	op_drawChart(data);
+			    },'json');
+	    	}
+	    });
 	});
 
-  function drawChart(danye) {
+  function op_drawChart(danye) {
 
     var data = google.visualization.arrayToDataTable(danye);
     var options = {
@@ -162,4 +166,7 @@ if(isset($_GET['order_id']) && $_GET['order_id'] > 0 && $_GET['modal_type'] === 
     var chart = new google.charts.Line(document.getElementById('chrt'));
     chart.draw(data, options);
   }
+
+  // звездочки
+  $(function(){EbayMessages.init()});
 </script>

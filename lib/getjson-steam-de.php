@@ -9,6 +9,7 @@ use \Curl\MultiCurl;
 
 // Requests in parallel with callback functions.
 $multi_curl = new MultiCurl();
+$multi_curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
 
 $multi_curl->success(function($instance) {
 
@@ -36,6 +37,9 @@ $where = get_steam_miracle_where();
 		$reqs = arrayDB("SELECT steam_de.id, steam_de.title as name
 					FROM steam_de LEFT JOIN steam_items ON steam_de.id=steam_items.game_id
 					WHERE $where ORDER BY o_reviews DESC LIMIT 200");
+	}elseif ($_POST['getjson'] === 'one_game_parse') {
+		$sid = (int)$_POST['sid'];
+		$reqs = arrayDB("SELECT id,title as name FROM steam_de WHERE id = '$sid'");
 	}else{
 		$reqs = arrayDB('SELECT id,title as name FROM steam_de');
 	}
@@ -46,22 +50,23 @@ $where = get_steam_miracle_where();
 	$j = (int)$_POST['start'];
 	$end = (int)$_POST['end'];
 
-	$num = count($reqs);
-	if ($_POST['end'] > $num) $end = $num;
+	$count = count($reqs);
+	if ($_POST['end'] > $count) $end = $count;
 
 	$blacklistM = arrayDB("SELECT * FROM steam_blacklist WHERE category='item'");
 	$blacksell = arrayDB("SELECT * FROM blacklist WHERE category='seller'");
 
-	//$game_list = array();
+	$game_list = array();
 
 //--------------------------------------------------------------------------------------------------
 	$_GET['results'] = [];
 	for ($j; $j <= $end; $j++) {
 
+		$game_id = $reqs[$j-1]['id'];
 		$request = $reqs[$j-1]['name'].' steam';
 	    $request = _requestFilter($request);
 	    $requests = _requestToArr($request);
-		if(isset($game_list)) $game_list[]['name'] = $request;
+		if(isset($game_list)) $game_list[$game_id]['name'] = $request;
 
 	    $_GET['results'][$j] = [];
 	    foreach ($requests as $k => $req) {
@@ -107,9 +112,9 @@ $where = get_steam_miracle_where();
 	        $arrItem[] = $va;
 	    }
 
-		if(isset($game_list)) $game_list[count($game_list)-1]['results'] = $arrItem;
+		if(isset($game_list)) $game_list[$game_id]['results'] = $arrItem;
 
-		_savePaltiRuToBase($arrItem, $game_id, $scan, 'steam_items');
+		$sql = _savePaltiRuToBase($arrItem, $game_id, $scan, 'steam_items');
 	} // for j
 //--------------------------------------------------------------------------------------------------
 	if(!isset($game_list)) $game_list = 'disabled';
@@ -117,8 +122,9 @@ $where = get_steam_miracle_where();
 	$answer = [ 'start'=> $_POST['start'],
 				'end'  => $end,
 				'scan' => $scan,
-				'num'  => $num,
+				'count'  => $count,
 				'games' => $game_list,
+				'$sql' => $sql,
 				'errors' => $_ERRORS,
 				];
 	echo json_encode($answer);

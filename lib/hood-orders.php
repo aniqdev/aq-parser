@@ -76,7 +76,7 @@ foreach ($orders_arr as $key => $order) {
 			'<td><a href="#info" class="ho-modal-show" id="',$order['id'],'">[',$order['countryTwoDigit'],']</a></td>',
 			// '<td>',$order['dtls_quantity'],'</td>',
 			'<td>';foreach($goods as $g) echo $g['quantity'],'<br>';echo '</td>',
-			'<td>';foreach($goods as $g) echo '<div class="op-titles">',$g['prodName']['@cdata'],'<div class="op-titles">';echo '</div></td>',
+			'<td>';foreach($goods as $g) echo '<div class="op-titles">',(isset($g['prodName']['@cdata'])?$g['prodName']['@cdata']:$g['prodName']),'<div class="op-titles">';echo '</div></td>',
 			'<td>';foreach($goods as $g) echo $g['price'],'<br>';echo '</td>',
 			'<td>';foreach($goods as $g) echo '<a href="https://www.hood.de/i/-',$g['auctionID'],'.htm" target="_blank">Link</a><br>';echo '</td>',
 			'<td>',$order['dtls_price'],'</td>',

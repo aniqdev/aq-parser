@@ -1,4 +1,4 @@
-var _aa = { add_modal:$('#addModal'), data:{} };
+window._aa = { add_modal:$('#addModal'), data:{img_checker:[]} };
 
 
 class AddButton extends React.Component {
@@ -78,10 +78,11 @@ class AddModalBody extends React.Component {
 				}else{
 					elink = '<b>Fail! ('+data.resp+')</b>'
 				}
+				if(data.deuched) elink += '<br>Deutch only!!!';
 				_aa.this.setState({alertHtml: elink});
 				if(data.success){
 					//_aa.add_modal.modal('hide');
-					_aa.tr.remove();
+					if(_aa.tr) _aa.tr.remove();
 				}
 			},'json');
 	}
@@ -106,7 +107,7 @@ class AddModalBody extends React.Component {
     return (
 <div>
 	<div>
-		<table className="table table-striped">
+		<table className="table table-striped"><tbody>
 		  <tr>
 		  	<td><a target="_blank" href={'https://www.plati.ru/itm/'+_aa.data.item1_id}>{_aa.data.item1_name}</a></td>
 		  	<td><div onClick={this.choosePriceClick} title="1" className="btn btn-success btn-xs">{_aa.data.item1_price}</div></td>
@@ -122,7 +123,7 @@ class AddModalBody extends React.Component {
 		  	<td><div onClick={this.choosePriceClick} title="3" className="btn btn-success btn-xs">{_aa.data.item3_price}</div></td>
 		  	<td><AddButton plati_id={_aa.data.item3_id} game_name={_aa.data.item3_name} /></td>
 		  </tr>
-		</table>
+		</tbody></table>
 	</div>
 	<div className="btn-group">
 	  <button onClick={this.reparseClick} type="button" className="btn btn-default">Re-parse</button>
@@ -130,6 +131,12 @@ class AddModalBody extends React.Component {
 	  <a href={_aa.data.link} className="btn btn-primary" target="_blank" title={_aa.data.title}>Steam link</a>
 	  <input type="text" value={this.state.value} onChange={this.priceInputChange} className="btn btn-default"/>
 	  <button onClick={this.addGameClick} disabled={this.state.addBtnDisabled} type="button" className="btn btn-info">Add Game</button>
+	  <div className="pull-right sl-img-checker">
+	  	<small>dowloaded images ({_aa.data.img_checker.length}/9):</small>
+	  	{_aa.data.img_checker.map((el,i)=>{
+			return (<i className="glyphicon glyphicon-picture" title={el} key={i}></i>)
+	  	})}
+	  </div>
 	</div>
 	<br/><br/>
 	<div className="input-group">
@@ -234,4 +241,36 @@ $('#repInterval').on('click', function(e) {
 	});
 });	
 
+var bundle_sid = 0;
+var bundle_link_input = document.getElementById('bundle_link');
+function getPlatiRu(sid) {
+	$.post( "ajax.php?action=getjson-steam-de",
+	 	{getjson:'one_game_parse', start:1, end:1, scan:0, sid:sid},
+		function( data ) {
+			document.getElementById('bundle_add').disabled = false;
 
+		},'json');
+}
+
+$('#bundle_save').on('click', function(e) {
+	$(bundle_link_input).parent().removeClass('has-error');
+	var link = bundle_link_input.value;
+	if(!link){
+		$(bundle_link_input).parent().addClass('has-error');
+		return false;
+	}
+	$.post('ajax.php?action=ajax-bundle',
+		{action:'save',link:link},
+		function function_name(data) {
+			if (data.status = 'success') {
+				bundle_sid = data.sids.steam_de;
+				getPlatiRu(bundle_sid)
+			}
+		},'json');
+});
+
+$('#bundle_add').on('click', function(e) {
+	if(!bundle_sid) return false;
+	ajax_steam_modal_body(bundle_sid);
+	_aa.add_modal.modal('show');
+});

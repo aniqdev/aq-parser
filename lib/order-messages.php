@@ -55,11 +55,12 @@ message for: <b><?= $str['ebay_or_mail'];?></b> | country code: <b><?= $str['cou
 		    <select name="ebay_or_mail" class="form-control" id="exampleInput1">
 		    	<option value="ebay">ebay</option>
 		    	<option value="mail">email</option>
+		    	<option value="answer_template">answer template</option>
 		    </select>
 		  </div>
 		  <div class="form-group">|
 		    <label for="exampleInput2">Country code:</label>
-		    <input name="country_alias" value="DE" type="text" class="form-control" id="exampleInput2" placeholder="DE">
+		    <input name="country_alias" value="DE" type="text" class="form-control" id="exampleInput2" maxlength="50" placeholder="DE">
 		  </div>
 		  <div class="form-group">|
 		    <label for="exampleInputl3">Shortcode:</label>

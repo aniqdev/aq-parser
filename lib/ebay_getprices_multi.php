@@ -28,7 +28,10 @@ if (isset($_POST['ebay_getprices'])) {
 	else $end = $num;
 
 	// определяем скан маркер
-	if (!isset($_POST['scan']) || $_POST['scan'] == '0') $scan = $_POST['scan'] = time();
+	if (!isset($_POST['scan']) || $_POST['scan'] == '0'){
+		$scan = $_POST['scan'] = time();
+		delete_old_records('ebay_results','time');
+	} 
 	else $scan = $_POST['scan']; // он же $mark
 
 	$gamesArr = array();
@@ -41,7 +44,9 @@ if (isset($_POST['ebay_getprices'])) {
 		if (isset($objJSON->findItemsAdvancedResponse[0]->searchResult[0]->item)) {
 			$itemArr = $objJSON->findItemsAdvancedResponse[0]->searchResult[0]->item;
 		}
+		$blac_list = get_ebay_black_list($game_id);
 		for ($i=0; $i < count($itemArr); $i++) {
+			if(in_array($itemArr[$i]->itemId[0], $blac_list)) continue;
 			$newArr[$i]['itemid'] = $itemArr[$i]->itemId[0];
 			$newArr[$i]['title']  = $itemArr[$i]->title[0];
 			$newArr[$i]['price']  = $itemArr[$i]->sellingStatus[0]->convertedCurrentPrice[0]->__value__;

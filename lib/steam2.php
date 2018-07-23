@@ -1,6 +1,6 @@
 <?php
 if (isset($_GET['offset'])):
-header('Content-Type: text/html; charset=utf-8');
+header('Content-Type: application/json');
 ini_get('safe_mode') or set_time_limit(2500); // Указываем скрипту, чтобы не обрывал связь.
 include_once('simple_html_dom.php');
 //include('PHPExcel.php');

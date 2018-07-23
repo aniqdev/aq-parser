@@ -1,106 +1,1009 @@
 <?php ini_get('safe_mode') or set_time_limit(2000); // Указываем скрипту, чтобы не обрывал связь.
 
-	$ebay_id = '122712181675';
-
-	$res = getSingleItem($ebay_id, ['as_array'=>true,'IncludeSelector'=>'Description']);
-
-	$description = $res['Item']['Description'];
-
-	sa(strlen($description));
-	sa(htmlspecialchars($description));
-
-	$description = preg_replace('/<a href="http:\/\/koeln-webstudio.+?<\/a>/s',
-			'<div href="http://koeln-webstudio.de/" title="koeln-webstudio" class="koeln-logo" target="_blank">
-				<div class="gig-created">created by</div>
-				<img src="http://hot-body.net/gig-less/images/visit_card.png" alt="koeln-webstudio">
-				<div class="gig-entwick">Entwicklung<br> Marketing<br> Design</div>
-			</div>', $description);
-
-	$description = preg_replace('/([\.!])[^\.!]+?support@gig-games\.de.+?<\/p>/',
-			'$1</p>', $description);
 
 
-	$description = preg_replace('/<div class="col-sm-3"><div class="gig-slider-block.+?<\/div><br><\/div>/s',
-			'', $description);
-	$description = preg_replace('/gig-bottom-panel.+?<\/h2>/s',
-			'gig-bottom-panel row">', $description);
+$ebay_item_id = '112570845527';
 
-	$description = preg_replace('/<div class="icol-xs-2"><div class="gig-slider-block.+?<\/div><\/div>/s',
-			'', $description);
+$chosen_item_price = 4;
 
-	sa(strlen($description));
-	sa(htmlspecialchars($description));
+$warehouse = get_warehouse($ebay_item_id);
+var_dump($warehouse);
+var_dump($warehouse['price']);
+		// товар плати.ру есть но на складе дешевле
+		if ($chosen_item_price && $warehouse && $warehouse['price'] < $chosen_item_price) {
+			$from_warehouse = true;
+		}else{
+			echo "else";
+		}
+var_dump($from_warehouse);
 
-	// $ebayObj = new Ebay_shopping2();
+return;
+$text = 'KCDN7-C6JHK-KNFLR';
 
-	// $res = $ebayObj->updateItemDescription($ebay_id, $description);
-	// unset($res['Fees']);
-	// sa($res);
+$res = get_urls_from_text($text);
+
+var_dump($res);
+
+
+
+
 
 
 
 return;
-function change_contact(&$desc, $str, $l){
-	$desc = preg_replace('/lng-'.$l.'(.+?)triple-support.+?gig-triple/s',
-							 'lng-de${1}triple-support">Support 24H/7</div>
-								<div class="triple-cont triple-mail"></div>
-								<div class="triple-cont triple-new">'.$str.'</div>
-							</div>
-						</div>
-						<div class="col-sm-4">
-							<div class="gig-triple', $desc);
+$urlll = '2F0IT-8FZ5D-9VNY6';
+
+var_dump(filter_var($urlll, FILTER_VALIDATE_URL));
+
+return;
+$ids_arr = arrayDB("SELECT item_id FROM ebay_prices");
+$ids_arr = array_column($ids_arr, 'item_id');
+
+
+sa($ids_arr);
+
+
+return;
+	$suitables = get_suitables2($ebay_item_id);
+	sa($suitables);
+	$wh_price = @$suitables[0]['item1_price'];
+	sa($wh_price);
+
+
+return;
+$_GET['limit'] = @$_GET['limit'] ? $_GET['limit'] : 50; // типо насройка лимита по умолчанию
+sa($_GET['limit']);
+
+return;
+	$excel_s2 = readExcel('csv/ebayartikel05-07-2018.xlsx', 0);
+sa($excel_s2);
+
+
+// $categories = json_decode(file_get_contents('csv/eBayArtikel_s2.json'), true);
+// sa($categories);
+
+// 	$excel = readExcel('csv/eBayArtikel21-02-2018.xlsx', 1); // новый файл
+
+// sa($excel);
+return;
+$res = get_text_template('mail', 'DE');
+
+$res = str_replace('<!-- facebook_paragraph -->', get_facebook_paragraph('112630283155','DE'), $res);
+
+echo $res;
+
+
+return;
+$ebay_prices = arrayDB("SELECT item_id,price FROM ebay_prices");
+$ebay_prices = array_column($ebay_prices, 'price', 'item_id');
+
+
+sa($ebay_prices);
+
+
+return;
+$ebay_games = arrayDB('SELECT title,ebay_price,ebay_id FROM steam_de WHERE ebay_id<>""');
+// $ebay_games = array_column($ebay_games, 'item_id');
+
+draw_table_with_sql_results($ebay_games,5);
+
+return;
+$white_list = arrayDB("SELECT game_id,ebay_id FROM ebay_black_white_list WHERE category = 'white'");
+$white_lists = [];
+foreach ($white_list as $val) $white_lists[$val['game_id']][] = $val['ebay_id'];
+
+sa($white_lists);
+
+return;
+$res = (new Ebay_shopping2)->GetMessages('inbox', 100);
+
+sa($res);
+
+
+return;
+$res = get_ebay_black_list(3589);
+
+sa($res);
+
+
+return;
+sa($_SERVER);
+
+
+return;
+	$ret = arrayDB("SELECT title FROM steam_de WHERE title LIKE '%a%' LIMIT 5");
+sa($ret);
+	$ret = array_column($ret, 'title');
+
+sa($ret);
+
+	return;
+$res = get_text_template('mail', 'DE');
+
+$res = str_replace('<!-- facebook_paragraph -->', get_facebook_paragraph('112630283155','test'), $res);
+
+echo $res;
+
+return;
+var_dump('2000-00-00 00:00:00' > 0);
+
+return;
+$start = time();
+
+$res = (new Ebay_shopping2())->GetSellerItemsArray();
+
+sa(time()-$start);
+
+sa($res['completed']);
+
+
+foreach ($res['completed'] as $key => $ebay_id) {
+	arrayDB("UPDATE games SET extra_field = 'to_relist' WHERE ebay_id = '".$ebay_id."'");
 }
 
 
-	$res = getSingleItem('122712207245', ['as_array'=>true,'IncludeSelector'=>'Description']);
 
-	$description = $res['Item']['Description'];
+return;
+$res = Cdvet::filter_search_site();
+
+sa(json_decode($res));
+
+
+
+
+return;
+// $cd_arr = json_decode(file_get_contents('csv/eBayArtikel.json'), true);
+$xcel = readExcel('csv/produkte-kategorien-020518.xlsx');
+
+// sa($xcel);
+
+// return;
+
+foreach ($xcel as $val) {
+	sa($val['A']);
+	sa($val['C']);
+	$shop_id = _esc(trim($val['A']));
+	$cats = _esc($val['C']);
+	arrayDB("UPDATE cdvet_feed_full SET categories = '$cats'
+		WHERE shop_id = '$shop_id'");
+}
+
+
+return;
+echo "<pre>";
+// var_dump(arrayDB("SELECT * FROM cdvet_feed"));
+echo "</pre>";
+
+echo(str_replace('.', ',', +'1.00').'g');
+
+
+
+
+
+
+return;
+$feed_new = csvToArr('http://www.cdvet.de/backend/export/index/productckeck?feedID=20&hash=5b1c9a571cf947e366411cddc68d9129', ['max_str' => 0,'encoding' => 'windows-1250']);
+
+
+$broken = [];
+$no_img = [0];
+
+foreach ($feed_new as $val) {
+	$image = trim($val[15]);
+	$link = trim($val[14]);
+	if ($image) {
+		if (!@fopen($image,'r')) {
+			$broken[] = $link;
+		}
+	}else{
+		$no_img[] = $link;
+	}
+}
+sa($broken);
+sa($no_img);
+
+
+return;
+$feed_new = csvToArr('http://www.cdvet.de/backend/export/index/productckeck?feedID=20&hash=5b1c9a571cf947e366411cddc68d9129', ['max_str' => 0,'encoding' => 'windows-1250']);
+
+// sa($feed_new);
+
+// $cd_arr = json_decode(file_get_contents('csv/eBayArtikel.json'), true);
+
+// sa($cd_arr);
+
+
+
+foreach ($feed_new as $val) {
+	$shop_id = _esc(trim($val[0]));
+	$link = _esc($val[14]);
+	$image = _esc($val[15]);
+	arrayDB("UPDATE cdvet_feed SET image = '$image', link = '$link'
+		WHERE shop_id = '$shop_id'");
+	sa(['link'=>$link,'image'=>$image,]);
+}
+
+
+return;
+$words = [];
+foreach (json_decode(Cdvet::filter_search(),1) as $key => $val) {
+	$words = array_merge($words, explode(' ', $val['title']), explode(' ', $val['short_desc']));
+}
+usort($words, function ($a, $b)
+{
+    return (strlen($a) > strlen($b)) ? -1 : 1;
+});
+sa(array_unique($words));
+
+
+
+
+
+
+return;
+$start = time();
+$ebay_item_arr = Cdvet::GetSellerList();
+
+sa(time()-$start);
+sa($ebay_item_arr);
+
+foreach ($ebay_item_arr as $item) {
+	$ebay_id = $item['ItemID'];
+	$ebay_cat = $item['Storefront']['StoreCategoryID'];
+	arrayDB("UPDATE cdvet SET ebay_cat = '$ebay_cat' WHERE ebay_id = '$ebay_id'");
+}
+
+return;
+$res = get_cdvet_cats();
+
+sa($res);
+
+
+
+
+return;
+$cd_arr = json_decode(file_get_contents('csv/eBayArtikel.json'), true);
+
+// sa($cd_arr);
+
+$max_len = 0;
+
+foreach ($cd_arr as $val) {
+	sa($val['A']);
+	sa($val['L']);
+	$shop_id = _esc(trim($val['A']));
+	$cats = _esc($val['L']);
+	arrayDB("UPDATE cdvet_feed SET categories = '$cats'
+		WHERE shop_id = '$shop_id'");
+}
+
+
+return;
+$categories = json_decode(file_get_contents('csv/eBayArtikel_s2.json'), true);
+
+$sorted_cats = Cdvet::cd_ebay_cat_sort($categories);
+
+sa($sorted_cats);
+
+
+
+return;
+	$categories = json_decode(file_get_contents('csv/eBayArtikel_s2.json'), true);
+
+sa($categories);
+
+foreach ($categories as $k => $val) {
+	if(in_array($k, [1,2,22,23,38,39,58,59,65,66])) continue;
+
+	$section = _esc($val['F']);
+	$cat_name = _esc($val['A']);
+	$eBayShopKAtegorieID = _esc($val['B']);
+	$eBayKategorie = _esc($val['C']);
+	$shop_parent = _esc($val['D']);
+	$shop_category = _esc($val['E']);
+
+	arrayDB("INSERT INTO 
+		cdvet_cats (section,cat_name,eBayShopKAtegorieID,eBayKategorie,shop_parent,shop_category)
+		VALUES ('$section','$cat_name','$eBayShopKAtegorieID','$eBayKategorie','$shop_parent','$shop_category')");
+}
+
+
+return;
+$feed_old = arrayDB("SELECT * FROM cdvet_feed");
+
+$feed_old = array_column($feed_old, null, 'shop_id');
+
+sa(count($feed_old));
+sa($feed_old);
+
+
+
+
+return;
+$user_id = 'm.claus79';
+
+var_dump(is_trusted_user($user_id));
+
+
+
+return;
+$res = get_text_template('mail', 'DE');
+
+$res = str_replace('<!-- facebook_paragraph -->', get_facebook_paragraph(), $res);
+
+echo $res;
+
+return;
+$order_arr = GetItemsAwaitingFeedbacks();
+
+sa($order_arr);
+
+
+return;
+// $ebay_arr = EbayOrders::GetFeedbackByTransactionId('253453548060');
+// $ebay_arr = EbayOrders::GetFeedbackByItemId('122885247159');
+// $ebay_arr = EbayOrders::GetFeedbackByOrderLineItemID('122885247159-1924962981002');
+
+$ebay_arr = EbayOrders::GetItemsAwaitingFeedbackRequest(['PageNumber'=>'1']);
+
+sa($ebay_arr);
+
+
+
+
+
+return;
+$ebay_arr = Cdvet::GetSellerList();
+
+sa($ebay_arr);
+
+
+
+
+return;
+$title = 'cdVet® insektoVet Spray 100ml Pferd Parasitenabwehr';
+	
+	$title = Cdvet::replace_parasite($title);
+
+
+sa($title);
+
+return;
+	$item_info = getSingleItem('253453573028', ['as_array'=>true]);
+
+	sa($item_info);
+
+
+
+return;
+$feed_new = csvToArr('http://www.cdvet.de/backend/export/index/productckeck?feedID=20&hash=5b1c9a571cf947e366411cddc68d9129', ['max_str' => 0,'encoding' => 'windows-1250']);
+
+// draw_table_with_sql_results($feed_new, $first_row_thead = true);
+
+// $feed_new = array_column($feed_new, null, 0);
+
+sa($feed_new);
+
+return;
+$str = '<div>
+	<p>
+		<span style="color:#00B050;font-weight:bold;">ArthroGreen Gelenkfit HD</span><span> dient der ern&auml;hrungsbedingten Unterst&uuml;tzung der Funktion des Bewegungsapparates. Es unterst&uuml;tzt intensiv die Versorgung der B&auml;nder, Sehnen und Bindegewebe.</span></p>
+	<p><span>&nbsp;</span></p>
+	<p><span>- synergetische Kr&auml;utermischung</span></p>
+	<p><span>- </span><span style="color:#00B050;font-weight:bold;">ArthroGreen Gelenkfit HD</span><span> enth&auml;lt Kr&auml;uterausz&uuml;ge, die f&uuml;r die Versorgung der Gelenke und Sehnen wichtig sind. Insbesondere die Informationen im K&ouml;rper, die zur Straffung des B&auml;nder- und Sehnenapparates hilfreich sind, werden durch ern&auml;hrungsbedingte Unterst&uuml;tzung optimiert.</span></p>
+	<p><span>- hervorragende ern&auml;hrungsbedingte Unterst&uuml;tzung bei durchtrittigen oder weichgefesselten Pferden</span></p>
+	<p><span>&nbsp;</span></p>
+	<p>
+		<span style="font-weight:bold;text-decoration: underline;">Expertentipp:</span>
+		<span> Gerade Welpen/Junghunde einer gro&szlig;en Rasse k&ouml;nnen Sie zus&auml;tzlich noch mit </span>
+		<span style="color:#00B050;font-weight:bold;">ArthroGreen Gelenkfit HD</span>
+		<span> unterst&uuml;tzen. Es stabilisiert auf nat&uuml;rliche Weise den Sehnen- und B&auml;nderapparat im Wachstum. Eine Zuf&uuml;tterung ab der 8. Lebenswoche ist empfehlenswert.</span>
+	</p>
+	<p><span>&nbsp;</span></p>
+	<p><span>Erg&auml;nzungsfuttermittel f&uuml;r Hunde, Katzen und Pferde</span></p>
+	<p><span>&nbsp;</span></p>
+	<p><span style="font-weight:bold;text-decoration: underline;">Zusammensetzung:</span><span> Dextrose, Luzerne, Brennnessel</span></p>
+	<p><span>&nbsp;</span></p>
+	<p><span style="font-weight:bold;text-decoration: underline;">Analytische Bestandteile und Gehalte:</span><span> Rohprotein &lt; 0,3%, Rohfett &lt; 0,2%, Rohfaser &lt; 0,5%, Rohasche 0,12%, Natrium &lt; 0,02%</span></p>
+	<p><span>&nbsp;</span></p>
+	<p><span style="font-weight:bold;text-decoration: underline;">Zusatzstoffe je kg:</span><span> Technologischer Zusatzstoff: Kieselgur E551c 2500mg</span></p>
+	<p><span>&nbsp;</span></p>
+	<p><span style="font-weight:bold;text-decoration: underline;">F&uuml;tterungsempfehlung:</span><span> Hunde und Katzen 1/2 - 1 Messl&ouml;ffel, Pferde 1 - 2 Messl&ouml;ffel 1 mal t&auml;glich f&uuml;r 2 Monate &uuml;ber das Futter geben</span></p>
+	<p><span>&nbsp;</span></p>
+	<p><span>1 Messl&ouml;ffel entspricht ca. 1g</span></p>
+</div>';
+
+	$str = preg_replace('/<span>(.+?)<\/span>/', '${1}', $str);
+
+sa(htmlspecialchars($str));
+
+return;
+$str = 'https://i.ebayimg.com/00/s/ODAwWDk1NA==/z/bYAAAOSwQN5ad0ZJ/$_1.PNG?set_id=2';
+
+var_dump(preg_match('/\/z\/(.+?)\//', $str, $matches));
+
+sa($matches);
+sa('https://i.ebayimg.com/images/g/'.$matches[1].'/s-l1600.jpg');
+
+return;
+$ord_array = getOrderArray();
+
+sa($ord_array);
+
+return;
+$text = 'Obstessig, Dextrose, Holunderbeersaft, Rote Bete Saft, Fermentgetreide flüssig, Brennnesselextrakt, Spitzwegerichextrakt, Acerola Analytische Bestandteile und, Gehalte Rohfett  Zusatzstoffe je kg Konservierungsmittel, Milchsäure E270 9500mg, sensorische Zusatzstoffe, Grapefruitextrakt 60000mg, Oreganumöl 800mg, Ginkgotinktur4800mg, Artischockentinktur 2000mg, Johanniskrauttinktur 900mg, Anistinktur 900mg, Echinaceatinktur 900mg, Thymiantinktur, 900mg Fütterungsempfehlung über einen Zeitraum von 30 Tagen, täglich 1 - 3ml je Liter Trinkwasser, oder täglich 2 - 5, Tropfen je 50ml Trinkwasser';
+
+
+
+sa(explode(' ', $text));
+
+// $text = insert_comas($text);
+sa($text);
+$text = explode(',', $text);
+sa($text);
+$text = array_map(function($el){return strlen($el);}, $text);
+sa($text);
+
+
+return;
+$feed_new = csvToArr('http://www.cdvet.de/backend/export/index/productckeck?feedID=20&hash=5b1c9a571cf947e366411cddc68d9129', ['max_str' => 0,'encoding' => 'windows-1250']);
+
+// draw_table_with_sql_results($feed_new, $first_row_thead = true);
+
+$feed_new = array_column($feed_new, null, 0);
+
+sa($feed_new);
+
+
+
+
+
+
+
+
+
+return;
+$multi_curl = ef_get_milticurl_handler();
+
+$_GET['ef_res_arr'] = [];
+
+$multi_curl->success(function($instance) {
+    $_GET['ef_res_arr'][] = json_decode(json_encode($instance->response->ItemArray->Item), true);
+});
+
+
+$ebay_api_url = 'https://api.ebay.com/ws/api.dll';
+
+$multi_curl->addPost($ebay_api_url, ef_build_post_data(1));
+
+$multi_curl->addPost($ebay_api_url, ef_build_post_data(2));
+
+$multi_curl->addPost($ebay_api_url, ef_build_post_data(3));
+
+$multi_curl->addPost($ebay_api_url, ef_build_post_data(4));
+
+$multi_curl->addPost($ebay_api_url, ef_build_post_data(5));
+
+
+$multi_curl->start(); // Blocks until all items in the queue have been processed.
+
+sa($_GET['ef_res_arr']);
+
+return;
+$category = 'ebay_messages';
+
+
+$res = get_text_template($category);
+
+sa($res);
+
+$tpl_name = 'hi';
+
+$res = get_text_template($category, $tpl_name);
+
+sa($res);
+
+
+
+
+
+
+return;
+$link_sub = 'http://store.steampowered.com/sub/166591/';
+
+$link_bundle = '//store.steampowered.com/bundle/2433/Strategy_Game_of_the_Year_Bundle/';
+
+
+        $appsub = explode('/', $link_bundle);
+
+        sa($appsub);
+
+
+
+return;
+$receive_item_link = 'https://shop.digiseller.ru/xml/purchase.asp?id_i=72752008&uid=E2131F79A65A4271AE4F8DD1CA155361';
+$received_item = get_item_xml($receive_item_link);
+
+sa($received_item);
+
+
+
+return;
+$limit = 5;
+
+$month_top = arrayDB("SELECT tt.*, ebay_games.title_clean, ebay_games.picture_hash, steam_de.ebay_price, steam_de.id
+		FROM (select title,price,ebay_id,shipped_time,count(*) as count 
+				from ebay_order_items
+				where shipped_time > NOW() - INTERVAL 1 MONTH
+				group by ebay_id) tt
+	JOIN ebay_games
+	ON tt.ebay_id = ebay_games.item_id
+	JOIN steam_de
+	ON tt.ebay_id = steam_de.ebay_id
+	WHERE picture_hash <> ''
+	order by count desc
+	limit $limit");
+
+$ids_arr = array_map(function($el){return $el['id'];}, $month_top);
+
+$ids_str = implode(',', $ids_arr);
+
+$where_and = '';
+if($ids_str) $where_and = "steam_de.id NOT IN($ids_str) AND";
+
+
+$month_top = arrayDB("SELECT tt.*, ebay_games.title_clean, ebay_games.picture_hash, steam_de.ebay_price, steam_de.id
+		FROM (select title,price,ebay_id,shipped_time,count(*) as count 
+				from ebay_order_items
+				where shipped_time > NOW() - INTERVAL 1 MONTH
+				group by ebay_id) tt
+	JOIN ebay_games
+	ON tt.ebay_id = ebay_games.item_id
+	JOIN steam_de
+	ON tt.ebay_id = steam_de.ebay_id
+	WHERE $where_and picture_hash <> ''
+	order by count desc
+	limit $limit");
+
+sa($month_top);
+
+var_dump("SELECT tt.*, ebay_games.title_clean, ebay_games.picture_hash, steam_de.ebay_price, steam_de.id
+		FROM (select title,price,ebay_id,shipped_time,count(*) as count 
+				from ebay_order_items
+				where shipped_time > NOW() - INTERVAL 1 MONTH
+				group by ebay_id) tt
+	JOIN ebay_games
+	ON tt.ebay_id = ebay_games.item_id
+	JOIN steam_de
+	ON tt.ebay_id = steam_de.ebay_id
+	WHERE $where_and picture_hash <> ''
+	order by count desc
+	limit $limit");
+
+
+return;
+// Requests in parallel with callback functions.
+$multi_curl = new \Curl\MultiCurl();
+$multi_curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+
+$multi_curl->success(function($instance) {
+
+	// sa(func_get_arg(1));
+    // $_GET['results'][$jkey][$rkey] = $instance->response;
+    sa('count: ' . count($instance->response->items));
+    sa($instance->response);
+    unset($instance->response);
+	sa($instance);
+
+});
+$multi_curl->error(function($instance) {
+	global $_ERRORS;
+    $_ERRORS[] = $instance->errorMessage;
+});
+
+
+
+$request = 'Sid Meier’s Civilization® VI steam';
+// $request = 'Civilization VI Steam';
+sa($request);
+$request = _requestFilter($request);
+sa($request);
+$requests = _requestToArr($request);
+
+foreach ($requests as $k => $req) {
+	if($k>0) break;
+	sa('this is: ' . $k);
+
+    // $reqEnc = urlencode($req);
+    // $url = "http://www.plati.ru/api/search.ashx?query={$reqEnc}&pagesize=500&response=json";
+    // $multi_curl->addGet($url);
+
+    $url = 'http://www.plati.ru/api/search.ashx';
+    $multi_curl->addGet($url, ['query'=>$req, 'response'=>'json', 'pagesize'=>'500'], 'qwerty');
+}
+
+
+$what = $multi_curl->start();
+
+echo "<pre>what is: ";
+var_dump($what);
+echo "</pre>";
+
+
+
+
+
+
+
+
+
+
+
+return;
+$feed_new = csvToArr('http://www.cdvet.de/backend/export/index/productckeck?feedID=20&hash=5b1c9a571cf947e366411cddc68d9129', ['max_str' => 0,'encoding' => 'windows-1250']);
+
+$feed_new = array_column($feed_new, null, 0);
+
+
+
+
+$feed_new_compare = array_column($feed_new, 0);
+
+$feed_file = ROOT.'/lib/adds/cdvet_feed.txt';
+
+$feed_old_compare = explode(',', file_get_contents($feed_file));
+
+
+$in_feed_new_absent = array_diff($feed_old_compare, $feed_new_compare);
+$in_feed_old_absent = array_diff($feed_new_compare, $feed_old_compare);
+
+sa($in_feed_old_absent);
+sa($in_feed_new_absent);
+
+file_put_contents($feed_file, implode(',', $feed_new_compare));
+
+return;
+
+$res = arrayDB("SELECT * from ebay_data where ebay_id = '122712177776' order by id desc limit 3");
+
+sa(count($res));
+
+sa(strlen($res[0]['full_desc']));
+sa(strlen($res[1]['full_desc']));
+sa(strlen($res[2]['full_desc']));
+
+sa(htmlspecialchars($res[2]['full_desc']));
+
+
+
+
+
+
+
+
+return;
+function dir_size($dir) {
+	$totalsize=0;
+	if ($dirstream = @opendir($dir)) {
+		while (false !== ($filename = readdir($dirstream))) {
+			if ($filename!="." && $filename!=".."){
+				if (is_file($dir."/".$filename))
+					$totalsize+=filesize($dir."/".$filename);
+				 
+				if (is_dir($dir."/".$filename))
+					$totalsize+=dir_size($dir."/".$filename);
+			}
+		}
+	}
+	closedir($dirstream);
+	return $totalsize;
+}
+
+$dir_size = dir_size('steam-images');
+
+sa($dir_size . ' b');
+sa($dir_size/1024 . ' Kb');
+sa($dir_size/1024/1024 . ' Mb');
+sa($dir_size/1024/1024/1024 . ' Gb');
+
+return;
+$platiObj = new PlatiRuBuy();
+$chosen_item_id = '2201685';
+
+		$inv_res = $platiObj->getInvoice($chosen_item_id);
+var_dump($inv_res);
+
+return;
+		$includes_arr = explode(',', '27050,27020,27000');
+			$app_id = $includes_arr[0];
+			$app_sub = 'app';
+
+
+	$checker = file_get_contents('http://parser.gig-games.de/steam-images-checker.php?app_id='.$app_id.'&app_sub='.$app_sub);
+	$chr = json_decode($checker, true);
+
+	sa($chr);
+
+
+
+return;
+		$query = [
+			'chat_id' => '278472749',
+			'text' => 'test <b><a href="http://parser.gig-games.de/index.php?action=ebay-messages&correspondent=sebi_ghost&message_id=1625861571019&can_be_published=0">teste45</a></b>',
+		];
+var_dump(AutomaticGroupBot::sendMessage($query));
+
+
+return;
+		$received_item = get_item_xml($receive_item_link);
+
+		sa($received_item);
+
+return;
+$receive_item_link = 'https://shop.digiseller.ru/xml/purchase.asp?id_i=71353398&uid=88506F25840C49CAB5FBF039DBC7864D';
+
+$res = simplexml_load_file($receive_item_link);
+
+// $res = file_get_contents($receive_item_link);
+
+sa($res);
+
+
+return;
+$res = simplexml_load_string('<?xml version="1.0" encoding="windows-1251"?><digiseller.response><retval>0</retval><retdesc></retdesc><typegood>1</typegood><file><name_in /><name /><size /></file><text><![CDATA[Luxor 2 HD Luxor 2 HD CG25F-VAY8J-20P76]]></text></digiseller.response>');
+
+sa($res);
+
+return;
+
+// AutomaticGroupBot::sendMessage(date('H:i:s').' New order gewünscht'.$gig_order_id);
+
+	// AutomaticGroupBot::sendMessage(substr(strip_tags(trim('test quotes " @ # \' >===')),0,200));
+return;
+// $botObj = new AutomaticBot('-195283152');
+	// $botObj->sendMessage(['text' => date('H:i:s').' test 1']);
+	// AutomaticBot::sendMessage(['text' => date('H:i:s').' test 4']);
+	AutomaticGroupBot::sendMessage(date('H:i:s').' test 10');
+	AutomaticGroupBot::sendMessage(['chat_id'=>'278472749','text' => date('H:i:s').' test 9']);
+
+
+return;
+arrayDB("UPDATE steam_de set advantage = ROUND((old_price-ebay_price)/old_price*100, 2) where ebay_id <> '' and old_price > 0;
+	UPDATE steam_en set advantage = ROUND((old_price-ebay_price)/old_price*100, 2) where ebay_id <> '' and old_price > 0;
+	UPDATE steam_fr set advantage = ROUND((old_price-ebay_price)/old_price*100, 2) where ebay_id <> '' and old_price > 0;
+	UPDATE steam_es set advantage = ROUND((old_price-ebay_price)/old_price*100, 2) where ebay_id <> '' and old_price > 0;
+	UPDATE steam_it set advantage = ROUND((old_price-ebay_price)/old_price*100, 2) where ebay_id <> '' and old_price > 0;", true);
+
+arrayDB("UPDATE steam_de set advantage = ROUND((reg_price-ebay_price)/reg_price*100, 2) where ebay_id <> '' and old_price = 0 and reg_price > 0;
+	UPDATE steam_en set advantage = ROUND((reg_price-ebay_price)/reg_price*100, 2) where ebay_id <> '' and old_price = 0 and reg_price > 0;
+	UPDATE steam_fr set advantage = ROUND((reg_price-ebay_price)/reg_price*100, 2) where ebay_id <> '' and old_price = 0 and reg_price > 0;
+	UPDATE steam_es set advantage = ROUND((reg_price-ebay_price)/reg_price*100, 2) where ebay_id <> '' and old_price = 0 and reg_price > 0;
+	UPDATE steam_it set advantage = ROUND((reg_price-ebay_price)/reg_price*100, 2) where ebay_id <> '' and old_price = 0 and reg_price > 0;", true);
+
+arrayDB("UPDATE steam_de set advantage = -1 where ebay_id <> '' and reg_price = 0;
+	UPDATE steam_en set advantage = -1 where ebay_id <> '' and reg_price = 0;
+	UPDATE steam_fr set advantage = -1 where ebay_id <> '' and reg_price = 0;
+	UPDATE steam_es set advantage = -1 where ebay_id <> '' and reg_price = 0;
+	UPDATE steam_it set advantage = -1 where ebay_id <> '' and reg_price = 0;", true);
+
+
+return;
+$grouped_by_steam_link = arrayDB("SELECT id,count(*) count from games group by steam_link");
+$link_count = array_column($grouped_by_steam_link, 'count', 'id');
+
+sa($link_count);
+
+
+
+return;
+$items_arr = [
+	'253201238514',
+	'253201250078',
+	'253201256795',
+	'253201262577',
+	'253201268084',
+	'253201270459',
+	'253201276383',
+	'253201277221',
+	'253201277785',
+	'253201282057',
+	'253201284451',
+	'253201289829',
+	'253201306076',
+	'253201315699',
+	'253201320285',
+	'253201322474',
+	'253202672796',
+	'253202677579',
+	'253202680228',
+	'253202681426',
+	'253202682962',
+	'253202684208',
+	'253202686044',
+	'253202687452',
+	'253202698229',
+	'253202702626',
+	'253202705074',
+	'253202706508',
+	'253202707133',
+	'253202709605',
+	'253202711811',
+	'253202713989',
+	'253222299053',
+	'253222302713',
+	'253222307711',
+	'253222308496',
+	'253222330523',
+	'253222331288',
+	'253222781186',
+	'253222799317',
+];
+
+
+$postal_code = '49584';
+
+foreach ($items_arr as $key => $item_id) {
+
+	$res = Cdvet::changePostalCode($item_id, $postal_code);
+	unset($res['Fees']);
+	sa($res);
+}
+
+
+
+
+
+
+
+
+return;
+$ebay_id = '122712177776';
+
+$item_info = getSingleItem($ebay_id, ['as_array'=>true,'IncludeSelector'=>'Description']);
+
+$description = $item_info['Item']['Description'];
+
+$title = 'description backup';
+$full_desc = _esc($description);
+arrayDB("INSERT INTO ebay_data 
+	(ebay_id,title,full_desc)
+	VALUES
+	('$ebay_id','$title','$full_desc')");
+
 
 	sa(strlen($description));
 	sa(htmlspecialchars($description));
 
-	$description = preg_replace('/gig-quelle">(.+?)e:(.+?)<!--link-end-->/',
-							 'gig-quelle">$1e: steampowered</a><!--link-end-->', $description);
-
-	$description = preg_replace('/<a target="_blank" href="http:\/\/store.steampowered(.*)">/',
-							 '<a>', $description);
-
-
-	$description = preg_replace('/a\) Steam herunterladen(.+?)<br>b\)/s',
-							 "a) Laden Sie das Steaminstallationdatei herunter.<br>\r\nb)", $description);
-
-	$description = preg_replace('/a\) steam download(.+)<br>/',
-							 'a) Download the Steam installation file.<br>', $description);
-
-	$description = preg_replace('/a\) t(.+)<br>/',
-							 "a) Téléchargez le fichier d'installation Steam.<br>", $description);
-
-	$description = preg_replace('/a\) steamprogramme descarg(.+)<br>/',
-							 'a) Descargue el archivo de instalación de Steam.<br>', $description);
-
-	$description = preg_replace('/a\) steamprogramme scaricar(.+)<br>/',
-							 'a) Scaricare il file di installazione di Steam.<br>', $description);
-
-
-	$contact_de = 'Wenn Sie Fragen, Anregungen oder unsere Unterstützung bei der Aktivierung brauchen, können Sie uns jederzeit kontaktieren. In der Regel werden die Anfragen innerhalb eines Tages bearbeitet.';
-
-	$contact_en = 'If you have any questions, suggestions or support, please do not hesitate to contact us. As a rule, the inquiries are processed within one day.';
-
-	$contact_fr = "Si vous avez des questions, des suggestions ou des conseils, n'hésitez pas à nous contacter. En règle générale, les enquêtes sont traitées dans un jour.";
-
-	$contact_es = 'Si tiene alguna pregunta, sugerencia o apoyo, no dude en ponerse en contacto con nosotros. Por regla general, las consultas se procesan en un día.';
-
-	$contact_it = 'Se hai domande, suggerimenti o assistenza, non esitate a contattarci. Di norma, le richieste vengono elaborate entro un giorno.';
-
-	change_contact($description, $contact_de, 'de');
-	change_contact($description, $contact_en, 'en');
-	change_contact($description, $contact_fr, 'fr');
-	change_contact($description, $contact_es, 'es');
-	change_contact($description, $contact_it, 'it');
-
+$description = preg_replace('/offer\.ebay\.de.+?fb=1/s',
+		'offer.ebay.de/ws/eBayISAPI.dll?BinConfirm&fromPage=2047675&item='.$ebay_id.'&fb=1', $description);
 
 	sa(strlen($description));
 	sa(htmlspecialchars($description));
+
+$ebayObj = new Ebay_shopping2();
+
+$resp = $ebayObj->updateItemDescription($ebay_id, $description);
+unset($resp['Fees']);
+
+sa($resp);
+
+
+
+
+
+
+return;
+// sa(arrayDB("select steam_link from games where ebay_id = '$ebay_id' limit 1"));
+
+	$steam_de = arrayDB("SELECT steam_de.*,steam.usk_links as pegi_links,steam.usk_age as pegi_age 
+						FROM steam_de
+						LEFT JOIN steam
+						ON steam_de.link = steam.link
+						WHERE steam_de.link = (select steam_link from games where ebay_id = '$ebay_id' limit 1) LIMIT 1");
+	if ($steam_de) {
+		$steam_de = $steam_de[0];
+	}else{
+		return ['success' => 0, 'resp' => 'No steam info!'];
+	}
+
+$specifics = build_item_specifics_array($steam_de);
+
+
+sa($specifics);
+
+// $ebayObj = new Ebay_shopping2();
+
+// $res = $ebayObj->UpdateCategorySpecifics($ebay_id, $specifics);
+
+// sa($res);
+
+
+
+
+
+
+
+
+
+
+return;
+function get_filesss($dir='.')
+{
+	$files = [];
+	if ($handle = opendir($dir)){
+		while(false !== ($item = readdir($handle))){
+			$fpath = "$dir/$item";
+			if (is_file($fpath)) {
+				if (stripos($fpath, '.jpg') !== false) {
+					$files[] = str_replace('E:\xamp\htdocs\parser\www\ignore\Produktbilder_JPG/', '', $fpath);
+				}
+			}elseif (is_dir($fpath) && ($item != ".") && ($item != "..")){
+				$files = array_merge($files, get_filesss($fpath));
+			}
+		}
+		closedir($handle);
+	}
+	return $files; 
+}
+
+$arr = get_filesss('E:\xamp\htdocs\parser\www\ignore\Produktbilder_JPG');
+
+// sa($arr);
+
+// return;
+$xcel = readExcel('csv/eBayArtikel.xlsx');
+
+$res = [];
+foreach ($xcel as $row => $cell) {
+	$img = $cell['C'] . '_' . $cell['D'];
+	$img = str_replace('http://www.cdvet.de/media/image/', '', $img);
+	$closest ='';
+	$temp_res = [];
+	$max_perc = 0;
+	$temp_res = [
+		'percents' => '',
+		'excel_img' => '',
+		'jpg_file' => '',
+	];
+	foreach ($arr as $file) {
+		similar_text($file, $img, $percents);
+		if ($percents > 50 && $percents > $max_perc) {
+			$max_perc = $percents;
+			$temp_res = [
+				'percents' => $percents,
+				'excel_img' => $img,
+				'jpg_file' => $file,
+			];
+		}
+	}
+	if($max_perc) $res[$row]['pack'] = $temp_res;
+	$max_perc = 0;
+	$temp_res = [
+		'percents' => '',
+		'excel_img' => '',
+		'jpg_file' => '',
+	];
+	foreach ($arr as $file) {
+		similar_text($file, $img.'_Etikett', $percents);
+		if ($percents > 50 && $percents > $max_perc) {
+			$max_perc = $percents;
+			$temp_res = [
+				'percents' => $percents,
+				'excel_img' => $img,
+				'jpg_file' => $file,
+			];
+		}
+	}
+	if($max_perc) $res[$row]['ettik'] = $temp_res;
+	// ksort($temp_res, SORT_NUMERIC);
+	// $temp_res = array_reverse($temp_res);
+	// array_splice($temp_res, 3);
+	// $res['pack'] = $temp_res;
+}
+
+file_put_contents('csv/jpeg_matches.json', json_encode($res));
+
+sa($res);
 
 
 return;
@@ -109,30 +1012,30 @@ return;
 // sa($jpegs);
 
 // return;
-function get_filess($dir='.')
-{
-	$files = [];
-	if ($handle = opendir($dir)){
-		while(false !== ($item = readdir($handle))){
-			$fpath = "$dir/$item";
-			if (is_file($fpath)) {
-				if (stripos($fpath, '.jpg') !== false) {
-					$files[] = 'http://hot-body.net/Produktbilder_JPG/'.str_replace('E:\xamp\htdocs\parser\www\ignore\Produktbilder_NEU/', '', $fpath);
-				}
-			}elseif (is_dir($fpath) && ($item != ".") && ($item != "..")){
-				$files = array_merge($files, get_filess($fpath));
-			}
-		}
-		closedir($handle);
-	}
-	return $files; 
-}
+// function get_filess($dir='.')
+// {
+// 	$files = [];
+// 	if ($handle = opendir($dir)){
+// 		while(false !== ($item = readdir($handle))){
+// 			$fpath = "$dir/$item";
+// 			if (is_file($fpath)) {
+// 				if (stripos($fpath, '.jpg') !== false) {
+// 					$files[] = 'http://hot-body.net/Produktbilder_JPG/'.str_replace('E:\xamp\htdocs\parser\www\ignore\Produktbilder_NEU/', '', $fpath);
+// 				}
+// 			}elseif (is_dir($fpath) && ($item != ".") && ($item != "..")){
+// 				$files = array_merge($files, get_filess($fpath));
+// 			}
+// 		}
+// 		closedir($handle);
+// 	}
+// 	return $files; 
+// }
 
-$arr = get_filess('E:\xamp\htdocs\parser\www\ignore\Produktbilder_NEU');
+// $arr = get_filess('E:\xamp\htdocs\parser\www\ignore\Produktbilder_NEU');
 
-file_put_contents('csv/jpegs.json', json_encode($arr));
+// file_put_contents('csv/jpegs.json', json_encode($arr));
 
-sa($arr);
+// sa($arr);
 
 
 
@@ -150,57 +1053,6 @@ sa($res);
 return;
 $res = file_get_contents('csv/matches.json');
 $res = json_decode($res, true);
-sa($res);
-
-
-return;
-function get_filesss($dir='.')
-{
-	$files = [];
-	if ($handle = opendir($dir)){
-		while(false !== ($item = readdir($handle))){
-			$fpath = "$dir/$item";
-			if (is_file($fpath)) {
-				if (stripos($fpath, '.jpg') !== false) {
-					$files[] = str_replace('E:\xamp\htdocs\parser\www\ignore\Produktbilder_NEU/', '', $fpath);
-				}
-			}elseif (is_dir($fpath) && ($item != ".") && ($item != "..")){
-				$files = array_merge($files, get_filess($fpath));
-			}
-		}
-		closedir($handle);
-	}
-	return $files; 
-}
-
-$arr = get_filesss('E:\xamp\htdocs\parser\www\ignore\Produktbilder_NEU');
-
-// sa($arr);
-
-$xcel = readExcel('csv/eBayArtikel.xlsx');
-
-$res = [];
-foreach ($xcel as $row => $cell) {
-	$img = $cell['C'] . '_' . $cell['D'];
-	$img = str_replace('http://www.cdvet.de/media/image/', '', $img);
-	$perc1 = 0;
-	$closest ='';
-	foreach ($arr as $file) {
-		similar_text($file, $img, $perc2);
-		if ($perc1 < $perc2) {
-			$perc1 = $perc2;
-			$closest = $file;
-		}
-	}
-	if ($perc1 > 50) {
-		$res[$row][] = $perc1;
-		$res[$row][] = $img;
-		$res[$row][] = $closest;
-	}
-}
-
-file_put_contents('csv/matches.json', json_encode($res));
-
 sa($res);
 
 
@@ -718,3 +1570,5 @@ return;
 	</script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD563r49NBGTlbq5l8xtTYXytMbkCWyjC0&libraries=places&callback=initMap"
 		async defer></script>
+
+<img src="http://columbavet.info/wp-content/themes/times-pro-columbavet/optimized/image/Gruppe_Web1.jpg" alt="Gruppe_Web1">

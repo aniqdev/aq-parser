@@ -79,8 +79,10 @@ class PlatiRuBuy
 103 - транзакция с таким значением поля w3s.request/trans/tranid уже выполнялась
 110 - нет доступа к интерфейсу
 */
-		public function payInvoice($invid,$payeePurse)
+		public function payInvoice($invid, $payeePurse)
 		{
+
+		  if(!$invid || !$payeePurse) return ['success' => false, 'text' => 'wrong parameters'];
 
 		  $request = new baibaratsky\WebMoney\Api\X\X2\Request;
 

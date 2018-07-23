@@ -37,6 +37,7 @@ function aqSqlite($query,$multiquery = false){
 
 function aqMysqli($query, $multiquery = false){
 
+		if(!$query) return DB::getInstance();
 		if ($multiquery){
 
 				$mysqli = new mysqli(db_HOST, db_USER, db_PASS, db_NAME);
@@ -48,6 +49,8 @@ function aqMysqli($query, $multiquery = false){
 				$res = $mysqli->multi_query($query);
 
 				$mysqli->close();
+
+				return $res;
 
 		}else{
 
@@ -63,7 +66,7 @@ function aqMysqli($query, $multiquery = false){
 }
 
 
-function arrayDB($query,$multiquery = false){
+function arrayDB($query = '', $multiquery = false){
 		if (USE_DB === 'sqlite') {
 				return aqSqlite(trim($query));
 		}elseif (USE_DB === 'mysqli') {
@@ -75,6 +78,11 @@ function arrayDB($query,$multiquery = false){
 
 function _esc($str){
 		return DB::getInstance()->escape($str);
+}
+
+function aqs_get_page_title()
+{
+	return isset($_GET['action']) ? 'Aqs-Parser | ' . $_GET['action'] : 'Aqs-Parser';
 }
 
 function BlackListFilter(&$blacklist,&$itemID){
@@ -329,20 +337,56 @@ function writeExcel($file_path, $inputArr, $sheetIndex = 0){
 }
 //===================================================================================
 //===================================================================================
+//===================================================================================
+// $inputArr = [1=>['A'=>'value']]
+function saveExcel($load_file, $save_file, $inputArr, $sheetIndex = 0){
 
+	if (!is_array($inputArr)) return;
+
+	$Xlsvsfkii_Failik = PHPExcel_IOFactory::load($load_file);
+	$Xlsvsfkii_Failik->setActiveSheetIndex($sheetIndex);
+
+	foreach ($inputArr as $k1 => $row) {
+		foreach ($row as $k2 => $cell) {
+			$Xlsvsfkii_Failik->getActiveSheet()->setCellValue($k2.$k1, $cell);
+		}
+	}
+
+	switch (strtolower(pathinfo($load_file)['extension'])) {
+			case 'csv':
+					$writeType = 'CSV';
+					break;
+			case 'xls':
+					$writeType = 'Excel5';
+					break;
+			case 'xlsx':
+					$writeType = 'Excel2007';
+					break;
+			
+			default:
+					$writeType = 'Excel2007';
+					break;
+	}
+	$Zapisat = PHPExcel_IOFactory::createWriter($Xlsvsfkii_Failik, $writeType);
+	$Zapisat->save($save_file);
+	 
+	unset($Xlsvsfkii_Failik);
+	unset($Zapisat);
+}
+//===================================================================================
 // возвращает двумерный массив с первыми CSV файла
-function csvToArr($file_path='', $options = array()){
+function csvToArr($file_path='', $options = []){
 
 		$config = array(
 				'delimetr' => ';',
 				'encoding' => 'utf-8',
 				'max_str' => false,
 				'del_first' => false,
-				'output' => array()
+				'output' => []
 				);
 		$c = array_merge ( $config, $options );
 		$fh = fopen($file_path,'r') or die($php_errormsg);
-		$res = array(); $i = 0;
+		$res = []; $i = 0;
 		
 		while (!feof($fh)) {
 
@@ -356,7 +400,7 @@ function csvToArr($file_path='', $options = array()){
 								$cell = iconv($c['encoding'], 'UTF-8', $cell);
 
 
-				$str2 = array();
+				$str2 = [];
 				if($str)
 				foreach ($c['output'] as $okey => $oval)
 						$str2[$oval] = $str[$okey];
@@ -412,10 +456,11 @@ function showArray($array){
 		echo "</pre>";
 }
 
-function sa($array){
-		echo "<pre>";
-		print_r($array);
-		echo "</pre>";
+function sa($array = [], $save = false){
+	if ($save) return '<pre>' . print_r($array, true) . '</pre>';
+	echo "<pre>";
+	print_r($array);
+	echo "</pre>";
 }
 
 
@@ -497,6 +542,9 @@ function get_steam_key_from_text($text){
 	// ищет 5 групп по 4 символа разделенных дефисом
 	}elseif(preg_match('/[A-Z0-9]{4}(-[A-Z0-9]{4}){4}/', $text, $matches)){
 		return $matches[0];
+	// ищет BK-4EX43E-QRRUBJ-CVR6XN-ZBY85N
+	}elseif(preg_match('/[A-Z0-9]{2}(-[A-Z0-9]{6}){4}/', $text, $matches)){
+		return $matches[0];
 	}else{
 		return $text;
 	}
@@ -508,7 +556,12 @@ function get_urls_from_text($text){
     $found = preg_match_all('#\b(https?://[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))#ism', $text, $urls);
     $urls = $urls[1];
     $urls = array_unique($urls);
-    foreach ($urls as &$urlll) $urlll = preg_replace('/\?redeemer.*/', '', $urlll);
+    foreach ($urls as &$urlll){
+    	$urlll = preg_replace('/\?redeemer.*/', '', $urlll);
+    	if(filter_var($urlll, FILTER_VALIDATE_URL)){
+    		$urlll = '<a style="color: #d09c3c;" target="_blank" href="'.$urlll.'">'.$urlll.'</a>';
+    	}
+    }
     $urls = implode('<br>'.PHP_EOL, $urls);
     if ($found) {
     	return $urls;
@@ -519,15 +572,11 @@ function get_urls_from_text($text){
 
 function get_messages_for_send_producr($ca = 'EN', $ebay_or_mail = 'mail'){
 
-	// германия, австрия, швейцария, нидерланды
-	if ($ca === 'DE' || $ca === 'AT' || $ca === 'CH' || $ca === 'NL') {
-		$msg_email = arrayDB("SELECT * FROM ebay_inv_messages WHERE country_alias='DE' AND ebay_or_mail='$ebay_or_mail' LIMIT 1")[0]['message'];
-	}else{
-		@$msg_email = arrayDB("SELECT * FROM ebay_inv_messages WHERE country_alias='$ca' AND ebay_or_mail='$ebay_or_mail' LIMIT 1")[0]['message'];
-	}
-	if (!$msg_email) {
-		$msg_email = arrayDB("SELECT * FROM ebay_inv_messages WHERE country_alias='EN' AND ebay_or_mail='$ebay_or_mail' LIMIT 1")[0]['message'];
-	}
+	if (is_trusted_country($ca)) $msg_email = get_text_template($ebay_or_mail, 'DE');
+
+	else $msg_email = get_text_template($ebay_or_mail, $ca);
+
+	if (!$msg_email) $msg_email = get_text_template($ebay_or_mail, 'EN');
 
 	return $msg_email;
 }
@@ -719,9 +768,10 @@ function query_to_orders_page($options = []){
 }
 
 
-function add_comment_to_order($gig_order_id, $text, $show = 'yes'){
+function add_comment_to_order($gig_order_id, $text, $notify = true){
 	if($gig_order_id < 1) return false;
 
+	 $text = _esc($text);
 	if (is_array($gig_order_id)) {
 		$gig_order_id = $gig_order_id[0];
 		$gig_order_item_id = $gig_order_id[1];
@@ -736,6 +786,8 @@ function add_comment_to_order($gig_order_id, $text, $show = 'yes'){
 		ExecutionMethod='cancelled',
 		`show`='yes'
 	WHERE id='$gig_order_id'");
+
+	if($notify) AutomaticGroupBot::sendMessage(date('H:i:s').' New order #'.$gig_order_id);
 }
 
 
@@ -770,7 +822,7 @@ function aqs_hrefR($arr = []){
 
 function aqs_pagination($table_name, $count = false){
 
-	if(!$count) $count = (int)arrayDB("SELECT count(id) as count FROM `$table_name`")[0]['count'];
+	if(!$count) $count = (int)arrayDB("SELECT count(id) FROM `$table_name`")[0]['count(id)'];
 	$offset = @$_GET['offset'] ? (int)$_GET['offset'] : 0;
 	$limit = @$_GET['limit'] ? (int)$_GET['limit'] : 10;
 	if($limit > 500) $limit = 500;
@@ -783,7 +835,7 @@ function aqs_pagination($table_name, $count = false){
 	'<nav aria-label="Page navigation" class="navigation">
 	  <ul class="pagination op-pagination">
 	    <li>
-	      <a href="?'.obj(QS)->SET('offset',$offset_prev)->give().'" aria-label="Previous">
+	      <a href="?'.obj(QS)->SET('offset',$offset_prev)->SET('limit',$limit)->give().'" aria-label="Previous">
 	        <span aria-hidden="true">&laquo;</span>
 	      </a>
 	    </li>';
@@ -801,11 +853,11 @@ function aqs_pagination($table_name, $count = false){
 			$str .= '<li class="active"><a class="curren" title="'.$a.'-'.$b.'">'.$num.'</a></li>';
 			$epilog = $a.'-'.$b.' of '.$count.' results';
 		}else{
-			$str .= '<li><a href="'.aqs_hrefR(['offset'=>$inoffset]).'" title="'.$a.'-'.$b.'">'.$num.'</a></li>';
+			$str .= '<li><a href="'.aqs_hrefR(['offset'=>$inoffset,'limit'=>$limit]).'" title="'.$a.'-'.$b.'">'.$num.'</a></li>';
 		}
 	}
 	$str .= '<li>
-	      <a href="?'.obj(QS)->SET('offset',$offset_next)->give().'" aria-label="Next">
+	      <a href="?'.obj(QS)->SET('offset',$offset_next)->SET('limit',$limit)->give().'" aria-label="Next">
 	        <span aria-hidden="true">&raquo;</span>
 	      </a>
 	    </li>
@@ -814,13 +866,8 @@ function aqs_pagination($table_name, $count = false){
 
 	echo $str;
 
-	// далее определяем лимит для внешнего запроса
-	if(isset($_GET['offset']) && isset($_GET['limit'])){
-		$limit = (int)$_GET['offset'].','.(int)$_GET['limit'];
-	}else{
-		$limit = '10';
-	}
-	return $limit;
+
+	return $offset.','.$limit;
 }
 
 
@@ -896,12 +943,12 @@ function is_utf8($str){
 }
 
 
-function clean_url_from_query($url=''){
+function clean_url_from_query($url){
 	return preg_replace('/\?.*$/', '', $url);
 }
 
-function clean_steam_url($url=''){
-	return preg_replace('#(http://store\.steampowered\.com/.+?/.+?/).+#', "$1", $url);
+function clean_steam_url($url){
+	return preg_replace('#https?(://store\.steampowered\.com/.+?/.+?/).*#', "http$1", $url);
 }
 
 function kostyl($str='')
@@ -999,7 +1046,7 @@ function _savePaltiRuToBase(&$arrItem, &$game_id, &$scan, $table = 'items', $ope
 					item3_name  = '$item3_name',
 					item3_price = '$item3_price',
 					item3_desc  = '$item3_desc'
-				WHERE id = '$id'";
+				WHERE game_id = '$game_id'";
 		arrayDB($query);
 	}else{
 		$query = "INSERT INTO $table 
@@ -1013,7 +1060,7 @@ function _savePaltiRuToBase(&$arrItem, &$game_id, &$scan, $table = 'items', $ope
 
 
 function _requestFilter($request){
-    $request = str_ireplace([':',"'s","'",'!','.'], ' ', $request);
+    $request = str_ireplace([':',"'s","'",'!','.','®','™','’s','Sid Meier'], ' ', $request);
     return trim(preg_replace('/\s+/', ' ', $request));
 }
 
@@ -1150,7 +1197,7 @@ function build_item_specifics_array($steam_arr = []){
 		$specifics['Language'] = explode(',', $steam_arr['lang']);
 	}
 
-	$specifics['Downloade Site'] = 'http://store.steampowered.com';
+	$specifics['Downloade Site'] = 'steampowered';
 
 	$mods = [
 		'Einzelspieler' => 1,
@@ -1182,7 +1229,7 @@ function build_item_specifics_array($steam_arr = []){
 		}
 	}
 
-	$specifics['Erscheinungsjahr'] = $steam_arr['year'];
+	if($steam_arr['year']) $specifics['Erscheinungsjahr'] = $steam_arr['year'];
 
 	return $specifics;
 }
@@ -1207,8 +1254,12 @@ function add_words_to_game_name($game_name = '')
 }
 
 
-function get_steam_miracle_where(){
-	return "item1_price > 0 AND is_on_ebay = 'no' AND IF(old_price > 0, old_price, reg_price)*0.9 > ROUND(((steam_items.item1_price/(select value from aq_settings where name = 'exrate'))*1.00952+0.4165)/(1-(0.1+0.019+0.078)*1.19),2)";
+// используется в getjson-steam-de
+function get_steam_miracle_where($table = 'steam_de'){
+	return "(old_price > 1.5 OR reg_price > 1.5)
+		AND item1_price > 0 
+		AND `$table`.ebay_id = '' 
+		AND IF(old_price > 0, old_price, reg_price)*0.9 > ROUND(((steam_items.item1_price/(select value from aq_settings where name = 'exrate'))*1.00952+0.4165)/(1-(0.1+0.019+0.078)*1.19),2)";
 }
 
 
@@ -1233,7 +1284,8 @@ function add_dlc_addon_to_desc($steam_arr, $lang = false){
 	if(!isset($dlc_texts[$lang])) $lang = 'de';
 	
 	if ($steam_arr['main_game_link']) {
-		$l = '<h4 class="gig-dlc-hh">'.$dlc_texts[$lang].' <a target="_blank" href="'.$steam_arr['main_game_link'].'">'.$steam_arr['main_game_title'].'.</a></h4>';
+		// $l = '<h4 class="gig-dlc-hh">'.$dlc_texts[$lang].' <a target="_blank" href="'.$steam_arr['main_game_link'].'">'.$steam_arr['main_game_title'].'.</a></h4>';
+		$l = '<h4 class="gig-dlc-hh">'.$dlc_texts[$lang].' <a>'.$steam_arr['main_game_title'].'.</a></h4>';
 		$steam_arr['desc'] = $l.$steam_arr['desc'];
 
 	}elseif ($steam_arr['includes']) {
@@ -1241,7 +1293,8 @@ function add_dlc_addon_to_desc($steam_arr, $lang = false){
 		$titles_arr = explode('<br>', $steam_arr['desc']);
 		$x = '<h4 class="gig-sub-hh">'.$sub_texts[$lang].':</h4>';
 		foreach ($includes_arr as $k => $sid) {
-			$x .= '<a class="gig-sub-link" target="_blank" href="http://store.steampowered.com/app/'.$sid.'/">'.$titles_arr[$k].'</a><br>';
+			// $x .= '<a class="gig-sub-link" target="_blank" href="http://store.steampowered.com/app/'.$sid.'/">'.$titles_arr[$k].'</a><br>';
+			$x .= '<a class="gig-sub-link">'.$titles_arr[$k].'</a><br>';
 		}
 		$steam_arr['desc'] = $x;
 	}
@@ -1250,11 +1303,20 @@ function add_dlc_addon_to_desc($steam_arr, $lang = false){
 }
 
 
-function getOrderArray(){
+function add_notice_to_desc($steam_arr)
+{
+	if(!$steam_arr['notice']) return '';
+	return '<div class="gig-notice">' . str_replace(['\r\n',"\r\n"], '<br>', $steam_arr['notice']) . '</div><!--notice-end-->';
+}
+
+
+function getOrderArray($o = []){
+
+	$c = array_merge(['NumberOfDays'=>1,'SortingOrder'=>'Ascending','PageNumber'=>'1'],$o);
 
 	$ord_obj = new EbayOrders;
 
-	$ord_arr = $ord_obj->getOrders(['NumberOfDays'=>1,'SortingOrder'=>'Ascending','PageNumber'=>'1']);
+	$ord_arr = $ord_obj->getOrders($c);
 
 	//$ord_arr = $ord_obj->getOrders(['order_status'=>'Completed','OrderIDArray'=>['216865269010']]);
 
@@ -1378,18 +1440,6 @@ function activation_data_for($country)
 	}else{
 		return 'Your games: ';
 	}
-}
-
-
-function get_sales_chart_json()
-{
-	$res = arrayDB("SELECT DATE_FORMAT(ShippedTime, '%d-%m') as date ,count(*) as count FROM ebay_orders WHERE ShippedTime > NOW() - INTERVAL 27 DAY GROUP BY day(ShippedTime) order by ShippedTime");
-	$ret = [['date','sales']];
-	foreach ($res as $k => $val) {
-		if($k === 0) continue;
-		$ret[] = [$val['date'], +$val['count']];
-	}
-	return json_encode($ret);
 }
 
 
@@ -1540,12 +1590,13 @@ function get_country_code($country = false)
 	    'Chinesisch(vereinfacht)' => 'CN',
 	    'BrasilianischesPortugiesisch' => 'PT',
 	    'Chinesisch(traditionell)' => 'CN',
+	    'Chinesisch (traditionell)' => 'CN',
 	    'Slowakisch' => 'SK',
 	];
-	if($country){
-		if(isset($countries[$country])) return $countries[$country];
-	} 
-	else return $countries;
+
+	if(!$country) return $countries;
+
+	if(isset($countries[$country])) return $countries[$country];
 }
 
 function get_steam_languages()
@@ -1792,14 +1843,66 @@ function op_tab_navigator()
 <?php }
 
 
-function one_month_top()
+function get_top_sales($options)
 {
-	return arrayDB("SELECT tt.*, ebay_games.title_clean, ebay_games.picture_hash FROM (select title,price,ebay_id,shipped_time,count(*) as count from ebay_order_items group by ebay_id) tt
+	$default = [
+				'limit' => '10',
+			];
+	$c = array_merge ( $default, $options );
+
+	$limit = (int)$c['limit'];
+	return arrayDB("SELECT tt.*, ebay_games.title_clean, ebay_games.picture_hash, steam_de.ebay_price
+		FROM (select title,price,ebay_id,shipped_time,count(*) as count 
+				from ebay_order_items
+				where shipped_time > NOW() - INTERVAL 1 MONTH
+				group by ebay_id) tt
 	JOIN ebay_games
 	ON tt.ebay_id = ebay_games.item_id
-	WHERE picture_hash <> '' AND shipped_time > NOW() - INTERVAL 1 MONTH
+	JOIN steam_de
+	ON tt.ebay_id = steam_de.ebay_id
+	WHERE picture_hash <> ''
 	order by count desc
-	limit 10");
+	limit $limit");
+}
+
+
+function one_month_top($limit = 10)
+{
+	return get_top_sales(['limit'=>$limit]);
+}
+
+
+function get_top_by_genre($genre, $limit = 10)
+{
+	$genre = _esc($genre);
+	$limit = (int)$limit;
+	return arrayDB("SELECT  ebay_games.title_clean, 
+							ebay_games.picture_hash, 
+							steam_de.ebay_price,
+							steam_de.ebay_id,
+							genres,
+							o_reviews
+		FROM steam_de
+		JOIN ebay_games
+		ON steam_de.ebay_id = ebay_games.item_id
+		WHERE ebay_id <> '' AND instock = 'yes' AND picture_hash <> '' AND genres LIKE '%$genre%' 
+		ORDER BY o_reviews DESC LIMIT $limit");
+}
+
+
+function get_top_2015($limit = 10)
+{
+	$limit = (int)$limit;
+	return arrayDB("SELECT  ebay_games.title_clean, 
+							ebay_games.picture_hash, 
+							steam_de.ebay_price,
+							steam_de.ebay_id,
+							genres
+		FROM steam_de
+		JOIN ebay_games
+		ON steam_de.ebay_id = ebay_games.item_id
+		WHERE ebay_id <> '' AND instock = 'yes' AND picture_hash <> '' AND year = 2015 
+		ORDER BY o_reviews DESC LIMIT $limit");
 }
 
 
@@ -2043,59 +2146,922 @@ function _get_files($dir='.')
 }
 
 
-function cd_ebay_cat_sort($cats)
+function send_identify_message(&$order, $country_alias)
 {
-	$cats_arr = [];
-	foreach ($cats as $k => $row) {
-		if ((int)$row['D']) {
-			$cats_arr[$row['D']][$row['E']]['eBayKategorie'] = $row['C'];
-			$cats_arr[$row['D']][$row['E']]['eBayShopKAtegorieID'] = $row['B'];
-		}
+	$email = $order['BuyerEmail'];
+	$check = arrayDB("SELECT id FROM ebay_orders WHERE BuyerEmail = '$email' AND is_notified = 'yes' AND ExecutionMethod = 'manually'");
+	if ($check) return false;
+	// германия, австрия, швейцария, люксембург, нидерланды
+	if (is_trusted_country($country_alias)) {
+		$identify_msg_body = get_text_template('identify_messages', 'DE');
+	}else{
+		$identify_msg_body = get_text_template('identify_messages', 'EN');
 	}
-	return $cats_arr;
+
+	$gig_order_id = (int)$order['gig_order_id'];
+	arrayDB("UPDATE ebay_orders SET is_notified = 'yes' WHERE id = '$gig_order_id'");
+
+	return (new EbayOrders())->SendMessage($order['BuyerUserID'], $order['ebay_id'], 'Please identify yourself', htmlspecialchars($identify_msg_body));
 }
 
 
-function get_ebay_cat($cd_item, &$categories)
-{	
-	$how_match_first = 0;
-	$ret = [];
-	$item_cats = explode('|', $cd_item['L']);
-	shuffle($item_cats);
-	foreach ($item_cats as $val) {
-		if (isset($categories[$val])) { // главное совпадение
-			foreach ($item_cats as $value) {
-				if (isset($categories[$val][$value])) { // первое совпадение
-					$ret[] = $categories[$val][$value];
-				}
-			}
-			$how_match_first++;
+function is_trusted_country($country_alias = ''){
+
+	return in_array($country_alias, [
+		'DE', // германия
+		'AT', // австрия
+		'CH', // швейцария
+		'NL', // нидерланды
+		'LU', // люксембург
+	]);
+}
+
+
+function aqs_pagination_api($offset, $limit, $count, $opts = []){
+
+	$c = array_merge ( [
+			'visible_pages' => 5,
+	], $opts );
+
+	if($limit > 500) $limit = 500;
+	$offset_prev = $offset - $limit;
+	if($offset_prev < 0) $offset_prev = 0;
+	$offset_next = $offset + $limit;
+	if($offset_next > $count) $offset_next = $offset;
+	//var_dump($count/$limit);
+	$str =
+	'<ul class="pagination pagination-sm">
+	    <li>
+	      <a title="'.$offset_prev.'">
+	        <span aria-hidden="true">&laquo;</span>
+	      </a>
+	    </li>';
+	for ($i=-$c['visible_pages']; $i <= $c['visible_pages']; $i++) {
+		$inoffset = $offset + ($limit * $i);
+		$num = floor($inoffset / $limit + 1);
+		$b = $count - $inoffset;
+		$a = $b - $limit + 1;
+		if($a < 0) $a = 1;
+		if ($inoffset < 0) {
+			continue;
+		}elseif($inoffset > $count) {
 			break;
+		}elseif($inoffset == $offset) {
+			$str .= '<li class="active"><a class="curren" title="current page">'.$num.'</a></li>';
+		}else{
+			$str .= '<li><a title="'.$inoffset.'">'.$num.'</a></li>';
 		}
 	}
-	$ret['how match first'] = $how_match_first;
+	$str .= '<li>
+	      <a title="'.$offset_next.'">
+	        <span aria-hidden="true">&raquo;</span>
+	      </a>
+	    </li>
+	  </ul>';
+
+	return $str;
+}
+
+
+function get_username_with_IP($ip = 0)
+{	
+	if($ip) return substr(md5($ip), 0, 10);
+	return substr(md5($_SERVER['REMOTE_ADDR']), 0, 10);
+}
+
+
+function insert_filter_log($action = '')
+{
+	// не логируем мой IP
+	if($_SERVER['REMOTE_ADDR'] === '37.46.229.203') return false;
+	$user = get_username_with_IP();
+	if ($action === 'enter') {
+		arrayDB("INSERT INTO filter_log (user,enter) VALUES ('$user','enter')");
+	}
+	if ($action === 'query') {
+		if ($_POST['search']) {
+			$search = _esc($_POST['search']);
+			arrayDB("INSERT INTO filter_log (user,search) VALUES ('$user','$search')");
+			return;
+		}
+		$genres = '';
+		if(@$_POST['fields']['genres']) $genres = _esc(implode(',', $_POST['fields']['genres']));
+		$tags = '';
+		if(@$_POST['fields']['tags']) $tags = _esc(implode(',', $_POST['fields']['tags']));
+		$specs = '';
+		if(@$_POST['fields']['specs']) $specs = _esc(implode(',', $_POST['fields']['specs']));
+		$langs = '';
+		if(@$_POST['fields']['lang']) $langs = _esc(implode(',', $_POST['fields']['lang']));
+		$os = '';
+		if(@$_POST['fields']['os']) $os = _esc(implode(',', $_POST['fields']['os']));
+		$app_dlc = '';
+		if($_POST['type']) $app_dlc = _esc($_POST['type']);
+		$year = $_POST['year']>0?("'"._esc($_POST['year'])."'"):'null';
+		$year_from = $_POST['year_from']>0?("'"._esc($_POST['year_from'])."'"):'null';
+		$year_to = $_POST['year_to']>0?("'"._esc($_POST['year_to'])."'"):'null';
+		$reviews_from = isset($_POST['max_reviews'][0])?("'"._esc(@$_POST['max_reviews'][0])."'"):'null';
+		$reviews_to = isset($_POST['max_reviews'][1])?("'"._esc(@$_POST['max_reviews'][1])."'"):'null';
+		$rating_from = isset($_POST['rating'][0])?("'"._esc(@$_POST['rating'][0])."'"):'null';
+		$rating_to = isset($_POST['rating'][1])?("'"._esc(@$_POST['rating'][1])."'"):'null';
+		$our_price_from = isset($_POST['our_price'][0])?("'"._esc(@$_POST['our_price'][0])."'"):'null';
+		$our_price_to = isset($_POST['our_price'][1])?("'"._esc(@$_POST['our_price'][1])."'"):'null';
+		$steam_price_from = isset($_POST['steam_price'][0])?("'"._esc(@$_POST['steam_price'][0])."'"):'null';
+		$steam_price_to = isset($_POST['steam_price'][1])?("'"._esc(@$_POST['steam_price'][1])."'"):'null';
+		$advantage_from = isset($_POST['advantage'][0])?("'"._esc(@$_POST['advantage'][0])."'"):'null';
+		$advantage_to = isset($_POST['advantage'][1])?("'"._esc(@$_POST['advantage'][1])."'"):'null';
+		$search = _esc($_POST['search']);
+		$sorting = _esc($_POST['order_by']);
+		$sql = "INSERT INTO filter_log (
+			user,
+			genres,
+			tags,
+			specs,
+			app_dlc,
+			langs,
+			os,
+			year,
+			year_from,
+			year_to,
+			reviews_from,
+			reviews_to,
+			rating_from,
+			rating_to,
+			our_price_from,
+			our_price_to,
+			steam_price_from,
+			steam_price_to,
+			advantage_from,
+			advantage_to,
+			search,
+			sorting
+		) VALUES (
+			'$user',
+			'$genres',
+			'$tags',
+			'$specs',
+			'$app_dlc',
+			'$langs',
+			'$os',
+			$year,
+			$year_from,
+			$year_to,
+			$reviews_from,
+			$reviews_to,
+			$rating_from,
+			$rating_to,
+			$our_price_from,
+			$our_price_to,
+			$steam_price_from,
+			$steam_price_to,
+			$advantage_from,
+			$advantage_to,
+			'$search',
+			'$sorting')";
+		arrayDB($sql);
+		// sa($sql);
+	}
+	if ($action === 'game') {
+		$ebay_id = _esc($_POST['ebay_id']);
+		$ebay_title = _esc($_POST['ebay_title']);
+		arrayDB("INSERT INTO filter_log (user,ebay_id,ebay_title) VALUES ('$user','$ebay_id','$ebay_title')");
+	}
+}
+
+
+function get_filter_chart_json()
+{
+	$res = arrayDB("SELECT DATE_FORMAT(created_at, '%d-%m') as `date`, user, enter, ebay_id FROM filter_log WHERE created_at > NOW() - INTERVAL 27 DAY");
+
+	$ret = [['date','enters','clicks']];
+
+	$temp = [];
+	foreach ($res as $k => $val) {
+		$temp[$val['date']]['users'][$val['user']] = 1;
+		if ($val['ebay_id']) {
+			@$temp[$val['date']]['clicks'] += 1;
+		}
+	}
+	foreach ($temp as $date => $v) {
+		$ret[] = [$date, count($v['users']), $v['clicks']];
+	}
+	return json_encode($ret);
+}
+
+
+function draw_table_with_sql_results($res, $first_row_thead = false)
+{
+	if (is_array($res) && $res) {
+		echo '<table class="ppp-table-collapse"><tr>';
+		if($first_row_thead){
+			echo '<th>№</th>';
+			foreach ($res[0] as $key => $value) echo "<th>",$key,"</th>";
+		}else{
+			echo '<td>1</td>';
+			foreach ($res[0] as $val) echo "<td>",$val,"</td>";
+		}
+		echo "</tr>";
+		foreach ($res as $kr => $row) {
+			if(!$first_row_thead && $kr === 0) continue;
+			echo '<tr><td>',$kr+1,'</td>';
+			foreach ($row as $kc => $col) {
+				echo '<td>',$col,'</td>';
+			}
+			echo '</tr>';
+		}
+	}else{
+		print_r($res);
+	}
+}
+
+
+// функция для страницы cdvet price checker и cdvet quantity updater
+function pc_add_to_items_arr(&$items_arr, $elements_arr)
+{
+	$last_index = count($items_arr) - 1;
+
+	if($items_arr && count($items_arr[$last_index]) < 4){
+		$items_arr[$last_index][] = $elements_arr;
+	}else{
+		$items_arr[] = [$elements_arr];
+	}
+}
+
+
+// функция для страницы price checker
+function pc_add_to_log($item, $feed_item, $msg, $err_no){
+
+	$ebay_id = $item['ebay_id'];
+	$shop_id = $item['shop_id'];
+	$ebay_title = _esc($item['title']);
+	$shop_title = $feed_item ? _esc($feed_item[4]) : '';
+	$msg = _esc($msg);
+	global $_ERRORS;
+	$errors = _esc(json_encode($_ERRORS));
+	arrayDB("INSERT INTO cdvet_checker_log(ebay_id,shop_id,ebay_title,shop_title,msg,err_no,ERRORS)
+				VALUES('$ebay_id','$shop_id','$ebay_title','$shop_title','$msg','$err_no','$errors')");
+}
+
+
+function get_language_by_table($steam_table = 'steam_de'){
+
+	return [
+	    'steam_de' => 'german',
+	    'steam_en' => 'english',
+	    'steam_fr' => 'french',
+	    'steam_es' => 'spanish',
+	    'steam_it' => 'italian',
+	][$steam_table];
+}
+
+
+function get_steam_context($steam_table = 'steam_de')
+{
+	$options = array('http' => array('method' => "GET", 'header' => "Accept-language: en-US\r\n" . "Cookie: Steam_Language=".get_language_by_table($steam_table)."; mature_content=1; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
+	return stream_context_create($options);
+}
+
+
+function get_text_template($category, $tpl_name = false)
+{
+	$category = _esc($category);
+	$tpl_name = _esc($tpl_name);
+	return $tpl_name ? 
+		@arrayDB("SELECT tpl_text FROM text_templates WHERE category = '$category' AND tpl_name = '$tpl_name'")[0]['tpl_text'] :
+		arrayDB("SELECT tpl_name,tpl_text FROM text_templates WHERE category = '$category'");
+}
+
+
+function ef_build_post_data($page, $entires = 200){
+		return '<?xml version="1.0" encoding="utf-8"?>
+		<GetSellerListRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+		  <RequesterCredentials>
+		    <eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+		  </RequesterCredentials>
+		  <ErrorLanguage>en_US</ErrorLanguage>
+		  <WarningLevel>High</WarningLevel>
+		  <GranularityLevel>Coarse</GranularityLevel>
+		  <EndTimeFrom>'.date('Y-m-d\TH:i:s.B\Z', time()-2592000*3).'</EndTimeFrom>
+		  <EndTimeTo>'.date('Y-m-d\TH:i:s.B\Z', time()+2592000).'</EndTimeTo>
+		  <IncludeWatchCount>true</IncludeWatchCount>
+		  <Pagination> 
+		  	<PageNumber>'.$page.'</PageNumber>
+		    <EntriesPerPage>'.$entires.'</EntriesPerPage> 
+		  </Pagination> 
+		</GetSellerListRequest>';
+}
+
+
+function cdvet_GetList_post_data($page, $entires = 200){
+		return '<?xml version="1.0" encoding="utf-8"?>
+		<GetSellerListRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+		  <RequesterCredentials>
+		    <eBayAuthToken>'.EBAY_CDVET_TOKEN.'</eBayAuthToken>
+		  </RequesterCredentials>
+		  <ErrorLanguage>en_US</ErrorLanguage>
+		  <WarningLevel>High</WarningLevel>
+		  <GranularityLevel>Coarse</GranularityLevel>
+		  <EndTimeFrom>'.date('Y-m-d\TH:i:s.B\Z', time()-2592000*3).'</EndTimeFrom>
+		  <EndTimeTo>'.date('Y-m-d\TH:i:s.B\Z', time()+2592000).'</EndTimeTo>
+		  <IncludeWatchCount>true</IncludeWatchCount>
+		  <Pagination> 
+		  	<PageNumber>'.$page.'</PageNumber>
+		    <EntriesPerPage>'.$entires.'</EntriesPerPage> 
+		  </Pagination> 
+		</GetSellerListRequest>';
+}
+
+
+function ef_get_milticurl_handler(){
+
+	$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
+	    'X-EBAY-API-DEV-NAME: c1f2f124-1232-4bc4-bf9e-8166329ce649',
+	    'X-EBAY-API-APP-NAME: Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
+	    'X-EBAY-API-CERT-NAME: PRD-ae576df59071-a52d-4e1b-8b78-9156',
+		"X-EBAY-API-CALL-NAME: GetSellerList",
+		"X-EBAY-API-SITEID: 77",
+		"Content-Type: text/xml");
+
+	$multi_curl = new \Curl\MultiCurl();
+	$multi_curl->setOpt(CURLOPT_HTTPHEADER , $headers);
+	$multi_curl->setOpt(CURLOPT_SSL_VERIFYPEER , 0);
+	$multi_curl->setOpt(CURLOPT_FOLLOWLOCATION , 1);
+	$multi_curl->setOpt(CURLOPT_TIMEOUT , 60);
+	$multi_curl->error(function($instance) {
+		global $_ERRORS;
+	    $_ERRORS[] = $instance->errorMessage;
+	});
+	return $multi_curl;
+}
+
+
+
+function insert_comas($text, $max_len = 63, $delimeter = ',')
+{
+	$text_arr = explode(' ', $text);
+	$new_str = '';
+	$temp = '';
+	$word_len = 0;
+	foreach ($text_arr as $word) {
+		$len = strlen($temp.' '.$word);
+		if($len+$word_len < $max_len){
+			$temp .= ' '.$word;
+		}else{
+			$temp .= $delimeter.' '.$word;
+			$new_str .= $temp;
+			$temp = '';
+			$word_len = strlen($word);
+		}
+	}
+	$new_str .= $temp;
+	$new_str = str_replace(',,', ',', $new_str);
+	$new_str = preg_replace('/,$/', '', trim($new_str));
+	return str_replace(PHP_EOL.',', ','.PHP_EOL, $new_str);
+}
+
+
+function cut_text($text, $max_len = 63)
+{
+	$text_arr = explode(' ', $text);
+	$new_str = '';
+
+	foreach ($text_arr as $word) {
+		if(strlen($new_str.' '.$word) < $max_len){
+			$new_str .= ' '.$word;
+		}
+	}
+	$new_str = str_replace(',,', ',', $new_str);
+	return str_replace(PHP_EOL.',', ','.PHP_EOL, $new_str);
+}
+
+
+function ebay_messages_thumbnail(&$msg){
+	if($msg['e_MediaURL']){
+		$names = explode(',', $msg['e_MediaName']);
+		$ret = '';
+		foreach (explode(',', $msg['e_MediaURL']) as $k => $e_MediaURL) {
+			preg_match('/\/z\/(.+?)\//', $e_MediaURL, $matches);
+			$big_pic_url = 'https://i.ebayimg.com/images/g/'.$matches[1].'/s-l1600.jpg';
+			$ret .= '<a href="'.$big_pic_url.'" class="thumbnail js-show-thumbnail" title="'.$names[$k].'">
+				      <img src="'.$e_MediaURL.'" alt="...">
+				    </a>';
+		}
+		return $ret;
+	}
+	else return '';
+}
+
+
+function get_media_data($MessageMedia, $el_name = 'MediaURL')
+{
+	if(!$MessageMedia) return '';
+
+	if (isset($MessageMedia[0])) {
+		$MessageMedia = array_column($MessageMedia, $el_name);
+		return implode(',', $MessageMedia);
+	}else{
+		return $MessageMedia[$el_name];
+	}
+}
+
+
+function user_star_sign(&$msg)
+{
+	if(!array_key_exists('is_trusted', $msg)) return '';
+
+	if(isset($msg['e_Correspondent'])) $user_id = $msg['e_Correspondent'];
+	else $user_id = $msg['BuyerUserID'];
+
+	if ($msg['is_trusted']){
+		$star_class = 'glyphicon-star';
+		$star_title = 'unmarck as trusted';
+	}else{
+		$star_class = 'glyphicon-star-empty';
+		$star_title = 'marck as trusted';
+	}
+	return '<button name='.$user_id.' class="trusted-user-star glyphicon '.$star_class.'" title="'.$star_title.'"></button>';
+}
+
+
+function user_alert_sign(&$msg)
+{
+	if(!array_key_exists('is_problematic', $msg)) return '';
+
+	if(isset($msg['e_Correspondent'])) $user_id = $msg['e_Correspondent'];
+	else $user_id = $msg['BuyerUserID'];
+
+	if ($msg['is_problematic']){
+		$star_class = 'glyphicon-alert is_problematic';
+		$star_title = 'unmarck as problematic';
+	}else{
+		$star_class = 'glyphicon-alert';
+		$star_title = 'marck as problematic';
+	}
+	return '<button name='.$user_id.' class="js-bad-user-alert glyphicon '.$star_class.'" title="'.$star_title.'"></button>';
+}
+
+
+function set_trusted_user(){
+
+	$user_id = _esc($_POST['user_id']);
+	$is_trusted = ($_POST['is_trusted'] === 'true') ? 1 : 0;
+
+	$check = arrayDB("SELECT id FROM ebay_users WHERE user_id = '$user_id'");
+
+	if($check) arrayDB("UPDATE ebay_users SET is_trusted = '$is_trusted' WHERE user_id = '$user_id'");
+	else arrayDB("INSERT INTO ebay_users (user_id,is_trusted) VALUES ('$user_id', $is_trusted)");
+
+	global $_ERRORS;
+	return json_encode($_ERRORS);
+}
+
+
+function set_problematic_user(){
+
+	$user_id = _esc($_POST['user_id']);
+	$is_problematic = ($_POST['is_problematic'] === 'true') ? 1 : 0;
+
+	$check = arrayDB("SELECT id FROM ebay_users WHERE user_id = '$user_id'");
+
+	if($check) arrayDB("UPDATE ebay_users SET is_problematic = '$is_problematic' WHERE user_id = '$user_id'");
+	else arrayDB("INSERT INTO ebay_users (user_id,is_problematic) VALUES ('$user_id', $is_problematic)");
+
+	global $_ERRORS;
+	return $ERRORS;
+}
+
+
+function is_trusted_user($user_id){
+	$user_id = _esc($user_id);
+	$res = arrayDB("SELECT is_trusted FROM ebay_users WHERE user_id = '$user_id'");
+	if ($res) return $res[0]['is_trusted'];
+	else return false;
+}
+
+
+function is_problematic_user($user_id){
+	$user_id = _esc($user_id);
+	$res = arrayDB("SELECT is_problematic FROM ebay_users WHERE user_id = '$user_id'");
+	if ($res) return $res[0]['is_problematic'];
+	else return false;
+}
+
+
+function GetItemsAwaitingFeedbacks(){
+
+	$order_arr = [];
+	$res = EbayOrders::GetItemsAwaitingFeedbackRequest(['PageNumber' => '1']);
+	// sa($res);
+
+	$sql = '';
+	foreach ($res['ItemsAwaitingFeedback']['TransactionArray']['Transaction'] as &$item) {
+		if(defined('DEV_MODE')) $order_arr[] = $item;
+		$UserID = _esc(@$item['Buyer']['UserID']);
+		$ItemID = _esc($item['Item']['ItemID']);
+		$Title = _esc($item['Item']['Title']);
+		$CommentType = _esc(@$item['FeedbackLeft']['CommentType']);
+		$TransactionID = _esc($item['TransactionID']);
+		$OrderLineItemID = _esc($item['OrderLineItemID']);
+		$EndTime = _esc($item['Item']['ListingDetails']['EndTime']);
+		if (arrayDB("SELECT id FROM awaiting_orders WHERE TransactionID = '$TransactionID' AND ItemID = '$ItemID'")){
+			arrayDB("UPDATE awaiting_orders SET last_seen = CURRENT_TIMESTAMP WHERE TransactionID = '$TransactionID' AND ItemID = '$ItemID'");
+		}else{
+			arrayDB("INSERT INTO awaiting_orders (UserID,ItemID,Title,CommentType,TransactionID,OrderLineItemID,EndTime)
+		VALUES ('$UserID','$ItemID','$Title','$CommentType','$TransactionID','$OrderLineItemID','$EndTime')");
+		}
+	}
+
+	$pages = $res['ItemsAwaitingFeedback']['PaginationResult']['TotalNumberOfPages'];
+	if(!$pages) return;
+
+	for ($i=2; $i <= $pages; $i++){
+		// if($i > 3) break; // трех страниц нам хватит
+		$res = EbayOrders::GetItemsAwaitingFeedbackRequest(['PageNumber' => $i]);
+		if(!isset($res['ItemsAwaitingFeedback']['TransactionArray']['Transaction'][0])){
+			$res['ItemsAwaitingFeedback']['TransactionArray']['Transaction'] = [$res['ItemsAwaitingFeedback']['TransactionArray']['Transaction']];
+		}
+		$sql = '';
+		foreach ($res['ItemsAwaitingFeedback']['TransactionArray']['Transaction'] as &$item) {
+			if(defined('DEV_MODE')) $order_arr[] = $item;
+			$UserID = _esc(@$item['Buyer']['UserID']);
+			$ItemID = _esc($item['Item']['ItemID']);
+			$Title = _esc($item['Item']['Title']);
+			$CommentType = _esc(@$item['FeedbackLeft']['CommentType']);
+			$TransactionID = _esc($item['TransactionID']);
+			$OrderLineItemID = _esc($item['OrderLineItemID']);
+			$EndTime = _esc($item['Item']['ListingDetails']['EndTime']);
+			if (arrayDB("SELECT id FROM awaiting_orders WHERE TransactionID = '$TransactionID' AND ItemID = '$ItemID'")){
+				arrayDB("UPDATE awaiting_orders SET last_seen = CURRENT_TIMESTAMP WHERE TransactionID = '$TransactionID' AND ItemID = '$ItemID'");
+			}else{
+				arrayDB("INSERT INTO awaiting_orders (UserID,ItemID,Title,CommentType,TransactionID,OrderLineItemID,EndTime)
+			VALUES ('$UserID','$ItemID','$Title','$CommentType','$TransactionID','$OrderLineItemID','$EndTime')");
+			}
+		}
+	}
+
+	return($order_arr);
+}
+
+
+function set_bonus_sent()
+{
+	$sql_id = (int)$_POST['sql_id'];
+	arrayDB("UPDATE awaiting_orders SET bonus_sent = 1 WHERE id = '$sql_id'");
+}
+
+
+function private_page_link($hash)
+{
+	return 'https://gig-games.de/private.php?page='.$hash;
+}
+
+function private_mail_link($hash){
+	return 'https://gig-games.de/private.php?mail='.$hash;
+}
+
+
+function get_facebook_paragraph($ebay_id = 0, $ca = 'DE')
+{
+	if(!$ebay_id) return '';
+	if(is_trusted_country($ca)){
+		$ret = file_get_contents(ROOT.'/Files/facebook_paragraph_DE.html');
+	}elseif(file_exists(ROOT.'/Files/facebook_paragraph_DE-'.$ca.'.html')) {
+		$ret = file_get_contents(ROOT.'/Files/facebook_paragraph_DE-'.$ca.'.html');
+	}else{
+		$ret = file_get_contents(ROOT.'/Files/facebook_paragraph_EN.html');
+	}
+	$ret = str_replace('ebay_id=0', 'ebay_id='.$ebay_id, $ret);
 	return $ret;
 }
 
 
-function get_zusammen($long_desc)
+function mail_link_block($secret_hash, $country_alias = 'DE')
 {
-	$long_desc = preg_replace('/.+Zusammensetzung(.+?)<\/div>.*/', '$1', $long_desc);
+	if (is_trusted_country($country_alias)) return '<div class="qq-block0">
+		<a class="qq-open-email-link" href="https://gig-games.de/private.php?mail='.$secret_hash.'" target="_blank" style="max-width:640px;margin:auto;color:#2199e8;font-weight:400;line-height:1.3;font-family:Helvetica,Arial,sans-serif;text-align:center;text-decoration:none;display:block;background-color:#fff;padding:10px">E-Mail wird nicht richtig angezeigt? Klicken Sie bitte hier.</a>
+	</div>';
 
-	$long_desc = preg_replace('/<[^>].+?>/', '', $long_desc);
-
-	return trim(str_replace(':', '', $long_desc));
+	else return '<div class="qq-block0">
+		<a class="qq-open-email-link" href="https://gig-games.de/private.php?mail='.$secret_hash.'" target="_blank" style="max-width:640px;margin:auto;color:#2199e8;font-weight:400;line-height:1.3;font-family:Helvetica,Arial,sans-serif;text-align:center;text-decoration:none;display:block;background-color:#fff;padding:10px">E-mail is not displayed correctly? Please click here.</a>
+	</div>';
 }
 
 
-function get_gehalte($long_desc)
+function cdvet_filter_search()
 {
-	$long_desc = preg_replace('/.+Analytische Bestandteile und Gehalte(.+?)<\/div>.*/', '$1', $long_desc);
-
-	$long_desc = preg_replace('/<[^>].+?>/', '', $long_desc);
-	$long_desc = preg_replace('/(\d),(\d)/', '$1.$2', $long_desc);
-
-	return trim(str_replace(':', '', $long_desc));
+	cdvet_filter_log_insert();
+	return Cdvet::filter_search();
 }
 
-?>
+
+function cdvet_filter_search_site()
+{
+	return Cdvet::filter_search_site();
+}
+
+
+function get_cdvet_cats()
+{
+	if($_POST['enter_log']) cdvet_filter_log_insert(true);
+	$res = arrayDB("SELECT * FROM cdvet_cats WHERE id NOT IN(52,53,55,56)");
+	$ret0 = [];$ret1 = [];
+	foreach ($res as $key => $val) {
+		$ret0[$val['section']][$val['shop_category']] = $val;
+		$ret1[$val['section']][] = $val;
+	}
+	$ret2= array_column($res, 'image', 'eBayShopKAtegorieID');
+	$ret3= array_column($res, 'image', 'shop_category');
+	return json_encode(['by_sections_by_shopcat'=>$ret0,
+						'by_sections'=>$ret1,
+						'by_ebay_cat'=>$ret2,
+						'by_cdvet_cat'=>$ret3]);
+}
+
+
+function cdvet_filter_menu()
+{
+	return '<pre style="white-space:pre-wrap;">'.file_get_contents(ROOT.'/lib/adds/cdvet-'.$_POST['menu_item'].'.html').'</pre>';
+}
+
+
+function cdvet_filter_log_insert($enter_only = false)
+{
+	if($_SERVER['REMOTE_ADDR'] === '37.46.229.203') return;
+	$user = get_username_with_IP();
+
+	if ($enter_only) {
+		arrayDB("INSERT INTO cdvet_filter_log (`user`,`enter`) VALUES('$user','enter')");
+		return;
+	}
+
+	if(!isset($_POST['log'])) return;
+
+	$field = _esc($_POST['log']['field']);
+	$value = _esc($_POST['log']['value']);
+
+	if(@$_POST['log']['enter']){
+		arrayDB("INSERT INTO cdvet_filter_log (`user`,`enter`,`$field`) VALUES('$user','enter','$value')");
+	}else{
+		arrayDB("INSERT INTO cdvet_filter_log (`user`,`$field`) VALUES('$user','$value')");
+	}
+}
+
+
+
+function get_mail2018_template($country_alias)
+{
+	if (is_trusted_country($country_alias)) {
+		return get_text_template('mail2018', 'DE');
+	}else{
+		return get_text_template('mail2018', 'EN');
+	}
+}
+
+
+function save_steam_offset($steam_table, $offset)
+{
+	$res = file_get_contents(ROOT.'/lib/adds/steam_offsets.json');
+	$res = json_decode($res, true);
+	$res[$steam_table] = $offset;
+	$res = json_encode($res);
+	file_put_contents(ROOT.'/lib/adds/steam_offsets.json', $res);
+}
+
+
+function get_steam_offsets($steam_table = false)
+{
+	$res = file_get_contents(ROOT.'/lib/adds/steam_offsets.json');
+	$res = json_decode($res, true);
+	if($steam_table) return $res[$steam_table];
+	return $res;
+}
+
+
+function steam_images_count($app_id, $app_sub)
+{
+	$checker = file_get_contents('http://parser.gig-games.de/steam-images-checker.php?app_id='.$app_id.'&app_sub='.$app_sub);
+	return count(json_decode($checker, true));
+}
+
+
+function black_white_list()
+{
+	$game_id = _esc($_POST['game_id']);
+	$ebay_id = _esc($_POST['ebay_id']);
+	$title = _esc($_POST['title']);
+	$category = _esc($_POST['category']);
+
+	if (!$game_id || !$ebay_id || !$category) return;
+
+	$check1 = arrayDB("SELECT id FROM ebay_black_white_list WHERE game_id = '$game_id' AND ebay_id = '$ebay_id'");
+
+	if ($_POST['category'] === 'white') {
+		$check2 = arrayDB("SELECT id FROM ebay_prices WHERE item_id = '$ebay_id'");
+	}
+
+	if ($_POST['category'] === 'black') {
+		$check2 = arrayDB("SELECT id FROM games WHERE id = '$game_id' AND ebay_id = '$ebay_id'");
+	}
+
+	if (!$check1 && !$check2) {
+		echo arrayDB("INSERT INTO ebay_black_white_list (game_id,ebay_id,title,category) VALUES('$game_id','$ebay_id','$title','$category')");
+	}
+}
+
+
+function ebay_reparse_one($game_id = 0, $reparse_one = true)
+{
+	$url = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].'/lib/ebay_getprices.php';
+
+	$game_id = _esc($game_id ? $game_id : $_POST['game_id']);
+
+	$post = [
+		'ebay_getprices' => 'true',
+		'start' => '1',
+		'end' => '10',
+		'game_id' => $_POST['game_id'],
+	];
+
+	if($reparse_one) $ret = post_curl($url, $post);
+	else $ret = [];
+
+	$value = arrayDB("SELECT * FROM ebay_results WHERE game_id = '$game_id' ORDER BY id DESC LIMIT 1")[0];
+	if(!$value) return '[]';
+
+	$ret['ebay_info'] = $value;
+	$ret['ebay_info']['game_id'] = $game_id;
+	$ret['ebay_info']['gigs'] = [];
+	$ret['ebay_info']['wls'] = [];
+
+	$ids_arr = arrayDB("SELECT item_id FROM ebay_prices");
+	$ids_arr = array_column($ids_arr, 'item_id');
+
+	$white_list = arrayDB("SELECT game_id,ebay_id FROM ebay_black_white_list WHERE category = 'white'");
+	$wl = []; foreach ($white_list as $val) $wl[$val['game_id']][] = $val['ebay_id'];
+
+	$ret['ebay_info']['gigs'][0] = $gig1 = in_array($value['itemid1'], $ids_arr) ? 'gig' : '';
+	$ret['ebay_info']['gigs'][1] = $gig2 = in_array($value['itemid2'], $ids_arr) ? 'gig' : '';
+	$ret['ebay_info']['gigs'][2] = $gig3 = in_array($value['itemid3'], $ids_arr) ? 'gig' : '';
+	$ret['ebay_info']['gigs'][3] = $gig4 = in_array($value['itemid4'], $ids_arr) ? 'gig' : '';
+	$ret['ebay_info']['gigs'][4] = $gig5 = in_array($value['itemid5'], $ids_arr) ? 'gig' : '';
+
+	$ret['ebay_info']['wls'][0] = $wl1 = (@$wl[$value['game_id']] && in_array($value['itemid1'], $wl[$value['game_id']])) ? 'white' : '';
+	$ret['ebay_info']['wls'][1] = $wl2 = (@$wl[$value['game_id']] && in_array($value['itemid2'], $wl[$value['game_id']])) ? 'white' : '';
+	$ret['ebay_info']['wls'][2] = $wl3 = (@$wl[$value['game_id']] && in_array($value['itemid3'], $wl[$value['game_id']])) ? 'white' : '';
+	$ret['ebay_info']['wls'][3] = $wl4 = (@$wl[$value['game_id']] && in_array($value['itemid4'], $wl[$value['game_id']])) ? 'white' : '';
+	$ret['ebay_info']['wls'][4] = $wl5 = (@$wl[$value['game_id']] && in_array($value['itemid5'], $wl[$value['game_id']])) ? 'white' : '';
+
+	$ret['tds_str'] =  '<td class="'.$gig1.' '.$wl1.'" iid="'.$value['itemid1'].'" title="'.$value['title1'].'">'.$value['price1'].'</td>
+						<td class="'.$gig2.' '.$wl2.'" iid="'.$value['itemid2'].'" title="'.$value['title2'].'">'.$value['price2'].'</td>
+						<td class="'.$gig3.' '.$wl3.'" iid="'.$value['itemid3'].'" title="'.$value['title3'].'">'.$value['price3'].'</td>
+						<td class="'.$gig4.' '.$wl4.'" iid="'.$value['itemid4'].'" title="'.$value['title4'].'">'.$value['price4'].'</td>
+						<td class="'.$gig5.' '.$wl5.'" iid="'.$value['itemid5'].'" title="'.$value['title5'].'">'.$value['price5'].'</td>';
+	
+	global $_ERRORS;
+	$ret['errors'] = $_ERRORS;
+
+	return json_encode($ret);
+}
+
+
+function get_ebay_black_list($game_id)
+{
+	$game_id = _esc($game_id);
+
+	$res = arrayDB("SELECT ebay_id FROM ebay_black_white_list WHERE game_id = '$game_id' AND category = 'black'");
+
+	return array_column($res, 'ebay_id');
+}
+
+
+function delete_old_records($table, $column)
+{
+	$table = _esc($table);
+	return arrayDB("DELETE FROM `$table` WHERE `$table`.`$column` < NOW() - INTERVAL 2 WEEK");
+}
+
+
+function ak_get_games()
+{
+	if(!$_POST['query']) return '[]';
+	$game = _esc(trim($_POST['query']));
+	$ret = arrayDB("SELECT id,title_clean,item_id,price FROM ebay_prices WHERE title LIKE '%$game%' ORDER BY title_clean LIMIT 7");
+	// $ret = array_column($ret, 'title');
+
+	// $ret = array_map(function($el)
+	// {
+	// 	$el['title_clean'] = htmlspecialchars($el['title_clean']);
+	// 	return $el;
+	// }, $ret);
+	return json_encode($ret);
+}
+
+
+function ak_get_sellers()
+{
+	if(!$_POST['query']) return '[]';
+	$game = _esc(trim($_POST['query']));
+	$ret = arrayDB("SELECT username FROM ak_sellers WHERE username LIKE '%$game%' LIMIT 5");
+	$ret = array_column($ret, 'username');
+	return json_encode($ret);
+}
+
+
+function ak_add_seller()
+{
+	$username = _esc($_POST['username']);
+	$info = _esc($_POST['info']);
+
+	$check = arrayDB("SELECT id FROM ak_sellers WHERE username = '$username'");
+
+	if(!$check) arrayDB("INSERT INTO ak_sellers (username,info) VALUES('$username','$info')");
+
+	return json_encode([
+		'post' => $_POST,
+		'report' => $check ? 'seller exists!' : 'seller added!',
+		'report_status' => $check ? 'warning' : 'success',
+		'errors' => $_ERRORS,
+	]);
+}
+
+
+
+
+function ak_add_key()
+{
+//     [function] => ak_add_key
+//     [game_name] => National Flags - Heads Pack
+//     [seller] => rty
+//     [keys] => gfh
+//     [price] => 67
+//     [ebay_id] => 
+	$sqled = [];
+	$good = true;
+	$report = 'keys added!';
+	$report_status = 'success';
+
+	$flds = ['ebay_id','game_name','seller','keys','price'];
+
+	foreach ($flds as $field) {
+		if(!$_POST[$field]){
+			$good = false;
+			$report = 'require field: ' . $field;
+			$report_status = 'warning';
+		}
+		// if(!is_array($_POST[$field])) $flds[$field] = _esc($_POST[$field]);
+		$flds[$field] = _esc(trim($_POST[$field]));
+	}
+
+	foreach (explode(PHP_EOL, $_POST['keys']) as $steam_key) {
+		$steam_key = _esc(trim($steam_key));
+		if(!strlen($steam_key)) continue;
+		$check = arrayDB("SELECT id FROM ak_keys WHERE `steam_key` = '$steam_key'");
+		if(!$check){
+			$sqled[] = arrayDB("INSERT INTO ak_keys (`steam_key`,ebay_id,game_name,seller,price)
+				VALUES('$steam_key','$flds[ebay_id]','$flds[game_name]','$flds[seller]','$flds[price]')");
+		}else{
+			$report .= '<br>key allready exist:'.$steam_key;
+		}
+	}
+	return json_encode([
+		'post' => $_POST,
+		'report' => $report,
+		'report_status' => $report_status,
+		'sqled' => $sqled,
+		'errors' => $_ERRORS,
+	]);
+}
+
+
+function get_warehouse($ebay_id)
+{
+	$res = arrayDB("SELECT * FROM ak_keys WHERE ebay_id = '$ebay_id' AND status = 'active' ORDER BY price");
+	if ($res) {
+		return $res[0];
+	}else{
+		return false;
+	}
+}
+
+
+function warehouse_status_sold($warehouse_id, $gig_order_id, $gig_order_item_id)
+{
+	arrayDB("UPDATE ak_keys 
+		SET status = 'sold',
+			gig_order_id = '$gig_order_id',
+			gig_order_item_id = '$gig_order_item_id'
+		WHERE id = '$warehouse_id'");
+}
+
+
+function ak_get_prices()
+{
+	$ebay_id = _esc($_POST['ebay_id']);
+
+	$wh_price = @get_warehouse($ebay_id)['price'];
+
+	$suitables = get_suitables2($ebay_id);
+	$platiru_price = @$suitables[0]['item1_price'];
+
+	return 'wh: '.($wh_price ? $wh_price.'p' : 'none').
+		' | plati.ru: '.($platiru_price ? $platiru_price.'p' : 'none');
+}

@@ -1,0 +1,30 @@
+	<div class="qq-block2" style="background-image:url('http://hood.gig-games.de/girl2.png');background-position:left bottom;background-repeat:no-repeat;text-align:right"><div class="qq-entire" style="background:rgba(12, 37, 68, 0.3);min-height:434px">
+		<div class="qq-title-center" style="margin:15px 0;color:#33d0e1;font-size:22px;font-weight:400;line-height:1.3;text-align:center">Brauchen Sie Hilfe? Haben Sie Fragen?</div>
+		<div class="qq-cont qq-cont1" style="height:45px;padding-left:50px;color:#fff;background-position:0px 0px;background-repeat:no-repeat;margin:10px 0;display:inline-block;min-width:220px;text-align:left;line-height:36px;background-image:url('http://hood.gig-games.de/settings.png')">Support 24H/7</div><br>
+		<div class="qq-cont qq-cont2" style="height:45px;padding-left:50px;color:#fff;background-position:0px 0px;background-repeat:no-repeat;margin:10px 0;display:inline-block;min-width:220px;text-align:left;line-height:36px;background-image:url('http://hood.gig-games.de/face.png')">@giggamessupport</div><br>
+		<div class="qq-cont qq-cont3" style="height:45px;padding-left:50px;color:#fff;background-position:0px 0px;background-repeat:no-repeat;margin:10px 0;display:inline-block;min-width:220px;text-align:left;line-height:36px;background-image:url('http://hood.gig-games.de/icq.png')">ICQ 169-900</div><br>
+		<div class="qq-cont qq-cont4" style="height:45px;padding-left:50px;color:#fff;background-position:0px 0px;background-repeat:no-repeat;margin:10px 0;display:inline-block;min-width:220px;text-align:left;line-height:36px;background-image:url('http://hood.gig-games.de/mail.png');background-position-x:2px"><a style="text-decoration: none; color: #fff;" href="mailto:support@gig-games.de" target="_blank">support@gig-games.de</a></div><br>
+		<div class="qq-cont qq-cont5" style="height:45px;padding-left:50px;color:#fff;background-position:0px 0px;background-repeat:no-repeat;margin:10px 0;display:inline-block;min-width:220px;text-align:left;line-height:36px;background-image:url('http://hood.gig-games.de/skype.png')">g.i.g-group</div><br>
+		<div class="qq-cont qq-cont6" style="height:45px;padding-left:50px;color:#fff;background-position:0px 0px;background-repeat:no-repeat;margin:10px 0;display:inline-block;min-width:220px;text-align:left;line-height:36px;background-image:url('http://hood.gig-games.de/viber.png')"><a style="text-decoration: none; color: #fff;" href="tel:+49%201578%208453267" value="+4915788453267" target="_blank">+49 157 88453267</a></div><br>
+		<a class="qq-mid-btn" href="mailto:support@gig-games.de" style="display:inline-block;color:#3b5d89;background-color:#febd2c;background-image:linear-gradient(to bottom, #fec02c 0%,#ff9c2b 100%);text-decoration:none;padding:15px 40px;border-radius:50px;text-align:center;font-weight:bold;margin:10px 30px 21px 10px;min-width:150px">Kontaktieren</a>
+	</div></div>
+
+
+
+
+
+
+
+
+
+
+		<div class="qq-block2" style="background-image:url('http://hood.gig-games.de/girl2.png');background-position:left bottom;background-repeat:no-repeat;text-align:right"><div class="qq-entire" style="background:rgba(12, 37, 68, 0.3);min-height:434px">
+		<div class="qq-title-center" style="margin:15px 0;color:#33d0e1;font-size:22px;font-weight:400;line-height:1.3;text-align:center">Brauchen Sie Hilfe? Haben Sie Fragen?</div>
+		<div class="qq-cont qq-cont1" style="height:45px;padding-left:50px;color:#fff;background-position:0px 0px;background-repeat:no-repeat;margin:10px 0;display:inline-block;min-width:220px;text-align:left;line-height:36px;background-image:url('http://hood.gig-games.de/settings.png')">Support 24H/7</div><br>
+		<div class="qq-cont qq-cont2" style="height:45px;padding-left:50px;color:#fff;background-position:0px 0px;background-repeat:no-repeat;margin:10px 0;display:inline-block;min-width:220px;text-align:left;line-height:36px;background-image:url('http://hood.gig-games.de/face.png')">@giggamessupport</div><br>
+		<div class="qq-cont qq-cont3" style="height:45px;padding-left:50px;color:#fff;background-position:0px 0px;background-repeat:no-repeat;margin:10px 0;display:inline-block;min-width:220px;text-align:left;line-height:36px;background-image:url('http://hood.gig-games.de/icq.png')">ICQ 169-900</div><br>
+		<div class="qq-cont qq-cont4" style="height:45px;padding-left:50px;color:#fff;background-position:0px 0px;background-repeat:no-repeat;margin:10px 0;display:inline-block;min-width:220px;text-align:left;line-height:36px;background-image:url('http://hood.gig-games.de/mail.png');background-position-x:2px"><a style="text-decoration: none; color: #fff;" href="mailto:support@gig-games.de" target="_blank">support@gig-games.de</a></div><br>
+		<div class="qq-cont qq-cont5" style="height:45px;padding-left:50px;color:#fff;background-position:0px 0px;background-repeat:no-repeat;margin:10px 0;display:inline-block;min-width:220px;text-align:left;line-height:36px;background-image:url('http://hood.gig-games.de/skype.png')">g.i.g-group</div><br>
+		<div class="qq-cont qq-cont6" style="height:45px;padding-left:50px;color:#fff;background-position:0px 0px;background-repeat:no-repeat;margin:10px 0;display:inline-block;min-width:220px;text-align:left;line-height:36px;background-image:url('http://hood.gig-games.de/viber.png')"><a style="text-decoration: none; color: #fff;" href="tel:+49%201578%208453267" value="+4915788453267" target="_blank">+49 157 88453267</a></div><br>
+		<a class="qq-mid-btn" href="mailto:support@gig-games.de" style="display:inline-block;color:#3b5d89;background-color:#febd2c;background-image:linear-gradient(to bottom, #fec02c 0%,#ff9c2b 100%);text-decoration:none;padding:15px 40px;border-radius:50px;text-align:center;font-weight:bold;margin:10px 30px 21px 10px;min-width:150px">contact us</a>
+	</div></div>

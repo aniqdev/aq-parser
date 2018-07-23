@@ -29,45 +29,81 @@ if (isset($_POST['submitted'])) {
 <head>
 	<meta charset="UTF-8">
 	<title>Login</title>
-	<style>
-		body {
- 			background: url("images/SoftWhiteBricks.jpg");
-			font-family: helvetica, arial;
-		}
-		form{
-			position: absolute;
-		    width: 300px;
-		    margin-left: -150px;
-			top: 50%;
-			left: 50%;
-			border: 1px solid #fff;
-			background-color: rgba(9, 30, 37, 0.5);
-			padding: 10px;
-			line-height: 18px;
-			margin-top: -100px;
-			box-shadow: 0 2px 5px #999;
-			color: #fff;
-			text-shadow: 0 1px 2px #444;
-			text-align: center;
-		}
-		form input{
-		    display: block;
-		    width: 100%;
-		    border: 1px solid #818181;
-		    margin-bottom: 5px;
-		    padding: 5px;
-		        box-sizing: border-box;
-		}
-		form button{
-			width: 100%;
-			display: block;
-			padding: 5px;
-		}
-	</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+*{
+	box-sizing: border-box;
+}
+html,body{
+	height: 100%;
+}
+body {
+	background: url(https://www.ihdimages.com/wp-content/uploadsktz/2014/10/city_at_night_wallpaper_2014_hd.jpg);
+	font-family: helvetica, arial;
+	background-size: cover;
+	background-attachment: fixed;
+	margin: 0;
+	padding: 15px;
+}
+form{
+	position: absolute;
+    width: 300px;
+    margin-left: -150px;
+	top: 50%;
+	left: 50%;
+	border: 1px solid #616161;
+	background-color: rgba(9, 30, 37, 0.5);
+	padding: 10px;
+	line-height: 18px;
+	margin-top: -100px;
+	color: #fff;
+	text-shadow: 0 1px 2px #444;
+	text-align: center;
+}
+form input{
+	display: block;
+	width: 100%;
+	border: 1px solid #818181;
+	margin-bottom: 5px;
+	padding: 5px;
+	box-sizing: border-box;
+	background: #0d0a3042;
+	color: white;
+}
+/*input:-webkit-autofill {
+	background-color: #240259 !important;
+    background-image: none !important;
+    color: #c82d2d !important;
+}*/
+/*input:-webkit-autofill { -webkit-box-shadow:200px 200px 100px white inset; box-shadow:200px 200px 100px white inset; }*/
+
+form button{
+    width: 100%;
+    display: block;
+    padding: 5px;
+    background: black;
+    border: 1px solid #818181;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%,rgba(0,0,0,0) 100%);
+    color: #fff;
+    background: linear-gradient(to bottom, rgb(41, 66, 126) 0%,rgba(0,0,0,0) 100%);
+}
+@media (max-width: 767px){
+	form{
+		width: 100%;
+		position: relative;
+	    top: 40%;
+	    left: 0;
+	    margin: 0;
+	}
+	form button{
+		padding: 25px;
+	}
+}
+</style>
 </head>
 <body>
 	<form method="post">
-		<h2 align="center">Authorization!</h2>
+		<!-- <h2 align="center">Authorization!</h2> -->
 		<input type="text" name="login" maxlength="100" placeholder="login">
 		<input type="password" name="password" maxlength="100" placeholder="password">
 		<button type="submit" name="submitted" value="Войти">Sign In!</button>

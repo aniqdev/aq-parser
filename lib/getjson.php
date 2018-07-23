@@ -19,7 +19,7 @@ function getResultsFromApi($request, $blacklist, $blacksell){
 		$iQ = $result->total;
 		if ($iQ > 500) $iQ = 500;
 
-		$arrItem = array();
+		$arrItem = [];
 		for($i = 0; $i < $iQ; $i++){
 			
 			$itemID      = $result->items[$i]->id;
@@ -40,7 +40,7 @@ function getResultsFromApi($request, $blacklist, $blacksell){
 
 			if (($bool1 || $bool2) && $bool3 && $bool4 && $bool5) {
 
-				$arrItem[$k] = array();	
+				$arrItem[$k] = [];	
 	    		$arrItem[$k]['itemID'] = $itemID;
 			    $arrItem[$k]['name'] = $name;
 			    $arrItem[$k]['price'] = $price;
@@ -244,12 +244,15 @@ if (isset($_POST['getjson'])) {
 <div class="row h518">
 	<div class="col-sm-6">
 		<h3>парсим цены Plati.ru</h3>
+		<button id="filter_price_update" class="btn btn-warning pull-right">Обновить фильтр (цены)</button><br><br>
+		<button id="filter_advantages_update" class="btn btn-warning pull-right">Обновить фильтр (приемущества)</button><br><br>
+		<button id="filter_values_update" class="btn btn-warning pull-right">Обновить фильтр (переменные)</button>
 		<button id="getjson" class="getjson-btn">Спарсить</button>
 		<button id="getjson_multi" class="getjson-btn" style="margin:4px 0 -30px;" title="в 1.7 раз быстрее">v2.0 beta</button>
 		<button id="getjson_multi3" class="getjson-btn" style="margin:35px 0 -62px;" title="в 10 раз быстрее">v3.0 beta</button>
 		<span class="loading loading1"></span>
 		<h3>Состояние процесса:</h3>
-		<ul id="message1" class="message"><li></li></ul>
+		<ul id="message1" class="message li_height44"><li></li></ul>
 	</div>
 	<div class="col-sm-6">
 		<h3>парсим цены Ebay.com</h3>
@@ -257,7 +260,7 @@ if (isset($_POST['getjson'])) {
 		<button id="ebay_getprices_multi" class="getjson-btn ebay_getprices" style="margin:4px 0 -30px;" title="в 5 раз быстрее">v2.2 beta</button>
 		<span class="loading loading2"></span>
 		<h3>Состояние процесса:</h3>
-		<ul id="message2" class="message"><li></li></ul>
+		<ul id="message2" class="message li_height44"><li></li></ul>
 	</div>
 </div>
 
@@ -268,3 +271,34 @@ if (isset($_POST['getjson'])) {
 
 
 ?>
+<script>
+function ajax_724y67(action, callable) {
+	$('#filter_'+action+'_update').attr('disabled', true);
+	$.get('http://parser.gig-games.de/ajax-cross.php?action=cron-filter-'+action+'-updater',
+		function function_name(data) {
+			$('#filter_'+action+'_update').append('&nbsp;<i class="glyphicon glyphicon-ok"></i>');
+			callable();
+		});
+}
+$('#filter_price_update').on('click', function() {
+	ajax_724y67('price', function() {
+		ajax_724y67('advantages', function() {
+			ajax_724y67('values', function() {
+				console.log('done');
+			});
+		});
+	});
+});
+$('#filter_advantages_update').on('click', function() {
+	ajax_724y67('advantages', function() {
+		ajax_724y67('values', function() {
+			console.log('done');
+		});
+	});
+});
+$('#filter_values_update').on('click', function() {
+	ajax_724y67('values', function() {
+		console.log('done');
+	});
+});
+</script>

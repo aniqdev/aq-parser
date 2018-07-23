@@ -25,7 +25,7 @@ class CreateDesc2017
 		$this->_ebay_id = $ebay_id;
 	}
 
-	public function scip()
+	public function scip($extra_field = 'desc2017may')
 	{
 		// if(  strlen($this->_steam_de['sys_req']) > 510 || 
 		// 	 strlen($this->_steam_en['sys_req']) > 510 ||
@@ -34,10 +34,17 @@ class CreateDesc2017
 		// 	 strlen($this->_steam_it['sys_req']) > 510 ){
 		// 	return false;
 		// }
-		if ($this->_extra_field === 'desc2017may') {
+		if ($this->_extra_field === $extra_field) {
 			return true;
 		}
 		return false;
+	}
+
+	public function setSteamLink($steam_link = '')
+	{
+		if(!$steam_link) return false;
+		$this->_steam_link = $steam_link;
+		return true;
 	}
 
 	public function getSteamLink()
@@ -52,6 +59,7 @@ class CreateDesc2017
 
 	public function getSteamLink2()
 	{
+		// old_ebay_id
 		$ebay_id = _esc($this->_ebay_id);
 		$steam_link = arrayDB("SELECT steam_link,extra_field FROM games WHERE old_ebay_id = '$ebay_id'");
 		if(!$steam_link) return false;
@@ -100,6 +108,27 @@ class CreateDesc2017
 		$this->_steam_fr = $this->_steam_de;
 		$this->_steam_es = $this->_steam_de;
 		$this->_steam_it = $this->_steam_de;
+		return true;
+	}
+
+	public function goDeutchToEn()
+	{
+		$this->_steam_en = $this->_steam_de;
+	}
+
+	public function goDeutchToFr()
+	{
+		$this->_steam_fr = $this->_steam_de;
+	}
+
+	public function goDeutchToEs()
+	{
+		$this->_steam_es = $this->_steam_de;
+	}
+
+	public function goDeutchToIt()
+	{
+		$this->_steam_it = $this->_steam_de;
 	}
 
 	public function readSteamEn()
@@ -144,9 +173,9 @@ class CreateDesc2017
 		$this->_data_array['title'] = $this->_steam_de['title'];
 		if ($this->_steam_de['lang']) {
 			$this->_data_array['langs'] = implode(', ',
-				array_map(function($el){
+				array_filter(array_map(function($el){
 					return get_country_code($el);},
-					explode(',',$this->_steam_de['lang'])));
+					array_filter(explode(',',trim($this->_steam_de['lang']))))));
 		}else{
 			$this->_data_array['langs'] = 'EN';
 		}
@@ -166,13 +195,13 @@ class CreateDesc2017
 		}
 		$app_sub = $this->_steam_de['type'];
 		if($app_sub === 'dlc') $app_sub = 'app';
-		$this->_data_array['img4'] = 'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$this->_steam_de['appid'].'/header.jpg';
+		$this->_data_array['img4'] = '//parser.gig-games.de/steam-images/'.$app_sub.'s-'.$this->_steam_de['appid'].'/header.jpg';
 
-		$this->_data_array['about_de'] = add_dlc_addon_to_desc($this->_steam_de, 'de');
-		$this->_data_array['about_en'] = add_dlc_addon_to_desc($this->_steam_en, 'en');
-		$this->_data_array['about_fr'] = add_dlc_addon_to_desc($this->_steam_fr, 'fr');
-		$this->_data_array['about_es'] = add_dlc_addon_to_desc($this->_steam_es, 'es');
-		$this->_data_array['about_it'] = add_dlc_addon_to_desc($this->_steam_it, 'it');
+		$this->_data_array['about_de'] = add_notice_to_desc($this->_steam_de).add_dlc_addon_to_desc($this->_steam_de, 'de');
+		$this->_data_array['about_en'] = add_notice_to_desc($this->_steam_en).add_dlc_addon_to_desc($this->_steam_en, 'en');
+		$this->_data_array['about_fr'] = add_notice_to_desc($this->_steam_fr).add_dlc_addon_to_desc($this->_steam_fr, 'fr');
+		$this->_data_array['about_es'] = add_notice_to_desc($this->_steam_es).add_dlc_addon_to_desc($this->_steam_es, 'es');
+		$this->_data_array['about_it'] = add_notice_to_desc($this->_steam_it).add_dlc_addon_to_desc($this->_steam_it, 'it');
 		$this->_data_array['sydreq_de'] = str_replace(['\r\n',"\r\n"], '<br>', $this->_steam_de['sys_req']);
 		$this->_data_array['sydreq_en'] = str_replace(['\r\n',"\r\n"], '<br>', $this->_steam_en['sys_req']);
 		$this->_data_array['sydreq_fr'] = str_replace(['\r\n',"\r\n"], '<br>', $this->_steam_fr['sys_req']);
@@ -186,8 +215,8 @@ class CreateDesc2017
 		$proto = file_get_contents('http://parser.gig-games.de/ebay-2017/index.html');
 		if(!$proto) return false;
 
-		$search = 'href="style-2017.css"';
-		$replace = 'href="http://hot-body.net/gig-less/css/style-2017.css"';
+		$search = 'href="style-2017.css';
+		$replace = 'href="//hot-body.net/gig-less/css/style-2017.css';
 		$new_full_desc = str_replace($search, $replace, $proto);
 
 		$search = [
@@ -198,7 +227,7 @@ class CreateDesc2017
 			'/(data-img2a src=").*(" data-img2b)/',
 			'/(data-img3a src=").*(" data-img3b)/',
 			'/(data-img4a src=").*(" data-img4b)/',
-			'/(gig-quelle">.+: ).*(<\/a><!--link-end-->)/',
+			// '/(gig-quelle">.+: ).*(<\/a><!--link-end-->)/',
 			'/(gig-about-de">).*(<!--about-de-end-->)/',
 			'/(gig-about-en">).*(<!--about-en-end-->)/',
 			'/(gig-about-fr">).*(<!--about-fr-end-->)/',
@@ -221,7 +250,7 @@ class CreateDesc2017
 			'${1}'.$this->_data_array['img2'].'$2',
 			'${1}'.$this->_data_array['img3'].'$2',
 			'${1}'.$this->_data_array['img4'].'$2',
-			'${1}'.$this->_steam_link.'$2',
+			// '${1}'.$this->_steam_link.'$2',
 			'${1}'.$this->_data_array['about_de'].'$2',
 			'${1}'.$this->_data_array['about_en'].'$2',
 			'${1}'.$this->_data_array['about_fr'].'$2',

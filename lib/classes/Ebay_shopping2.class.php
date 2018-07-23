@@ -137,7 +137,7 @@ class Ebay_shopping2{
 				return $result;
 		}
 
-		public function updateProductPrice($item_id, $price)
+		public function updateProductPrice($item_id, $price, $response_array = false)
 		{
 				if(!$price || !$item_id) return false;
 
@@ -180,7 +180,10 @@ class Ebay_shopping2{
 
 
 				//var_dump($responseXML);
-				if (stripos($responseXML, 'Success') !== false) return true;
+				if($response_array) {
+					return json_decode(json_encode(simplexml_load_string($responseXML)), true);
+				}
+				if (stripos($responseXML, 'Failure') !== false) return true;
 				return false;
 		}
 
@@ -290,7 +293,7 @@ class Ebay_shopping2{
 		  <WarningLevel>High</WarningLevel>
 		  <GranularityLevel>Coarse</GranularityLevel>
 		  <EndTimeFrom>'.date('Y-m-d\TH:i:s.B\Z', time()-2592000*3).'</EndTimeFrom>
-		  <EndTimeTo>'.date('Y-m-d\TH:i:s.B\Z', time()+2592000).'</EndTimeTo> 
+		  <EndTimeTo>'.date('Y-m-d\TH:i:s.B\Z', time()+2592000).'</EndTimeTo>
 		  <IncludeWatchCount>true</IncludeWatchCount>
 		  <Pagination> 
 		  	<PageNumber>'.$page.'</PageNumber>
@@ -310,6 +313,85 @@ class Ebay_shopping2{
 		return json_decode(json_encode(simplexml_load_string($result)), true);
 	}
 
+	// массовое редактирование цен и количества товаров
+	// Array
+	// (
+	//     [0] => Array
+	//         (
+	//             [ItemID] => 253201322474
+	//             [StartPrice] => 40.03
+	//             [Quantity] => 4
+	//         )
+	// )
+	public function reviseInventoryStatus($items_arr = [])
+	{
+		if (!isset($items_arr[0]['ItemID'])) return false;
+
+		$xml = '<?xml version="1.0" encoding="utf-8"?>
+				<ReviseInventoryStatusRequest xmlns="urn:ebay:apis:eBLBaseComponents">';
+
+		foreach ($items_arr as $k => $item) {
+			$xml .= '<InventoryStatus>
+						<ItemID>'.$item['ItemID'].'</ItemID>';
+				if(isset($item['StartPrice'])){
+					$xml .= '<StartPrice>'.$item['StartPrice'].'</StartPrice>';			
+				}
+				if(isset($item['Quantity'])){
+					$xml .= '<Quantity>'.$item['Quantity'].'</Quantity>';
+				}
+			$xml .= '</InventoryStatus>';
+		}
+		$xml .=  '<RequesterCredentials>
+					<eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+				  </RequesterCredentials>
+				  <Version>837</Version>
+				  <ErrorLanguage>en_US</ErrorLanguage>
+				  <WarningLevel>High</WarningLevel>
+				</ReviseInventoryStatusRequest>';
+
+		$headers = array
+				(
+				'X-EBAY-API-COMPATIBILITY-LEVEL: ' . '837',
+				'X-EBAY-API-DEV-NAME: ' . 'c1f2f124-1232-4bc4-bf9e-8166329ce649',
+				'X-EBAY-API-APP-NAME: ' . 'Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
+				'X-EBAY-API-CERT-NAME: ' . 'PRD-ae576df59071-a52d-4e1b-8b78-9156',
+				'X-EBAY-API-CALL-NAME: ' . 'ReviseInventoryStatus',
+				'X-EBAY-API-SITEID: ' . '77',
+		);
+		$result = $this->request($this->api_url, $xml, $headers);
+		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
+
+	public function changePostalCode($item_id, $postal_code)
+	{
+
+		$xml = '<?xml version="1.0" encoding="utf-8"?>
+		<ReviseItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+			<RequesterCredentials>
+				<eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+			</RequesterCredentials>
+			<Item ComplexType="ItemType">
+				<ItemID>'.$item_id.'</ItemID>
+				<PostalCode>'.$postal_code.'</PostalCode>
+			</Item>
+			<MessageID>1</MessageID>
+			<WarningLevel>High</WarningLevel>
+			<Version>837</Version>
+		</ReviseItemRequest>​';
+
+		$headers = array
+				(
+				'X-EBAY-API-COMPATIBILITY-LEVEL: ' . '837',
+				'X-EBAY-API-DEV-NAME: ' . 'c1f2f124-1232-4bc4-bf9e-8166329ce649',
+				'X-EBAY-API-APP-NAME: ' . 'Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
+				'X-EBAY-API-CERT-NAME: ' . 'PRD-ae576df59071-a52d-4e1b-8b78-9156',
+				'X-EBAY-API-CALL-NAME: ' . 'ReviseItem',
+				'X-EBAY-API-SITEID: ' . '77',
+		);
+		$result = $this->request($this->api_url, $xml, $headers);
+		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
+
 	/* результат выполнения функции
 	Array
 	(
@@ -322,8 +404,8 @@ class Ebay_shopping2{
 	{
 		$res2 = $this->GetSellerListRequest(1, 200);
 
-		$ids_arr = [];
-		$completed_arr = [];
+		$ids_arr = []; // active
+		$completed_arr = []; // comlited
 		$pics_arr = [];
 		$regex = '#/[^s]/(.+)/#';
 		foreach ($res2['ItemArray']['Item'] as $key => $item) {
@@ -402,9 +484,8 @@ class Ebay_shopping2{
 	public function GetMessages($folder = 'inbox', $EntriesPerPage = 100)
 	{
 		$FolderID = '0';
-		if ($folder === 'outbox') {
-			$FolderID = '1';
-		}
+		if ($folder === 'outbox') $FolderID = '1';
+
 		$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
 						"X-EBAY-API-CALL-NAME: GetMyMessages",
 						"X-EBAY-API-SITEID: 0",
@@ -847,6 +928,30 @@ class Ebay_shopping2{
    		//$res = file_get_contents($url);
 		return json_decode($res,1);
 		return json_decode(json_encode(simplexml_load_string($res)), true);
+	}
+
+
+	public function test2($MessageID)
+	{
+		$post = '<?xml version="1.0" encoding="utf-8"?>
+				<GetMyMessagesRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+				  <RequesterCredentials>
+				    <eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+				  </RequesterCredentials>
+				  <WarningLevel>High</WarningLevel>
+					<DetailLevel>ReturnMessages</DetailLevel>
+					<MessageIDs>
+						<MessageID>'.$MessageID.'</MessageID>
+					</MessageIDs>
+				</GetMyMessagesRequest>';
+
+		$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
+		"X-EBAY-API-CALL-NAME: GetMyMessages",
+		"X-EBAY-API-SITEID: 0",
+		"Content-Type: text/xml");
+
+		$result_xml = $this->request($this->api_url, $post, $headers);
+		return json_decode(json_encode(simplexml_load_string($result_xml)), true);
 	}
 
 } // class Ebay_shopping 2

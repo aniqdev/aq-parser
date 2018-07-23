@@ -83,9 +83,22 @@ if ($_FILES) {
 	}
 
 	$res = arrayDB('SELECT * FROM games');
+	
+	$grouped_by_steam_link = arrayDB("SELECT steam_link,count(*) count from games group by steam_link");
+	$link_count = array_column($grouped_by_steam_link, 'count', 'steam_link');
 ?>
 <div class="ppp-block" style="max-width:100%">
-<table id="have-data-table" data-table="games" class="ppp-table-collapse">
+<table id="have-data-table" data-table="games" class="ppp-table-collapse list-table" style="font-size: 12px;">
+	<tr>
+		<th>#</th>
+		<th>Title</th>
+		<th>steam link</th>
+		<th title="steam_link doubled">Ld</th>
+		<th>woo id</th>
+		<th>ebay id</th>
+		<th>hood id</th>
+		<th>ebay proposition</th>
+	</tr>
 <?php
 	foreach ($res as $key => $game) {
 		$need_title = 'id ok'; $need_id = '';
@@ -105,11 +118,17 @@ if ($_FILES) {
 					<label for="chedit',$game['id'],'" class="checkEdit"></label>
 					<span class="listitem" data-id="',$game['id'],'">',$game['name'],'</span>
 				</td>
+				<td>',$game['steam_link'],'</td>
+				<td>',(($link_count[$game['steam_link']] > 1)?$link_count[$game['steam_link']].'d':''),'</td>
 				<td>',$game['woo_id'],'</td>
+				<td><a href="https://www.hood.de/i/-',$game['hood_id'],'.htm" target="_blank">',$game['hood_id'],'</a></td>
 				<td>
 					<input class="list-id-input" value="',$game['ebay_id'],'">&nbsp;<button class="list-id-save">save</button>
 				</td>
-				<td><button ebayid="',$need_id,'" class="fill-input"><<</button> <span class="propos ',temp_sep($need_id, $res),'">',$need_title,'</span></td>
+				<td>
+					<button ebayid="',$need_id,'" class="fill-input"><<</button>
+					<span class="propos clip ',temp_sep($need_id, $res),'" title="',$need_title,'">',$need_title,'</span>
+				</td>
 			</tr>';
 	}
 ?>

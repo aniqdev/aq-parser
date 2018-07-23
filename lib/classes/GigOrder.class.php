@@ -18,6 +18,7 @@ class GigOrder
 	var $frame_link = '';
 	var $curr_price = '';
 	var $is_order_blocked = false;
+	var $answer_templates = [];
 
 	function __construct($opts=[])
 	{
@@ -27,6 +28,7 @@ class GigOrder
 			$gig_order_item_id = (int)$opts['gig_order_item_id'];
 			$this->setOrderInfo($gig_order_id);
 			$this->setGoodInfo($gig_order_item_id);
+			$this->secret_hash = $gig_order_id.'-'.$gig_order_item_id.'-'.get_secret_hash($gig_order_item_id);
 			$this->setPlatiInfo($this->good_info['ebay_id']);
 			$this->setEbayInfo($this->good_info['ebay_id']);
 			block_order($gig_order_id);
@@ -94,12 +96,16 @@ class GigOrder
 
 	public function setEbayInfo($ebay_id)
 	{
-		$res = arrayDB("SELECT * FROM ebay_results 
-					WHERE game_id = (select id from games where ebay_id = '$ebay_id' LIMIT 1)
-					ORDER BY id DESC
-					LIMIT 1");
-		if($res) $res = $res[0];
-		$this->ebay_info = $res;
+		$game_id = arrayDB("SELECT  id from games where ebay_id = '$ebay_id' LIMIT 1")[0]['id'];
+
+		// $res = arrayDB("SELECT * FROM ebay_results WHERE game_id = '$game_id' ORDER BY id DESC LIMIT 1");
+		$res = json_decode(ebay_reparse_one($game_id, $reparse_one = false), true);
+		if($game_id && $res){
+			$res = $res['ebay_info'];
+			foreach ($res as &$val) if(!is_array($val)) $val = htmlspecialchars($val);
+			$this->ebay_info = $res;
+			$this->ebay_info['game_id'] = $game_id;
+		} 
 	}
 
 
@@ -166,13 +172,14 @@ class GigOrder
 		$product = get_urls_from_text($product);
 		$this->product = $product;
 
-		$this->msg_email = key_link_replacer($this->msg_email);
-
+		$private_mail_link = private_mail_link($this->secret_hash);
 		$this->msg_email = str_ireplace('{{PRODUCT}}', product_html($item_title, $product), $this->msg_email);
-		// $this->msg_email = str_ireplace('{{EMAIL_SLUG}}', $email_slug, $this->msg_email);
+		$this->msg_email = str_ireplace('{{PRIVAT_MAIL_LINK}}', $private_mail_link, $this->msg_email);
 		$this->msg_email = str_ireplace('{{USER_EMAIL}}', $this->order_info['BuyerEmail'], $this->msg_email);
 		$this->msg_email = fill_email_item_panel($this->msg_email);
 
+
+		$this->msg_ebay = str_ireplace('{{PRIVATE_PAGE_LINK}}', $private_mail_link, $this->msg_ebay);
 		$this->msg_ebay = str_ireplace('{{EMAIL}}', $this->order_info['BuyerEmail'], $this->msg_ebay);
 
 		unset($inv_res['xml']);
@@ -214,7 +221,10 @@ class GigOrder
 		if ($received_item['success'] === 'OK' && $received_item['typegood'] === '1'){
 			$platiid = _esc($plati_id);
 			$trustee_check = arrayDB("SELECT id FROM gig_trustee_items WHERE plati_id='$platiid'");
-			if (!$trustee_check) arrayDB("INSERT INTO gig_trustee_items (plati_id) VALUES ('$platiid')");
+			if (!$trustee_check && $platiid){
+				$item_title = _esc($item_title);
+				arrayDB("INSERT INTO gig_trustee_items (plati_id,`name`) VALUES ('$platiid','$item_title')");
+			}
 			else arrayDB("UPDATE `gig_trustee_items` SET `counter` = `counter` + 1 WHERE `plati_id` = '$platiid'");
 		}
 
@@ -249,6 +259,11 @@ class GigOrder
 		}else{
 			$this->curr_price = 'Not exists!';
 		}
+	}
+
+	public function setAnswerTemplates()
+	{
+		$this->answer_templates = get_text_template('answer_template');
 	}
 
 

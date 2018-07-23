@@ -28,20 +28,41 @@ $table_name = get_table_name(@$_POST['sql']);
 </style>
 
 <form action="index.php?action=sql" method="POST">
-	<textarea autofocus="autofocus" name="sql" cols="50" rows="10" placeholder="Введите запрос SQL. Будьте осторожны, вы можете повредить базу данных"><?php if (@$_POST['sql']) echo $_POST['sql'];?></textarea>
+	<textarea id="js_sql" autofocus="autofocus" name="sql" cols="50" rows="10" placeholder="Введите запрос SQL. Будьте осторожны, вы можете повредить базу данных" style="width:100%;"><?php if (@$_POST['sql']) echo $_POST['sql'];?></textarea>
 	<!-- <input autofocus="autofocus" name="sql" cols="50" rows="10" placeholder="Введите запрос SQL. Будьте осторожны, вы можете повредить базу данных" value="<?php if (@$_POST['sql']) echo $_POST['sql'];?>"> -->
 	<br>
 	<button name="send">Send</button>
 	<button name="edit">Edit</button>
 	<?php if (@$_POST['sql']) echo $_POST['sql'];?>
 </form><br>
+<script>
+	  function sql_page_getCookie(name){
+	    var re = new RegExp(name + "=([^;]+)");
+	    var value = re.exec(document.cookie);
+	    return (value != null) ? decodeURIComponent(value[1]) : null;
+	  }
+
+	  var today = new Date();
+	  var expiry = new Date(today.getTime() + 30 * 24 * 3600 * 1000); // plus 30 days
+	  function sql_page_setCookie(name, value){
+	    document.cookie=name + "=" + encodeURIComponent(value) + "; path=/; expires=" + expiry.toGMTString();
+	  }
+
+	var sql_input = document.getElementById('js_sql');
+
+	if(!sql_input.value && (sql_cookie = sql_page_getCookie('sql_input'))) sql_input.value = sql_cookie;
+
+	sql_input.onkeyup = function(){
+		sql_page_setCookie('sql_input', this.value);
+	};
+</script>
 <h4>table: <?= $table_name;?></h4>
 <input type="hidden" id="table_name" value="<?= $table_name;?>">
 <?php
 
 if (isset($_POST['edit']) && $table_name) {
 	$res = arrayDB($_POST['sql']);
-	if (is_array($res) && $res) {
+	if (is_array($res) && $res && isset($res[0]['id'])) {
 		echo "<table><tr><th>№</th>";
 		foreach ($res[0] as $key => $value) {
 			echo "<th>",$key,"</th>";
@@ -53,10 +74,10 @@ if (isset($_POST['edit']) && $table_name) {
 				echo '<td contenteditable  clmn="',$kc,'" rid="',$row['id'],'">',htmlentities($col),'</td>';
 			}
 			echo '</tr>';
-			if($kr > 10) break;
+			if($kr > 30) break;
 		}
 	}else{
-		print_r($res);
+		sa($res);
 	}
 }elseif (isset($_POST['send']) || isset($_POST['edit'])) {
 	if (!$_POST['sql']) {
@@ -93,7 +114,7 @@ if (isset($_POST['edit']) && $table_name) {
 </div>
 
 <script>
-var galert = function (type,text) {
+function galert(type,text) {
 	return ('<div class="alert alert-'+type+' alert-dismissible height-anim" role="alert">'+
   '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+text+'</div>');
 }

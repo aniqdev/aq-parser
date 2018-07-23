@@ -39,15 +39,19 @@ foreach ($orders as $k => $order):
 
 	// if($k == 1) break;
 	$username = $order['BuyerUserID'];
+	$is_trusted_user = is_trusted_user($username);
 	$goods = json_decode($order['goods'],true);
 	$address = json_decode($order['ShippingAddress'], true);
 	$ebay_item_id = $order['ebay_id'];
 	$ebay_item_title = clean_ebay_title2($order['title']);
 	$gig_order_id = $order['gig_order_id'];
 	$gig_order_item_id = $order['gig_order_item_id'];
-	$ids = $order['gig_order_id'].'-'.$order['gig_order_item_id'];
 	$continue = false;
 	$chosen_item_id = 0;
+	$chosen_item_price = 0;
+	$from_warehouse = false;
+	$wh_tolerant = false;
+	$border_price = 0;
 
 // 0. Создаем список товаров ===  foreach CONSTUCTOR
 	if ($order['npp'] == 1){
@@ -56,14 +60,12 @@ foreach ($orders as $k => $order):
 		$gig_order_item_id_list = [];
 		$msg_email = html_entity_decode(get_messages_for_send_producr($address['Country'], 'mail'));
 		$msg_ebay = html_entity_decode(get_messages_for_send_producr($address['Country'], 'ebay'));
-		$email_slug = get_email_slug();
 	}
-
 
 // 1.1 Проверить исходник отправляемого имейла
 // Входные данные:
 	if (!$msg_email || stripos($msg_email, '{{PRODUCT}}') === false) {
-		add_comment_to_order($gig_order_id, 'Please check out the original message: ', 'no');
+		add_comment_to_order($gig_order_id, 'Please check out the original message!');
 		continue;
 	}
 
@@ -80,14 +82,15 @@ foreach ($orders as $k => $order):
 // 2. Получение Рейтинга пользователя и даты регистрации.
 // Входные данные: BuyerUserID
 	if(!$order['BuyerUserID']){
-		add_comment_to_order($gig_order_id, 'there is no BuyerUserID in this order');
+		add_comment_to_order($gig_order_id, 'there is no BuyerUserID in this order', false);
+		send_identify_message($order, $address['Country']);
 		continue;
 	}
 
 	$stats = arrayDB("SELECT BuyerFeedbackScore,BayerRegistrationDate FROM ebay_orders WHERE id='$gig_order_id'");
 	$BuyerFeedbackScore = $stats[0]['BuyerFeedbackScore'];
 	$BayerRegistrationDate = $stats[0]['BayerRegistrationDate'];
-	if ($BuyerFeedbackScore == 0 && $BuyerFeedbackScore !== '0') { // true если пустая строка
+	if ($BuyerFeedbackScore === '') { // true если пустая строка
 		$user = $ordersObj->GetUser($username, $ebay_item_id);
 		if($user['Ack'] === 'Failure'){
 			add_comment_to_order($gig_order_id, 'query to get buyer info returned Failure');
@@ -109,10 +112,20 @@ foreach ($orders as $k => $order):
 	}
 
 
-// 2.2 Если стоимость заказа больше 20 евро.
+// 2.2 Если стоимость заказа больше 4 евро (8 для немецких).
 // Входные данные: ebay_id
-	if($order['total_price'] > 20){
-		add_comment_to_order($gig_order_id, ' Order total price more then €20');
+	$max_order_price = 4;
+	if(is_trusted_country($address['Country'])) $max_order_price = 8;
+
+	// больше пороги для доверенных пользователей
+	if ($is_trusted_user) {
+		$max_order_price = 10;
+		if(is_trusted_country($address['Country'])) $max_order_price = 20;
+	}
+	
+	if($order['total_price'] > $max_order_price){
+		add_comment_to_order($gig_order_id, ' Order total price more then €'.$max_order_price, false);
+		if(!$is_trusted_user) send_identify_message($order, $address['Country']);
 		continue;
 	}
 
@@ -120,8 +133,9 @@ foreach ($orders as $k => $order):
 // 2.3 В заказе есть более 2 копий одного товара.
 // Входные данные: ebay_id
 	foreach ($goods as $good) {
-		if($good['amount'] > 2){
-			add_comment_to_order($gig_order_id, ' Order has product with amount more the 2');
+		if($good['amount'] > 2 && !$is_trusted_user){
+			add_comment_to_order($gig_order_id, ' Order has product with amount more the 2', false);
+			send_identify_message($order, $address['Country']);
 			continue 2;
 		}
 	}
@@ -162,7 +176,7 @@ foreach ($orders as $k => $order):
 // Входные данные: suitable
 		if (!arrayDB("SELECT plati_id FROM gig_trustee_items WHERE plati_id = '"._esc($suitable['item1_id'])."'")) {
 			add_comment_to_order([$gig_order_id, $gig_order_item_id], 'the Game is not in the Trust List');
-			$continue = true;
+			$wh_tolerant = $continue = true;
 		}
 
 
@@ -173,19 +187,20 @@ foreach ($orders as $k => $order):
 			$is_removed = $ebay2Obj->removeFromSale($ebay_item_id);
 			$rem = $is_removed ? 'has been' : 'was NOT';
 			add_comment_to_order([$gig_order_id, $gig_order_item_id], "the price is more then 7% less then recommended. The item $rem removed from sale");
-			$continue = true;
+			$wh_tolerant = $continue = true;
 		}
 
 	}else{
 
 		$is_removed = $ebay2Obj->removeFromSale($ebay_item_id);
 		$rem = $is_removed ? 'has been' : 'was NOT';
-		add_comment_to_order([$gig_order_id, $gig_order_item_id], 'Out of stock. The item $rem removed from sale');
-		$continue = true;
+		add_comment_to_order([$gig_order_id, $gig_order_item_id], "Out of stock. The item $rem removed from sale");
+		$wh_tolerant = $continue = true;
 	}
 
 
-// 4. Исключение заказов без имейла.
+
+// 6. Исключение заказов без имейла.
 // Входные данные: BuyerEmail
 	if (!filter_var($order['BuyerEmail'], FILTER_VALIDATE_EMAIL)) {
 		add_comment_to_order($gig_order_id, 'incorrect email address');
@@ -196,15 +211,17 @@ foreach ($orders as $k => $order):
 
 // 7. Исключение пользователей с низким рейтингом(меньше 5) если цена больше 5 евро.
 // Входные данные: $BuyerFeedbackScore
-	if ($BuyerFeedbackScore < 5 && $order['total_price'] > 5) {
-		add_comment_to_order($gig_order_id, 'Buyers FeedbackScore less then 5 and order price more then 5eur');
+	if ((!$is_trusted_user && $BuyerFeedbackScore < 5 && $order['total_price'] > 5) || ($is_trusted_user && $order['total_price'] > 20)) {
+		add_comment_to_order($gig_order_id, 'Buyers FeedbackScore less then 5 and order price more then 5eur', false);
+		if(!$is_trusted_user) send_identify_message($order, $address['Country']);
 		continue;
 	}
 
 
-// 7.2 Исключение новых аккаунтов(меньше месяца) если цена больше 5 евро.
-	if ((time() - (new DateTime($BayerRegistrationDate))->getTimestamp()) < 60*60*24*30 && $order['total_price'] > 5) {
-		add_comment_to_order($gig_order_id, 'This user account has been created in the previous 30 days');
+// 7.2 Исключение новых аккаунтов(меньше 30 дней) если цена больше 5 евро.
+	if (!$is_trusted_user && (time() - (new DateTime($BayerRegistrationDate))->getTimestamp()) < 60*60*24*30 && $order['total_price'] > 5) {
+		add_comment_to_order($gig_order_id, 'This user account has been created in the previous 30 days', false);
+		send_identify_message($order, $address['Country']);
 		continue;
 	}
 
@@ -212,10 +229,60 @@ foreach ($orders as $k => $order):
 // 8. Исключить заказы если пользователь совершил больше 3х покупок за неделю.
 // Входные данные:
 	$one_week_ago = date('Y-m-d H:i:s', time()-(60*60*24*7));
-	$one_week_orders = arrayDB("SELECT id,ShippedTime  FROM ebay_orders WHERE ShippedTime > '$one_week_ago' AND  BuyerUserID = '$username' LIMIT 1");
-	if (count($one_week_orders) > 2) {
-		add_comment_to_order($gig_order_id, 'This user has made more than three purchases per week');
+	$one_week_orders = arrayDB("SELECT id,ShippedTime  FROM ebay_orders WHERE ShippedTime > '$one_week_ago' AND  BuyerUserID = '$username' LIMIT 10");
+	$max_orders_per_week  = 3;
+	// для недоверительных стран фильтр строже (1 покупка в неделю)
+	if (!is_trusted_country($address['Country'])) $max_orders_per_week = 1;
+	// поднимаем лимиты для доверительных пользователей
+	if ($is_trusted_user) {
+		$max_orders_per_week  = 10;
+		// для недоверительных стран фильтр строже (3 покупка в неделю)
+		if (!is_trusted_country($address['Country'])) $max_orders_per_week = 3;
+	}
+	if (count($one_week_orders) > $max_orders_per_week) {
+		add_comment_to_order($gig_order_id, "This user has made more than $max_orders_per_week purchases per week", false);
+		send_identify_message($order, $address['Country']);
 		continue;
+	}
+
+
+// 9. Исключить заказы если немец, сумма заказов в течение недели >10€
+// Входные данные:
+	$one_week_sum = arrayDB("SELECT sum(total_price) as sum FROM ebay_orders WHERE ShippedTime >  NOW() - INTERVAl 1 WEEK AND  BuyerUserID = '$username'");
+	$max_order_week_price = 10;
+	if($is_trusted_user) $max_order_week_price = 30;
+	if (is_trusted_country($address['Country']) && $one_week_sum && ($one_week_sum[0]['sum'] + $order['total_price']) > $max_order_week_price){
+		add_comment_to_order($gig_order_id, "This user has made purchases more than 10 euros for last week", false);
+		send_identify_message($order, $address['Country']);
+		continue;
+	}
+
+
+// 10. есть ли товар на складе
+// Входные данные: ebay_item_id, payed_price, border_price
+
+	// подумать что с этим делать
+	// if (!$continue || ($continue && $wh_tolerant)) {
+	if (!$continue) {
+
+		$warehouse = get_warehouse($ebay_item_id);
+		// товар плати.ру есть но на складе дешевле
+		if ($chosen_item_price && $warehouse && $warehouse['price'] < $chosen_item_price) {
+			// Исключение заказов с ценой менее 7% от рекомендуемой. Убирать товар с продажи.
+			$border_price = formula($warehouse['price'], $dataex) * 0.93;
+			if ($payed_price < $border_price) {
+				$is_removed = $ebay2Obj->removeFromSale($ebay_item_id);
+				$rem = $is_removed ? 'has been' : 'was NOT';
+				add_comment_to_order([$gig_order_id, $gig_order_item_id], "the price is more then 7% less then recommended. The item $rem removed from sale");
+				$wh_tolerant = $continue = true;
+			}else{
+				$from_warehouse = true;
+			}
+		}
+		// товара плати.ру нет а на складе есть
+		if (!$chosen_item_price && $warehouse) {
+			$from_warehouse = true;
+		}
 	}
 
 
@@ -237,7 +304,7 @@ foreach ($orders as $k => $order):
 
 
 //================================================================================
-	$botObj->sendMessage(['text' => date('H:i:s').' Начата процедура автоматической обработки заказа: '.$gig_order_id]);
+	// $botObj->sendMessage(date('H:i:s').' Начата процедура автоматической обработки заказа: '.$gig_order_id);
 	if(!$continue) arrayDB("UPDATE ebay_orders SET `ExecutionMethod`='automatic' WHERE id='$gig_order_id'");
 //================================================================================
 
@@ -247,24 +314,26 @@ foreach ($orders as $k => $order):
 
 // 9. Получение счета от Плати.ру. Логировать итог.
 // Входные данные:
-	if (!$continue) {
+	if (!$continue && !$from_warehouse) {
 		$inv_res = $platiObj->getInvoice($chosen_item_id);
 		$invoice_resp_json = _esc(json_encode($inv_res));
 		arrayDB("UPDATE ebay_automatic_log SET `invoice_resp`='$invoice_resp_json', plati_id='$chosen_item_id' WHERE id='$automatic_id'");
 	}else{
 		$inv_res = '';
+		$invoice_resp_json = '';
 	}
 
 
 // 10. Оплата счета. Логировать итог.
 // Входные данные:
-	if(isset($inv_res['success']) && $inv_res['success']){
+	if(isset($inv_res['success']) && $inv_res['success'] && $inv_res['inv']['type_good'] == '1'){
 		$pay_resp = $platiObj->payInvoice($inv_res['inv']['wm_inv'],$inv_res['inv']['wm_purse']);
 		$pay_resp['response'] = (array)$pay_resp['response'];
 		$pay_resp_json = _esc(json_encode($pay_resp));
 		arrayDB("UPDATE ebay_automatic_log SET `pay_resp`='$pay_resp_json' WHERE id='$automatic_id'");
 	}else{
 		$pay_resp = '';
+		$pay_resp_json = '';
 	}
 
 
@@ -287,31 +356,45 @@ foreach ($orders as $k => $order):
 // 12. Отправить товар. Логировать итог.
 // Входные данные:
 	if (isset($received_item['success']) && $received_item['success']) {
+
 		$product = get_steam_key_from_text($product);
 		$product = get_urls_from_text($product);
 		$title_list .= $ebay_item_title.', ';
 		$product_list .= product_html($ebay_item_title, $product);
 		$gig_order_item_id_list[] = $gig_order_item_id;
+		// в переменной $secret_hash - хеш от последнего купленного товара в заказе
+		$secret_hash = $gig_order_id.'-'.$gig_order_item_id.'-'.get_secret_hash($gig_order_item_id);
+
+	}elseif($from_warehouse) {
+
+		$title_list .= $ebay_item_title.', ';
+		$product_list .= product_html($ebay_item_title, $warehouse['steam_key']);
+		$gig_order_item_id_list[] = $gig_order_item_id;
+		// в переменной $secret_hash - хеш от последнего купленного товара в заказе
+		$secret_hash = $gig_order_id.'-'.$gig_order_item_id.'-'.get_secret_hash($gig_order_item_id);
+		warehouse_status_sold($warehouse['id'], $gig_order_id, $gig_order_item_id);
 	}
 
 // Отправлять ли товар?
 	if ($order['npp'] == $order['total'] && count($gig_order_item_id_list) > 0) {
 		
-		$msg_email = str_ireplace('{{PRODUCT}}', $product_list, $msg_email);
-		$msg_email = str_ireplace('{{EMAIL_SLUG}}', $email_slug, $msg_email);
-		$msg_email = str_ireplace('{{USER_EMAIL}}', $order['BuyerEmail'], $msg_email);
+		$msg_email = str_replace('{{PRODUCT}}', $product_list, $msg_email);
+		$msg_email = str_replace('{{USER_EMAIL}}', $order['BuyerEmail'], $msg_email);
 		$msg_email = fill_email_item_panel($msg_email);
+		$msg_email = str_replace('{{PRIVATE_MAIL_LINK}}', private_mail_link($secret_hash), $msg_email);
 
-		$msg_ebay = str_ireplace('{{EMAIL}}', $order['BuyerEmail'], $msg_ebay);
+		$msg_ebay = str_replace('{{EMAIL}}', $order['BuyerEmail'], $msg_ebay);
+		$msg_ebay = str_replace('{{PRIVATE_PAGE_LINK}}', private_mail_link($secret_hash), $msg_ebay);
 
+		$email_body = _esc(str_replace('<!-- facebook_paragraph -->', get_facebook_paragraph($ebay_item_id, $address['Country']), $msg_email));
 
-		// DEPRICATED для старого шаблона писем
-		// $msg_email = key_link_replacer($msg_email);
+		$msg_email = str_replace('<!-- mail_link_block -->', mail_link_block($secret_hash, $address['Country']), $msg_email);
 
-		$email_body = _esc($msg_email);
-		$email_alt_body = strip_tags($email_body);
 		arrayDB("UPDATE ebay_automatic_log 
-			SET email_slug='$email_slug', msg_ebay='"._esc($msg_ebay)."' WHERE id='$automatic_id'");
+			SET email_slug='$secret_hash', msg_ebay='"._esc($msg_ebay)."' WHERE id='$automatic_id'");
+
+		$msg_email_2018 = get_mail2018_template($address['Country']);
+		$msg_email_2018 = str_replace('{{PRIVATE_MAIL_LINK}}', private_mail_link($secret_hash), $msg_email_2018);
 
 		$ebay_orderid = $order['order_id'];
 		$user_email = _esc($order['BuyerEmail']);
@@ -328,15 +411,14 @@ foreach ($orders as $k => $order):
 		$mail->addBCC('thenav@mail.ru');
 		$mail->addBCC('store@gig-games.de');
 		$mail->Subject = $email_subject;
-		$mail->Body    = $msg_email;
-		$mail->AltBody = $email_alt_body;
+		$mail->Body    = $msg_email_2018;
+		$mail->AltBody = strip_tags($msg_email_2018);
 
-		$is_email_sent = $mail->send();
-		$is_email_sent = $is_email_sent ? 1 : 0;
+		$is_email_sent = $mail->send() ? 1 : 0;
 
 		$email_subject = _esc($email_subject);
-		arrayDB("INSERT INTO gig_email_saver (email,email_slug,subject,body_html) 
-			VALUES ('$user_email','$email_slug','$email_subject','$email_body')");
+		arrayDB("INSERT INTO gig_email_saver (email,email_slug,subject,body_html,errors) 
+			VALUES ('$user_email','$secret_hash','$email_subject','$email_body','"._esc(json_encode($_ERRORS))."')");
 
 		//
 		$userId = htmlspecialchars(stripslashes(strip_tags($ebay_user)));
@@ -358,51 +440,9 @@ foreach ($orders as $k => $order):
 		// 	ebay_send_resp='"._esc(json_encode('Multiple order'))."' WHERE id='$automatic_id'");		
 	}
 
-//------------------------------------------------------------
 
-	if(isset($inv_res['success']) && !$inv_res['success']){
-		add_comment_to_order([$gig_order_id, $gig_order_item_id], 'Error during geting plti.ru invoice. '.$inv_res['retdesc']);
-		AutomaticBot::sendMessage(['text' => date('H:i:s').'('.$gig_order_id.') Error during geting plti.ru invoice. '.$inv_res['retdesc']]);
-		$ebay2Obj->removeFromSale($ebay_item_id);
-		continue;
-	}
 
-	if (isset($pay_resp['success']) && !$pay_resp['success']) {
-		add_comment_to_order([$gig_order_id, $gig_order_item_id], 'Error during plti.ru invoice payment');
-		AutomaticBot::sendMessage(['text' => date('H:i:s').'Error during plti.ru invoice payment: '.$gig_order_id]);
-		continue;
-	}
-
-	if (isset($received_item['success']) && !$received_item['success']) {
-		add_comment_to_order([$gig_order_id, $gig_order_item_id], 'Can not get the product on the link: '.$receive_item_link);
-		AutomaticBot::sendMessage(['text' => date('H:i:s').'Can not get the product on the link: '.$receive_item_link]);
-		continue;
-	}
-
-// 13. Проверить наличие товара на Плати.ру.
-// Входные данные:
-	if (!$continue) { 
-		if ($chosen_item_id && $platiObj->isItemOnPlati($chosen_item_id)) {
-
-			AutomaticBot::sendMessage(['text' => 'if 1: ' . $chosen_item_id]);
-			$ebay2Obj->updateQuantity($ebay_item_id, 3);
-
-		}else{
-
-			AutomaticBot::sendMessage(['text' => 'else 1: ' . $chosen_item_id]);
-			if ($suitable['item2_id'] && $platiObj->isItemOnPlati($suitable['item2_id'])) {
-				$new_price = formula((float)$suitable['item2_price'], $dataex);
-				if ($payed_price < $new_price) {
-					AutomaticBot::sendMessage(['text' => 'if 3: ' . $payed_price . ' | ' . $new_price]);
-					$ebay2Obj->updateProductPrice($ebay_item_id, $new_price);
-				}
-			}else{
-				$ebay2Obj->removeFromSale($ebay_item_id);
-			}
-		}
-	}
-
-// 14. Пометить товар отправленным
+// 13. Пометить товар отправленным
 // Входные данные:
 	if (@$is_email_sent) {
 		$ebay_shipped_resp = $ordersObj->MarkAsShipped($ebay_orderid);
@@ -418,7 +458,55 @@ foreach ($orders as $k => $order):
 		}
 	}
 
-	$botObj->sendMessage(['text' => date('H:i:s').'. Завершина('.@$is_email_sent.') процедура автоматической обработки заказа: .'.$gig_order_id]);
+//------------------------------------------------------------
+
+	if(isset($inv_res['success']) && !$inv_res['success']){
+		add_comment_to_order([$gig_order_id, $gig_order_item_id], 'Error during geting plti.ru invoice. '.$inv_res['retdesc']);
+		AutomaticBot::sendMessage(['text' => date('H:i:s').'('.$gig_order_id.') Error during geting plti.ru invoice. '.$inv_res['retdesc']]);
+		$ebay2Obj->removeFromSale($ebay_item_id);
+		continue;
+	}elseif (isset($inv_res['success']) && $inv_res['success'] && $inv_res['inv']['type_good'] == '2') {
+		add_comment_to_order([$gig_order_id, $gig_order_item_id], 'Товар не был оплачен. Товар - файл');
+		AutomaticBot::sendMessage(['text' => date('H:i:s').'('.$gig_order_id.') Товар не был оплачен. Товар - файл']);
+		continue;
+	}
+
+	if (isset($pay_resp['success']) && !$pay_resp['success']) {
+		add_comment_to_order([$gig_order_id, $gig_order_item_id], 'Error during plti.ru invoice payment');
+		AutomaticBot::sendMessage(['text' => date('H:i:s').'Error during plti.ru invoice payment: '.$gig_order_id]);
+		continue;
+	}
+
+	if (isset($received_item['success']) && !$received_item['success']) {
+		add_comment_to_order([$gig_order_id, $gig_order_item_id], 'Can not get the product on the link: '.$receive_item_link . ' <br>To receive item manually follow: ' . $inv_res['inv']['link']);
+		AutomaticBot::sendMessage(['text' => date('H:i:s').'Can not get the product on the link: '.$receive_item_link]);
+		continue;
+	}
+
+// 14. Проверить наличие товара на Плати.ру.
+// Входные данные:
+	if (!$continue) { 
+		if ($chosen_item_id && $platiObj->isItemOnPlati($chosen_item_id)) {
+
+			// AutomaticBot::sendMessage(['text' => 'if 1: ' . $chosen_item_id]);
+			$ebay2Obj->updateQuantity($ebay_item_id, 3);
+
+		}else{
+
+			// AutomaticBot::sendMessage(['text' => 'else 1: ' . $chosen_item_id]);
+			if ($suitable['item2_id'] && $platiObj->isItemOnPlati($suitable['item2_id'])) {
+				$new_price = formula((float)$suitable['item2_price'], $dataex);
+				if ($payed_price < $new_price) {
+					// AutomaticBot::sendMessage(['text' => 'if 3: ' . $payed_price . ' | ' . $new_price]);
+					$ebay2Obj->updateProductPrice($ebay_item_id, $new_price);
+				}
+			}else{
+				$ebay2Obj->removeFromSale($ebay_item_id);
+			}
+		}
+	}
+
+	// $botObj->sendMessage(date('H:i:s').'. Завершина('.@$is_email_sent.') процедура автоматической обработки заказа: .'.$gig_order_id);
 
 
 // 15. Пишем ошибки
@@ -430,14 +518,17 @@ foreach ($orders as $k => $order):
 // Входные данные:
 	$product_frame_link   = isset($inv_res['inv']['link'])     ? _esc($inv_res['inv']['link']) : null;
 	$product_api_link     = isset($receive_item_link)          ? _esc($receive_item_link) : null;
+	$ebay_order_id = _esc($order['order_id']);
 	arrayDB("INSERT INTO ebay_invoices (ExecutionMethod,
-									  parser_order_id, 
-									  ebay_game_id, 
-									  platiru_invoice_json, 
-									  web_pay_json, 
-									  product_frame_link, 
-									  product_api_link) 
+									  ebay_order_id,
+									  parser_order_id,
+									  ebay_game_id,
+									  platiru_invoice_json,
+									  web_pay_json,
+									  product_frame_link,
+									  product_api_link)
 							   VALUES('automatic',
+							   		  '$ebay_order_id',
 									  '$gig_order_id', 
 									  '$ebay_item_id', 
 									  '$invoice_resp_json', 
@@ -451,6 +542,6 @@ endforeach;
 
 
 
-
+print_r($_ERRORS);
 ?>
 </pre>

@@ -61,9 +61,17 @@ function ajax_add_item()
 	$img_generator_res = file_get_contents($img_generator_url);
 	$img_generator_res = json_decode($img_generator_res,1);
 	if (!$img_generator_res['msg']) {
-		return ['success' => 0, 'resp' => 'no images!'];
+		return ['success' => 0, 'resp' => 'no images!', '$img_generator_url' => $img_generator_url];
 	}
 
+	// если это бандл то картинки берутся с первой игры
+	if ($app_sub === 'sub' || $app_sub === 'bundle') {
+		$includes_arr = explode(',', $steam_de['includes']);
+		if($includes_arr){
+			$app_id = $includes_arr[0];
+			$app_sub = 'app';
+		}
+	}
 	// steam-images checker
 	$checker = file_get_contents('http://parser.gig-games.de/steam-images-checker.php?app_id='.$app_id.'&app_sub='.$app_sub);
 	$chr = json_decode($checker, true);
@@ -81,16 +89,17 @@ function ajax_add_item()
 		'text' => $desc_obj->error_text, 'sl' => $desc_obj->_steam_link];
 
 	$desc_obj->setImagesArr([
-			in_array('small1.jpg',$chr)?'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/small1.jpg':'http://parser.gig-games.de/images/no-image-available.png',
-			in_array('small2.jpg',$chr)?'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/small2.jpg':'http://parser.gig-games.de/images/no-image-available.png',
-			in_array('small3.jpg',$chr)?'http://parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/small3.jpg':'http://parser.gig-games.de/images/no-image-available.png',
+			in_array('small1.jpg',$chr)?'//parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/small1.jpg':'//parser.gig-games.de/images/no-image-available.png',
+			in_array('small2.jpg',$chr)?'//parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/small2.jpg':'//parser.gig-games.de/images/no-image-available.png',
+			in_array('small3.jpg',$chr)?'//parser.gig-games.de/steam-images/'.$app_sub.'s-'.$app_id.'/small3.jpg':'//parser.gig-games.de/images/no-image-available.png',
 		]);
 
+	$deuched = false;
 	if (!$desc_obj->readSteamDe())  return ['success' => 0, 'resp' => 'no readSteamDe'];
-	if (!$desc_obj->readSteamEn())  return ['success' => 0, 'resp' => 'no readSteamEn'];
-	if (!$desc_obj->readSteamFr())	return ['success' => 0, 'resp' => 'no readSteamFr'];
-	if (!$desc_obj->readSteamEs())	return ['success' => 0, 'resp' => 'no readSteamEs'];
-	if (!$desc_obj->readSteamIt())	return ['success' => 0, 'resp' => 'no readSteamIt'];
+	if (!$desc_obj->readSteamEn())  $deuched = $desc_obj->goDeutchToEn();
+	if (!$desc_obj->readSteamFr())	$deuched = $desc_obj->goDeutchToFr();
+	if (!$desc_obj->readSteamEs())	$deuched = $desc_obj->goDeutchToEs();
+	if (!$desc_obj->readSteamIt())	$deuched = $desc_obj->goDeutchToIt();
 
 	if (!$desc_obj->getDataArray())	return ['success' => 0, 'resp' => 'no getDataArray!'];
 
@@ -111,14 +120,31 @@ function ajax_add_item()
 		$plati_id = _esc((int)$_POST['plati_id']);
 		$game_check = arrayDB("SELECT id FROM games WHERE steam_link = '$steam_link' AND ebay_id = ''");
 		if ($game_check) {
-			arrayDB("UPDATE games SET ebay_id = '$ebay_id' WHERE steam_link = '$steam_link' AND ebay_id = ''");
+			arrayDB("UPDATE games SET ebay_id = '$ebay_id' WHERE steam_link = '$steam_link'");
 		}else{
 			arrayDB("INSERT INTO games (name, ebay_id, steam_link) 
 					VALUES('$name', '$ebay_id', '$steam_link')");
 		}
 		
-		arrayDB("UPDATE steam_de SET is_on_ebay = 'yes', ebay_id = '$ebay_id' WHERE id = '$id'");
-		arrayDB("INSERT INTO gig_trustee_items (plati_id) VALUES('$plati_id')");
+		$price = $item['price'];
+		arrayDB("UPDATE steam_de 
+					SET is_on_ebay = 'yes', instock = 'yes', ebay_price = '$price', ebay_id = '$ebay_id' 
+				 		WHERE id = '$id';
+				 UPDATE steam_en 
+				 	SET is_on_ebay = 'yes', instock = 'yes', ebay_price = '$price', ebay_id = '$ebay_id' 
+				 		WHERE id = '$id';
+				 UPDATE steam_fr 
+				 	SET is_on_ebay = 'yes', instock = 'yes', ebay_price = '$price', ebay_id = '$ebay_id' 
+				 		WHERE id = '$id';
+				 UPDATE steam_es 
+				 	SET is_on_ebay = 'yes', instock = 'yes', ebay_price = '$price', ebay_id = '$ebay_id' 
+				 		WHERE id = '$id';
+				 UPDATE steam_it 
+				 	SET is_on_ebay = 'yes', instock = 'yes', ebay_price = '$price', ebay_id = '$ebay_id' 
+				 		WHERE id = '$id';", true);
+		
+		$name_t = _esc($steam_de['title']); 
+		arrayDB("INSERT INTO gig_trustee_items (plati_id,`name`) VALUES('$plati_id','$name_t')");
 
 		$success = 1;
 	}else{
@@ -129,7 +155,9 @@ function ajax_add_item()
 	global $_ERRORS;
 	return ['success' => $success,
 			'item' => $item,
+			'deuched' => $deuched,
 			'resp' => $res,
+			'$chr' => $chr,
 			'errors' => $_ERRORS];
 }
 

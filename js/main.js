@@ -7,13 +7,16 @@
 			'close_tag' : '</zz>'
 		}, options);
 
+		if(!Array.isArray(search)) search = [search];
+
 		return this.each(function() {
 
 			var html = this.innerHTML;
 
 			for(var i in search){
-				var reg = new RegExp('('+search[i]+')', 'gim');
-				html = html.replace( reg, s.open_tag+'$1'+s.close_tag);
+				// var reg = new RegExp('('+search[i]+')', 'gim');
+				// html = html.replace( reg, s.open_tag+'$1'+s.close_tag);
+				html = html.replace( search[i], s.open_tag+search[i]+s.close_tag);
 			}
 
 			this.innerHTML = html;
@@ -40,7 +43,7 @@ function round_hood_price(prc) {
 }
 
 function ajax_woo_url() {
-	return 'http://hot-body.net/parser/ajax.php?action=ajax-woo';
+	return 'https://hot-body.net/parser/ajax.php?action=ajax-woo';
 }
 
 
@@ -107,7 +110,11 @@ function getSteam2 (offset, script, table) {
 				{offset:offset,table:table},
 				function( data ) {
 		$( "#message li:first" ).before( "<li>offset "+offset+" сохранена в базе</li>" );
-		offset = offset+30;
+		if($('#message li').length > 200) {
+			$('#message li:last').remove();
+			$('#message li:last').remove();
+		}
+		offset = +offset+30;
 		if (offset < data.count) {
 			getSteam2(offset, script, table);
 		}else{
@@ -131,16 +138,17 @@ $( "#get-steam3" ).click(function() {
 
 $('.js-get-steam2').click(function() {
 	// this.value содержит имя таблицы MySQL
-	getSteam2(0, 'steam2', this.value);
+	var offset = $('#offset').val();
+	getSteam2(offset, 'ajax-steam', this.value);
 	$('.get-steam-btn').attr('disabled','true');
-})
+});
 //================================
 
 // скрипт для страницы STEAM List
 function getSteamList (page,pages,scan) {
 	$( "#message li:first" ).before( "<li>Начали парсить страницу "+page+"</li>" );
 	$('.loading').addClass('inaction');
-	$.post( "lib/slist.php?page="+page+"&pages="+pages+"&scan="+scan, function( data ) {
+	$.post( "ajax.php?action=ajax-slist&page="+page+"&pages="+pages+"&scan="+scan, function( data ) {
 		//console.dir(data);
 		$( "#message li:first" ).before( "<li>страница "+page+" сохранена в базе</li>" );
 		if (page < data.pages) {
@@ -490,7 +498,7 @@ $('#getjson_multi3').click(function() {
 });
 
 
-function getPlatiRu_steam (start, end, scan, count) {
+function getPlatiRu_steam (start, end, scan) {
 	$( "#message1 li:first" ).before( "<li>Начали парсить игры с "+start+" по "+end+"</li>" );
 	$.post( "ajax.php?action=getjson-steam-de",
 	 {getjson:'true', start:start, end:end, scan:scan},
@@ -501,8 +509,8 @@ function getPlatiRu_steam (start, end, scan, count) {
 				$('#message1 li:last').remove();
 				$('#message1 li:last').remove();
 			}
-			if (data.num > end) {
-			 getPlatiRu_steam(start+10, end+10, data.scan, data.num);
+			if (data.count > end) {
+			 getPlatiRu_steam(start+10, end+10, data.scan);
 			}else{
 				console.log('PLati.ru done!');
 				console.dir(data);
@@ -837,12 +845,32 @@ var FF = {
 	js_modal_parser_title : $('.frow1>.fcol2'),
 	js_modal_plati_title : $('.frow4>.fcol2 .jsm-plati-title'),
 	js_modal_plati_price : $('.frow4>.fcol4'),
-	js_modal_ebay_prices : $('.frow1>.fcol3 tr'),
+	js_modal_ebay_prices : $('#js_modal_ebay_prices'),
 	js_modal_buy_button : $('#fBuyItem'), // форма
 	js_modal_ebay_link : $('#m-ebli'),
 	js_csrf_buy_time_input : $('#csrf-buy-time'),
+	js_modal_black_white : $('#js_modal_black_white'),
 	consec : 1,
 	consec_out : $('#consec'),
+
+	draw_ebay_names:function(ebay_prices_tds) {
+		var ebay_prices_names = '';
+		ebay_prices_tds.each(function() {
+		  ebay_prices_names += '<div class="'+($(this).hasClass('gig')?'gig':'')+'"><i lang="white" id="'+$(this).attr('iid')+'" class="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> '+
+		  	'<i lang="black" id="'+$(this).attr('iid')+
+		  		'" class="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> '+
+		  		this.title+
+		  		' <b>'+$(this).text()+'</b>'+
+		  	'</div>';
+		});
+		FF.js_modal_black_white.html(ebay_prices_names);
+	},
+
+	reload_ebay_names:function(tds_str) {
+		FF.js_modal_ebay_prices.html(tds_str);
+		var ebay_prices_tds = FF.js_modal_ebay_prices.find('td');
+		FF.draw_ebay_names(ebay_prices_tds);
+	}
 };
 
 // стрелочки
@@ -872,6 +900,8 @@ $('.jsm-arr').click(function(e) {
 	FF.consec_out.text(FF.consec);
 
 });
+
+
 
 
 // Вызов модального окна Merged Price Changer
@@ -906,7 +936,7 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
 	F.js_modal_parser_title.text(F.tr.find('.row2').text());
 	// сброс строки ebay
 	if(F.ebayId) F.js_modal_ebay_title.html('<img src="images/more-loading.gif" alt="loading">');
-	else F.js_modal_ebay_title.html('no id');
+	else {F.js_modal_ebay_title.html($('#magic_input'));window.magic_gameId=F.gameId;}
 	F.js_modal_ebay_price.text('.');
 	F.js_modal_ebay_input.val(F.europrice);
 	//сброс строки woocommerce
@@ -920,25 +950,32 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
 	F.js_modal_hood_price.text('.');
 	F.js_modal_hood_input.val(round_hood_price(F.europrice));
 
-	F.js_modal_ebay_prices.html(F.tr.find('[iid]').clone());
+	var ebay_prices_tds = F.tr.find('[iid]');
+	F.draw_ebay_names(ebay_prices_tds);
+	F.js_modal_ebay_prices.html(ebay_prices_tds.clone());
 	F.js_modal_plati_price.html('<img src="images/more-loading.gif" alt="loading">');
+
+	$.post('ajax.php?action=ajax-ebay-api-price-changer',
+		{ action:'get_game_line', ebayId:F.ebayId, gameId:F.gameId },
+		function (data) {
+			FF.game_line = data.game_line;
+			FF.europrice1 = formula(FF.game_line.item1_price, exrate);
+			FF.europrice2 = formula(FF.game_line.item2_price, exrate);
+			FF.europrice3 = formula(FF.game_line.item3_price, exrate);
+			var rur_prices = 
+				'<table class="tch-smalltable"><tr>'+
+					'<td class="rp1 gig">'+FF.game_line.item1_price+'</td>'+
+					'<td class="rp2">'+FF.game_line.item2_price+'</td>'+
+					'<td class="rp3">'+FF.game_line.item3_price+'</td>'+
+				'</tr></table>';
+			F.js_modal_plati_price.html(rur_prices);
+	}, 'json');
 
 	if(F.ebayId){
 		$.post('ajax.php?action=ajax-ebay-api-price-changer',
 			{ action:'check', ebayId:F.ebayId, gameId:F.gameId },
 			function (data) {
-				FF.game_line = data.game_line;
-				FF.europrice1 = formula(FF.game_line.item1_price, exrate);
-				FF.europrice2 = formula(FF.game_line.item2_price, exrate);
-				FF.europrice3 = formula(FF.game_line.item3_price, exrate);
-				var rur_prices = 
-					'<table class="tch-smalltable"><tr>'+
-						'<td class="rp1 gig">'+FF.game_line.item1_price+'</td>'+
-						'<td class="rp2">'+FF.game_line.item2_price+'</td>'+
-						'<td class="rp3">'+FF.game_line.item3_price+'</td>'+
-					'</tr></table>';
-				F.js_modal_plati_price.html(rur_prices);
-				F.js_modal_ebay_title.text(data.ebay_title);
+				F.js_modal_ebay_title.html('<div class="clip">'+data.ebay_title+'</div>');
 				F.js_modal_ebay_price.text(data.price);
 				// if (data.answer === 'good') F.'????'.attr('disabled', false);
 		}, 'json');
@@ -965,11 +1002,31 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
 
 });
 
+
+FF.js_modal_black_white.on('click','.ok,.rem', function(e) {
+	$.post('/ajax-controller.php',
+		{function:'black_white_list',
+		game_id:FF.gameId,
+		ebay_id:this.id, 
+		category:this.lang, 
+		title:$(this).parent().text()},
+	  function(data) {});
+});
+
+$('#modal_ebay_repars').on('click', function() {
+	$.post('/ajax-controller.php',
+		{function:'ebay_reparse_one',game_id:FF.gameId},
+	  function(data) {
+	  	FF.reload_ebay_names(data.tds_str);
+	  },'json');
+});
+
+
 // Изменение инпута WooCommerce
 FF.js_modal_ebay_input.on('change', function() {
 	FF.js_modal_woo_input.val((parseFloat(FF.js_modal_ebay_input.val().replace(',','.'))*0.95).toFixed(2));
 	FF.js_modal_hood_input.val(round_hood_price(FF.js_modal_ebay_input.val().replace(',','.')));
-})
+});
 
 // Изменение цен
 $('#fChange').on('submit', {f:FF}, function(e) {
@@ -1438,6 +1495,25 @@ $('#js_recovery').on('click', function() {
 });
 
 
+$('#tpl_select').on('change', function() {
+	document.all.em_textarea.value = this.value;
+});
+
+
+$('#tpl_save').on('click', function() {
+	var tpl_name = document.all.tpl_name.value;
+	var tpl_text = document.all.em_textarea.value;
+	if (tpl_name && tpl_text) {
+		$.post('ajax.php?action=ebay-messages',
+			{action:'save_template', tpl_name:tpl_name,
+			tpl_text:document.all.em_textarea.value},
+			function(data) {
+				// body...
+			},'json');
+	}
+});
+
+
 // ====== вывод количества непрочитанных сообщений =====
 
 $.post('ajax.php?action=ebay-messages&show=not_answerd',
@@ -1454,27 +1530,94 @@ $.post('ajax.php?action=hood-messages',
 
 // ====== вывод количества непрочитанных сообщений =====
 
+
+	
+
 }); //document ready
 
 
-//**************************************
-
-// function drawSnowFlake(n) {
-// 	var c = Math.round((n-1)/2);
-// 	for (var i = n - 1; i >= 0; i--) {
-// 		var s = '';
-// 		for (var j = n - 1; j >= 0; j--) {
-// 			if (i===j || i+j===n-1 || i===c || j===c) s+='*';
-// 			else s+='-';
-// 		}
-// 		console.log(s);
-// 	}
-// }
-
-// drawSnowFlake(25);
 
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+var EbayMessages = {
+	init: function () {
+		this.setUpListeners();
+	},
+
+	setUpListeners: function () {
+		$('.trusted-user-star').on('click', this.starClick);
+		$('.js-bad-user-alert').on('click', this.alertClick);
+		$('.js-show-thumbnail').on('click', this.showThumbnail)
+	},
+
+	starClick: function() {
+		EbayMessages.changeUserStar(this.name, $(this).hasClass('glyphicon-star-empty'));
+
+		$('.trusted-user-star[name="'+this.name+'"').toggleClass('glyphicon-star');
+		$('.trusted-user-star[name="'+this.name+'"').toggleClass('glyphicon-star-empty');
+	},
+
+	alertClick: function() {
+		EbayMessages.changeUserAlert(this.name, !$(this).hasClass('is_problematic'));
+
+		$('.js-bad-user-alert[name="'+this.name+'"').toggleClass('is_problematic');
+	},
+
+	changeUserStar: function(user_id, is_trusted) {
+		$.post('/ajax-controller.php',
+			{function:'set_trusted_user', user_id:user_id, is_trusted:is_trusted},
+			function(data) {});
+	},
+
+	changeUserAlert: function(user_id, is_problematic) {
+		$.post('/ajax-controller.php',
+			{function:'set_problematic_user', user_id:user_id, is_problematic:is_problematic},
+			function(data) {});
+	},
+
+	showThumbnail: function(e) {
+		e.preventDefault();
+		document.all.big_pic_img.src = this.href;
+		$('#pictureModal').modal('show');
+	},
+}
+
+
+
+
+
+
+
+var AwaitingList = {
+	init: function () {
+		this.setUpListeners();
+	},
+
+	setUpListeners: function () {
+		$('.js-remove-row').on('click', this.removeRow);
+	},
+
+	removeRow: function() {
+		if (!confirm("Бонус отправлен?")) return false;
+		$('#id'+this.name).remove();
+		AwaitingList.setBonusSent(this.value); // id sql таблицы
+	},
+
+	setBonusSent: function(sql_id) {
+		$.post('/ajax-controller.php',
+			{function:'set_bonus_sent', sql_id:sql_id},
+			function(data) {});
+	},
+}

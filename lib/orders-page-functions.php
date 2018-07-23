@@ -79,17 +79,29 @@ function get_orders($option){
 		case 'all':	
 			$_GET['count'] = arrayDB("SELECT count(*) as count FROM ebay_orders ORDER BY id DESC");
 			$_GET['count'] = $_GET['count'][0]['count'];
-			return arrayDB("SELECT * FROM ebay_orders ORDER BY id DESC $limit");
+			return arrayDB("SELECT msgs.*,ebay_users.is_trusted FROM
+				(SELECT * FROM ebay_orders ORDER BY id DESC $limit) msgs
+				left join ebay_users
+				on msgs.BuyerUserID = ebay_users.user_id
+				ORDER BY msgs.id DESC");
 
 		case 'paid':	
 			$_GET['count'] = arrayDB("SELECT count(*) as count FROM ebay_orders WHERE PaidTime<>0");
 			$_GET['count'] = $_GET['count'][0]['count'];
-			return arrayDB("SELECT * FROM ebay_orders WHERE PaidTime<>0 ORDER BY id DESC $limit");
+			return arrayDB("SELECT msgs.*,ebay_users.is_trusted FROM
+				(SELECT * FROM ebay_orders WHERE PaidTime<>0 ORDER BY id DESC $limit) msgs
+				left join ebay_users
+				on msgs.BuyerUserID = ebay_users.user_id
+				ORDER BY msgs.id DESC");
 
 		case 'shipped':	
 			$_GET['count'] = arrayDB("SELECT count(*) as count FROM ebay_orders WHERE ShippedTime<>0");
 			$_GET['count'] = $_GET['count'][0]['count'];
-			return arrayDB("SELECT * FROM ebay_orders WHERE ShippedTime<>0 ORDER BY id DESC $limit");
+			return arrayDB("SELECT msgs.*,ebay_users.is_trusted FROM
+				(SELECT * FROM ebay_orders WHERE ShippedTime<>0 ORDER BY id DESC $limit) msgs
+				left join ebay_users
+				on msgs.BuyerUserID = ebay_users.user_id
+				ORDER BY msgs.id DESC");
 
 		case 'search':
 			$q = _esc(str_replace('_', '\_', trim($_REQUEST['q'])));
@@ -98,7 +110,10 @@ function get_orders($option){
 				OR BuyerUserID LIKE '%{$q}%' 
 				OR BuyerEmail LIKE '%{$q}%'");
 			$_GET['count'] = $_GET['count'][0]['count'];
-			return arrayDB("SELECT * FROM ebay_orders WHERE order_id LIKE '%{$q}%' OR BuyerUserID LIKE '%{$q}%' OR BuyerEmail LIKE '%{$q}%'");
+			return arrayDB("SELECT ebay_orders.*, ebay_users.is_trusted FROM ebay_orders 
+				left join ebay_users
+				on ebay_orders.BuyerUserID = ebay_users.user_id
+				WHERE order_id LIKE '%{$q}%' OR BuyerUserID LIKE '%{$q}%' OR BuyerEmail LIKE '%{$q}%'");
 		
 		default: return [];
 	}

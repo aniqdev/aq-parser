@@ -6,10 +6,12 @@
 
 $cd_arr = json_decode(file_get_contents('csv/eBayArtikel.json'), true);
 $categories = json_decode(file_get_contents('csv/eBayArtikel_s2.json'), true);
+    $sorted_cats = Cdvet::cd_ebay_cat_sort($categories);
+
+sa($sorted_cats);
 
 foreach ($cd_arr as $key => $value) {
-    $sorted_cats = cd_ebay_cat_sort($categories);
-    $res = get_ebay_cat($value, $sorted_cats);
+    $res = Cdvet::get_ebay_cat($value['L'], $sorted_cats);
 
     echo ($key);
     sa($res);

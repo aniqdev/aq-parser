@@ -26,8 +26,8 @@ function cron_save_inbox()
 		$adds = $ebay_obj->GetMessageBody($e_MessageID);
 		$e_Body = _esc($adds['msg_body']);
 		$e_transId = $adds['transId'];
-		$e_MediaURL = _esc(@$msg['MessageMedia']['MediaURL']);
-		$e_MediaName = _esc(@$msg['MessageMedia']['MediaName']);
+		$e_MediaURL = _esc(get_media_data(@$msg['MessageMedia'], 'MediaURL'));
+		$e_MediaName = _esc(get_media_data(@$msg['MessageMedia'], 'MediaName'));
 
 		$e_ReceiveDate = $msg['ReceiveDate'];;
 		$d = new DateTime($e_ReceiveDate);
@@ -56,6 +56,8 @@ function cron_save_inbox()
 			'$e_MediaURL',
 			'$e_MediaName',
 			'$e_ReceiveDate')");
+		$can_be_published = (!$adds['transId']) ? 1 : 0;
+		if(!defined('DEV_MODE')) AutomaticGroupBot::sendMessage(date('H:i:s').' New inbox message: <a href="http://parser.gig-games.de/?action=ebay-messages&correspondent='.$msg['Sender'].'&message_id='.$msg['ExternalMessageID'].'&can_be_published='.$can_be_published.'">'.$msg['Sender'].'</a>'.PHP_EOL.substr(strip_tags(trim($e_Body)),0,2048));
 	}
 	return print_r($new, true);
 }
@@ -135,5 +137,9 @@ if (@$_GET['folder'] === 'inbox') {
 	echo '</pre>';
 
 }
+
+echo '<pre style="white-space: pre-wrap;">';
+echo $_ERRORS;
+echo '</pre>';
 
 ?>

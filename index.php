@@ -25,7 +25,7 @@ define('ROOT', __DIR__);
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
-	<title>Aqs-Parser</title>
+	<title><?= aqs_get_page_title(); ?></title>
 	<!-- Bootstrap -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/style.css?t=<?php echo date('d-m-y_H:i:s',filemtime ('css/style.css')); ?>">
@@ -53,7 +53,8 @@ if ($accessed) {
 
 } else {
 
-	include_once('lib/task-manager.php');
+	echo "<h2>Home page</h2>";
+	// include_once('lib/task-manager.php');
 
 }?>
 

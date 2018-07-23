@@ -4,7 +4,7 @@ $files = scandir(__DIR__.'/devzone');
 
 for ($i=2; $i < count($files); $i++) {
 	$text = str_ireplace('.php', '', $files[$i]);
-	echo '<p class="col-xs-2"><a class="devzone-btn" href="?action=devzone/',$text,'" title="',$text,'">',$text,'</a></p>';
+	echo '<p class="col-xs-4"><a class="devzone-btn" href="?action=devzone/',$text,'" title="',$text,'">',$text,'</a></p>';
 }
 
 
@@ -30,11 +30,11 @@ function intToRGB(i){
 
 
 
-$('.devzone-btn').map(function(i,el) {
-	var text = el.innerHTML;
-	var color = intToRGB(hashCode(text));
-	el.style = 'background:#'+color;
-	// console.log(el);
-});
+// $('.devzone-btn').map(function(i,el) {
+// 	var text = el.innerHTML;
+// 	var color = intToRGB(hashCode(text));
+// 	el.style = 'background:#'+color;
+// 	// console.log(el);
+// });
 
 </script>

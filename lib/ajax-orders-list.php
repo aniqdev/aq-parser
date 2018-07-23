@@ -1,5 +1,5 @@
 <?php
-
+header('Content-Type: application/json');
 
 if (isset($_REQUEST['operation']) && $_REQUEST['operation'] === 'info') {
 
@@ -9,6 +9,7 @@ if (isset($_REQUEST['operation']) && $_REQUEST['operation'] === 'info') {
 							'gig_order_item_id' => $ids[1],
 							]);
 	$order->setCurrentPrice();
+	$order->setAnswerTemplates();
 
 	if($_SERVER['REQUEST_METHOD'] === 'POST') echo $order;
 	if($_SERVER['REQUEST_METHOD'] === 'GET') sa($order);

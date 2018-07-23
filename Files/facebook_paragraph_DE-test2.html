@@ -1,0 +1,63 @@
+<!-- facebook_paragraph_start -->
+<link rel="stylesheet" href="http://parser.gig-games.de/css/animate.css">
+<style>
+	.fb-share-button{
+		margin: -5px 0 -2px;
+	}
+	.tlt{
+		visibility: hidden;
+	}
+</style>
+<div id="fb_wrapper" style="padding-left: 10px;">
+	<h3 class="tlt0" style="color: #33d0e1;margin: 15px 0; font-weight: normal;">Lust auf ein Gratis Spiel?</h3>
+	<div style="color: #fff;font-size: 14px;margin-top: 3px;"><span style="color: #ff8728; font-size: 16px;">1. </span><span class="tlt">Empfehle unseren Shop weiter</span>
+		<div id="fb-root" style="display: none;"></div>
+		<div class="fb-share-button" 
+			data-href="https://gig-games.de/facebook.php?ebay_id=0" 
+			data-layout="button" 
+			data-size="small" 
+			data-mobile-iframe="true"
+			style="display: inline-block;
+			    background: #4267b2;
+			    border: 1px solid #4267b2;
+			    -webkit-font-smoothing: antialiased;
+			    -webkit-user-select: none;
+			    white-space: nowrap;
+			    border-radius: 4px;">
+			<a target="_blank" href="https://www.facebook.com/sharer/
+			sharer.php?u=https%3A%2F%2Fgig-games.de%2Ffacebook.php?ebay_id=0&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore"
+			style="padding: 0 13px; color: #fff;">Teilen</a>
+		</div>
+	</div>
+	<div style="color: #fff;font-size: 14px;margin-top: 3px;"><span style="color: #ff8728; font-size: 16px;">2. </span><span class="tlt">Schicke uns zur Überprüfung den Link zu deinem Facebookprofil</span></div>
+	<div style="color: #fff;font-size: 14px;margin-top: 3px;"><span style="color: #ff8728; font-size: 16px;">3. </span><span class="tlt">Als kleines Dankeschön bekommst du einen zufälligen Steamkey</span></div>
+	<div style="color: #ff8728; font-size: 12px; margin: 8px 0 0 12px;">*- gilt nur ein mal pro eBaybenutzer</div>
+</div>
+<script src="http://parser.gig-games.de/js/jquery-2.1.3.min.js"></script>
+<script src="http://parser.gig-games.de/js/jquery.textillate.js"></script>
+<script src="http://parser.gig-games.de/js/jquery.lettering.js"></script>
+<script>
+
+	$('.tlt0').textillate({
+	 in: { effect: 'bounceInDown' },
+	 type: 'word',
+	});
+
+	$('.tlt').textillate({
+	 in: { effect: 'bounceIn', delay:100, shuffle: true },
+	 type: 'word',
+	 initialDelay: 700,
+	});
+
+console.log('test');
+</script>
+<script>
+(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = 'https://connect.facebook.net/de_DE/sdk.js#xfbml=1&version=v2.12';
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+</script>
+<!-- facebook_paragraph_end -->

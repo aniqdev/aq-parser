@@ -21,6 +21,8 @@ class AutomaticBot
 
 	public static function sendMessage($opts)
 	{
+		if (is_string($opts)) $opts = ['text' => $opts];
+		
 		$query = array_merge([
 			'chat_id' => self::$chat_id,
 			'text' => 'test',

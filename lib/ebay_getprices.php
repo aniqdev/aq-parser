@@ -15,7 +15,16 @@ function cmp($a, $b){
 
 if (isset($_POST['ebay_getprices'])) {
 
-	$games = arrayDB("SELECT id,name FROM games");
+	// передавая постом дополнительно game_id, мы парсим одну запись и обновляем последнюю
+	$where = '';
+	$one_game_reparse = isset($_POST['game_id']) && $_POST['game_id'];
+
+	if($one_game_reparse) {
+		$game_id = _esc($_POST['game_id']);
+		$where = " WHERE id = '$game_id'";
+	}
+
+	$games = arrayDB("SELECT id,name FROM games".$where);
 	
 	// определяем начало цикла
 	$start = $_POST['start'];
@@ -39,12 +48,14 @@ if (isset($_POST['ebay_getprices'])) {
 		$strJSON = Ebay_shopping::findItemsAdvanced($game, 0, 1 , 1249);
 		
 		$objJSON = json_decode($strJSON);
-		$itemArr = array();
-		$newArr = array();
+		$itemArr = [];
+		$newArr = [];
 		if (isset($objJSON->findItemsAdvancedResponse[0]->searchResult[0]->item)) {
 			$itemArr = $objJSON->findItemsAdvancedResponse[0]->searchResult[0]->item;
 		}
+		$blac_list = get_ebay_black_list($games[$j-1]['id']);
 		for ($i=0; $i < count($itemArr); $i++) {
+			if(in_array($itemArr[$i]->itemId[0], $blac_list)) continue;
 			$newArr[$i]['itemid'] = $itemArr[$i]->itemId[0];
 			$newArr[$i]['title']  = $itemArr[$i]->title[0];
 			$newArr[$i]['price']  = $itemArr[$i]->sellingStatus[0]->convertedCurrentPrice[0]->__value__;
@@ -89,12 +100,33 @@ if (isset($_POST['ebay_getprices'])) {
 			$price5  = _esc($newArr[4]['price']);
 		}
 
-		$query = "INSERT INTO ebay_results VALUES(null,'$game_id','$itemid1','$title1','$price1',
-																 '$itemid2','$title2','$price2',
-																 '$itemid3','$title3','$price3',
-																 '$itemid4','$title4','$price4',
-																 '$itemid5','$title5','$price5',
-																 '$scan',null)";
+		if($one_game_reparse){
+			$query = "UPDATE ebay_results SET 
+				itemid1 = '$itemid1',
+				title1  = '$title1',
+				price1  = '$price1',
+				itemid2 = '$itemid2',
+				title2  = '$title2',
+				price2  = '$price2',
+				itemid3 = '$itemid3',
+				title3  = '$title3',
+				price3  = '$price3',
+				itemid4 = '$itemid4',
+				title4  = '$title4',
+				price4  = '$price4',
+				itemid5 = '$itemid5',
+				title5  = '$title5',
+				price5 = '$price5' 
+				WHERE game_id = '$game_id' order by id desc limit 1";
+		}else{
+			$query = "INSERT INTO ebay_results 
+						VALUES(null,'$game_id', '$itemid1','$title1','$price1',
+												'$itemid2','$title2','$price2',
+												'$itemid3','$title3','$price3',
+												'$itemid4','$title4','$price4',
+												'$itemid5','$title5','$price5',
+												'$scan',null)";
+		}
 		arrayDB($query);
 		// $gamesArr[]['game_name'] = $game;
 		// $gamesArr[count($gamesArr)-1]['game_list'] = $newArr;
@@ -104,8 +136,8 @@ if (isset($_POST['ebay_getprices'])) {
 				'end'  => $end,
 				'scan' => $scan,
 				'num'  => $num,
-				//'query'  => $query,
-				//'games'=> $gamesArr,
+				// 'query'  => $query,
+				// 'games'=> $gamesArr,
 				'errors' => $_ERRORS
 				];
 	echo json_encode($answer);

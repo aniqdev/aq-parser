@@ -30,7 +30,7 @@ $contact_it = 'Se hai domande, suggerimenti o assistenza, non esitate a contatta
 
 foreach ($items as $key => $val) {
 	echo '<hr><b>'.$key.'</b><br> <a href="http://www.ebay.de/itm/'.$val['ebay_id'].'" target="_blank">'.$val['name'].'</a><br>';
-	if($key < 3000 || $key > 3200 || $val['extra_field2'] === 'DescSepUpdated2'){
+	if($key < 0 || $key > 4500 || $val['extra_field2'] === 'DescSepUpdated2'){
 		sa('Continued! Allready updated.');
 		continue;
 	}

@@ -7,6 +7,11 @@
 	color: #555;
 	font-weight: bold;
 }
+.white{
+	/* background: #eaeaea; */
+	color: #A1E8CC;
+	font-weight: bold;
+}
 </style>
 
 <div class="ppp-block ppp-right">
@@ -20,9 +25,8 @@ if($exrate) $dataex = $exrate[0]['value'];
 	</form>
 <ul class="ppp-parses">
 <?php
-	$scans = arrayDB('SELECT scan as hash,`date` from items group by scan order by id desc');
-	$ebay_scan = arrayDB('SELECT scan FROM ebay_results ORDER BY id DESC LIMIT 1');
-	$ebay_scan = $ebay_scan[0]['scan'];
+	$scans = arrayDB('SELECT DISTINCT scan FROM items ORDER BY id DESC LIMIT 10');
+	$ebay_scan = arrayDB('SELECT scan FROM ebay_results ORDER BY id DESC LIMIT 1')[0]['scan'];
 ?>
 </ul>
 </div>
@@ -34,18 +38,19 @@ if($exrate) $dataex = $exrate[0]['value'];
 	<a href="?action=table_changes&tab=6" class="ch-tab <?= tab_active('tab','6');?>">Пропал</a>
 	<a href="?action=table_changes&tab=7" class="ch-tab <?= tab_active('tab','7');?>">Не появился</a>
 	<a href="?action=table_changes&tab=4" class="ch-tab <?= tab_active('tab','4');?>">Не изменился</a>
+	<a href="?action=table_changes&tab=s" class="ch-tab <?= tab_active('tab','s');?>">Search</a>
+	<a href="?action=table_changes&tab=relisted"
+		class="ch-tab <?= tab_active('tab','relisted');?>"
+		title="the last one month">RELISTED</a>
 	<form method="POST" class="choose-old">
 		<select name="old">
 			<?php $scans_q = count($scans);
-				for ($i=2; $i < $scans_q ; $i++) { 
-					echo '<option value="',$scans[$i]['hash'],'">Парс от ',$scans[$i]['date'],'</option>';
+				for ($i=2; $i < $scans_q ; $i++) {
+					echo '<option value="',$scans[$i]['scan'],'">Парс от ',date('d-m-Y H:i:s', $scans[$i]['scan']),'</option>';
 				}
-				// foreach ($scans as $key => $value) {
-				// 	echo '<option value="',$value['hash'],'">Парс ',$value['id'],' От ',$value['date'],'</option>';
-				// }
 			?>
 		</select>
-		<input type="submit">
+		<input type="submit" value="Go!">
 	</form>
 </div>
 
@@ -54,19 +59,27 @@ if($exrate) $dataex = $exrate[0]['value'];
 	if (isset($_GET['scan'])) {
 		$scan = _esc(trim(strip_tags($_GET['scan'])));
 	}else{
-		$scan = $scans[0]['hash'];
+		$scan = $scans[0]['scan'];
 	}
 
-	isset($scans[0]) ? $scanNew = $scans[0]['hash'] : $scanNew = 0;
+	isset($scans[0]) ? $scanNew = $scans[0]['scan'] : $scanNew = 0;
 
 	if(isset($_POST['old'])) {
 		$scanOld = _esc(trim(strip_tags($_POST['old'])));
 	}elseif(isset($scans[1])) {
-		$scanOld = $scans[1]['hash'];
+		$scanOld = $scans[1]['scan'];
 	}else{
 		$scanOld = 0;
 	}
 
+if (isset($_GET['tab']) && $_GET['tab'] === 's') {
+	if (isset($_GET['query']) && $_GET['query']) {
+		$query = '%'._esc($_GET['query']).'%';
+	}else{
+		$query = '';
+	}
+}
+$first_table = 'games';
 switch (isset($_GET['tab']) ? $_GET['tab'] : '2') {
 	case '1': $tab_where = ''; break;
 	case '2': $tab_where = 'WHERE oldPrice > 0 AND newPrice > oldPrice'; break; // Игра подорожала
@@ -75,6 +88,11 @@ switch (isset($_GET['tab']) ? $_GET['tab'] : '2') {
 	case '5': $tab_where = 'WHERE newPrice > 0 AND oldPrice = 0'; break; // Игра появилась
 	case '6': $tab_where = 'WHERE newPrice = 0 AND oldPrice > 0'; break; // Игра пропала
 	case '7': $tab_where = 'WHERE newPrice = 0 AND oldPrice = 0'; break; // Игра НЕ появилась
+	case 's': 
+		$tab_where = '';
+		$first_table = "(SELECT * FROM games WHERE games.name LIKE '$query') games";
+		break;
+	case 'relisted': $tab_where = 'WHERE relisted_at > NOW() - INTERVAL 1 MONTH'; break; // relisted
 	default: $tab_where = '';
 }
 
@@ -88,7 +106,7 @@ itemid2, title2, price2,
 itemid3, title3, price3,
 itemid4, title4, price4,
 itemid5, title5, price5
-FROM games 
+FROM $first_table 
 INNER JOIN (SELECT items.game_id,items.item1_price as newPrice, items.item1_id, items.item1_name
 			FROM items 
 			WHERE items.scan='$scanNew') as new
@@ -100,66 +118,32 @@ INNER JOIN (SELECT items.game_id,items.item1_price as oldPrice, items.item1_name
 ON games.id=old.game_id
 
 LEFT OUTER JOIN (SELECT * FROM ebay_results WHERE scan='$ebay_scan') as ebay
-ON games.id=ebay.game_id
-$tab_where";
+ON games.id=ebay.game_id $tab_where";
 
-// file_put_contents(__DIR__.'/adds/query.txt', $queryNew);
+// sa($queryNew);
 
-	$res = arrayDB($queryNew);
+$res = arrayDB($queryNew);
 
-// $gameStayed      = [];
-// $gameAppeared    = [];
-// $gameDisappeared = [];
-// $gameChangedP    = [];
-// $gameChangedM    = [];
-// $gameChangedZ    = [];
-	// foreach ($res as $key => $val) {
-	// 	if ($val['newPrice'] == 0 || $val['oldPrice'] == 0) { 
-			
-	// 		if ($val['newPrice'] == 0 && $val['oldPrice'] == 0) { // Игра НЕ появилась
-	// 			$gameStayed[] = $val;
-	// 		}elseif ($val['newPrice'] != 0 && $val['oldPrice'] == 0) { // Игра появилась
-	// 			$gameAppeared[] = $val;
-	// 		}else{
-	// 			$gameDisappeared[] = $val; // Игра пропала
-	// 		}
 
-	// 	}else{
+$ids_arr = arrayDB("SELECT item_id FROM ebay_prices");
+$ids_arr = array_column($ids_arr, 'item_id');
 
-	// 		if ($val['newPrice'] > $val['oldPrice']) { // Игра подорожала
-	// 			$gameChangedP[] = $val;
-	// 		}elseif($val['newPrice'] < $val['oldPrice']){ // Игра подешевела
-	// 			$gameChangedM[] = $val;
-	// 		}else{
-	// 			$gameChangedZ[] = $val; // Цена не изменилась
-	// 		}
+$white_list = arrayDB("SELECT game_id,ebay_id FROM ebay_black_white_list WHERE category = 'white'");
+$wl = []; foreach ($white_list as $val) $wl[$val['game_id']][] = $val['ebay_id'];
 
-	// 	}
-	// }
-
-// $res = array_filter($res, function ($val){
-
-// 	switch (isset($_GET['tab']) ? $_GET['tab'] : '2') {
-// 		case '1': return true; break;
-// 		case '2': if ($val['newPrice'] > $val['oldPrice']) return true; break; // Игра подорожала
-// 		case '3': if ($val['newPrice'] < $val['oldPrice']) return true; break; // Игра подешевела
-// 		case '4': if ($val['newPrice'] == $val['oldPrice'] && $val['newPrice'] != 0) return true; break; // Цена не изменилась
-// 		case '5': if ($val['newPrice'] != 0 && $val['oldPrice'] == 0) return true; break; // Игра появилась
-// 		case '6': if ($val['newPrice'] == 0 && $val['oldPrice'] != 0) return true; break; // Игра пропала
-// 		case '7': if ($val['newPrice'] == 0 && $val['oldPrice'] == 0) return true; break; // Игра НЕ появилась
-// 		default: return false;
-// 	}
-// });
-
-$ids_arr = arrayDB("SELECT item_id FROM ebay_games");
-foreach ($ids_arr as $k => &$v) $v = $v['item_id'];
-$ids_arr = array_flip($ids_arr);
-
-function drowPlatiTable($res,&$ids_arr){
 ?>
+<div id="platitable1" class="platitable">
 <div class="ppp-block">
-	<input class="search" placeholder="Search">&nbsp;&nbsp;&nbsp;
-	total: <?= count($res);?>
+	<?php if(@$_GET['tab'] !== 's'){ ?><input class="search" placeholder="Search">&nbsp;&nbsp;&nbsp;
+	<?php }else{ ?>
+		<form action="">
+			<input type="hidden" name="action" value="table_changes">
+			<input type="hidden" name="tab" value="s">
+			<input type="search" placeholder="search..." name="query" value="<?= @$_GET['query'];?>">
+			<input type="submit">
+			total: <?= count($res);?>
+		</form>
+	<?php } ?>
 </div>
 <div class="ppp-block">
 <table class="ppp-table changes" style="width: 100%;">
@@ -187,13 +171,17 @@ $n = 1;
 
 foreach ($res as $key => $value) {
 
-	$gig1 = '';$gig2 = '';$gig3 = '';$gig4 = '';$gig5 = '';
+	$gig1 = in_array($value['itemid1'], $ids_arr) ? 'gig' : '';
+	$gig2 = in_array($value['itemid2'], $ids_arr) ? 'gig' : '';
+	$gig3 = in_array($value['itemid3'], $ids_arr) ? 'gig' : '';
+	$gig4 = in_array($value['itemid4'], $ids_arr) ? 'gig' : '';
+	$gig5 = in_array($value['itemid5'], $ids_arr) ? 'gig' : '';
 
-	if (isset($ids_arr[$value['itemid1']])) $gig1 = 'gig';
-	if (isset($ids_arr[$value['itemid2']])) $gig2 = 'gig';
-	if (isset($ids_arr[$value['itemid3']])) $gig3 = 'gig';
-	if (isset($ids_arr[$value['itemid4']])) $gig4 = 'gig';
-	if (isset($ids_arr[$value['itemid5']])) $gig5 = 'gig';
+	$wl1 = (@$wl[$value['game_id']] && in_array($value['itemid1'], $wl[$value['game_id']])) ? 'white' : '';
+	$wl2 = (@$wl[$value['game_id']] && in_array($value['itemid2'], $wl[$value['game_id']])) ? 'white' : '';
+	$wl3 = (@$wl[$value['game_id']] && in_array($value['itemid3'], $wl[$value['game_id']])) ? 'white' : '';
+	$wl4 = (@$wl[$value['game_id']] && in_array($value['itemid4'], $wl[$value['game_id']])) ? 'white' : '';
+	$wl5 = (@$wl[$value['game_id']] && in_array($value['itemid5'], $wl[$value['game_id']])) ? 'white' : '';
 
 	$good_e = $value['ebay_id'] ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty';
 	$good_w = $value['woo_id']  ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty';
@@ -212,44 +200,27 @@ foreach ($res as $key => $value) {
 				<td><a href="#ebayModal" class="tc-ebay ',$good_e,'"></a></td>
 				<td><a href="#wooModal" class="tc-woo ',$good_w,'"></a></td>
 				<td><a href="#hoodModal" class="tc-hood ',$good_h,'"></a></td>
-				<td title="',$value['n_name'],'" class="text-center p0">
+				<td title="',htmlspecialchars($value['n_name']),'" class="text-center p0">
 					<a href="#mChange" class="mChange tch-mbtn glyphicon glyphicon-ok"></a>
 					<a href="#mRemove" class="mRemove tch-mbtn glyphicon glyphicon-remove"></a>
 				</td>'.
 				// '<td class="row3">',round($value['differ'],2),'</td>'.
 				'<td class="row3">',round($value['newPrice']-$value['oldPrice'],2),'</td>'.
-				'<td class="row5" title="',$value['n_name'],'">',$value['newPrice'],'</td>
-				<td class="row7" title="',$value['o_name'],'">',$value['oldPrice'],'</td>
-				<td class="row8" title="',$value['n_name'],'"><a href="http://www.plati.ru/itm/',$value['item1_id'],'?ai=163508" target="_blank">Ссылка</a></td>
-				<td class="',$gig1,'" iid="',$value['itemid1'],'" title="',$value['title1'],'">',$value['price1'],'</td>
-				<td class="',$gig2,'" iid="',$value['itemid2'],'" title="',$value['title2'],'">',$value['price2'],'</td>
-				<td class="',$gig3,'" iid="',$value['itemid3'],'" title="',$value['title3'],'">',$value['price3'],'</td>
-				<td class="',$gig4,'" iid="',$value['itemid4'],'" title="',$value['title4'],'">',$value['price4'],'</td>
-				<td class="',$gig5,'" iid="',$value['itemid5'],'" title="',$value['title5'],'">',$value['price5'],'</td>
-				<td><a href="http://www.ebay.de/sch/i.html?_odkw=Rust+Steam&LH_PrefLoc=2&_sop=2&LH_BIN=1&_osacat=1249&_from=R40&_trksid=p2045573.m570.l1313.TR0.TRC0.H0.TRS0&_sacat=1249&_nkw=',$value['name'],'" target="_blank">Ссылка</a></td>
+				'<td class="row5" title="',htmlspecialchars($value['n_name']),'">',$value['newPrice'],'</td>
+				<td class="row7" title="',htmlspecialchars($value['o_name']),'">',$value['oldPrice'],'</td>
+				<td class="row8" title="',htmlspecialchars($value['n_name']),'"><a href="http://www.plati.ru/itm/',$value['item1_id'],'?ai=163508" target="_blank">Ссылка</a></td>
+				<td class="',$gig1,' ',$wl1,'" iid="',$value['itemid1'],'" title="',htmlspecialchars($value['title1']),'">',$value['price1'],'</td>
+				<td class="',$gig2,' ',$wl2,'" iid="',$value['itemid2'],'" title="',htmlspecialchars($value['title2']),'">',$value['price2'],'</td>
+				<td class="',$gig3,' ',$wl3,'" iid="',$value['itemid3'],'" title="',htmlspecialchars($value['title3']),'">',$value['price3'],'</td>
+				<td class="',$gig4,' ',$wl4,'" iid="',$value['itemid4'],'" title="',htmlspecialchars($value['title4']),'">',$value['price4'],'</td>
+				<td class="',$gig5,' ',$wl5,'" iid="',$value['itemid5'],'" title="',htmlspecialchars($value['title5']),'">',$value['price5'],'</td>
+				<td><a href="https://www.ebay.de/sch/i.html?_from=R40&_nkw=',rawurlencode($value['name']),'&_sacat=0&LH_BIN=1&LH_PrefLoc=1" target="_blank">Ссылка</a></td>
 			</tr>';
 }
-		// echo "<br><pre>\n";
-		// print_r($res);
-		// echo '</pre>';
 ?>
 	</tbody>
 </table>
 </div> <!-- ppp-block -->
-<?php
-} // drowPlatiTable()
-echo '<div id="platitable1" class="platitable">';
-// switch (isset($_GET['tab']) ? $_GET['tab'] : '2') {
-// 	case '1': drowPlatiTable($res,$ids_arr); break;
-// 	case '2': drowPlatiTable($gameChangedP,$ids_arr); break;
-// 	case '3': drowPlatiTable($gameChangedM,$ids_arr); break;
-// 	case '4': drowPlatiTable($gameChangedZ,$ids_arr); break;
-// 	case '5': drowPlatiTable($gameAppeared,$ids_arr); break;
-// 	case '6': drowPlatiTable($gameDisappeared,$ids_arr); break;
-// 	case '7': drowPlatiTable($gameStayed,$ids_arr); break;
-// }
-drowPlatiTable($res,$ids_arr);
-?>
 </div> <!-- /platitable -->
 </div> <!-- /ch-tab-panel -->
 
@@ -382,11 +353,15 @@ drowPlatiTable($res,$ids_arr);
         <div class="row frow frow1">
           <div class="col-sm-2">Parser</div>
           <div class="col-sm-7 fcol fcol2 clip"></div>
-          <div class="col-sm-3 fcol fcol3"><a id="m-ebli" href="#" target="_blank" style="color: #ca8e3a;"><table><tr></tr></table></a></div>
+          <div class="col-sm-3 fcol fcol3 modal-ebay-prices">
+          	<button class="repars-btn" id="modal_ebay_repars">repars</button>
+          	<a id="m-ebli" href="#" target="_blank" style="color: #ca8e3a;"><table><tr id="js_modal_ebay_prices"></tr></table></a>
+			<div id="js_modal_black_white" class="ebay-prices-names"></div>
+          </div>
         </div>
         <div class="row frow frow2">
           <div class="col-sm-2">eBay</div>
-          <div class="col-sm-7 fcol fcol2 clip"><img src="images/more-loading.gif" alt="loading"></div>
+          <div class="col-sm-7 fcol fcol2"><img src="images/more-loading.gif" alt="loading"></div>
           <div class="col-sm-1 fcol fcol3"><b>.</b></div>
           <div class="col-sm-2 fcol fcol4"><input id="js-fEprice" type="text" class="form-control h28"></div>
         </div>
@@ -438,7 +413,7 @@ drowPlatiTable($res,$ids_arr);
 <script>
 	var options = {
 	  valueNames: [ 'row1', 'row2', 'row3', 'row5', 'row7', 'row9' ],
-	  page: 5000
+	  page: 6000
 	};
 
 	var userList = new List('platitable1', options);
@@ -453,6 +428,38 @@ drowPlatiTable($res,$ids_arr);
 
 <!-- <script src="js/react.min.js"></script>
 <script src="js/react-dom.min.js"></script>
-<script src="js/babel-core.min.js"></script>
+<script src="js/babel-core.min.js"></script> -->
 
-<script src="js/table_changes.jsx" type="text/babel"></script> -->
+<div style="display: none;"><div id="magic_input"></div></div>
+
+<script src="js/react.production.min.js"></script>
+<script src="js/react-dom.production.min.js"></script>
+<script src="js/babel.min.js"></script>
+
+
+
+<!--===========add modal===================-->
+<div class="modal fade" id="addModal">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title col555">steam</h4>
+
+      </div>
+      <div class="modal-body" id="modal_body">
+
+      </div>
+      <div class="modal-footer">
+
+      </div>
+    </div>
+  </div>
+</div>
+<!--===========/add modal===================-->
+
+
+
+<script type="text/babel" src="js/steam-list.js"></script>
+<script type="text/babel" src="js/table_changes.jsx"></script>

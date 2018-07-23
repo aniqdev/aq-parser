@@ -1,5 +1,6 @@
 <?php
 ini_get('safe_mode') or set_time_limit(1200); // Указываем скрипту, чтобы не обрывал связь.
+header('Content-Type: application/json');
 
 if (isset($_POST['ebayId']) && isset($_POST['action']) && $_POST['action'] == 'check') {
 
@@ -18,14 +19,27 @@ if (isset($_POST['ebayId']) && isset($_POST['action']) && $_POST['action'] == 'c
 		$answer = 'bad';
 	}
 
-	$game_line = arrayDB("SELECT * FROM items WHERE game_id=$game_id ORDER BY id DESC LIMIT 1")[0];
-
 	$send = array(
 			'answer' => $answer,
 			'post' => $_POST,
 			'ebay_title' => $ebay_title,
 			'price' => $ebay_price,
+			'ERRORS' => $_ERRORS,
+		);
+
+	echo json_encode($send);
+}
+
+
+elseif (isset($_POST['action']) && $_POST['action'] == 'get_game_line') {
+
+	$game_id = _esc($_POST['gameId']);
+	$game_line = arrayDB("SELECT * FROM items WHERE game_id=$game_id ORDER BY id DESC LIMIT 1")[0];
+
+	$send = array(
+			'post' => $_POST,
 			'game_line' => $game_line,
+			'ERRORS' => $_ERRORS,
 		);
 
 	echo json_encode($send);
@@ -35,8 +49,11 @@ if (isset($_POST['ebayId']) && isset($_POST['action']) && $_POST['action'] == 'c
 elseif (isset($_POST['ebayId']) && isset($_POST['action']) && $_POST['action'] == 'change') {
 
 	$Ebay = new Ebay_shopping2();
-	$response = $Ebay->updateProductPrice($_POST['ebayId'], (float)$_POST['price']);
-	if($response){
+	$response_array = true;
+	$response = $Ebay->updateProductPrice($_POST['ebayId'], (float)$_POST['price'], $response_array);
+	// sa($response);
+	unset($response['Fees']);
+	if($response['Ack'] !== 'Failure'){
 		$answer = 'good';
 	}else{
 		$answer = 'bad';
@@ -68,6 +85,9 @@ elseif (isset($_POST['ebayId']) && isset($_POST['action']) && $_POST['action'] =
 
 	echo json_encode($send);
 
+	$ebay_id = _esc($_POST['ebayId']);
+	arrayDB("UPDATE steam_de SET instock = 'no' WHERE $ebay_id = 'ebay_id'");
+
 }elseif (isset($_POST['update_ebay_games'])) {
 
 	$ebayObj = new Ebay_shopping2();
@@ -85,17 +105,17 @@ elseif (isset($_POST['ebayId']) && isset($_POST['action']) && $_POST['action'] =
 	}
 	$ebay_games_updated = DB::getInstance()->insert_multi('ebay_games', $columns, $records);
 
-	$sql2 = '';
-	foreach ($res['completed'] as $k => $ebay_id) {
-		$sql2 .= "UPDATE games SET ebay_id=null WHERE ebay_id='$ebay_id';";
-	}
-	$completed_ids_removed = arrayDB($sql2, true);
+	// $sql2 = '';
+	// foreach ($res['completed'] as $k => $ebay_id) {
+	// 	$sql2 .= "UPDATE games SET ebay_id=null WHERE ebay_id='$ebay_id';";
+	// }
+	// $completed_ids_removed = arrayDB($sql2, true);
 
 	echo json_encode(['answer'=>'good',
 					//'titles' => $titles,
 					//'sql' => $sql1,
 					'ebay_games_updated'=>$ebay_games_updated,
-					'completed_ids_removed'=>$completed_ids_removed,
+					// 'completed_ids_removed'=>$completed_ids_removed,
 					'errors'=>$_ERRORS]);
 
 }elseif (isset($_POST['insert_ebayID_to_games'])) {

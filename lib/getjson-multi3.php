@@ -35,7 +35,7 @@ if (isset($_POST['getjson'])) {
 
 	if ($_POST['getjson'] > 0) {
 		$operation = 'update';
-		$game_id = $_POST['getjson'];
+		$game_id = (int)$_POST['getjson'];
 		$reqs = arrayDB("SELECT * FROM games WHERE id = '$game_id'");
 	}else{
 		$operation = 'insert';
@@ -45,10 +45,12 @@ if (isset($_POST['getjson'])) {
 	
 	
 	if (isset($_POST['scan']) && $_POST['scan'] != '0') $scan = $_POST['scan'];
-	else { // deprecated
+	else {
 		$scan = time();
-		$scandate = date('d-m-y H:i:s');
-		arrayDB("INSERT INTO scans VALUES(null,'$scandate','$scan')");
+		delete_old_records('items','date');
+		// deprecated
+		// $scandate = date('d-m-y H:i:s');
+		// arrayDB("INSERT INTO scans VALUES(null,'$scandate','$scan')");
 	}
 
 

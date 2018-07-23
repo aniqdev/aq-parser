@@ -12,6 +12,7 @@ class OrderModalBody extends React.Component {
 		this.state = {tripleBtnIndex: 1,
 			chosen_title:this.props.data.plati_info.item1_name,
 			chosen_plati_id:this.props.data.plati_info.item1_id,
+			answer_templates:this.props.data.answer_templates,
 			inputs:{
 				mail_title:this.props.data.msg_subject,
 				mail_body:this.props.data.msg_email,
@@ -19,7 +20,8 @@ class OrderModalBody extends React.Component {
 				ebay_body:this.props.data.msg_ebay,
 				new_price:this.props.data.plati_info.item1_recom
 			},
-			data:this.props.data, emaild: '', ebaid: ''};
+			data:this.props.data, emaild: '', ebaid: '',
+			ebay_info:this.props.data.ebay_info};
 		this.mailTitleInputChange = this.mailTitleInputChange.bind(this);
 		this.mailBodyInputChange = this.mailBodyInputChange.bind(this);
 		this.ebayTitleInputChange = this.ebayTitleInputChange.bind(this);
@@ -32,18 +34,21 @@ class OrderModalBody extends React.Component {
 		this.toAddonClick = this.toAddonClick.bind(this);
 		this.toBlacklistClick = this.toBlacklistClick.bind(this);
 		this.itemRemoveClick = this.itemRemoveClick.bind(this);
+		this.answerTemplateSelectChange = this.answerTemplateSelectChange.bind(this);
 	}
 
 	componentWillReceiveProps(nextProps){
 		console.log('componentWillReceiveProps');
 		if (nextProps.reset) {
+			this.setState({answer_templates: nextProps.data.answer_templates});
 			this.setState({tripleBtnIndex: nextProps.index});
 			this.setState({chosen_title:nextProps.data.plati_info.item1_name});
 			this.setState({chosen_plati_id:nextProps.data.plati_info.item1_id});
 			this.setState({inputs:{
 				mail_title:'',mail_body:'',ebay_title:'',ebay_body:'',
 				new_price:nextProps.data.plati_info.item1_recom
-			}, emaild: '', ebaid: ''});
+			}, emaild: '', ebaid: '',
+			ebay_info:nextProps.data.ebay_info});
 			console.info('if');
 		}else{
 			console.info('else');
@@ -52,7 +57,8 @@ class OrderModalBody extends React.Component {
 				mail_body:nextProps.data.msg_email,
 				ebay_title:nextProps.data.msg_subject,
 				ebay_body:nextProps.data.msg_ebay,
-				new_price:nextProps.data.plati_info.item1_recom
+				new_price:nextProps.data.plati_info.item1_recom,
+				ebay_info:nextProps.data.ebay_info
 			}});
 		}
 	}
@@ -88,7 +94,9 @@ class OrderModalBody extends React.Component {
 				ebay_user:this.props.data.order_info.BuyerUserID,
 				ebay_item:this.props.data.good_info.ebay_id,
 				ebay_subject:this.state.inputs.ebay_title,
-				ebay_body:this.state.inputs.ebay_body
+				ebay_body:this.state.inputs.ebay_body,
+			secret_hash:this.props.data.secret_hash,
+			country_alias:this.props.data.order_info.ShippingAddress.Country,
 			},
 			function(data) {
 				if(data.sendemail_ans !== 'no'){
@@ -105,18 +113,20 @@ class OrderModalBody extends React.Component {
 		var $this = this;
 		$.post('/ajax.php?action=ajax-invoice-sender',
 			{sendemail:1,
-				ebay_orderid:this.props.data.order_info.order_id,
-				user_email:this.props.data.order_info.BuyerEmail,
-				email_subject:this.state.inputs.mail_title,
-				email_body:this.state.inputs.mail_body,
-				ebay_order_item_id: _aa.ids.split('-')[1]},
-			function(data) {
-				if(data.sendemail_ans !== 'no'){
-					$this.setState({emaild: 'glyphicon-ok'});
-					remove_order();
-				}
-				else $this.setState({emaild: 'glyphicon-ban-circle'});
-			},'JSON');
+			ebay_orderid:this.props.data.order_info.order_id,
+			user_email:this.props.data.order_info.BuyerEmail,
+			email_subject:this.state.inputs.mail_title,
+			email_body:this.state.inputs.mail_body,
+			ebay_order_item_id: _aa.ids.split('-')[1],
+			secret_hash:this.props.data.secret_hash,
+			country_alias:this.props.data.order_info.ShippingAddress.Country,
+		},function(data) {
+			if(data.sendemail_ans !== 'no'){
+				$this.setState({emaild: 'glyphicon-ok'});
+				remove_order();
+			}
+			else $this.setState({emaild: 'glyphicon-ban-circle'});
+		},'JSON');
 	}
 
 	sendEbayClick(){
@@ -126,11 +136,13 @@ class OrderModalBody extends React.Component {
 			ebay_user:this.props.data.order_info.BuyerUserID,
 			ebay_item:this.props.data.good_info.ebay_id,
 			ebay_subject:this.state.inputs.ebay_title,
-			ebay_body:this.state.inputs.ebay_body},
-			function(data) { 
+			ebay_body:this.state.inputs.ebay_body,
+			secret_hash:this.props.data.secret_hash,
+			country_alias:this.props.data.order_info.ShippingAddress.Country,
+		},function(data) { 
 				if(data.sendebay_ans !== 'no') $this.setState({ebaid: 'glyphicon-ok'});
 				else $this.setState({ebaid: 'glyphicon-ban-circle'});
-			},'JSON');
+		},'JSON');
 	}
 
 	changePriceClick(e) {
@@ -192,6 +204,29 @@ class OrderModalBody extends React.Component {
 	ebayBodyInputChange(e){this.setState({inputs:{ebay_body:e.target.value}})}
 	newPriceInputChange(e){this.setState({inputs:{new_price:e.target.value}})}
 
+	answerTemplateSelectChange(e){
+		this.setState({inputs:{ebay_body:e.target.value}});
+	}
+
+	reparsClick(game_id){
+		var $this = this;
+		$.post('/ajax-controller.php',
+			{function:'ebay_reparse_one',game_id:game_id},
+		  function(data) {
+			$this.setState({ebay_info:data.ebay_info});
+		  },'json');
+	}
+
+	addToWhiteClick(black_white,game_num){	
+		$.post('/ajax-controller.php',
+			{function:'black_white_list',
+			game_id:this.state.ebay_info.game_id,
+			ebay_id:this.state.ebay_info['itemid'+game_num], 
+			category:black_white, 
+			title:this.state.ebay_info['title'+game_num]},
+		  function(data) {});
+	}
+
 	render() {
 		console.log('render OrderModalBody');
 		return (
@@ -205,19 +240,29 @@ class OrderModalBody extends React.Component {
 				</a>
 			</h4>
 
-			<a className="order-modal-link" href={"http://www.ebay.de/sch/i.html?LH_PrefLoc=2&_sop=2&LH_BIN=1&_osacat=1249&_from=R40&_trksid=p2045573.m570.l1313.TR0.TRC0.H0.TRS0&_sacat=1249&_nkw="+this.props.data.plati_info.name} target="_blank">
-				<table className="wbtable">
-					<tbody>
-						<tr>
-							<td title={this.props.data.ebay_info.title1}>{this.props.data.ebay_info.price1}</td>
-							<td title={this.props.data.ebay_info.title2}>{this.props.data.ebay_info.price2}</td>
-							<td title={this.props.data.ebay_info.title3}>{this.props.data.ebay_info.price3}</td>
-							<td title={this.props.data.ebay_info.title4}>{this.props.data.ebay_info.price4}</td>
-							<td title={this.props.data.ebay_info.title5}>{this.props.data.ebay_info.price5}</td>
-						</tr>
-					</tbody>
-				</table>
-			</a><br/>
+			<div className="ol-ebay-prices">
+				<a className="order-modal-link" href={"http://www.ebay.de/sch/i.html?LH_PrefLoc=2&_sop=2&LH_BIN=1&_osacat=1249&_from=R40&_trksid=p2045573.m570.l1313.TR0.TRC0.H0.TRS0&_sacat=1249&_nkw="+this.props.data.plati_info.name} target="_blank">
+					<table className="wbtable">
+						<tbody>
+							<tr>
+								<td className={this.state.ebay_info.gigs[0]+' '+this.state.ebay_info.wls[0]} title={this.state.ebay_info.title1}>{this.state.ebay_info.price1}</td>
+								<td className={this.state.ebay_info.gigs[1]+' '+this.state.ebay_info.wls[1]} title={this.state.ebay_info.title2}>{this.state.ebay_info.price2}</td>
+								<td className={this.state.ebay_info.gigs[2]+' '+this.state.ebay_info.wls[2]} title={this.state.ebay_info.title3}>{this.state.ebay_info.price3}</td>
+								<td className={this.state.ebay_info.gigs[3]+' '+this.state.ebay_info.wls[3]} title={this.state.ebay_info.title4}>{this.state.ebay_info.price4}</td>
+								<td className={this.state.ebay_info.gigs[4]+' '+this.state.ebay_info.wls[4]} title={this.state.ebay_info.title5}>{this.state.ebay_info.price5}</td>
+							</tr>
+						</tbody>
+					</table>
+				</a><br/>
+				<div className="ol-ebay-prices-names">
+					<button onClick={this.reparsClick.bind(this,this.props.data.ebay_info.game_id)}>repars</button>
+					<div className={this.state.ebay_info.gigs[0]+' '+this.state.ebay_info.wls[0]}><i onClick={this.addToWhiteClick.bind(this,'white','1')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','1')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title1}</div> <b>{this.state.ebay_info.price1}</b></div>
+					<div className={this.state.ebay_info.gigs[1]+' '+this.state.ebay_info.wls[1]}><i onClick={this.addToWhiteClick.bind(this,'white','2')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','2')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title2}</div> <b>{this.state.ebay_info.price2}</b></div>
+					<div className={this.state.ebay_info.gigs[2]+' '+this.state.ebay_info.wls[2]}><i onClick={this.addToWhiteClick.bind(this,'white','3')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','3')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title3}</div> <b>{this.state.ebay_info.price3}</b></div>
+					<div className={this.state.ebay_info.gigs[3]+' '+this.state.ebay_info.wls[3]}><i onClick={this.addToWhiteClick.bind(this,'white','4')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','4')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title4}</div> <b>{this.state.ebay_info.price4}</b></div>
+					<div className={this.state.ebay_info.gigs[4]+' '+this.state.ebay_info.wls[4]}><i onClick={this.addToWhiteClick.bind(this,'white','5')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','5')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title5}</div> <b>{this.state.ebay_info.price5}</b></div>
+				</div>
+			</div>
 
 			<div className="btn-group btn-group-justified" role="group" aria-label="...">
 			  <div className="btn-group" role="group">
@@ -303,6 +348,12 @@ class OrderModalBody extends React.Component {
 				</div>
 
 				<div className="col-sm-6">
+					<select onChange={this.answerTemplateSelectChange} name="ebay_or_mail" className="form-control">
+						<option value="">choose template</option>
+						{this.state.answer_templates.map(function(el, i) {
+								return(<option value={el.tpl_text}>{el.tpl_name}</option>)
+						})}
+				    </select><br/>
 					<input onChange={this.ebayTitleInputChange} value={this.state.inputs.ebay_title} type="text" className="form-control"/><br/>
 					<textarea onChange={this.ebayBodyInputChange} value={this.state.inputs.ebay_body} className="form-control" cols="30" rows="11">
 						
