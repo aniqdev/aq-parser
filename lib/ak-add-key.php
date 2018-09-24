@@ -27,7 +27,7 @@ span.twitter-typeahead{
 				<textarea name="keys" id="keys_inp" cols="30" rows="10" class="form-control" placeholder="keys (each one from new line)"></textarea>
 			</div>
 			<div class="col-xs-2">
-				<input type="text" class="form-control" placeholder="price" name="price"><br>
+				<input type="text" class="form-control" id="js_price_inp" placeholder="price" name="price"><br>
 				<input id="seller_inp" type="text" class="form-control" placeholder="seller" name="seller"><br><br>
 				<button type="submit" class="btn btn-primary add-btn" id="add_btn">Add keys</button>
 			</div>
@@ -129,8 +129,7 @@ $('#add_key_form').on('submit', function(e) {
 		function(data) {
 			$('#report_screen').append(galert(data.report_status,'<b>'+data.report_status+'!</b> '+data.report));
 		},'json');
-	
-})
+});
 
 $('#add_seller_form').on('submit', function(e) {
 	e.preventDefault();
@@ -139,8 +138,11 @@ $('#add_seller_form').on('submit', function(e) {
 		function(data) {
 			$('#report_screen').append(galert(data.report_status,'<b>'+data.report_status+'!</b> '+data.report));
 		},'json');
-	
-})
+});
+
+$('#js_price_inp').on('blur', function() {
+	$(this).val(parseFloat($(this).val()).toFixed(2));
+});
 
 });
 </script>

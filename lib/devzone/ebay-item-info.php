@@ -2,11 +2,10 @@
 
 
 
-$ebay_id = '112567976204';
-$ebay_id = '253201262577';
+$ebay_id = '122873574286';
 
 //'IncludeSelector'=> Details,Description,ItemSpecifics,TextDescription
-$res = getSingleItem($ebay_id, ['as_array'=>true,'IncludeSelector'=>'Details,ItemSpecifics,TextDescription,ShippingCosts,Compatibility']);
+$res = getSingleItem($ebay_id, ['as_array'=>true,'IncludeSelector'=>'Details,ItemSpecifics,TextDescription']);
 
 sa($res);
 

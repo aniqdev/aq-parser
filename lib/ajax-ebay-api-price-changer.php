@@ -32,7 +32,7 @@ if (isset($_POST['ebayId']) && isset($_POST['action']) && $_POST['action'] == 'c
 
 
 elseif (isset($_POST['action']) && $_POST['action'] == 'get_game_line') {
-
+	// sleep(3);
 	$game_id = _esc($_POST['gameId']);
 	$game_line = arrayDB("SELECT * FROM items WHERE game_id=$game_id ORDER BY id DESC LIMIT 1")[0];
 

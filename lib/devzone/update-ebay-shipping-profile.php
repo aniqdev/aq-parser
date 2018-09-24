@@ -5,15 +5,16 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 	$offset = (int)$_POST['offset'];
 
 	// $where = "WHERE ebay_id <> ''";
-	$where = "WHERE ebay_id <> '' and extra_field <> 'old_description' and updated_at > '2017-12-30 13:00:00'";
+	$where = "WHERE status = 'Active' and price <= 2";
 
-	$count = arrayDB("SELECT count(*) FROM games $where")[0]['count(*)'];
+	$count = arrayDB("SELECT count(*) FROM ebay_prices $where")[0]['count(*)'];
 
-	$res = arrayDB("SELECT * FROM games $where LIMIT $offset , 1");
+	$res = arrayDB("SELECT * FROM ebay_prices $where LIMIT $offset , 1");
 
-	$water_mark = 'kaufen_fixed2';
+	$extra_field = 'extra_field';
+	$water_mark = 'profile_id_updated1';
 
-	if($res[0]['extra_field2'] === $water_mark){
+	if($res[0][$extra_field] === $water_mark){
 		echo json_encode([
 			'offset' => $offset,
 			'count' => $count,
@@ -24,50 +25,15 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 		return;
 	}
 	//=============================================================================
-	$ebay_id = $res[0]['ebay_id'];
-	$games_id = $res[0]['id'];
+	$ebay_id = $res[0]['item_id'];
+	$ebay_prices_id = $res[0]['id'];
 
-	$item_info = getSingleItem($ebay_id, ['as_array'=>true,'IncludeSelector'=>'Description']);
+	$resp = EbayGigGames::updateItemShippingProfileID($ebay_id, '133946209010');
 
-	if (isset($item_info['Ack']) && $item_info['Ack'] === 'Failure') {
-		echo json_encode([
-			'offset' => $offset,
-			'count' => $count,
-			'res' => $res[0],
-			'resp' => 'item_info Failure',
-			'ERRORS' => $_ERRORS,
-		]);
-		arrayDB("UPDATE games SET extra_field = 'item_info Failure' WHERE id = '$games_id'");
-		return;
-	}
-
-	$description = $item_info['Item']['Description'];
-
-	$title = 'description backup';
-	$full_desc = _esc($description);
-	arrayDB("INSERT INTO ebay_data 
-		(ebay_id,title,full_desc)
-		VALUES
-		('$ebay_id','$title','$full_desc')");
-
-
-	$is_match = preg_match('/offer\.ebay\.de.+?fb=1/s', $description);
-
-	$description = preg_replace('/offer\.ebay\.de.+?fb=1/s',
-		'offer.ebay.de/ws/eBayISAPI.dll?BinConfirm&fromPage=2047675&item='.$ebay_id.'&fb=1', $description);
-
-
-	$ebayObj = new Ebay_shopping2();
-
-	$resp = $ebayObj->updateItemDescription($ebay_id, $description);
 	unset($resp['Fees']);
 
-	if (!$is_match) {
-		arrayDB("UPDATE games SET extra_field = 'something_wrong' WHERE id = '$games_id'");
-	}
-
 	if (isset($resp['Ack']) && $resp['Ack'] !== 'Failure') {
-		arrayDB("UPDATE games SET extra_field2 = '$water_mark' WHERE id = '$games_id'");
+		arrayDB("UPDATE ebay_prices SET $extra_field = '$water_mark' WHERE id = '$ebay_prices_id'");
 	}
 	//=============================================================================
 
@@ -90,7 +56,7 @@ if($_POST) return;
 	
 </style>
 
-<h3>Fix kaufen button</h3>
+<h3>update-ebay-shipping-profile</h3>
 <form id="js_go_form" class="go-form">
     <button name="aaa" value="bbb" type="button" class="js-go-btn">Go!</button>
 </form><br><br><br>
@@ -109,10 +75,10 @@ function send_post(offset) {
 	$.post('ajax.php' + window.location.search,
 		{action:'iterate', offset:offset},
 		function (data) {
-			if (offset < data.count && offset < 3000) {
+			if (offset < data.count && offset < 3600) {
 				if (data.resp.Ack) 	var add = data.resp.Ack;
 				else var add = data.resp;
-				it_ins_msg(offset + ' : ' + data.res.name + ' | ' + add);
+				it_ins_msg(offset + ' : ' + data.res.title + ' | ' + add);
 				send_post(offset+1);
 			}else{
 				$('.loading').removeClass('inaction');

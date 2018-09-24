@@ -50,6 +50,7 @@
             <li><a href="?action=ebay-panels">Top Sales</a></li>
             <li><a href="?action=price-upper">Price upper</a></li>
             <li><a href="?action=white-list">White list</a></li>
+            <li><a href="?action=game-editor">Game editor</a></li>
           </ul>
         </li>
 

@@ -15,11 +15,8 @@
                         ORDER BY ebay_orders.id DESC
                         LIMIT 50");
     //sa($orders);
-    $ebay_games = arrayDB("SELECT item_id,picture_hash FROM ebay_games");
-    $pics_hashes = [];
-    foreach ($ebay_games as $getve) {
-        $pics_hashes[$getve['item_id']] = $getve['picture_hash'];
-    }
+    $ebay_games = arrayDB("SELECT item_id,picture_hash FROM ebay_prices");
+    $pics_hashes = array_column($ebay_games, 'picture_hash', 'item_id');
     foreach ($orders as $key => $order):
     $address = json_decode($order['ShippingAddress'], true); //sa($order);
     $goods = json_decode($order['goods'], true); //sa($goods);

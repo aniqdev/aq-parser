@@ -529,6 +529,13 @@ function get_item_xml($receive_item_link){
 		$ret['typegood'] = '2';
 		$ret['link_tag'] = '<a href="'.(string)$receive_item_object->file->link.'" target="_blank">'.(string)$receive_item_object->file->name_in.'</a>';
 		$ret['result'] = (string)$receive_item_object->file->link;
+		$extension = pathinfo($ret['result'], PATHINFO_EXTENSION);
+		// если товар - текстовый файл
+		if (strtolower($extension) === 'txt') {
+			$ret['typegood'] = '3';
+			$ret['result'] = file_get_contents($ret['result']);
+			if($ret['result'] === false) $ret['success'] = false;
+		}
 	}
 
 	return $ret;
@@ -979,7 +986,12 @@ function _getResultsFromApi(&$result, &$blacklist, &$blacksell){
 
 			$bool1 = (stripos($nameLow,'free') !== false || stripos($nameLow,'row') !== false || stripos($nameLow,'bundle') !== false);
 			$bool2 = (stripos($descLow,'free') !== false || stripos($descLow,'row') !== false || stripos($descLow,'bundle') !== false);
-			$bool3 = (stripos($nameLow,'ccount') === false && stripos($nameLow,'ккаунт') === false && stripos($nameLow,'cis') === false && stripos($descLow,'украина') === false);
+			$bool3 = ( stripos($nameLow,'ccount') === false 
+					&& stripos($nameLow,'ккаунт') === false 
+					&& stripos($nameLow,'cis') === false 
+					&& stripos($nameLow,'(steam gift | ru)') === false 
+					&& stripos($nameLow,'(steam|rus)') === false 
+					&& stripos($descLow,'украина') === false);
 
 			$bool4 = BlackListFilter($blacklist,$itemID);
 			$bool5 = BlackListFilter($blacksell,$sellID);
@@ -1500,7 +1512,8 @@ function _get_item_specs($item_id=''){
 function parse_item_specifics($item_id='')
 {
 	if(!$item_id) return false;
-	$dom = file_get_html('http://www.ebay.de/itm/'.$item_id);
+	$str = file_get_contents('http://www.ebay.de/itm/'.$item_id);
+	$dom = str_get_html($str);
 	$res = $dom->find('.attrLabels');
 	$specs = [];
 	foreach ($res as $key => $value) {
@@ -1618,6 +1631,7 @@ function get_steam_languages()
 
 function getSingleItem($itemId, $o = []){
 
+		global $_ERRORS;
 		$c = array_merge([
 			'as_array'=>false,
 			'IncludeSelector'=>'Details', //Details,Description,ItemSpecifics,TextDescription
@@ -1636,6 +1650,7 @@ function getSingleItem($itemId, $o = []){
 
 		// Открываем файл с помощью установленных выше HTTP-заголовков
 		$json = file_get_contents($url);
+		// sa(json_decode($json, true));
 		if($c['as_array']) return json_decode($json, true);
 		return $json;
 }
@@ -2870,6 +2885,7 @@ function black_white_list()
 
 function ebay_reparse_one($game_id = 0, $reparse_one = true)
 {
+	global $_ERRORS;
 	$url = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].'/lib/ebay_getprices.php';
 
 	$game_id = _esc($game_id ? $game_id : $_POST['game_id']);
@@ -2916,7 +2932,6 @@ function ebay_reparse_one($game_id = 0, $reparse_one = true)
 						<td class="'.$gig4.' '.$wl4.'" iid="'.$value['itemid4'].'" title="'.$value['title4'].'">'.$value['price4'].'</td>
 						<td class="'.$gig5.' '.$wl5.'" iid="'.$value['itemid5'].'" title="'.$value['title5'].'">'.$value['price5'].'</td>';
 	
-	global $_ERRORS;
 	$ret['errors'] = $_ERRORS;
 
 	return json_encode($ret);
@@ -2944,7 +2959,7 @@ function ak_get_games()
 {
 	if(!$_POST['query']) return '[]';
 	$game = _esc(trim($_POST['query']));
-	$ret = arrayDB("SELECT id,title_clean,item_id,price FROM ebay_prices WHERE title LIKE '%$game%' ORDER BY title_clean LIMIT 7");
+	$ret = arrayDB("SELECT id,title_clean,item_id,price,picture_hash FROM ebay_prices WHERE status = 'Active' AND title LIKE '%$game%' ORDER BY title_clean LIMIT 7");
 	// $ret = array_column($ret, 'title');
 
 	// $ret = array_map(function($el)
@@ -2968,6 +2983,7 @@ function ak_get_sellers()
 
 function ak_add_seller()
 {
+	global $_ERRORS;
 	$username = _esc($_POST['username']);
 	$info = _esc($_POST['info']);
 
@@ -2988,6 +3004,7 @@ function ak_add_seller()
 
 function ak_add_key()
 {
+	global $_ERRORS;
 //     [function] => ak_add_key
 //     [game_name] => National Flags - Heads Pack
 //     [seller] => rty
@@ -3065,3 +3082,149 @@ function ak_get_prices()
 	return 'wh: '.($wh_price ? $wh_price.'p' : 'none').
 		' | plati.ru: '.($platiru_price ? $platiru_price.'p' : 'none');
 }
+
+
+function ak_change_key_price()
+{	
+	global $_ERRORS;
+
+	$key_id = _esc($_POST['key_id']);
+	$new_price = _esc($_POST['new_price']);
+
+	arrayDB("UPDATE ak_keys SET price = '$new_price' WHERE id = '$key_id'");
+
+	return json_encode([
+		'post' => $_POST,
+		'report' => '',
+		'report_status' => 'success',
+		'errors' => $_ERRORS,
+	]);
+}
+
+
+// callback for array_walk_recursive in ge_get_ebay_item_info
+function ge_cb(&$item)
+{
+    $item = htmlspecialchars($item);
+}
+
+// ge_ prefix for game-editor page
+function ge_get_ebay_item_info()
+{
+	$ebay_id = $_POST['ebay_id'];
+
+	//'IncludeSelector'=> Details,Description,ItemSpecifics,TextDescription
+	$res = getSingleItem($ebay_id, ['as_array'=>true,'IncludeSelector'=>'Details,ItemSpecifics,Description']);
+
+
+	array_walk_recursive($res['Item']['ItemSpecifics']['NameValueList'], 'ge_cb');
+	$res['Item']['ItemSpecifics']['NameValueList'] = array_values(array_filter($res['Item']['ItemSpecifics']['NameValueList'], function($item){
+		
+		if (strpos($item['Name'], 'Rück') !== false) return false;
+		return true;
+	}));
+	// $res['Item']['Description'] = htmlspecialchars($res['Item']['Description']);
+
+	return json_encode($res);
+}
+
+
+function ge_update_base_data()
+{
+	if (!$_POST['ebay_id']) {
+		$r_type = 'danger';
+		$r_text = '<b>Success!</b> there is no ebay id';
+		return json_encode(['ebay_id'=>$ebay_id,
+						'post'=>$_POST,
+						'ebay_resp'=> null,
+						'report'=>galert($r_type, $r_text)]);
+	}
+	$res = EbayGigGames::setTokenByName($_POST['plattform'])->updateItemBaseData([
+		'ItemID' => $_POST['ebay_id'],
+		'Title' => $_POST['title'],
+		'StartPrice' => $_POST['price'],
+		'Quantity' => $_POST['quantity'],
+	]);
+
+	if (isset($res['Ack']) && $res['Ack'] !== 'Failure') {
+		$r_type = 'success';
+		$r_text = '<b>Success!</b> Saved!';
+	}else{
+		$r_type = 'warning';
+		$r_text = '<b>Warning!</b> something wrong!<br>Please contact the administrator.';
+	}
+	return json_encode(['ebay_id'=>$ebay_id,
+						'post'=>$_POST,
+						'ebay_resp'=>$res,
+						'report'=>galert($r_type, $r_text)]);
+
+}
+
+
+function ge_update_specifics()
+{
+	if (!$_POST['ebay_id']) {
+		$r_type = 'danger';
+		$r_text = '<b>Success!</b> there is no ebay id';
+		return json_encode(['ebay_id'=>$_POST['ebay_id'],
+						'post'=>$_POST,
+						'ebay_resp'=> null,
+						'report'=>galert($r_type, $r_text)]);
+	}
+	$res = EbayGigGames::setTokenByName($_POST['plattform'])
+	         ->updateItemSpecifics($_POST['ebay_id'], $_POST['specs']);
+
+	if (isset($res['Ack']) && $res['Ack'] !== 'Failure') {
+		$r_type = 'success';
+		$r_text = '<b>Success!</b> Saved!';
+	}else{
+		$r_type = 'warning';
+		$r_text = '<b>Warning!</b> something wrong!<br>Please contact the administrator.';
+	}
+	return json_encode(['ebay_id'=>$_POST['ebay_id'],
+						'post'=>$_POST,
+						'ebay_resp'=>$res,
+						'report'=>galert($r_type, $r_text)]);
+}
+
+
+function ge_update_description()
+{
+	if(!$_POST['ebay_id'] || !$_POST['description']){
+		$r_type = 'danger';
+		$r_text = '<b>Success!</b> there is no ebay id';
+		return json_encode(['ebay_id'=>$ebay_id,
+						'post'=>$_POST,
+						'ebay_resp'=> null,
+						'report'=>galert($r_type, $r_text)]);
+	}
+
+	$res = EbayGigGames::setTokenByName($_POST['plattform'])
+	         ->updateItemDescription($_POST['ebay_id'], $_POST['description']);
+
+	if (isset($res['Ack']) && $res['Ack'] !== 'Failure') {
+		$r_type = 'success';
+		$r_text = '<b>Success!</b> Saved!';
+	}else{
+		$r_type = 'warning';
+		$r_text = '<b>Warning!</b> something wrong!<br>Please contact the administrator.';
+	}
+	return json_encode(['ebay_id'=>$ebay_id,
+						'post'=>$_POST,
+						'ebay_resp'=>$res,
+						'report'=>galert($r_type, $r_text)]);
+}
+
+
+
+// код для мгновенных сообщений
+// пример использования:
+// $('#report_screen').append(data.report);
+function galert($type,$text) {
+	return '<div class="alert alert-'.$type.' alert-dismissible height-anim" role="alert">
+  	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+  		<span aria-hidden="true">&times;</span>
+  	</button>'.$text.'</div>';
+}
+
+

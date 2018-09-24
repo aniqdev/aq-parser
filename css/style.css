@@ -2017,10 +2017,12 @@ button.js-bad-user-alert:hover{
 	cursor: pointer;
 }
 
-.modal-ebay-prices .repars-btn{
-	position: absolute;
-	right: 100%;
-			line-height: 16px;
+.tc-modal-btns button{
+	line-height: 16px;
+}
+
+.tc-modal-btns .repars-btn{
+	margin-right: -15px;
 }
 
 .ebay-prices-names b,
@@ -2073,4 +2075,22 @@ button.js-bad-user-alert:hover{
 	max-width: 87%;
 	display: inline-block;
 	line-height: 14px;
+}
+
+.fEprice-i{
+	position: absolute;
+    right: 94%;
+    background: linear-gradient(to bottom, #fffad2 0%,#f1da36 100%);
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 16px;
+    font-family: monospace;
+    display: none;
+}
+
+.fEprice-i.show{
+	display: block;
 }

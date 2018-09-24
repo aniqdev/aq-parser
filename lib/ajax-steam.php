@@ -189,10 +189,10 @@ foreach ($slist as $row) {
 // ==> Обзоры/рейтинг ($reviews, $rating)
 	$recent_rating = ''; $recent_reviews = '';
 	$overall_rating = ''; $overall_reviews = '';
-	$reviews = $game_item->find('div[data-store-tooltip]',0);
-	if ($reviews2 = $game_item->find('div[data-store-tooltip]',1)) {
+	$reviews = $game_item->find('.user_reviews_summary_row',0);
+	if ($reviews2 = $game_item->find('.user_reviews_summary_row',1)) {
 		
-		$reviews = $reviews ? $reviews->attr['data-store-tooltip'] : '';
+		$reviews = $reviews ? $reviews->attr['data-tooltip-text'] : '';
 		$reviews = str_replace('30', '', $reviews);
 		if (preg_match_all("/[\d]+/", $reviews, $matches)) {
 		    if (isset($matches[0][2])) {
@@ -201,7 +201,7 @@ foreach ($slist as $row) {
 		    $recent_reviews = $matches[0][1];
 		}
 		
-		$reviews2 = $reviews2 ? $reviews2->attr['data-store-tooltip'] : '';
+		$reviews2 = $reviews2 ? $reviews2->attr['data-tooltip-text'] : '';
 		if (preg_match_all("/[\d]+/", $reviews2, $matches)) {
 		    if (isset($matches[0][2])) {
 		        $matches[0][1] = $matches[0][1].$matches[0][2]; }
@@ -209,7 +209,7 @@ foreach ($slist as $row) {
 		    $overall_reviews = $matches[0][1];
 		}
 	}else{
-		$reviews = $reviews ? $reviews->attr['data-store-tooltip'] : '';
+		$reviews = $reviews ? $reviews->attr['data-tooltip-text'] : '';
 		if (preg_match_all("/[\d]+/", $reviews, $matches)) {
 		    if (isset($matches[0][2])) {
 		        $matches[0][1] = $matches[0][1].$matches[0][2]; }

@@ -328,8 +328,7 @@ foreach ($orders as $k => $order):
 // 10. Оплата счета. Логировать итог.
 // Входные данные:
 	// добавлено правило - оплаичвать только текстовые товары
-	// 17.09.2018 убрано правило  "&& $inv_res['inv']['type_good'] == '1'"
-	if(isset($inv_res['success']) && $inv_res['success']){
+	if(isset($inv_res['success']) && $inv_res['success'] && $inv_res['inv']['type_good'] == '1'){
 		$pay_resp = $platiObj->payInvoice($inv_res['inv']['wm_inv'],$inv_res['inv']['wm_purse']);
 		$pay_resp['response'] = (array)$pay_resp['response'];
 		$pay_resp_json = _esc(json_encode($pay_resp));
@@ -346,11 +345,6 @@ foreach ($orders as $k => $order):
 		$receive_item_link = 'https://shop.digiseller.ru/xml/purchase.asp?id_i='.$inv_res['inv']['id'].'&uid='.$inv_res['inv']['uid'];
 		$received_item = get_item_xml($receive_item_link);
 		$product = $received_item['result'];
-		// если товар - картинка
-		if ($received_item['typegood'] === '2') { 
-			$received_item['success'] = false;
-			$product = '';
-		}
 		arrayDB("UPDATE ebay_automatic_log 
 			SET `received_item`='"._esc(json_encode($received_item))."',
 			product_api_link='$receive_item_link' WHERE id='$automatic_id'");
@@ -383,7 +377,7 @@ foreach ($orders as $k => $order):
 		warehouse_status_sold($warehouse['id'], $gig_order_id, $gig_order_item_id);
 	}
 
-	// Отправлять ли товар?
+// Отправлять ли товар?
 	if ($order['npp'] == $order['total'] && count($gig_order_item_id_list) > 0) {
 		
 		$msg_email = str_replace('{{PRODUCT}}', $product_list, $msg_email);
@@ -473,11 +467,9 @@ foreach ($orders as $k => $order):
 		AutomaticBot::sendMessage(['text' => date('H:i:s').'('.$gig_order_id.') Error during geting plti.ru invoice. '.$inv_res['retdesc']]);
 		$ebay2Obj->removeFromSale($ebay_item_id);
 		continue;
-	}elseif (isset($inv_res['success']) && !$inv_res['success'] 
-		&& $received_item['typegood'] === '2') {
-		// фильтруем товар файл
-		add_comment_to_order([$gig_order_id, $gig_order_item_id], '<div style="background:green;">Товар был оплачен. Товар - картинка<br>'.$received_item['result'].'</div>');
-		AutomaticBot::sendMessage(['text' => date('H:i:s').'('.$gig_order_id.') Товар был оплачен. Товар - файл']);
+	}elseif (isset($inv_res['success']) && $inv_res['success'] && $inv_res['inv']['type_good'] == '2') { // фильтруем товар файл
+		add_comment_to_order([$gig_order_id, $gig_order_item_id], 'Товар не был оплачен. Товар - файл');
+		AutomaticBot::sendMessage(['text' => date('H:i:s').'('.$gig_order_id.') Товар не был оплачен. Товар - файл']);
 		continue;
 	}
 

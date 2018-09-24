@@ -899,9 +899,12 @@ $('.jsm-arr').click(function(e) {
 	$('.rp'+FF.consec).addClass('gig');
 	FF.consec_out.text(FF.consec);
 
+	$('.fEprice-i').removeClass('show');
 });
 
-
+FF.js_modal_ebay_input.change(function() {
+	$('.fEprice-i').removeClass('show');
+});
 
 
 // Вызов модального окна Merged Price Changer
@@ -916,6 +919,7 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
 	var F = e.data.f
 	F.one_removed = 0;
 	F.one_changed = false;
+	$('.fEprice-i').removeClass('show');
 	F.mergedModal.modal('show');
 	F.tr = $(this).parent();
 	F.js_modal_ebay_link[0].href = F.tr.find('a:last')[0].href;
@@ -926,11 +930,17 @@ GenObj.js_tch_deligator.on('click', '.tch-merged', {f:FF}, function(e) {
 	F.js_csrf_buy_time_input.val(((new Date().getTime())/1000).toFixed(0));
 	F.js_modal_buy_button.attr('action', 'http://parser.gig-games.de/index.php?action=invoice&platiid='+F.tr.attr('data-plati1id'));
 	F.rurprice = +F.tr.find('.row5').text();
+	// цена склада
+	var wh_rurprice = +F.tr.find('.row4').text();
+	if(wh_rurprice && wh_rurprice < F.rurprice){
+		F.rurprice = wh_rurprice;
+		$('.fEprice-i').addClass('show');
+	} 
 	var exrate = 0;
-	if(localStorage["exrate"]) exrate = +localStorage["exrate"]; 
+	if(localStorage["exrate"]) exrate = +localStorage["exrate"];
 	F.europrice = formula(F.rurprice, exrate);
-
 	if(F.europrice < 1.5) F.europrice = 1.5;
+	window.recom_price = F.europrice;
 	F.js_modal_plati_title.text(F.tr.find('.row5').attr('title')).pickText(['free','row']);
 	F.js_modal_plati_title.attr('href', F.tr.find('.row8 a').attr('href'));
 	F.js_modal_parser_title.text(F.tr.find('.row2').text());
@@ -1021,6 +1031,20 @@ $('#modal_ebay_repars').on('click', function() {
 	  },'json');
 });
 
+$('#modal_ebay_price_up').on('click', function() {
+	var competitor_price = $('#js_modal_ebay_prices td').eq(1).text();
+	var recom_price = window.recom_price
+	var dif = competitor_price - window.recom_price;
+	if(!competitor_price || !dif) return;
+ 	var set_price = 0;
+	if (dif >= 0.1) set_price = competitor_price - 0.1;
+	else if (dif > 0 && dif < 0.1) set_price = competitor_price - 0.01;
+	if(set_price > recom_price * 1.2) set_price = recom_price * 1.2;
+	if(!set_price) return;
+	FF.js_modal_ebay_input.val(set_price.toFixed(2));
+	FF.js_modal_woo_input.val((set_price*0.95).toFixed(2));
+	FF.js_modal_hood_input.val(round_hood_price(set_price));
+});
 
 // Изменение инпута WooCommerce
 FF.js_modal_ebay_input.on('change', function() {

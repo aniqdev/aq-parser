@@ -52,7 +52,7 @@ foreach ($scans as $key => $value) {
 	}else{
 		$scan = 0;
 	}
-	// echo $scan;
+	echo $scan;
 	$query = 	       "SELECT games.name,  ebay_results.itemid1, ebay_results.title1, ebay_results.price1,
 											ebay_results.itemid2, ebay_results.title2, ebay_results.price2,
 											ebay_results.itemid3, ebay_results.title3, ebay_results.price3,
@@ -91,7 +91,7 @@ echo   '<tr data-idarr="[',$value['itemid1'],',',$value['itemid2'],',',$value['i
 <script>
 	var options = {
 	  valueNames: [ 'row1' ],
-	  page: 2000
+	  page: 7000
 	};
 
 	var userList = new List('platitable', options);

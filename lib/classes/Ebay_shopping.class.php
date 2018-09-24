@@ -22,7 +22,7 @@ class Ebay_shopping{
 		//   $url .= "?OPERATION-NAME=findItemsByKeywords";
 		//   $url .= "?OPERATION-NAME=findItemsByCategory";
 				 $url .= "&SERVICE-VERSION=1.0.0";
-				 $url .= "&SECURITY-APPNAME=Aniq6478a-a8de-47dd-840b-8abca107e57";
+				 $url .= "&SECURITY-APPNAME=Konstant-Projekt1-PRD-bae576df5-1c0eec3d";
 				 $url .= "&GLOBAL-ID=EBAY-DE";
 				 $url .= "&RESPONSE-DATA-FORMAT=JSON";
 				 $url .= "&REST-PAYLOAD";
@@ -51,7 +51,7 @@ class Ebay_shopping{
 		//   $url .= "?OPERATION-NAME=findItemsByKeywords";
 		//   $url .= "?OPERATION-NAME=findItemsByCategory";
 				 $url .= "&SERVICE-VERSION=1.0.0";
-				 $url .= "&SECURITY-APPNAME=Aniq6478a-a8de-47dd-840b-8abca107e57";
+				 $url .= "&SECURITY-APPNAME=Konstant-Projekt1-PRD-bae576df5-1c0eec3d";
 				 $url .= "&GLOBAL-ID=EBAY-DE";
 				 $url .= "&RESPONSE-DATA-FORMAT=JSON";
 				 $url .= "&REST-PAYLOAD";

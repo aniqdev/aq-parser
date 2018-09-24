@@ -2,6 +2,80 @@
 
 
 
+
+	$Ebay = new Ebay_shopping2();
+	$response = $Ebay->removeFromSale('112570774808');
+
+var_dump($response);
+
+
+
+
+return;
+$new_token = '45yh45y545y';
+
+$res = EbayGigGames::setToken($new_token)->test();
+
+sa($res);
+
+return;
+$ItemID = '112567976204';
+$ShippingProfileID = '133946209010';
+
+$res = EbayGigGames::updateItemShippingProfileID($ItemID, $ShippingProfileID);
+
+sa($res);
+
+
+return;
+var_dump(strpos('Nach Erhalt des Artikels sollte Ihr Käufer innerhalb der folgenden Frist den Kauf widerrufen oder den Rückgabeprozess einleiten', 'Rück'));
+
+
+return;
+$res = parse_item_specifics($item_id='122716175719');
+
+sa($res);
+
+return;
+$file = __DIR__.'/../adds/to-relist.json';
+
+$completed_arr = json_decode(file_get_contents($file),1);
+
+sa($completed_arr);
+
+foreach ($completed_arr as $key => $ebay_id) {
+	arrayDB("UPDATE games SET extra_field = 'to_relist2' WHERE ebay_id = '".$ebay_id."'");
+}
+
+
+
+return;
+    $ebay_games = arrayDB("SELECT item_id,picture_hash FROM ebay_prices");
+    // $pics_hashes = [];
+    // foreach ($ebay_games as $getve) {
+    //     $pics_hashes[$getve['item_id']] = $getve['picture_hash'];
+    // }
+    $pics_hashes = array_column($ebay_games, 'picture_hash', 'item_id');
+    sa($pics_hashes);
+
+
+
+
+
+
+return;
+$res = json_decode(ebay_reparse_one('123324130896', $reparse_one = false), true);
+
+sa($res);
+
+
+
+
+
+
+
+
+return;
 $res = (new Ebay_shopping2())->GetSellerListRequest(1, 200);
 
 sa($res);

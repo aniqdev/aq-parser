@@ -30,7 +30,7 @@ class Ebay_shopping2{
 		//   $url .= "?OPERATION-NAME=findItemsByKeywords";
 		//   $url .= "?OPERATION-NAME=findItemsByCategory";
 				 $url .= "&SERVICE-VERSION=1.0.0";
-				 $url .= "&SECURITY-APPNAME=Aniq6478a-a8de-47dd-840b-8abca107e57";
+				 $url .= "&SECURITY-APPNAME=Konstant-Projekt1-PRD-bae576df5-1c0eec3d";
 				 $url .= "&GLOBAL-ID=EBAY-DE";
 				 $url .= "&RESPONSE-DATA-FORMAT=JSON";
 				 $url .= "&REST-PAYLOAD";
@@ -57,7 +57,7 @@ class Ebay_shopping2{
 				$url = 'http://open.api.ebay.com/shopping';
 				$url .= '?callname=GetSingleItem';
 				$url .= '&responseencoding=JSON';
-				$url .= '&appid=Aniq6478a-a8de-47dd-840b-8abca107e57';
+				$url .= '&appid=Konstant-Projekt1-PRD-bae576df5-1c0eec3d';
 		 $url .= '&siteid=77';
 				$url .= '&version=515';
 				$url .= '&ItemID='.$itemId;
@@ -271,7 +271,7 @@ class Ebay_shopping2{
 				$responseXML = curl_exec($ch);
 				curl_close($ch);
 
-
+sa(json_decode(json_encode(simplexml_load_string($responseXML)), true));
 				//var_dump($responseXML);
 				if (stripos($responseXML, 'Success') !== false) return true;
 				return false;
@@ -667,12 +667,10 @@ class Ebay_shopping2{
 								foreach($specific as $value){
 									$xml .= '<Value>'.htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</Value>';
 								}
-
 						}
 						else{
 							
 							$xml .= '	<Value>'.htmlspecialchars($specific, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</Value>';
-								
 						}
 						$xml .= '</NameValueList>';
 					}
@@ -739,9 +737,9 @@ class Ebay_shopping2{
 				<eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
 			  </RequesterCredentials>
 			  <Item>
-				    <ProductListingDetails>
-						<EAN>Nicht zutreffend</EAN>
-					</ProductListingDetails>
+			    <ProductListingDetails>
+					<EAN>Nicht zutreffend</EAN>
+				</ProductListingDetails>
 			   <Title>'.htmlspecialchars($item['Title']).'</Title>
 				<Description>'.htmlspecialchars($item['Description'], ENT_XML1 | ENT_QUOTES, 'UTF-8').'</Description>
 				<PrimaryCategory>
@@ -750,7 +748,19 @@ class Ebay_shopping2{
 				<ConditionID>'.$item['ConditionID'].'</ConditionID>
 				<Currency>EUR</Currency>
 				<ListingType>FixedPriceItem</ListingType>
-				<Quantity>'.$item['Quantity'].'</Quantity>';
+				<Quantity>'.$item['Quantity'].'</Quantity>
+				<SellerProfiles>
+			      <SellerShippingProfile>';
+			      // условие для SellerShippingProfile
+			      // Если цена меньше либо равно 2 евро то id 108833807010,
+			      // если больше то 73140683010
+				if ($item['price'] > 2) {
+					$post .= '<ShippingProfileID>73140683010</ShippingProfileID>';
+				}else{
+					$post .= '<ShippingProfileID>108833807010</ShippingProfileID>';
+				}
+			$post .= '</SellerShippingProfile>
+			    </SellerProfiles>';
 		
 		//если указана одна из категорий нашего магазина, то добавляем это в листинг
 		if($item['StoreCategory1'] || $item['StoreCategory2']){

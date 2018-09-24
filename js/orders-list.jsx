@@ -2,6 +2,33 @@ var _aa = { order_modal:$('#orderModal'),
 			modal_body:document.getElementById('order_modal_body'),
 			data:{} };
 
+function draw_ebay_info() {
+	return(
+			<div className="ol-ebay-prices">
+				<a className="order-modal-link" href={"http://www.ebay.de/sch/i.html?LH_PrefLoc=2&_sop=2&LH_BIN=1&_osacat=1249&_from=R40&_trksid=p2045573.m570.l1313.TR0.TRC0.H0.TRS0&_sacat=1249&_nkw="+this.props.data.plati_info.name} target="_blank">
+					<table className="wbtable">
+						<tbody>
+							<tr>
+								<td className={this.state.ebay_info.gigs[0]+' '+this.state.ebay_info.wls[0]} title={this.state.ebay_info.title1}>{this.state.ebay_info.price1}</td>
+								<td className={this.state.ebay_info.gigs[1]+' '+this.state.ebay_info.wls[1]} title={this.state.ebay_info.title2}>{this.state.ebay_info.price2}</td>
+								<td className={this.state.ebay_info.gigs[2]+' '+this.state.ebay_info.wls[2]} title={this.state.ebay_info.title3}>{this.state.ebay_info.price3}</td>
+								<td className={this.state.ebay_info.gigs[3]+' '+this.state.ebay_info.wls[3]} title={this.state.ebay_info.title4}>{this.state.ebay_info.price4}</td>
+								<td className={this.state.ebay_info.gigs[4]+' '+this.state.ebay_info.wls[4]} title={this.state.ebay_info.title5}>{this.state.ebay_info.price5}</td>
+							</tr>
+						</tbody>
+					</table>
+				</a><br/>
+				<div className="ol-ebay-prices-names">
+					<button onClick={this.reparsClick.bind(this,this.props.data.ebay_info.game_id)}>repars</button>
+					<div className={this.state.ebay_info.gigs[0]+' '+this.state.ebay_info.wls[0]}><i onClick={this.addToWhiteClick.bind(this,'white','1')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','1')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title1}</div> <b>{this.state.ebay_info.price1}</b></div>
+					<div className={this.state.ebay_info.gigs[1]+' '+this.state.ebay_info.wls[1]}><i onClick={this.addToWhiteClick.bind(this,'white','2')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','2')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title2}</div> <b>{this.state.ebay_info.price2}</b></div>
+					<div className={this.state.ebay_info.gigs[2]+' '+this.state.ebay_info.wls[2]}><i onClick={this.addToWhiteClick.bind(this,'white','3')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','3')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title3}</div> <b>{this.state.ebay_info.price3}</b></div>
+					<div className={this.state.ebay_info.gigs[3]+' '+this.state.ebay_info.wls[3]}><i onClick={this.addToWhiteClick.bind(this,'white','4')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','4')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title4}</div> <b>{this.state.ebay_info.price4}</b></div>
+					<div className={this.state.ebay_info.gigs[4]+' '+this.state.ebay_info.wls[4]}><i onClick={this.addToWhiteClick.bind(this,'white','5')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','5')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title5}</div> <b>{this.state.ebay_info.price5}</b></div>
+				</div>
+			</div>
+		);
+}
 
 class OrderModalBody extends React.Component {
 	
@@ -229,6 +256,11 @@ class OrderModalBody extends React.Component {
 
 	render() {
 		console.log('render OrderModalBody');
+		if (this.state.ebay_info.id) {
+			var ebay_info_html = draw_ebay_info.call(this);
+		}else{
+			var ebay_info_html = <div className="alert alert-danger text-center" role="alert">there is no ebay info</div>;
+		}
 		return (
 		<div className="container-fluid"><div className="row"><div className="col-xs-12">
 
@@ -240,29 +272,7 @@ class OrderModalBody extends React.Component {
 				</a>
 			</h4>
 
-			<div className="ol-ebay-prices">
-				<a className="order-modal-link" href={"http://www.ebay.de/sch/i.html?LH_PrefLoc=2&_sop=2&LH_BIN=1&_osacat=1249&_from=R40&_trksid=p2045573.m570.l1313.TR0.TRC0.H0.TRS0&_sacat=1249&_nkw="+this.props.data.plati_info.name} target="_blank">
-					<table className="wbtable">
-						<tbody>
-							<tr>
-								<td className={this.state.ebay_info.gigs[0]+' '+this.state.ebay_info.wls[0]} title={this.state.ebay_info.title1}>{this.state.ebay_info.price1}</td>
-								<td className={this.state.ebay_info.gigs[1]+' '+this.state.ebay_info.wls[1]} title={this.state.ebay_info.title2}>{this.state.ebay_info.price2}</td>
-								<td className={this.state.ebay_info.gigs[2]+' '+this.state.ebay_info.wls[2]} title={this.state.ebay_info.title3}>{this.state.ebay_info.price3}</td>
-								<td className={this.state.ebay_info.gigs[3]+' '+this.state.ebay_info.wls[3]} title={this.state.ebay_info.title4}>{this.state.ebay_info.price4}</td>
-								<td className={this.state.ebay_info.gigs[4]+' '+this.state.ebay_info.wls[4]} title={this.state.ebay_info.title5}>{this.state.ebay_info.price5}</td>
-							</tr>
-						</tbody>
-					</table>
-				</a><br/>
-				<div className="ol-ebay-prices-names">
-					<button onClick={this.reparsClick.bind(this,this.props.data.ebay_info.game_id)}>repars</button>
-					<div className={this.state.ebay_info.gigs[0]+' '+this.state.ebay_info.wls[0]}><i onClick={this.addToWhiteClick.bind(this,'white','1')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','1')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title1}</div> <b>{this.state.ebay_info.price1}</b></div>
-					<div className={this.state.ebay_info.gigs[1]+' '+this.state.ebay_info.wls[1]}><i onClick={this.addToWhiteClick.bind(this,'white','2')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','2')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title2}</div> <b>{this.state.ebay_info.price2}</b></div>
-					<div className={this.state.ebay_info.gigs[2]+' '+this.state.ebay_info.wls[2]}><i onClick={this.addToWhiteClick.bind(this,'white','3')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','3')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title3}</div> <b>{this.state.ebay_info.price3}</b></div>
-					<div className={this.state.ebay_info.gigs[3]+' '+this.state.ebay_info.wls[3]}><i onClick={this.addToWhiteClick.bind(this,'white','4')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','4')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title4}</div> <b>{this.state.ebay_info.price4}</b></div>
-					<div className={this.state.ebay_info.gigs[4]+' '+this.state.ebay_info.wls[4]}><i onClick={this.addToWhiteClick.bind(this,'white','5')} className="ok glyphicon glyphicon-ok-circle" title="add to white list"></i> <i onClick={this.addToWhiteClick.bind(this,'black','5')} className="rem glyphicon glyphicon-remove-circle" title="add to black list"></i> <div className="clip">{this.state.ebay_info.title5}</div> <b>{this.state.ebay_info.price5}</b></div>
-				</div>
-			</div>
+			{ebay_info_html}
 
 			<div className="btn-group btn-group-justified" role="group" aria-label="...">
 			  <div className="btn-group" role="group">

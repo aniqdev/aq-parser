@@ -5,7 +5,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 	$offset = (int)$_POST['offset'];
 
 
-	$where = "WHERE  extra_field = 'to_relist'";
+	$where = "WHERE  extra_field = 'to_relist2'";
 
 	$count = arrayDB("SELECT count(*) FROM games $where")[0]['count(*)'];
 
@@ -14,7 +14,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 	// sript below
 
 
-	$extra_field_mark = 'relisted';
+	$extra_field_mark = 'relisted2';
 
 	if($res[0]['extra_field2'] === $extra_field_mark){
 		echo json_encode([
@@ -62,7 +62,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 		'resp' => $resp,
 		'ERRORS' => $_ERRORS,
 	]);
-}
+
+} // if $_POST['iterate']
 
 
 // sa($_ERRORS);

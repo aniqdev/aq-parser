@@ -97,7 +97,7 @@ switch (isset($_GET['tab']) ? $_GET['tab'] : '2') {
 }
 
 $queryNew = "SELECT 
-new.item1_id, games.name, new.newPrice,
+new.item1_id, games.name, new.newPrice, min_price,
 -- new.item1_id, games.name, new.newPrice, new.newPrice-old.oldPrice as differ, 
 old.oldPrice, new.item1_name as n_name, old.item1_name as o_name,
 games.id as game_id, games.ebay_id, woo_id, hood_id,
@@ -118,7 +118,12 @@ INNER JOIN (SELECT items.game_id,items.item1_price as oldPrice, items.item1_name
 ON games.id=old.game_id
 
 LEFT OUTER JOIN (SELECT * FROM ebay_results WHERE scan='$ebay_scan') as ebay
-ON games.id=ebay.game_id $tab_where";
+ON games.id=ebay.game_id
+
+LEFT OUTER JOIN (SELECT ebay_id,MIN(price) as min_price from ak_keys where status = 'active' group by ebay_id) as keyss
+ON games.ebay_id=keyss.ebay_id 
+
+$tab_where";
 
 // sa($queryNew);
 
@@ -154,6 +159,7 @@ $wl = []; foreach ($white_list as $val) $wl[$val['game_id']][] = $val['ebay_id']
 		<th>Woo</th>
 		<th>Hood</th>
 		<th title="One Click Price Changer">All</th>
+		<th>wh price</th>
 		<th class="sort" data-sort="row3">Differ</th>
 		<th class="sort" data-sort="row5">New Price</th>
 		<th class="sort" data-sort="row7">Old Price</th>
@@ -203,10 +209,10 @@ foreach ($res as $key => $value) {
 				<td title="',htmlspecialchars($value['n_name']),'" class="text-center p0">
 					<a href="#mChange" class="mChange tch-mbtn glyphicon glyphicon-ok"></a>
 					<a href="#mRemove" class="mRemove tch-mbtn glyphicon glyphicon-remove"></a>
-				</td>'.
-				// '<td class="row3">',round($value['differ'],2),'</td>'.
-				'<td class="row3">',round($value['newPrice']-$value['oldPrice'],2),'</td>'.
-				'<td class="row5" title="',htmlspecialchars($value['n_name']),'">',$value['newPrice'],'</td>
+				</td>
+				<td class="row4">',$value['min_price'],'</td>
+				<td class="row3">',round($value['newPrice']-$value['oldPrice'],2),'</td>
+				<td class="row5" title="',htmlspecialchars($value['n_name']),'">',$value['newPrice'],'</td>
 				<td class="row7" title="',htmlspecialchars($value['o_name']),'">',$value['oldPrice'],'</td>
 				<td class="row8" title="',htmlspecialchars($value['n_name']),'"><a href="http://www.plati.ru/itm/',$value['item1_id'],'?ai=163508" target="_blank">Ссылка</a></td>
 				<td class="',$gig1,' ',$wl1,'" iid="',$value['itemid1'],'" title="',htmlspecialchars($value['title1']),'">',$value['price1'],'</td>
@@ -352,9 +358,12 @@ foreach ($res as $key => $value) {
       <div class="modal-body">
         <div class="row frow frow1">
           <div class="col-sm-2">Parser</div>
-          <div class="col-sm-7 fcol fcol2 clip"></div>
-          <div class="col-sm-3 fcol fcol3 modal-ebay-prices">
+          <div class="col-sm-5 fcol fcol2 clip"></div>
+          <div class="col-sm-2 tc-modal-btns">
+          	<button class="" id="modal_ebay_price_up">price up</button>
           	<button class="repars-btn" id="modal_ebay_repars">repars</button>
+          </div>
+          <div class="col-sm-3 fcol fcol3 modal-ebay-prices">
           	<a id="m-ebli" href="#" target="_blank" style="color: #ca8e3a;"><table><tr id="js_modal_ebay_prices"></tr></table></a>
 			<div id="js_modal_black_white" class="ebay-prices-names"></div>
           </div>
@@ -363,7 +372,7 @@ foreach ($res as $key => $value) {
           <div class="col-sm-2">eBay</div>
           <div class="col-sm-7 fcol fcol2"><img src="images/more-loading.gif" alt="loading"></div>
           <div class="col-sm-1 fcol fcol3"><b>.</b></div>
-          <div class="col-sm-2 fcol fcol4"><input id="js-fEprice" type="text" class="form-control h28"></div>
+          <div class="col-sm-2 fcol fcol4"><i class="fEprice-i" title="используется цена склада">i</i><input id="js-fEprice" type="text" class="form-control h28"></div>
         </div>
         <div class="row frow frow3">
           <div class="col-sm-2">WooComm</div>
