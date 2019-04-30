@@ -4,7 +4,7 @@ require_once 'vendor/autoload.php';
 require_once 'lib/PHPExcel.php';
 require_once 'lib/simple_html_dom.php';
 require_once 'lib/array_DB.php';
-define('ROOT', __DIR__);
+// define('ROOT', __DIR__);
 
 if (isset($_GET['action'])) {
 	$toFile = 'lib/'.$_GET['action'].'.php';
