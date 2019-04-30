@@ -1,6 +1,6 @@
 (function( $ ){
 
-	$.fn.pickText = function( search, options ) {  
+	$.fn.pickText = function( search, options ) { 
 
 		var s = $.extend( {
 			'open_tag'  : '<zz>',
@@ -1219,11 +1219,16 @@ GenObj.js_tch_deligator.on('click', '.mChange', function(e) {
 
 });
 
+function diyIcon(M, answer, platt) {
+	if (answer === 'good' || answer === 'success') {
+		M.tr.find('.tc-'+platt).addClass('color-green');
+	}else{
+		M.tr.find('.tc-'+platt).addClass('color-red');
+	}
+}
 
-GenObj.js_tch_deligator.on('click', '.mRemove', function(e) {
-
-	e.preventDefault();
-
+function mRemoveOneRow() {
+	
 	if($(this).hasClass('color-gray')) return false;
 	$(this).addClass('color-gray');
 	var M = {};
@@ -1237,11 +1242,7 @@ GenObj.js_tch_deligator.on('click', '.mRemove', function(e) {
 		$.post('ajax.php?action=ajax-ebay-api-price-changer',
 			{ action:'remove', ebayId:M.ebayId },
 			function (data) {
-				if (data.answer == 'good') {
-					M.tr.find('.tc-ebay').addClass('color-green');
-				}else{
-					M.tr.find('.tc-ebay').addClass('color-red');
-				}
+				diyIcon(M, data.answer, 'ebay');
 		}, 'json');
 	}
 
@@ -1249,11 +1250,7 @@ GenObj.js_tch_deligator.on('click', '.mRemove', function(e) {
 			$.post(ajax_woo_url(),
 			{ action:'remove', wooId:M.wooId },
 			function (data) {
-				if (data.answer == 'good') {
-					M.tr.find('.tc-woo').addClass('color-green');
-				}else{
-					M.tr.find('.tc-woo').addClass('color-red');
-				}
+				diyIcon(M, data.answer, 'woo');
 		}, 'json');
 	}
 
@@ -1261,18 +1258,26 @@ GenObj.js_tch_deligator.on('click', '.mRemove', function(e) {
 		$.post('ajax.php?action=ajax-hood',
 			{ hood_remove: 'true', hoodId: M.hoodId },
 			function (data) {
-				if (data.status == 'success') {
-					M.tr.find('.tc-hood').addClass('color-green');
-				}else{
-					M.tr.find('.tc-hood').addClass('color-red');
-				}
+				diyIcon(M, data.status, 'hood');
 		}, 'json');
 	}
+}
+
+GenObj.js_tch_deligator.on('click', '.mRemove', function(e) {
+	e.preventDefault();
+	mRemoveOneRow.call(this);
+});
+
+$('#mRemoveAll').click(function () {
+	$(this).attr('disabled', 'disabled');
+	$('.mRemove').each(mRemoveOneRow);
 });
 // =========2 /change price merged 2===========
 
+
 var ajax_loader = $('.ajax-loader');
-	ajax_loader.removeClass('ajaxed');
+ajax_loader.removeClass('ajaxed');
+
 $( document ).ajaxSend(function() {
 	ajax_loader.addClass('ajaxed');
 });
@@ -1539,23 +1544,22 @@ $('#tpl_save').on('click', function() {
 
 
 // ====== вывод количества непрочитанных сообщений =====
+if (location.host !== 'parser') {
+	$.post('ajax.php?action=ebay-messages&show=not_answerd',
+		{action:'new_msg_count'},
+		function(data) {
+			$('.js-ebay-count').html(data);
+		});
 
-$.post('ajax.php?action=ebay-messages&show=not_answerd',
-	{action:'new_msg_count'},
-	function(data) {
-		$('.js-ebay-count').html(data);
-	});
-
-$.post('ajax.php?action=hood-messages',
-	{action:'new_msg_count'},
-	function(data) {
-		$('.js-hood-count').html(data);
-	});
-
-// ====== вывод количества непрочитанных сообщений =====
+	$.post('ajax.php?action=hood-messages',
+		{action:'new_msg_count'},
+		function(data) {
+			$('.js-hood-count').html(data);
+		});
+}
+// ====== /вывод количества непрочитанных сообщений =====
 
 
-	
 
 }); //document ready
 
@@ -1645,3 +1649,160 @@ var AwaitingList = {
 			function(data) {});
 	},
 }
+
+
+
+
+function aqsGetCookie(name){
+	var re = new RegExp(name + "=([^;]+)");
+	var value = re.exec(document.cookie);
+	return (value != null) ? decodeURIComponent(value[1]) : null;
+}
+
+function aqsSetCookie(name, value){
+	document.cookie=name + "=" + encodeURIComponent(value) + "; path=/; expires=" + new Date(Date.now() + 2592000000).toGMTString(); // plus 30 days
+}
+
+function execAnalytics() {
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  // koeln-webstudio.de
+  ga('create', 'UA-54895581-3', 'auto');
+  ga('send', 'pageview');
+}
+
+
+var aqsCookieNotice = {
+	init: function (opts) {
+		this.opts = $.extend( {
+			'message'  : 'We use cookies to tailor our services and online advertising.<br> By using our website you agree to the usage of these cookies as described in our <a href="#">data privacy statement</a>.',
+
+		}, opts);
+		this.setWrapperElement();
+		if (localStorage.getItem('aqsCookieNotice') === 'yes') this.yes_click();
+		else this.showMessage();
+		this.setUpListeners();
+	},
+
+	setUpListeners: function () {
+		this.wrapperElement.on('click', '.cn-yes', this.yes_click.bind(this));
+		this.wrapperElement.on('click', '.cn-no', this.no_click.bind(this));
+		this.wrapperElement.on('click', '.cn-revoke', this.revoke_click.bind(this));
+	},
+
+	setWrapperElement: function() {
+		$('body').append('<div id="aqsCookieNotice"></div>');
+		this.wrapperElement = $('#aqsCookieNotice');
+	},
+
+	showMessage: function() {
+		var message = '<div class="cn-message row">';
+		message += '<div class="cn-text col-sm-8">'+this.opts.message+'</div>';
+		message += '<div class="cn-btns col-sm-4"><button class="cn-yes">yes</button>&nbsp;';
+		message += '<button class="cn-no">no</button></div>';
+		message += '</div>';
+		this.wrapperElement.html(message);
+	},
+
+	hideMessage: function() {
+		var revoke = '<button class="cn-revoke">revoke</button>';
+		this.wrapperElement.html(revoke);
+	},
+
+	yes_click: function() {
+		this.hideMessage();
+		localStorage.setItem('aqsCookieNotice', 'yes');
+		this.execOnce();
+	},
+
+	no_click: function() {
+		this.hideMessage();
+		localStorage.setItem('aqsCookieNotice', 'no');
+	},
+
+	revoke_click: function() {
+		this.showMessage();
+	},
+
+	execOnce: function() {
+		if(this.executed) return;
+		this.executed = true;
+		// code below
+		// execAnalytics();
+	}
+}
+
+// aqsCookieNotice.init();
+
+var btn = document.getElementById('btn_id');
+
+var jq_btn = $('#btn_id')
+
+var jq_btn2 = $(btn);
+
+var running = true;
+
+function __ajax() {
+
+		var itemIdEbay = $(this).attr('itemIdEbay');
+		var titleEbay = $(this).attr('titleEbay');
+		var titleEbaySha1 = $(this).attr('titleEbaySha1');
+		var priceEbay = $(this).attr('priceEbay');
+		var formula = $( "#formula" ).val();
+		var $this = this;
+
+
+		// Returns successful data submission message when the entered information is stored in database.
+		var dataString = 'titleEbaySha1='+ titleEbaySha1 + '&titleEbay='+ titleEbay + '&itemIdEbay='+ itemIdEbay + '&priceEbay=' + priceEbay + '&formula='+ formula;
+		if(itemIdEbay==''||titleEbay=='')
+		{
+			alert("Please Fill All Fields");
+		}
+		else
+		{
+		// AJAX Code To Submit Form.
+		$.ajax({
+			type: "POST",
+			url: "/ajax/array",
+			data: dataString,
+			cache: false,
+			success: function(result){ 
+			  result = $.parseJSON(result);
+			 
+			    $('#'+itemIdEbay).text(result.auctionIdHood);
+			    $('#hprice_'+itemIdEbay).text(result.priceNew);
+			    $('#res_'+itemIdEbay).text(result.result);
+			//alert(result.auctionIdHood);
+				var next_btn_id = $this.attr('next_btn_id');
+				if(next_btn_id && running) __ajax.call(document.getElementById(next_btn_id));
+			}
+		});
+		}
+		return false;
+}
+
+
+$(document).ready(function(){
+
+
+	$( "#start" ).click(function(){
+		running = true;
+		var first_btn = $( "input[value='Change']" )[0];
+		__ajax.call(first_btn);
+	});
+
+	$( "input[value='Change']" ).click(function(){
+		running = true;
+		__ajax.call(this);
+	});
+
+
+	$('#stop').click(function() {
+		running = false;
+	});
+
+
+
+});

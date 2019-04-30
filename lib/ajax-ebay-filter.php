@@ -2,6 +2,7 @@
 	header('Content-Type: application/json');
 	header('Access-Control-Allow-Origin: *');
 
+
 function get_filter_order()
 {
 	if(!isset($_POST['order_by']) || !$_POST['order_by']) return '';
@@ -49,7 +50,7 @@ function get_filter_where()
 		$sql_query .= " AND `type` = '$type'";
 	}
 
-	if ($_POST['year']) {
+	if ($_POST['year'] && $_POST['year'] !== 'all') {
 		$year = (int)$_POST['year'];
 		$sql_query .= " AND `year` = '$year'";
 	}elseif ($_POST['year_from'] || $_POST['year_to']) {
@@ -87,19 +88,40 @@ function get_filter_where()
 		$sql_query .= " AND `advantage` <= '$price_to'";
 	}
 
+	if (@$_POST['developer']) {
+		$developer = _esc($_POST['developer']);
+		$sql_query .= " AND `developer` = '$developer'";
+	}
+
+	if (@$_POST['publisher']) {
+		$publisher = _esc($_POST['publisher']);
+		$sql_query .= " AND `publisher` = '$publisher'";
+	}
+
 	return $sql_query;
 }
 
-if (isset($_POST['action']) && ($_POST['action'] === 'get_filter_count' || $_POST['action'] === 'get_filter_results')){
+if (isset($_POST['action']) && 
+		($_POST['action'] === 'get_filter_count' || $_POST['action'] === 'get_filter_results')){
 
-	$from = get_filter_from();
+	$steam_table = _esc($_POST['steam_table']);
+	// если тронуто поле reviews
+	if($_POST['max_reviews']){
+		$count = arrayDB("SELECT count(*) from `$steam_table` WHERE ebay_id <> ''")[0]['count(*)'];
+		$offset = round($count * $_POST['max_reviews'][0] / 100);
+		$limit = round($count * ($_POST['max_reviews'][1] - $_POST['max_reviews'][0]) / 100);
+		$from = "(select * from `$steam_table` order by o_reviews limit $offset,$limit) ss ";
+	}else{
+		$from = "`$steam_table`";
+	}
+
 
 	if (trim($_POST['search'])) {
 		// обрежем строку до 65 символов
 		$search = _esc(substr(trim($_POST['search']), 0, 65));
-		$where = " AND title LIKE '%$search%' ";
+		$and_where_search = " AND title LIKE '%$search%' ";
 	}else{
-		$where = get_filter_where();
+		$and_where_search = get_filter_where();
 	}
 
 	if($_POST['action'] === 'get_filter_count'){
@@ -110,21 +132,32 @@ if (isset($_POST['action']) && ($_POST['action'] === 'get_filter_count' || $_POS
 	} 
 	if($_POST['action'] === 'get_filter_results'){
 		insert_filter_log($action = 'query');
-		$what = 'title,developer,publisher,reg_price,old_price,`release`,o_rating,ebay_id,ebay_price,advantage';
+		$what = 'title, type, appid, developer, publisher, reg_price, old_price, `release`, o_rating, ebay_id, ebay_price, advantage';
 		$limit = 'LIMIT '.(int)$_POST['offset'] . ',' . (int)$_POST['limit'];
 		$order_by = get_filter_order();
 		$pagination = aqs_pagination_api((int)$_POST['offset'], (int)$_POST['limit'], (int)$_POST['count'], ['visible_pages'=>2]);
-	} 
+	}
 
-	$sql_query = "SELECT $what FROM $from WHERE ebay_id <> '' AND ebay_price > 0 AND advantage > 0 AND instock = 'yes' $where $order_by $limit";
+	if (isset($_POST['volume']) && $_POST['volume'] === 'total') {
+		$and_where_vol = '';
+	}else{
+		$and_where_vol = "AND ebay_id <> '' AND ebay_price > 0 AND advantage > 0 AND instock = 'yes'";
+	}
+
+	$sql_query = "SELECT $what FROM $from WHERE title <> '' $and_where_vol $and_where_search $order_by $limit";
 
 	$res = arrayDB($sql_query);
 
+	$res = array_map(function($el){
+		$el['slug'] = get_gig_game_url_title($el['title']);
+		return $el;
+	}, $res);
+
 	echo json_encode([
-			'count' => @$res[0]['count(*)'],
+			'count' => @$res[0]['count(*)'] ? $res[0]['count(*)'] : count($res),
 			'results' => $res,
 			'pagination' => $pagination,
-			// 'sql_query' => $sql_query,
+			'sql_query' => $sql_query,
 			'ERRORS' => $_ERRORS,
 		]);
     return;
@@ -143,7 +176,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_filter_data') {
 		// $to_json_arr[$v['name']][$v['value']] = $v['count'];
 		$to_json_arr[$v['name']][] = ['v' => $v['value'], 'c' => $v['count']];
 	}
-	$to_json_arr['picture_hashes'] = arrayDB("SELECT item_id,picture_hash FROM ebay_games");
+	$to_json_arr['picture_hashes'] = arrayDB("SELECT item_id,picture_hash FROM ebay_prices");
 	$to_json_arr['picture_hashes'] = array_column($to_json_arr['picture_hashes'], 'picture_hash', 'item_id');
 
 	$to_json_arr['max_reviews'] = arrayDB("SELECT o_reviews from steam_de where ebay_id <> '' order by o_reviews desc limit 1")[0]['o_reviews'];
@@ -156,7 +189,11 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_filter_data') {
 
 if (isset($_POST['action']) && $_POST['action'] === 'get_translations'){
 	
-	$res = arrayDB("SELECT * FROM filter_langs");
+	if (isset($_REQUEST['for']) && $_REQUEST['for'] === 'gig-games') {
+		$res = arrayDB("SELECT * FROM filter_langs_gig");
+	}else{
+		$res = arrayDB("SELECT * FROM filter_langs");
+	}
 	$to_json_arr['translations']['steam_de'] = array_column($res, 'de', 'slug');
 	$to_json_arr['translations']['steam_en'] = array_column($res, 'en', 'slug');
 	$to_json_arr['translations']['steam_fr'] = array_column($res, 'fr', 'slug');

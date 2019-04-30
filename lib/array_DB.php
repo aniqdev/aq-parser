@@ -14,7 +14,6 @@ if (function_exists('apc_load_constants')) {
     { foreach ($arr as $name => $value) define($name, $value, $case_sensitive); } }
 
 //in your code you just write something like this:
-
 define_array('CLASSES', Array(
 			'QS' => 'QueryString',
 			));
@@ -24,7 +23,7 @@ function aqSqlite($query,$multiquery = false){
 		
 		$db = new SQLite3(__DIR__.'/../sqlite/mydb.db');
 		$results = $db->query($query);
-		$res = array();
+		$res = [];
 		if (stripos($query, 'select') === 0 || stripos($query, 'show') === 0) {
 				while ($row = $results->fetchArray(SQLITE3_ASSOC)) { // SQLITE3_BOTH, SQLITE3_ASSOC, SQLITE3_NUM
 						$res[] = $row;
@@ -988,7 +987,9 @@ function _getResultsFromApi(&$result, &$blacklist, &$blacksell){
 			$bool2 = (stripos($descLow,'free') !== false || stripos($descLow,'row') !== false || stripos($descLow,'bundle') !== false);
 			$bool3 = ( stripos($nameLow,'ccount') === false 
 					&& stripos($nameLow,'ккаунт') === false 
-					&& stripos($nameLow,'cis') === false 
+					&& stripos($nameLow,'cis') === false
+					&& stripos($nameLow,' RU)') === false
+					&& stripos($nameLow,' RU )') === false
 					&& stripos($nameLow,'(steam gift | ru)') === false 
 					&& stripos($nameLow,'(steam|rus)') === false 
 					&& stripos($descLow,'украина') === false);
@@ -1273,6 +1274,13 @@ function get_steam_miracle_where($table = 'steam_de'){
 		AND `$table`.ebay_id = '' 
 		AND IF(old_price > 0, old_price, reg_price)*0.9 > ROUND(((steam_items.item1_price/(select value from aq_settings where name = 'exrate'))*1.00952+0.4165)/(1-(0.1+0.019+0.078)*1.19),2)";
 }
+// используется в steam-list
+function get_steam_miracle_where2($table = 'steam_de'){
+	return "(old_price > 1.5 OR reg_price > 1.5)
+		AND item1_price > 0 
+		AND link NOT IN(select steam_link from games where steam_link <>'')
+		AND IF(old_price > 0, old_price, reg_price)*0.9 > ROUND(((steam_items.item1_price/(select value from aq_settings where name = 'exrate'))*1.00952+0.4165)/(1-(0.1+0.019+0.078)*1.19),2)";
+}
 
 
 function add_dlc_addon_to_desc($steam_arr, $lang = false){
@@ -1475,14 +1483,12 @@ function _get_steam_images($steam_link = ''){
 }
 
 
-function is_eve($ebay_item_id)
+function is_eve($ebay_id)
 {
-	$plexes = [ '121962440805',
-				'121962439324',
-				'112090853589',
-				'112353147792',];
-	if (in_array($ebay_item_id, $plexes)) return true;
-	return false;
+	return in_array($ebay_id, [ '121962440805',
+								'121962439324',
+								'112090853589',
+								'112353147792',]);
 }
 
 
@@ -1509,12 +1515,37 @@ function _get_item_specs($item_id=''){
 }
 
 
+function get_item_specifics($ebay_id, $name_keys = false)
+{
+	//'IncludeSelector'=> Details,Description,ItemSpecifics,TextDescription
+	$res = getSingleItem($ebay_id, ['as_array'=>true,'IncludeSelector'=>'ItemSpecifics']);
+
+	$specs = array_values(array_filter($res['Item']['ItemSpecifics']['NameValueList'], function($item){
+
+		if (strpos($item['Name'], 'Rück') !== false) return false;
+		return true;
+	}));
+
+	if ($name_keys) {
+		$specs_keys = [];
+		foreach ($specs as $val) {
+			$specs_keys[$val['Name']] = $val['Value'];
+		}
+		return $specs_keys;
+	}
+
+	return $specs;
+}
+
+
 function parse_item_specifics($item_id='')
 {
 	if(!$item_id) return false;
 	$str = file_get_contents('http://www.ebay.de/itm/'.$item_id);
 	$dom = str_get_html($str);
+	if(!$dom) return false;
 	$res = $dom->find('.attrLabels');
+	if(!$res) return false;
 	$specs = [];
 	foreach ($res as $key => $value) {
 		$specs[str_replace(':','',trim($value->plaintext))] = trim($value->nextSibling()->plaintext);
@@ -1640,8 +1671,7 @@ function getSingleItem($itemId, $o = []){
 		$url = 'http://open.api.ebay.com/shopping';
 		$url .= '?callname=GetSingleItem';
 		$url .= '&responseencoding=JSON';
-		// $url .= '&appid=Aniq6478a-a8de-47dd-840b-8abca107e57';
-		$url .= '&appid=Konstant-Projekt1-PRD-bae576df5-1c0eec3d';
+		$url .= '&appid='.EBAY_API_KEY;
 		$url .= '&siteid=77';
 		$url .= '&version=515';
 		$url .= '&ItemID='.$itemId;
@@ -2425,6 +2455,7 @@ function get_language_by_table($steam_table = 'steam_de'){
 	    'steam_fr' => 'french',
 	    'steam_es' => 'spanish',
 	    'steam_it' => 'italian',
+	    'steam_ru' => 'russian',
 	][$steam_table];
 }
 
@@ -3125,12 +3156,41 @@ function ge_get_ebay_item_info()
 	}));
 	// $res['Item']['Description'] = htmlspecialchars($res['Item']['Description']);
 
+	// массив с именами спецификаций в качастке ключей
+	$res['specs_name_keys'] = [];
+	foreach ($res['Item']['ItemSpecifics']['NameValueList'] as $spec) {
+		$res['specs_name_keys'][$spec['Name']] = $spec;
+	}
+
 	return json_encode($res);
+}
+
+
+function ge_get_additional_specifics()
+{
+	$cat_id = (int)$_POST['cat_id'];
+	$a_specs = get_category_specifics_sorted($cat_id);
+
+	$ret['a_specs'] = $a_specs;
+	$ret['a_specs_name_keys'] = [];
+	foreach ($ret['a_specs'] as &$spec) {
+		$ret['a_specs_name_keys'][$spec['Name']] = $spec;
+		
+		$tooltip = print_r($spec['ValidationRules'], true);
+		$tooltip = substr($tooltip, 6);
+		$spec['tooltip'] = $ret['a_specs_name_keys'][$spec['Name']]['tooltip'] = htmlspecialchars($tooltip);
+		
+		$values = print_r($spec['Value'], true);
+		$values = substr($values, 6);
+		$ret['a_specs_name_keys'][$spec['Name']]['values'] = htmlspecialchars($values);
+	}
+	return json_encode($ret);
 }
 
 
 function ge_update_base_data()
 {
+	// return json_encode($_POST);
 	if (!$_POST['ebay_id']) {
 		$r_type = 'danger';
 		$r_text = '<b>Success!</b> there is no ebay id';
@@ -3139,11 +3199,13 @@ function ge_update_base_data()
 						'ebay_resp'=> null,
 						'report'=>galert($r_type, $r_text)]);
 	}
+	$_POST['PrimaryCategory'] = trim($_POST['PrimaryCategory']);
 	$res = EbayGigGames::setTokenByName($_POST['plattform'])->updateItemBaseData([
 		'ItemID' => $_POST['ebay_id'],
 		'Title' => $_POST['title'],
 		'StartPrice' => $_POST['price'],
 		'Quantity' => $_POST['quantity'],
+		'PrimaryCategoryID' => ($_POST['PrimaryCategory_old'] !== $_POST['PrimaryCategory']) ? $_POST['PrimaryCategory'] : '',
 	]);
 
 	if (isset($res['Ack']) && $res['Ack'] !== 'Failure') {
@@ -3163,14 +3225,16 @@ function ge_update_base_data()
 
 function ge_update_specifics()
 {
+	// return json_encode($_POST);
 	if (!$_POST['ebay_id']) {
 		$r_type = 'danger';
-		$r_text = '<b>Success!</b> there is no ebay id';
+		$r_text = '<b>Warning!</b> there is no ebay id';
 		return json_encode(['ebay_id'=>$_POST['ebay_id'],
 						'post'=>$_POST,
 						'ebay_resp'=> null,
 						'report'=>galert($r_type, $r_text)]);
 	}
+	$_POST['specs'] = array_filter($_POST['specs'], function($el){return $el[0];});
 	$res = EbayGigGames::setTokenByName($_POST['plattform'])
 	         ->updateItemSpecifics($_POST['ebay_id'], $_POST['specs']);
 
@@ -3192,7 +3256,7 @@ function ge_update_description()
 {
 	if(!$_POST['ebay_id'] || !$_POST['description']){
 		$r_type = 'danger';
-		$r_text = '<b>Success!</b> there is no ebay id';
+		$r_text = '<b>Warning!</b> there is no ebay id';
 		return json_encode(['ebay_id'=>$ebay_id,
 						'post'=>$_POST,
 						'ebay_resp'=> null,
@@ -3201,6 +3265,93 @@ function ge_update_description()
 
 	$res = EbayGigGames::setTokenByName($_POST['plattform'])
 	         ->updateItemDescription($_POST['ebay_id'], $_POST['description']);
+
+	if (isset($res['Ack']) && $res['Ack'] !== 'Failure') {
+		$r_type = 'success';
+		$r_text = '<b>Success!</b> Saved!';
+	}else{
+		$r_type = 'warning';
+		$r_text = '<b>Warning!</b> something wrong!<br>Please contact the administrator.';
+	}
+	return json_encode(['ebay_id'=>$ebay_id,
+						'post'=>$_POST,
+						'ebay_resp'=>$res,
+						'report'=>galert($r_type, $r_text)]);
+}
+
+
+function ge_update_subtitle()
+{
+	if(!$_POST['ebay_id'] || !$_POST['subtitle']){
+		$r_type = 'danger';
+		$r_text = '<b>Warning!</b> there is no ebay id';
+		return json_encode(['ebay_id'=>$ebay_id,
+						'post'=>$_POST,
+						'ebay_resp'=> null,
+						'report'=>galert($r_type, $r_text)]);
+	}
+
+	$res = EbayGigGames::setTokenByName($_POST['plattform'])
+	         ->updateItemSubtitle($_POST['ebay_id'], $_POST['subtitle']);
+
+	if (isset($res['Ack']) && $res['Ack'] !== 'Failure') {
+		$r_type = 'success';
+		$r_text = '<b>Success!</b> Saved!';
+	}else{
+		$r_type = 'warning';
+		$r_text = '<b>Warning!</b> something wrong!<br>Please contact the administrator.';
+	}
+	return json_encode(['ebay_id'=>$ebay_id,
+						'post'=>$_POST,
+						'ebay_resp'=>$res,
+						'report'=>galert($r_type, $r_text)]);
+}
+
+
+function ge_update_gelery_type()
+{
+	if(!$_POST['ebay_id'] || !$_POST['GalleryType'] || !$_POST['GalleryDuration']){
+		$r_type = 'danger';
+		$r_text = '<b>Warning!</b> there is no ebay id';
+		return json_encode(['ebay_id'=>$ebay_id,
+						'post'=>$_POST,
+						'ebay_resp'=> null,
+						'report'=>galert($r_type, $r_text)]);
+	}
+
+	$res = EbayGigGames::setTokenByName($_POST['plattform'])
+	         ->updateItemGalleryType($_POST['ebay_id'], [
+	         	'GalleryType' => $_POST['GalleryType'],
+	         	'GalleryDuration' => $_POST['GalleryDuration'],
+	         ]);
+
+	if (isset($res['Ack']) && $res['Ack'] !== 'Failure') {
+		$r_type = 'success';
+		$r_text = '<b>Success!</b> Saved!';
+	}else{
+		$r_type = 'warning';
+		$r_text = '<b>Warning!</b> something wrong!<br>Please contact the administrator.';
+	}
+	return json_encode(['ebay_id'=>$ebay_id,
+						'post'=>$_POST,
+						'ebay_resp'=>$res,
+						'report'=>galert($r_type, $r_text)]);
+}
+
+
+function ge_update_pictures()
+{
+	if(!$_POST['ebay_id'] || !$_POST['pic_urls']){
+		$r_type = 'danger';
+		$r_text = '<b>Warning!</b> there is no ebay id';
+		return json_encode(['ebay_id'=>$ebay_id,
+						'post'=>$_POST,
+						'ebay_resp'=> null,
+						'report'=>galert($r_type, $r_text)]);
+	}
+
+	$res = EbayGigGames::setTokenByName($_POST['plattform'])
+	         ->updateItemGalleryURLs($_POST['ebay_id'], array_filter($_POST['pic_urls']));
 
 	if (isset($res['Ack']) && $res['Ack'] !== 'Failure') {
 		$r_type = 'success';
@@ -3228,3 +3379,322 @@ function galert($type,$text) {
 }
 
 
+function get_product_list_test($plattform = 'gig-games')
+{
+	global $_ERRORS;
+
+	// Requests in parallel with callback functions.
+			// curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+			// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+	$multi_curl = new \Curl\MultiCurl();
+
+	$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
+	    'X-EBAY-API-DEV-NAME: c1f2f124-1232-4bc4-bf9e-8166329ce649',
+	    'X-EBAY-API-APP-NAME: Konstant-Projekt1-PRD-bae576df5-1c0eec3d',
+	    'X-EBAY-API-CERT-NAME: PRD-ae576df59071-a52d-4e1b-8b78-9156',
+		"X-EBAY-API-CALL-NAME: GetSellerList",
+		"X-EBAY-API-SITEID: 77",
+		"Content-Type: text/xml");
+	$multi_curl->setHeader('X-EBAY-API-COMPATIBILITY-LEVEL','967');
+	$multi_curl->setHeader('X-EBAY-API-DEV-NAME','c1f2f124-1232-4bc4-bf9e-8166329ce649');
+	$multi_curl->setHeader('X-EBAY-API-APP-NAME','Konstant-Projekt1-PRD-bae576df5-1c0eec3d');
+	$multi_curl->setHeader('X-EBAY-API-CERT-NAME','PRD-ae576df59071-a52d-4e1b-8b78-9156');
+	$multi_curl->setHeader('X-EBAY-API-CALL-NAME','GetSellerList');
+	$multi_curl->setHeader('X-EBAY-API-SITEID','77');
+	$multi_curl->setHeader('Content-Type','text/xml');
+
+	// MultiCurl::setHeader($key, $value)
+	// MultiCurl::setHeaders($headers)
+	// $multi_curl->setOpt(CURLOPT_SSL_VERIFYPEER , 0);
+	// $multi_curl->setOpt(CURLOPT_FOLLOWLOCATION , 1);
+	//$_GET['counter'] = 0;
+	$_GET['i'] = 1;
+	$multi_curl->success(function($instance) {
+		// $instance->url
+		// $instance->response
+		// sa('count => '.$_GET['i']);
+		$res = json_decode(json_encode($instance->response),true);
+		// sa($res);
+		if(!isset($res['ItemArray']['Item'][0])) $res['ItemArray']['Item'] = [$res['ItemArray']['Item']];
+		foreach ($res['ItemArray']['Item'] as $item) {
+			unset($item['ShippingDetails']);
+			unset($item['Storefront']);
+			unset($item['BestOfferDetails']);
+			unset($item['ReturnPolicy']);
+			unset($item['SellerProfiles']);
+			unset($item['ListingDetails']);
+			$_GET['item_arr'][] = $item;
+		    //-----------------------------------------------------
+			// $_GET['item_arr'][$item['ItemID']] = ['t' => $item['Title'],
+			// 								's' => $item['SellingStatus']['ListingStatus']];
+		}
+		if ($_GET['i'] === 1) {
+			$_GET['PaginationResult'] = $res['PaginationResult'];
+		}
+		$_GET['i']++;
+	});
+	$multi_curl->error(function($instance) {
+		global $_ERRORS;
+	    $_ERRORS[] = $instance->errorMessage;
+	});
+
+	$api_url = 'https://api.ebay.com/ws/api.dll';
+	$post_data = EbayGigGames::setTokenByName($plattform)
+		->GetSellerListRequestPostData($page=1, $entires=200);
+	$multi_curl->addPost($api_url, $post_data);
+
+	$multi_curl->start(); // Blocks until all items in the queue have been processed.
+
+	$pages = $_GET['PaginationResult']['TotalNumberOfPages'];
+	// $pages = '5';
+	for ($i=2; $i <= $pages; $i++) {
+		$post_data = EbayGigGames::setTokenByName($plattform)
+			->GetSellerListRequestPostData($i, 200);
+		$multi_curl->addPost($api_url, $post_data);
+	}
+	$multi_curl->start(); // Blocks until all items in the queue have been processed.
+
+	// $_GET['tits'] = [];
+	// foreach ($_GET['item_arr'] as $item) {
+	// 	if($item['s'] === 'Active') $_GET['tits'][] = $item['t'];
+	// }
+
+	// $_GET['item_arr'] = array_filter($_GET['item_arr'],function($item)
+	// {
+	// 	// return ($item['s'] === 'Completed');
+	// 	return ($item['s'] === 'Completed' && !in_array($item['t'], $_GET['tits']));
+	// });
+	// $_GET['item_arr'] = unique_multidim_array($_GET['item_arr'], 't');
+	// sa($_GET['item_arr']);
+	// sa($_GET['tits']);
+	// sa($_GET['PaginationResult']);
+	// sa($_GET['no_unic']);
+	return $_GET['item_arr'];
+	echo json_encode([
+		'completed_arr' => $_GET['item_arr'],
+		'errors' =>  $_ERRORS,
+	]);
+}
+
+
+function get_css_link($file_name)
+{
+	return '<link rel="stylesheet" href="css/'.$file_name.'.css?t='.date('d-m-y_H:i:s',filemtime ('css/'.$file_name.'.css')).'">';
+}
+
+
+// [Name] => Herstellungsland und -region
+// [ValidationRules] => Array
+//     (
+//         [ValueType] => Text
+//         [MaxValues] => 1
+//         [SelectionMode] => SelectionOnly
+//         [VariationSpecifics] => Disabled
+//     )
+// [Value] => Array
+//     (
+//         [0] => Unbekannt
+//         [1] => Afghanistan
+//         ...
+function get_category_specifics_sorted($categoryId)
+{
+	$arr = [];
+	if(!$categoryId) return $arr;
+	$res = EbayGigGames::GetCategorySpecifics($categoryId);
+	if ($res['Recommendations']['NameRecommendation']) {
+		foreach ($res['Recommendations']['NameRecommendation'] as $value) {
+			if (isset($value['ValueRecommendation'])) {
+				$rules = [];
+				if(!isset($value['ValueRecommendation'][0])){
+					$value['ValueRecommendation'] = [$value['ValueRecommendation']];
+				}
+				foreach ($value['ValueRecommendation'] as $val) {
+					$rules[] = $val['Value'];
+				}
+				unset($value['ValueRecommendation']);
+				$value['Value'] = $rules;
+			}else{
+				$value['Value'] = [];
+			}
+			$arr[] = $value;
+		}
+	}
+	return $arr;
+}
+
+
+function tasks_json()
+{
+	return file_get_contents('csv/tasks.json');
+}
+
+function slugify($string, $replace = array(), $delimiter = '-') {
+  // https://github.com/phalcon/incubator/blob/master/Library/Phalcon/Utils/Slug.php
+  if (!extension_loaded('iconv')) {
+    throw new Exception('iconv module not loaded');
+  }
+  // Save the old locale and set the new locale to UTF-8
+  $oldLocale = setlocale(LC_ALL, '0');
+  setlocale(LC_ALL, 'en_US.UTF-8');
+  $clean = iconv('UTF-8', 'ASCII//TRANSLIT', $string);
+  if (!empty($replace)) {
+    $clean = str_replace((array) $replace, ' ', $clean);
+  }
+  $clean = preg_replace("/[^a-zA-Z0-9\/_|+ -]/", '', $clean);
+  $clean = strtolower($clean);
+  $clean = preg_replace("/[\/_|+ -]+/", $delimiter, $clean);
+  $clean = trim($clean, $delimiter);
+  // Revert back to the old locale
+  setlocale(LC_ALL, $oldLocale);
+  return $clean;
+}
+
+
+if (!function_exists('steam_to_gig')) {
+	function steam_to_gig($appid)
+	{
+		if(!$appid) return 0;
+		return (int)$appid + 555555;
+	}
+}
+
+if (!function_exists('gig_to_steam')){
+	function gig_to_steam($appid)
+	{
+		if(!$appid) return 0;
+		return (int)$appid - 555555;
+	}
+}
+
+
+//  aqs sanitize  START =========================================================
+//taken from wordpress
+function gig_utf8_uri_encode( $utf8_string, $length = 0 ) {
+	$unicode = '';
+	$values = array();
+	$num_octets = 1;
+	$unicode_length = 0;
+
+	$string_length = strlen( $utf8_string );
+	for ($i = 0; $i < $string_length; $i++ ) {
+
+		$value = ord( $utf8_string[ $i ] );
+
+		if ( $value < 128 ) {
+			if ( $length && ( $unicode_length >= $length ) )
+				break;
+			$unicode .= chr($value);
+			$unicode_length++;
+		} else {
+			if ( count( $values ) == 0 ) $num_octets = ( $value < 224 ) ? 2 : 3;
+
+			$values[] = $value;
+
+			if ( $length && ( $unicode_length + ($num_octets * 3) ) > $length )
+				break;
+			if ( count( $values ) == $num_octets ) {
+				if ($num_octets == 3) {
+					$unicode .= '%' . dechex($values[0]) . '%' . dechex($values[1]) . '%' . dechex($values[2]);
+					$unicode_length += 9;
+				} else {
+					$unicode .= '%' . dechex($values[0]) . '%' . dechex($values[1]);
+					$unicode_length += 6;
+				}
+
+				$values = array();
+				$num_octets = 1;
+			}
+		}
+	}
+
+	return $unicode;
+}
+
+//taken from wordpress
+function gig_seems_utf8($str) {
+	$length = strlen($str);
+	for ($i=0; $i < $length; $i++) {
+		$c = ord($str[$i]);
+		if ($c < 0x80) $n = 0; # 0bbbbbbb
+		elseif (($c & 0xE0) == 0xC0) $n=1; # 110bbbbb
+		elseif (($c & 0xF0) == 0xE0) $n=2; # 1110bbbb
+		elseif (($c & 0xF8) == 0xF0) $n=3; # 11110bbb
+		elseif (($c & 0xFC) == 0xF8) $n=4; # 111110bb
+		elseif (($c & 0xFE) == 0xFC) $n=5; # 1111110b
+		else return false; # Does not match any model
+		for ($j=0; $j<$n; $j++) { # n bytes matching 10bbbbbb follow ?
+			if ((++$i == $length) || ((ord($str[$i]) & 0xC0) != 0x80))
+				return false;
+		}
+	}
+	return true;
+}
+
+//function sanitize_title_with_dashes taken from wordpress
+function gig_sanitize($title) {
+	$title = strip_tags($title);
+	// Preserve escaped octets.
+	$title = preg_replace('|%([a-fA-F0-9][a-fA-F0-9])|', '---$1---', $title);
+	// Remove percent signs that are not part of an octet.
+	$title = str_replace('%', '', $title);
+	// Restore octets.
+	$title = preg_replace('|---([a-fA-F0-9][a-fA-F0-9])---|', '%$1', $title);
+
+	if (gig_seems_utf8($title)) {
+		if (function_exists('mb_strtolower')) {
+			$title = mb_strtolower($title, 'UTF-8');
+		}
+		$title = gig_utf8_uri_encode($title, 200);
+	}
+
+	$title = strtolower($title);
+	$title = preg_replace('/&.+?;/', '', $title); // kill entities
+	$title = str_replace('.', '-', $title);
+	$title = preg_replace('/[^%a-z0-9 _-]/', '', $title);
+	$title = preg_replace('/\s+/', '-', $title);
+	$title = preg_replace('|-+|', '-', $title);
+	$title = trim($title, '-');
+
+	return $title;
+}
+//
+//  aqs sanitize  END =========================================================
+//
+function get_gig_game_url_title($title)
+{
+	return 'preisvergleich-cd-steam-key-'.gig_sanitize($title);
+}
+
+function get_gig_game_link($home_url, &$steam_game)
+{
+	return $home_url.'/game/?type='.$steam_game['type'].'&appid='.steam_to_gig($steam_game['appid']).'&title='.get_gig_game_url_title($steam_game['title']);
+}
+
+function aqs_file_get_html($url, $use_include_path = false, $context = null){
+	return str_get_html(file_get_contents($url, $use_include_path, $context));
+}
+
+
+
+function get_steam_images_dir_path($type, $appid)
+{
+	// return ROOT.'/steam-images/'.$type.'/'.implode('/', str_split($appid));
+	return ROOT.'/steam-images/'.($type==='dlc'?'app':$type).'s-'.$appid;
+}
+
+
+function get_steam_images_dir_url($type, $appid)
+{
+	return 'https://parser.gig-games.de/steam-images/'.($type==='dlc'?'app':$type).'s-'.$appid;
+}
+
+
+function iz_mobile()
+{
+	foreach (['iPhone', 'Android', 'webOS', 'BlackBerry', 'iPod', 'Nokia'] as $os) {
+	  if (strpos($_SERVER['HTTP_USER_AGENT'], $os) !== false) {
+	    return true;
+	  }
+	}
+	return false;
+}

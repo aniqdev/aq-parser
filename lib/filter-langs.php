@@ -1,6 +1,14 @@
 <?php
 
 
+$sql_table = 'filter_langs';
+$page_title = '<b>(ebay)</b>';
+if (isset($_REQUEST['for']) && $_REQUEST['for'] === 'gig-games') {
+    $sql_table = 'filter_langs_gig';
+    $page_title = '<b>(gig-games.de)</b>';
+}
+
+
 if (isset($_POST['action']) && $_POST['action'] === 'save_filter_lang') {
     
     $slug = _esc(preg_replace('/[^\d\w-_]/', '', $_POST['slug']));
@@ -10,8 +18,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'save_filter_lang') {
     $lang_es = _esc($_POST['es']);
     $lang_it = _esc($_POST['it']);
 
-    if (arrayDB("SELECT id FROM filter_langs WHERE slug = '$slug' LIMIT 1")) {
-        $res = arrayDB("UPDATE filter_langs SET
+    if (arrayDB("SELECT id FROM `$sql_table` WHERE slug = '$slug' LIMIT 1")) {
+        $res = arrayDB("UPDATE `$sql_table` SET
                 de = '$lang_de',
                 en = '$lang_en',
                 fr = '$lang_fr',
@@ -19,7 +27,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'save_filter_lang') {
                 it = '$lang_it'
             WHERE slug = '$slug'");
     }else{
-        $res = arrayDB("INSERT INTO filter_langs (slug,de,en,fr,es,it)
+        $res = arrayDB("INSERT INTO `$sql_table` (slug,de,en,fr,es,it)
             VALUES('$slug','$lang_de','$lang_en','$lang_fr','$lang_es','$lang_it')");
     }
 
@@ -28,7 +36,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'save_filter_lang') {
 }
 
 
-$langs_arr = arrayDB("SELECT * FROM filter_langs");
+$langs_arr = arrayDB("SELECT * FROM `$sql_table`");
 
 
 ?>
@@ -66,7 +74,7 @@ $langs_arr = arrayDB("SELECT * FROM filter_langs");
 }
 </style>
 <div class="container">
-    <h4 class="header-title">Filter languages</h4>
+    <h4 class="header-title">Filter languages <?= $page_title; ?></h4>
     <p class="text-muted">do not forget to save changes after editing</p>
 
     <div id="js_table" class="aqs-display-table table table-striped">
@@ -144,7 +152,7 @@ $('#js_table').on('submit', '.js-save-form', function(e) {
     e.preventDefault();
     var btn = $(this).find('button');
     var data = $(this).serialize();
-    $.post('ajax.php?action=filter-langs',
+    $.post('ajax.php?action=filter-langs&for=gig-games',
     data,
     function(data) {
         if(data.res) btn.append(' <i class="glyphicon glyphicon-saved title="saved"></i>');

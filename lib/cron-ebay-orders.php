@@ -140,7 +140,7 @@ function saveOrders($ord_arr = []){
 							VALUES('$gig_order_id','$title','$price','$amount','$ebay_id','$npp','$total')");
 				}
 				// убираем товар со стим_де
-				arrayDB("UPDATE steam_de SET instock = 'no' WHERE $ebay_id = 'ebay_id'");
+				// arrayDB("UPDATE steam_de SET instock = 'no' WHERE $ebay_id = 'ebay_id'");
 			}
 		}
 
@@ -162,9 +162,10 @@ function saveOrders($ord_arr = []){
 }
 
 
+$o = [];
+// $o = ['EntriesPerPage' => 20, 'NumberOfDays'=>3];
 
-
-$ord_array = getOrderArray();
+$ord_array = getOrderArray($o);
 
 
 	//echo json_encode($ord_array);

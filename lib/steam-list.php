@@ -65,7 +65,7 @@ if(isset($_GET['offset']) && isset($_GET['limit'])){
 // 	$scan = arrayDB("SELECT scan FROM steam_items order by id desc limit 1")[0]['scan'];
 // }
 $table = 'steam_de';
-$where = get_steam_miracle_where($table);
+$where = get_steam_miracle_where2($table);
 
 $steam_arr = arrayDB("SELECT steam_de.id, steam_de.appid, steam_de.type, steam_de.title, steam_de.o_rating, steam_de.o_reviews, steam_de.link,steam_de.notice,
 						steam_items.item1_price, steam_items.item1_name, steam_items.item1_desc, steam_items.item1_id,

@@ -78,7 +78,7 @@ if (isset($_POST['getjson'])) {
 	    foreach ($requests as $k => $req) {
 	        $reqEnc = rawurlencode($req);
 	        $url = "http://www.plati.ru/api/search.ashx?query={$reqEnc}&pagesize=500&response=json&rkey={$k}&jkey={$j}";
-	        // echo "<br>",$url,'<hr>';
+	        if(@$_POST['show_url']) echo "<br>",$url,'<hr>';
 	        $multi_curl->addGet($url);
 	    }
 	}

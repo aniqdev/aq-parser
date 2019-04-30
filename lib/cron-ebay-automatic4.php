@@ -42,6 +42,7 @@ foreach ($orders as $k => $order):
 	$is_trusted_user = is_trusted_user($username);
 	$goods = json_decode($order['goods'],true);
 	$address = json_decode($order['ShippingAddress'], true);
+	$is_trusted_country = is_trusted_country($address['Country']);
 	$ebay_item_id = $order['ebay_id'];
 	$ebay_item_title = clean_ebay_title2($order['title']);
 	$gig_order_id = $order['gig_order_id'];
@@ -115,12 +116,12 @@ foreach ($orders as $k => $order):
 // 2.2 Если стоимость заказа больше 4 евро (10 для немецких).
 // Входные данные: ebay_id
 	$max_order_price = 4;
-	if(is_trusted_country($address['Country'])) $max_order_price = 10;
+	if($is_trusted_country) $max_order_price = 10;
 
 	// больше пороги для доверенных пользователей
 	if ($is_trusted_user) {
 		$max_order_price = 10;
-		if(is_trusted_country($address['Country'])) $max_order_price = 20;
+		if($is_trusted_country) $max_order_price = 20;
 	}
 	
 	if($order['total_price'] > $max_order_price){
@@ -182,12 +183,12 @@ foreach ($orders as $k => $order):
 	$one_week_orders = arrayDB("SELECT id,ShippedTime  FROM ebay_orders WHERE ShippedTime > '$one_week_ago' AND  BuyerUserID = '$username' LIMIT 10");
 	$max_orders_per_week  = 3;
 	// для недоверительных стран фильтр строже (1 покупка в неделю)
-	if (!is_trusted_country($address['Country'])) $max_orders_per_week = 1;
+	if (!$is_trusted_country) $max_orders_per_week = 1;
 	// поднимаем лимиты для доверительных пользователей
 	if ($is_trusted_user) {
 		$max_orders_per_week  = 10;
 		// для недоверительных стран фильтр строже (3 покупка в неделю)
-		if (!is_trusted_country($address['Country'])) $max_orders_per_week = 3;
+		if (!$is_trusted_country) $max_orders_per_week = 3;
 	}
 	if (count($one_week_orders) > $max_orders_per_week) {
 		add_comment_to_order($gig_order_id, "This user has made more than $max_orders_per_week purchases per week", false);
@@ -201,7 +202,7 @@ foreach ($orders as $k => $order):
 	$one_week_sum = arrayDB("SELECT sum(total_price) as sum FROM ebay_orders WHERE ShippedTime >  NOW() - INTERVAl 1 WEEK AND  BuyerUserID = '$username'");
 	$max_order_week_price = 10;
 	if($is_trusted_user) $max_order_week_price = 30;
-	if (is_trusted_country($address['Country']) && $one_week_sum && ($one_week_sum[0]['sum'] + $order['total_price']) > $max_order_week_price){
+	if ($is_trusted_country && $one_week_sum && ($one_week_sum[0]['sum'] + $order['total_price']) > $max_order_week_price){
 		add_comment_to_order($gig_order_id, "This user has made purchases more than 10 euros for last week", false);
 		send_identify_message($order, $address['Country']);
 		continue;
@@ -383,13 +384,28 @@ foreach ($orders as $k => $order):
 		warehouse_status_sold($warehouse['id'], $gig_order_id, $gig_order_item_id);
 	}
 
+	$games_count = count($gig_order_item_id_list);
 	// Отправлять ли товар?
-	if ($order['npp'] == $order['total'] && count($gig_order_item_id_list) > 0) {
+	if ($order['npp'] == $order['total'] && $games_count > 0) {
 		
 		$msg_email = str_replace('{{PRODUCT}}', $product_list, $msg_email);
 		$msg_email = str_replace('{{USER_EMAIL}}', $order['BuyerEmail'], $msg_email);
+		$msg_email = str_replace('{{MISTER}}', $order['BuyerFirstName'], $msg_email);
 		$msg_email = fill_email_item_panel($msg_email);
 		$msg_email = str_replace('{{PRIVATE_MAIL_LINK}}', private_mail_link($secret_hash), $msg_email);
+		if ($is_trusted_country) {
+			if (count($games_count) === 1) {
+				$msg_email = str_replace('{{HERE_IS_GAMES}}', 'Hier ist dein Spiel', $msg_email);
+			}else{
+				$msg_email = str_replace('{{HERE_IS_GAMES}}', 'Hier sind deine Spiele', $msg_email);
+			}
+		}else{
+			if (count($games_count) === 1) {
+				$msg_email = str_replace('{{HERE_IS_GAMES}}', 'Here is you game', $msg_email);
+			}else{
+				$msg_email = str_replace('{{HERE_IS_GAMES}}', 'Here is you games', $msg_email);
+			}
+		}
 
 		$msg_ebay = str_replace('{{EMAIL}}', $order['BuyerEmail'], $msg_ebay);
 		$msg_ebay = str_replace('{{PRIVATE_PAGE_LINK}}', private_mail_link($secret_hash), $msg_ebay);

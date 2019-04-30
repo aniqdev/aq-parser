@@ -14,7 +14,8 @@ $feed_new = csvToArr('http://www.cdvet.de/backend/export/index/productckeck?feed
 $feed_new = array_column($feed_new, null, 0);
 
 // sa($feed_new);
-
+$file = ROOT.'/Files/cdvet-quantity-updater-report.txt';
+file_put_contents($file, '');
 
 $items_arr = [];
 
@@ -25,19 +26,30 @@ foreach ($ebay_item_arr as $key => $ebay_item) {
 	// if($key > 500) break;
 
 	$ebay_id = $ebay_item['ItemID'];
-	$quantity = $ebay_item['Quantity'];
 	if(isset($cdvet_arr[$ebay_id])) $shop_id = $cdvet_arr[$ebay_id];
 	else continue;
 	
 	// For GetItem and related calls: This is the total of the number of items available for sale plus the quantity already sold. To determine the number of items available, subtract SellingStatus.QuantitySold from this value. 
-	$quantity = $quantity - $ebay_item['SellingStatus']['QuantitySold'];
+	$quantity = $ebay_item['Quantity'] - $ebay_item['SellingStatus']['QuantitySold'];
 
+	$elements_arr = [];
+	if (!isset($feed_new[$shop_id])) {
+		$elements_arr['ItemID'] =  $ebay_id;
+		$elements_arr['Quantity'] = '0';
+		pc_add_to_items_arr($items_arr, $elements_arr);
+		continue;
+	}
 	if ($feed_new[$shop_id][17] === '2 Tage' && $quantity != '1') {
-		$elements_arr = [];
 		$elements_arr['ItemID'] =  $ebay_id;
 		$elements_arr['Quantity'] = '1';
-		pc_add_to_items_arr($items_arr, $elements_arr);
 	}
+	if ($feed_new[$shop_id][12] == 0) {
+		$elements_arr['ItemID'] =  $ebay_id;
+		$elements_arr['Quantity'] = '0';
+		file_put_contents($file, $ebay_id.PHP_EOL, FILE_APPEND);
+	}
+	if($elements_arr) pc_add_to_items_arr($items_arr, $elements_arr);
+
 	sa(['$ebay_id' => $ebay_id,
 		'$feed_new' => $feed_new[$shop_id][17],
 		'$quantity' => $quantity]);

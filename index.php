@@ -54,7 +54,7 @@ if ($accessed) {
 } else {
 
 	echo "<h2>Home page</h2>";
-	// include_once('lib/task-manager.php');
+	include_once('lib/task-manager.php');
 
 }?>
 

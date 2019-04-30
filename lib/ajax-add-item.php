@@ -2,6 +2,7 @@
 function ajax_add_item()
 {
 
+	global $_ERRORS;
 	if(!isset($_REQUEST['sid']) || $_REQUEST['sid'] < 1) return(['success' => 0]);
 
 	if(!isset($_REQUEST['price']) || (float)$_REQUEST['price'] < 1.5) return(['success' => 0]);
@@ -147,16 +148,21 @@ function ajax_add_item()
 		arrayDB("INSERT INTO gig_trustee_items (plati_id,`name`) VALUES('$plati_id','$name_t')");
 
 		$success = 1;
-	}else{
+		$resp = &$res;
+	}elseif(isset($res['Ack']) && $res['Ack'] === 'Failure') {
 		$success = 0;
+		$resp = sa($res['Errors'], true);
+	} else{
+		$success = 0;
+		$resp = 'Fail!';
 	}
 	unset($res['Fees']);
 	unset($item['Description']);
-	global $_ERRORS;
 	return ['success' => $success,
 			'item' => $item,
 			'deuched' => $deuched,
-			'resp' => $res,
+			'res' => $res,
+			'resp' => $resp,
 			'$chr' => $chr,
 			'errors' => $_ERRORS];
 }

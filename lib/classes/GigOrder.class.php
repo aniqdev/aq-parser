@@ -19,6 +19,7 @@ class GigOrder
 	var $curr_price = '';
 	var $is_order_blocked = false;
 	var $answer_templates = [];
+	var $_ERRORS = null;
 
 	function __construct($opts=[])
 	{
@@ -42,6 +43,8 @@ class GigOrder
 
 	public function __toString()
 	{	
+		global $_ERRORS;
+		$this->_ERRORS = $_ERRORS;
 		return json_encode($this);
 	}
 
@@ -175,6 +178,12 @@ class GigOrder
 		$private_mail_link = private_mail_link($this->secret_hash);
 		$this->msg_email = str_ireplace('{{PRODUCT}}', product_html($item_title, $product), $this->msg_email);
 		$this->msg_email = str_ireplace('{{PRIVAT_MAIL_LINK}}', $private_mail_link, $this->msg_email);
+		$this->msg_email = str_ireplace('{{MISTER}}', $this->order_info['BuyerFirstName'], $this->msg_email);
+		if (is_trusted_country($country)) {
+			$this->msg_email = str_replace('{{HERE_IS_GAMES}}', 'Hier ist dein Spiel', $this->msg_email);
+		}else{
+			$this->msg_email = str_replace('{{HERE_IS_GAMES}}', 'Here is you game', $this->msg_email);
+		}
 		$this->msg_email = str_ireplace('{{USER_EMAIL}}', $this->order_info['BuyerEmail'], $this->msg_email);
 		$this->msg_email = fill_email_item_panel($this->msg_email);
 

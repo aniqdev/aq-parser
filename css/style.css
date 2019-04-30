@@ -1711,53 +1711,6 @@ form label{
 	display: inline-block;
 }
 
-
-/* =========== Task Manager =========== */
-.task-panel{
-	background-color: #222;
-	color: #58c0e5;
-	/* color: #a4e2f8; */
-	border-radius: 0;
-	border: 0;
-
-}
-
-.task-panel .panel-heading{
-	background-color: #58c0e5;
-	color: #fff;
-	border-radius: 0;
-	border: 0;
-	padding: 0;
-			line-height: 30px;
-		padding-left: 10px;
-}
-
-.task-panel .panel-body+.table{
-	border-top: none;
-}
-
-.task-panel th{
-			color: #58c0e5;s
-}
-
-.task-panel .panel-body{
-	padding: 0;
-	/* display: none; */
-}
-
-.task-panel button{
-	border: 0;
-	border-radius: 0;
-	background-color: #42ab9e;
-	background-image: linear-gradient(to right, rgba(78,170,158,1) 0%,rgb(72, 149, 139) 100%);
-	color: #fff;
-}
-
-.task-panel button:hover{
-	background-image: initial;
-}
-/* =========== /Task Manager =========== */
-
 .hm-btns.active{
 		border-bottom: 1px solid #9bc9db;
 		cursor: default;
@@ -2093,4 +2046,80 @@ button.js-bad-user-alert:hover{
 
 .fEprice-i.show{
 	display: block;
+}
+
+@media (min-width: 768px){
+	.order-modal .modal-dialog {
+	    width: 680px;
+	}
+}
+
+#aqsCookieNotice{
+	font-size: 12px;
+    position: fixed;
+    z-index: 9999999;
+    bottom: 0;
+    width: 100%;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-top: 1px solid #ddd;
+    color: #555;
+}
+
+#aqsCookieNotice .cn-message{
+    max-width: 1100px;
+    padding: 10px 0;
+    margin: 0 auto;
+}
+
+#aqsCookieNotice .cn-text{
+	text-align: center;
+}
+
+#aqsCookieNotice .cn-text a{
+    color: #3d648c;
+}
+
+#aqsCookieNotice .cn-btns{
+	padding-left: 15px;
+    min-width: 265px;
+}
+
+#aqsCookieNotice .cn-btns button{
+	display: inline-block;
+    text-align: center;
+    background-color: #3d648c;
+    min-width: 120px;
+    padding: 8px 16px;
+    font-weight: bold;
+    color: #fff;
+    font-size: 14px;
+    border: 0;
+    border-radius: 4px;
+}
+
+#aqsCookieNotice .cn-revoke{
+	display: inline-block;
+    text-align: center;
+    background-color: #3d648c;
+    min-width: 120px;
+    padding: 8px 16px;
+    font-weight: bold;
+    color: #fff;
+    font-size: 14px;
+    border: 0;
+    border-radius: 4px;
+    position: absolute;
+    bottom: 0;
+    margin: 2px 20px;
+    opacity: 0.6;
+}
+
+
+#mRemoveAll{
+    color: #ed9484;
+    cursor: pointer;
+    background: transparent;
+    border: none;
 }

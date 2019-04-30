@@ -5,7 +5,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 	$offset = (int)$_POST['offset'];
 
 	// $where = "WHERE ebay_id <> ''";
-	$where = "WHERE status = 'Active' and price <= 2";
+	$where = "WHERE status = 'Active'";
 
 	$count = arrayDB("SELECT count(*) FROM ebay_prices $where")[0]['count(*)'];
 

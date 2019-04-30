@@ -57,14 +57,13 @@ class Ebay_shopping2{
 				$url = 'http://open.api.ebay.com/shopping';
 				$url .= '?callname=GetSingleItem';
 				$url .= '&responseencoding=JSON';
-				$url .= '&appid=Konstant-Projekt1-PRD-bae576df5-1c0eec3d';
-		 $url .= '&siteid=77';
-				$url .= '&version=515';
+				$url .= '&appid='.EBAY_API_KEY;
+		 		$url .= '&siteid=77';
+				$url .= '&version=1079';
 				$url .= '&ItemID='.$itemId;
 				$url .= '&IncludeSelector=Details,ItemSpecifics';
 		//  $url .= '&IncludeSelector=Details,Description';
 		//  $url .= '&IncludeSelector=Details,TextDescription';
-
 
 				// Открываем файл с помощью установленных выше HTTP-заголовков
 				$json = file_get_contents($url);
@@ -271,9 +270,9 @@ class Ebay_shopping2{
 				$responseXML = curl_exec($ch);
 				curl_close($ch);
 
-sa(json_decode(json_encode(simplexml_load_string($responseXML)), true));
+// sa(json_decode(json_encode(simplexml_load_string($responseXML)), true));
 				//var_dump($responseXML);
-				if (stripos($responseXML, 'Success') !== false) return true;
+				if (stripos($responseXML, 'Failure') === false) return true;
 				return false;
 		}
 
@@ -752,14 +751,20 @@ sa(json_decode(json_encode(simplexml_load_string($responseXML)), true));
 				<SellerProfiles>
 			      <SellerShippingProfile>';
 			      // условие для SellerShippingProfile
-			      // Если цена меньше либо равно 2 евро то id 108833807010,
+			      // Если цена меньше либо равно 2 евро то id 108833807010->133946209010,
 			      // если больше то 73140683010
 				if ($item['price'] > 2) {
 					$post .= '<ShippingProfileID>73140683010</ShippingProfileID>';
 				}else{
-					$post .= '<ShippingProfileID>108833807010</ShippingProfileID>';
+					$post .= '<ShippingProfileID>133946209010</ShippingProfileID>';
 				}
 			$post .= '</SellerShippingProfile>
+			      <SellerPaymentProfile>
+			        <PaymentProfileID>22530364010</PaymentProfileID>
+			      </SellerPaymentProfile>
+			      <SellerReturnProfile>
+			        <ReturnProfileID>46837748010</ReturnProfileID>
+			      </SellerReturnProfile>
 			    </SellerProfiles>';
 		
 		//если указана одна из категорий нашего магазина, то добавляем это в листинг

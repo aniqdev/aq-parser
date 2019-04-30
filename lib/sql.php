@@ -42,10 +42,8 @@ $table_name = get_table_name(@$_POST['sql']);
 	    return (value != null) ? decodeURIComponent(value[1]) : null;
 	  }
 
-	  var today = new Date();
-	  var expiry = new Date(today.getTime() + 30 * 24 * 3600 * 1000); // plus 30 days
 	  function sql_page_setCookie(name, value){
-	    document.cookie=name + "=" + encodeURIComponent(value) + "; path=/; expires=" + expiry.toGMTString();
+	    document.cookie=name + "=" + encodeURIComponent(value) + "; path=/; expires=" + new Date(Date.now() + 2592000000).toGMTString(); // plus 30 days
 	  }
 
 	var sql_input = document.getElementById('js_sql');

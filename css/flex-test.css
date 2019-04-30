@@ -1,0 +1,39 @@
+.container-1{
+	width: 1200px;
+	margin: auto;
+	padding: 15px;
+	border: 1px solid #999;
+	color: #000;
+	display: flex;
+	/* align-items: flex-start; */
+	/* flex-direction: column; */
+	justify-content: space-around;
+	flex-wrap: wrap;
+}
+
+.box>div{
+	padding: 15px;
+}
+
+.box{
+	/* padding: 15px; */
+	/* flex: 1; */
+	width: 30%;
+	min-width: 300px;
+}
+
+.box-1{
+	background: #ccc;
+	/* flex: 3; */
+	/* order:  2; */
+}
+
+.box-2{
+	background: #bbb;
+	/* flex: 2; */
+}
+
+.box-3{
+	background: #999;
+	/* flex: 1; */
+}

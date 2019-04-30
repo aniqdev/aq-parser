@@ -38,7 +38,7 @@ html,body{
 	height: 100%;
 }
 body {
-	background: url(https://www.ihdimages.com/wp-content/uploadsktz/2014/10/city_at_night_wallpaper_2014_hd.jpg);
+	background: url('images/Colorful-Nature-Hd.jpg');
 	font-family: helvetica, arial;
 	background-size: cover;
 	background-attachment: fixed;
@@ -70,12 +70,12 @@ form input{
 	background: #0d0a3042;
 	color: white;
 }
-/*input:-webkit-autofill {
+/* input:-webkit-autofill {
 	background-color: #240259 !important;
     background-image: none !important;
     color: #c82d2d !important;
-}*/
-/*input:-webkit-autofill { -webkit-box-shadow:200px 200px 100px white inset; box-shadow:200px 200px 100px white inset; }*/
+} */
+/* input:-webkit-autofill { -webkit-box-shadow:200px 200px 100px white inset; box-shadow:200px 200px 100px white inset; } */
 
 form button{
     width: 100%;
@@ -85,7 +85,7 @@ form button{
     border: 1px solid #818181;
     background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%,rgba(0,0,0,0) 100%);
     color: #fff;
-    background: linear-gradient(to bottom, rgb(41, 66, 126) 0%,rgba(0,0,0,0) 100%);
+    /* background: linear-gradient(to bottom, rgb(41, 66, 126) 0%,rgba(0,0,0,0) 100%); */
 }
 @media (max-width: 767px){
 	form{

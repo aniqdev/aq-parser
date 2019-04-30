@@ -57,7 +57,7 @@ foreach ($items as $k => $item) {
 	if (isset($feed_old[$shop_id])) { // производим сравнение
 		
 		// сравнение цены
-		if ($price !== $feed_old[$shop_id]['price']) {
+		if ($price != $feed_old[$shop_id]['price']) {
 			// var_dump('expression<br>');
 			$elements_arr['ItemID'] =  $item['ebay_id'];
 			$elements_arr['StartPrice'] =  $price + 3;
@@ -67,7 +67,7 @@ foreach ($items as $k => $item) {
 		}
 
 		// сравнение наличия
-		if ($instock !== $feed_old[$shop_id]['instock']) {
+		if ($instock != $feed_old[$shop_id]['instock']) {
 			$elements_arr['ItemID'] =  $item['ebay_id'];
 			$elements_arr['Quantity'] =  ($feed_new[$shop_id][17] === '2 Tage') ? '1' : '0';
 			$changed = true;
@@ -91,6 +91,13 @@ foreach ($items as $k => $item) {
 			pc_add_to_log($item, $feed_new[$shop_id], $log_msg, 5);
 		}
 
+		// если товар в продаже с нулевой ценой
+		if ($price == 0){
+			// sa(['$feed_new'=>$feed_new[$shop_id],'$item'=>$item]);
+			$elements_arr['ItemID'] =  $item['ebay_id'];
+			$elements_arr['Quantity'] = '0';
+		}
+
 		if($elements_arr) pc_add_to_items_arr($items_arr, $elements_arr);
 
 
@@ -112,15 +119,13 @@ sa($items_arr);
 
 if(defined('DEV_MODE')) return;
 
-if($items_arr) {
-	foreach ($items_arr as $child_arr) {
-		$resp = Cdvet::reviseInventoryStatus($child_arr);
-		unset($resp['Fees']);
-		sa($resp);
-		$ebay_id = $child_arr[0]['ItemID'];
-		$api_resp = _esc(json_encode($resp));
-		arrayDB("UPDATE cdvet_checker_log set api_resp = '$api_resp' where ebay_id = '$ebay_id' order by id desc limit 1");
-	}
+foreach ($items_arr as $child_arr) {
+	$resp = Cdvet::reviseInventoryStatus($child_arr);
+	unset($resp['Fees']);
+	sa($resp);
+	$ebay_id = $child_arr[0]['ItemID'];
+	$api_resp = _esc(json_encode($resp));
+	arrayDB("UPDATE cdvet_checker_log set api_resp = '$api_resp' where ebay_id = '$ebay_id' order by id desc limit 1");
 }
 
 

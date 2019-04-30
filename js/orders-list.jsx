@@ -1,4 +1,4 @@
-var _aa = { order_modal:$('#orderModal'), 
+var _aa = { order_modal:$('#orderModal'), chosen_index: 1,
 			modal_body:document.getElementById('order_modal_body'),
 			data:{} };
 
@@ -62,6 +62,7 @@ class OrderModalBody extends React.Component {
 		this.toBlacklistClick = this.toBlacklistClick.bind(this);
 		this.itemRemoveClick = this.itemRemoveClick.bind(this);
 		this.answerTemplateSelectChange = this.answerTemplateSelectChange.bind(this);
+		this.priceUpClick = this.priceUpClick.bind(this);
 	}
 
 	componentWillReceiveProps(nextProps){
@@ -92,6 +93,7 @@ class OrderModalBody extends React.Component {
 
 	tripleBtnClick(index){
 		console.log('tripleBtnClick');
+		_aa.chosen_index = index;
 		_aa.chosen_plati_id = _aa.data.plati_info['item'+index+'_id'];
 		this.setState({tripleBtnIndex: index,
 			chosen_title:this.props.data.plati_info['item'+index+'_name'],
@@ -170,6 +172,19 @@ class OrderModalBody extends React.Component {
 				if(data.sendebay_ans !== 'no') $this.setState({ebaid: 'glyphicon-ok'});
 				else $this.setState({ebaid: 'glyphicon-ban-circle'});
 		},'JSON');
+	}
+
+	priceUpClick(){
+		var competitor_price = this.state.ebay_info.price2;
+		var recom_price = this.props.data.plati_info['item'+_aa.chosen_index+'_recom'];
+		var dif = competitor_price - recom_price;
+		if(!competitor_price || !dif) return;
+		var set_price = 0;
+		if (dif >= 0.1) set_price = competitor_price - 0.1;
+		else if (dif > 0 && dif < 0.1) set_price = competitor_price - 0.01;
+		if(set_price > recom_price * 1.2) set_price = recom_price * 1.2;
+		if(!set_price) return;
+		this.setState({inputs:{new_price:set_price.toFixed(2)}});
 	}
 
 	changePriceClick(e) {
@@ -313,6 +328,7 @@ class OrderModalBody extends React.Component {
 					<div className="input-group">
 					  <input onChange={this.newPriceInputChange} value={this.state.inputs.new_price} title="current price" type="text" className="form-control" placeholder="Current price"/>
 					  <span className="input-group-btn">
+						<button onClick={this.priceUpClick} className="btn btn-info" type="button">Price Up</button>
 						<button onClick={this.changePriceClick} className="btn btn-primary" type="button">Change Price</button>
 					  </span>
 					</div>

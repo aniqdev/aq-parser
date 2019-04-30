@@ -1,8 +1,99 @@
+<div style="max-width: 560px;padding: 20px;background: #ffffff;border-radius: 5px;margin:40px auto;font-family: Open Sans,Helvetica,Arial;font-size: 15px;color: #666;">
+
+	<div style="color: #444444;font-weight: normal;">
+		<div style="text-align: center;font-weight:600;font-size:26px;padding: 10px 0;border-bottom: solid 3px #eeeeee;">{site_name}</div>
+		
+		<div style="clear:both"></div>
+	</div>
+	
+	<div style="padding: 0 30px 30px 30px;border-bottom: 3px solid #eeeeee;">
+
+		<div style="padding: 30px 0;font-size: 24px;text-align: center;line-height: 40px;">{display_name} только что создал новый аккаунт на сайте {site_name}.</span></div>
+
+		<div style="padding: 10px 0 50px 0;text-align: center;">Чтобы посмотреть профиль перейдите по ссылке: {user_profile_link}</div>
+		
+		<div style="padding: 0 0 15px 0;">
+		
+			<div style="background: #eee;color: #444;padding: 12px 15px; border-radius: 3px;font-weight: bold;font-size: 16px;">Вот представленная форма регистрации:<br /><br />
+				{submitted_registration}
+			</div>
+		</div>
+		
+	</div>
+	
+	<div style="color: #999;padding: 20px 30px">
+		
+		<div style="">С уважением!</div>
+		<div style="">Команда сайта <a href="{site_url}" style="color: #3ba1da;text-decoration: none;">{site_name}</a> Team</div>
+		
+	</div>
+
+</div>
+<hr>
+<hr>
+<script id="bx24_form_inline" data-skip-moving="true">
+        (function(w,d,u,b){w['Bitrix24FormObject']=b;w[b] = w[b] || function(){arguments[0].ref=u;
+                (w[b].forms=w[b].forms||[]).push(arguments[0])};
+                if(w[b]['forms']) return;
+                var s=d.createElement('script');s.async=1;s.src=u+'?'+(1*new Date());
+                var h=d.getElementsByTagName('script')[0];h.parentNode.insertBefore(s,h);
+        })(window,document,'https://alexzt.bitrix24.ua/bitrix/js/crm/form_loader.js','b24form');
+
+        b24form({"id":"59","lang":"ru","sec":"cbuz2j","type":"inline"});
+</script>
 <?php ini_get('safe_mode') or set_time_limit(300); // Указываем скрипту, чтобы не обрывал связь.
 
 
+return;
+
+$arr = [
+	['qwe'=>1,'asd'=>11,'zxc'=>111],
+	['qwe'=>2,'asd'=>22,'zxc'=>222],
+	['qwe'=>2,'asd'=>22,'zxc'=>222],
+	['qwe'=>3,'asd'=>33,'zxc'=>333],
+	['qwe'=>4,'asd'=>44,'zxc'=>444],
+	['qwe'=>4,'asd'=>44,'zxc'=>444],
+];
+
+$arr = array_column($arr, null, 'qwe');
+$arr = array_values($arr);
+
+sa($arr);
 
 
+
+return;
+$o = ['EntriesPerPage' => 20, 'NumberOfDays'=>3];
+
+
+	$c = array_merge(['NumberOfDays'=>1,'SortingOrder'=>'Ascending','PageNumber'=>'1'],$o);
+
+	$ord_obj = new EbayOrders;
+
+	$ord_arr = $ord_obj->getOrders($c);
+
+	sa($ord_arr);
+
+
+
+
+return;
+$ebay_id = '112629039313';
+
+$specs = get_item_specifics($ebay_id, true);
+
+
+$specs['Spielname'] = 'Dungeons 2';
+sa($specs);
+
+$resp = EbayGigGames::setTokenByName('gig-games')
+         ->updateItemSpecifics($ebay_id, $specs);
+
+sa($resp);
+
+
+
+return;
 	$Ebay = new Ebay_shopping2();
 	$response = $Ebay->removeFromSale('112570774808');
 

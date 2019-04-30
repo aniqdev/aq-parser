@@ -4,11 +4,12 @@ header('Content-Type: application/json');
 
 $array = [];
 
+$dev_mode = defined('DEV_MODE');
 
 $table = $_POST['table'];
 
-// $whr_and = "appsub='sub' AND";
 $whr_and = '';
+// $whr_and = "appsub='dlc' AND";
 
 $count = (int)arrayDB("SELECT count(*) as count FROM slist WHERE $whr_and scan = (select scan from slist order by id desc limit 1)")[0]['count'];
 // В следующей строчке Steam_Language=german,russian,english,french,spanish,italian можно указывать другие языки
@@ -31,23 +32,39 @@ foreach ($slist as $row) {
 // ==> Ссылка на игру ($link)
     $link = _esc(clean_steam_url(trim($row['link'])));
     if($aggregate) $aggregator[$link]['title'] = $row['title'];
-    $game_exists = arrayDB("SELECT id,notice from $table where link = '$link'");
+    $game_exists = arrayDB("SELECT id,notice,pics from $table where link = '$link'");
 
-    $dest = ROOT.'/steam-images/'.$row['appsub'].'s-'.$row['appid'];
+    // удалить после восстановления картинок
+    if (isset($game_exists[0])) {
+    	$pics = $game_exists[0]['pics'];
+    	if (strpos($pics, 'thumb') !== false) {
+    		continue;
+    	}
+    }
+
+    // $dest = ROOT.'/steam-images/'.$row['appsub'].'s-'.$row['appid'];
+    $dest = get_steam_images_dir_path($row['appsub'], $row['appid']);
     if($aggregate) $aggregator[$link]['dest'] = $dest;
-    $img_exists = file_exists($dest);
+    $img_exists = (file_exists($dest.'/header.jpg') && filesize($dest.'/header.jpg') > 30000);
+
+    // удалить после восстановления картинок
+    $img_exists = false;
+    // после проверки убрать filesize оставить только 
+    // $img_exists = file_exists($dest.'/header.jpg');
     if($aggregate) $aggregator[$link]['img_exists'] = $img_exists;
-    if (!$img_exists && !defined('DEV_MODE')) {
+    if (!$img_exists && !$dev_mode) {
         $was_no_img++;
         $img_src = 'http://cdn.akamai.steamstatic.com/steam/'.$row['appsub'].'s/'.$row['appid'].'/header.jpg';
         @mkdir($dest, 0777, true);
-        $copied = copy($img_src, $dest.'/header.jpg');
-        if (!$copied){
-            $href = 'http://store.steampowered.com/'.$row['appsub'].'/'.$row['appid'].'/';
-            copy(ROOT.'/images/noimage.png', $dest.'/header.jpg');
-        }
+        if(stripos($img_src, 'jpg') !== false) 
+        	$copied = copy($img_src, $dest.'/header.jpg');
+        // if (!$copied){
+        //     $href = 'http://store.steampowered.com/'.$row['appsub'].'/'.$row['appid'].'/';
+        //     copy(ROOT.'/images/noimage.png', $dest.'/header.jpg');
+        // }
 
-        $game_item = file_get_html($link, false, $context);
+        $game_item = aqs_file_get_html($link, false, $context);
+    	if (!is_object($game_item)) continue;
 
         $srcs = [];
         foreach ($game_item->find('a[href*=1920x1080]') as $kk => $img) {
@@ -56,10 +73,12 @@ foreach ($slist as $row) {
             // изменилась верстка в стиме
             // $src = parse_url( $src, PHP_URL_QUERY );
             // $src = str_replace('url=', '', $src);
-            copy($src, $dest.'/big'.($kk+1).'.jpg');
+            if(stripos($src, 'jpg') !== false)
+            	copy($src, $dest.'/big'.($kk+1).'.jpg');
 
             $src = str_replace('1920x1080', '600x338', $src);
-            copy($src, $dest.'/small'.($kk+1).'.jpg');
+            if(stripos($src, 'jpg') !== false)
+            	copy($src, $dest.'/small'.($kk+1).'.jpg');
 
             if($kk > 2) break;
         }
@@ -68,7 +87,7 @@ foreach ($slist as $row) {
     // if($game_exists) continue;
     $affected++;
 
-    if ($img_exists || defined('DEV_MODE')) $game_item = file_get_html($link, false, $context);
+    if ($img_exists || $dev_mode) $game_item = aqs_file_get_html($link, false, $context);
     // пропускаем игру в случае ошибки
     if (!is_object($game_item)) continue;
 // ==> Тип товара ($appsub['app','sub','dlc'])
@@ -83,6 +102,7 @@ foreach ($slist as $row) {
             $main_game_link = $main_game->href;
         }
     }
+    $type = $appsub;
 	$appid = $row['appid'];
 
 
@@ -108,18 +128,19 @@ foreach ($slist as $row) {
 
 
 // ==> Языки ($languages)
-    $languages = []; // для игр
-    foreach ($game_item->find('.game_language_options tr[style]') as $lang_item) {
-        if (count($lang_item->find('img', 0)) > 0) {
-            $languages[] = trim($lang_item->find('td', 0)->plaintext);
-        }
-    }
-    $languages = implode(',', $languages);
+	$languages = []; // для игр
+	foreach ($game_item->find('.game_language_options tr[class!=unsupported] .ellipsis') as $lang_item) {
+		// sa(trim($lang_item->innertext));
+	    $languages[] = trim($lang_item->innertext);
+	}
+	$languages = implode(',', $languages);
 
-    // для паков
-    $language_list = ($language_list = $game_item->find('.language_list', 0)) ? $language_list->innertext : '';
-	$language_list = strip_tags(preg_replace(['"<b[^>]*>.*</b>"','/\s/'], '', $language_list));
-	if($appsub === 'sub') $languages = $language_list;
+	if($appsub === 'sub'){ // для паков
+	    $language_list = ($language_list = $game_item->find('.language_list', 0)) ? $language_list->innertext : '';
+		$language_list = strip_tags(preg_replace(['"<b[^>]*>.*</b>"','/\s/'], '', $language_list));
+		$languages = $language_list;
+	} 
+	if($aggregate) $aggregator[$link]['languages'] = $languages;
 
 // ==> Название ($title)
     if ($title = $game_item->find('.apphub_AppName',0)) { // для app|dls
@@ -192,7 +213,7 @@ foreach ($slist as $row) {
 	$reviews = $game_item->find('.user_reviews_summary_row',0);
 	if ($reviews2 = $game_item->find('.user_reviews_summary_row',1)) {
 		
-		$reviews = $reviews ? $reviews->attr['data-tooltip-text'] : '';
+		$reviews = $reviews ? $reviews->attr['data-tooltip-html'] : '';
 		$reviews = str_replace('30', '', $reviews);
 		if (preg_match_all("/[\d]+/", $reviews, $matches)) {
 		    if (isset($matches[0][2])) {
@@ -201,7 +222,7 @@ foreach ($slist as $row) {
 		    $recent_reviews = $matches[0][1];
 		}
 		
-		$reviews2 = $reviews2 ? $reviews2->attr['data-tooltip-text'] : '';
+		$reviews2 = $reviews2 ? $reviews2->attr['data-tooltip-html'] : '';
 		if (preg_match_all("/[\d]+/", $reviews2, $matches)) {
 		    if (isset($matches[0][2])) {
 		        $matches[0][1] = $matches[0][1].$matches[0][2]; }
@@ -209,7 +230,7 @@ foreach ($slist as $row) {
 		    $overall_reviews = $matches[0][1];
 		}
 	}else{
-		$reviews = $reviews ? $reviews->attr['data-tooltip-text'] : '';
+		$reviews = $reviews ? $reviews->attr['data-tooltip-html'] : '';
 		if (preg_match_all("/[\d]+/", $reviews, $matches)) {
 		    if (isset($matches[0][2])) {
 		        $matches[0][1] = $matches[0][1].$matches[0][2]; }
@@ -235,10 +256,19 @@ foreach ($slist as $row) {
 
 
 // ==> Включаемые в пак игры ($includes)
-$includes = []; 
-$overlay = $game_item->find('.tab_item_overlay');
-foreach ($overlay as $overlay) $includes[] = preg_replace('/\D/', '', $overlay->href);
-$includes = implode(',', $includes);
+	$includes = []; 
+	$overlay = $game_item->find('.tab_item_overlay');
+	foreach ($overlay as $overlay) $includes[] = preg_replace('/\D/', '', $overlay->href);
+	$includes = implode(',', $includes);
+
+// ==> Включаемые в пак игры ($pics)
+    $path = get_steam_images_dir_path($type, $appid);
+    $dir = @scandir($path);
+    $pics = '';
+    if ($dir) {
+        $dir = array_slice($dir, 2);
+        $pics = implode(',', $dir);
+    }
 
 // ==> Паки в которых состоит игра ($bundles)
         $packages = [];
@@ -297,13 +327,12 @@ $includes = implode(',', $includes);
         $main_game_link  = _esc(trim($main_game_link));
         $includes  = _esc($includes);
 
-        if($game_exists){
-            $steam_de_id = (int)$game_exists[0]['id'];
-            arrayDB("UPDATE $table SET
+        $set_list = "
             `appid` = '$appid', 
             `type` = '$type', 
             `title` = '$title',
             `link` = '$link',
+            `pics` = '$pics',
             `genres` = '$genres',
             `notice` = '$notice',
             `developer` = '$developer',
@@ -326,66 +355,18 @@ $includes = implode(',', $includes);
             `usk_age` = '$usk_age',
             `main_game_title` = '$main_game_title',
             `main_game_link` = '$main_game_link',
-            `includes` = '$includes'
-            WHERE id = '$steam_de_id'");
+            `includes` = '$includes'";
+
+        if($game_exists){
+            $steam_table_id = (int)$game_exists[0]['id'];
+            arrayDB("UPDATE $table SET
+            $set_list
+            WHERE id = '$steam_table_id'");
         }else{
-            arrayDB("INSERT INTO $table (
-            `appid`,
-            `type`,
-            `title`,
-            `link`,
-            `genres`,
-            `notice`,
-            `developer`,
-            `publisher`,
-            `reg_price`,
-            `old_price`,
-            `year`,
-            `release`,
-            `specs`,
-            `lang`,
-            `desc`,
-            `os`,
-            `sys_req`,
-            `r_rating`,
-            `r_reviews`,
-            `o_rating`,
-            `o_reviews`,
-            `tags`,
-            `usk_links`,
-            `usk_age`,
-            `main_game_title`,
-            `main_game_link`,
-            `includes`)
-            VALUES (
-            '$appid', 
-            '$type', 
-            '$title',
-            '$link',
-            '$genres',
-            '$notice',
-            '$developer',
-            '$publisher',
-            '$reg_price',
-            '$old_price',
-            '$year',
-            '$release',
-            '$specs',
-            '$lang',
-            '$desc',
-            '$os',
-            '$sys_req',
-            '$r_rating',
-            '$r_reviews',
-            '$o_rating',
-            '$o_reviews',
-            '$tags',
-            '$usk_links',
-            '$usk_age',
-            '$main_game_title',
-            '$main_game_link',
-            '$includes')");
+            arrayDB("INSERT INTO $table SET
+            $set_list");
         }
+
 
 }//foreach по одной странице
 echo json_encode( array(

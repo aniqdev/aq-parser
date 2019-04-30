@@ -158,7 +158,9 @@ $wl = []; foreach ($white_list as $val) $wl[$val['game_id']][] = $val['ebay_id']
 		<th>eBay</th>
 		<th>Woo</th>
 		<th>Hood</th>
-		<th title="One Click Price Changer">All</th>
+		<th title="One Click Price Changer">All
+			<button id="mRemoveAll" class="tch-mbtn glyphicon glyphicon-remove" title="remove all"></button>
+		</th>
 		<th>wh price</th>
 		<th class="sort" data-sort="row3">Differ</th>
 		<th class="sort" data-sort="row5">New Price</th>

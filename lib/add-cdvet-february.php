@@ -26,7 +26,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_xcel_info') {
 	if (isset($img_arr[0])) $pic_url1 = $img_arr[0];
 	if (isset($img_arr[1])) $pic_url2 = $img_arr[1];
 	if (isset($img_arr[2])) $pic_url3 = $img_arr[2];
-	
+
+	$row['I-initial'] = $row['I'];
 
 	if (substr_count($row['I'], '<div>') === 1) {
 
@@ -62,11 +63,11 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_xcel_info') {
 	preg_match('/(\d*\.?\d+)\s?([^\s]+)/', str_replace(',', '.', $ustr), $unit_mathes);
 	$units = Cdvet::get_units($unit_mathes);
 
-	$row['I'] = html_entity_decode($row['I']);
+	$row['I-initial'] = html_entity_decode($row['I-initial']);
 	
 	$specifics = [
 		'EAN' => $row['K'],
-		'Zusammensetzung' => insert_comas(Cdvet::get_zusammen($row['I'])),
+		'Zusammensetzung' => insert_comas(Cdvet::get_zusammen($row['I-initial'])),
 		'Analytische Bestandteile und Gehalte' => insert_comas(Cdvet::get_gehalte($row['I'])),
 		'Kurzbeschreibung' => $row['H'] ? insert_comas($row['H']) : '', // вставить запятые
 		'Zweck' => Cdvet::get_zweck($cat_ids), // тут название категории
@@ -76,6 +77,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_xcel_info') {
 		'Marke' => 'cdVet',
 		'Maßeinheit' => $units['UnitType'], // UnitType
 		'Anzahl der Einheiten' => $units['UnitQuantity'], // UnitQuantity
+		'Herstellernummer' => $row['A'],
 	];
 
 	$title = Cdvet::get_title($row, $cat_ids, $cdvet_feed);
@@ -104,6 +106,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_xcel_info') {
 			'alertHtml' => '',
 			'tax_percent' => str_replace('.00', '', $row['F']),
 			'volume' => $cdvet_feed[$row['A']][8].$cdvet_feed[$row['A']][7],
+			'desc' => $row['I'],
 	]);
 	return;
 }
@@ -111,11 +114,11 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_xcel_info') {
 
 if (isset($_POST['rescan_excel'])) {
 	// $excel = readExcel('csv/eBayArtikel.xlsx');  // старый файл
-	$excel = readExcel('csv/eBayArtikel21-02-2018.xlsx', 1); // новый файл
-	$excel = readExcel('csv/ebayartikel05-07-2018.xlsx', 0); // новый файл
+	// $excel = readExcel('csv/eBayArtikel21-02-2018.xlsx', 1); // новый файл
+	$excel = readExcel('csv/ebayartikel15-10-2018.xlsx', 0); // новый файл
 	file_put_contents('csv/eBayArtikel.json', json_encode($excel));
-	$excel_s2 = readExcel('csv/eBayArtikel.xlsx', 1); // сохранение категорий
-	file_put_contents('csv/eBayArtikel_s2.json', json_encode($excel_s2));
+	$categories = readExcel('csv/eBayArtikel.xlsx', 1); // сохранение категорий
+	file_put_contents('csv/eBayArtikel_s2.json', json_encode($categories));
 	$feed_new = csvToArr('http://www.cdvet.de/backend/export/index/productckeck?feedID=20&hash=5b1c9a571cf947e366411cddc68d9129', ['max_str' => 0,'encoding' => 'windows-1250']);
 	$feed_new = array_column($feed_new, null, 0);
 	file_put_contents('csv/cdvet_feed.json', json_encode($feed_new));
@@ -205,6 +208,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'add_item') {
 
 
 $added_arr_sorted = Cdvet::sort_added();
+$added_arr = Cdvet::get_added_shop_ids();
 
 $cd_arr = json_decode(file_get_contents('csv/eBayArtikel.json'), true);
 
@@ -236,12 +240,32 @@ $categories = json_decode(file_get_contents('csv/eBayArtikel_s2.json'), true);
 $sorted_cats = Cdvet::cd_ebay_cat_sort($categories);
 
 // sa($sorted_cats);
-
+$ii = 0; $txt = '';
 foreach ($cd_arr as $k => $cd_item):
 	$img_arr = (isset($cdvet_feed[$cd_item['A']]))?explode('|', $cdvet_feed[$cd_item['A']][16]):[];
 	$cats = Cdvet::get_ebay_cat($cd_item['L'], $sorted_cats);
-	$cats_count = count($cats);
-	if($k === 1 || !$cats_count || !$img_arr) continue;
+	$cats_count = count($cats); 
+	 
+	if($k === 1 || !$cats_count || !$img_arr){
+		$ii++; 
+		if (!$cats_count) {
+			$txt .= "
+					($ii) Нет категорий:
+					$cd_item[A]
+					$cd_item[C]
+					************************************
+				";
+		}
+		if (!$img_arr) {
+			$txt .= "
+					($ii) Нет картинок:
+					$cd_item[A]
+					$cd_item[C]
+					************************************
+				";
+		}
+		continue;
+	}
 	echo "<tr>";
 	echo '<td>',$k,'</td>';
 	echo '<td>',$cd_item['A'],'</td>';
@@ -250,7 +274,7 @@ foreach ($cd_arr as $k => $cd_item):
 	echo '<td>',$cd_item['D'],'</td>';
 	echo '<td>',$cats_count,'</td>';
 	echo '<td>',count($img_arr),'</td>';
-	echo '<td>',Cdvet::add_buttons($k, $cats, $cd_item['A'], $added_arr_sorted),'</td>';
+	echo '<td>',Cdvet::add_buttons($k, $cats, $cd_item['A'], $added_arr_sorted, $added_arr),'</td>';
 	echo '<td>',$cd_item['G'],'</td>';
 	// echo '<td><div class="clip" style="width:400px;">',$cd_item['J'],'</div></td>';
 	// echo '<td>',$cd_item['N'],'</td>';
@@ -258,6 +282,7 @@ foreach ($cd_arr as $k => $cd_item):
 
 endforeach;
 
+file_put_contents('csv/cdvet_continue.txt', $txt);
 ?>
 </table>
 </div>

@@ -60,6 +60,8 @@
             <li><a href="?action=hood-sync">Hood import</a></li>
             <li><a href="?action=hood-orders&offset=0&limit=100">Hood orders</a></li>
             <li><a href="?action=hood-messages&show=all">Hood messages</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="http://hood.gig-games.de">Hood update</a></li>
           </ul>
         </li>
 
@@ -68,6 +70,7 @@
             <li><a href="?action=cdvet-feed">Cdvet feed</a></li>
             <li><a href="?action=devzone/jpegs">jpegs</a></li>
             <li><a href="?action=add-cdvet-february">Add products</a></li>
+            <li><a href="?action=cdvet-continues">skipped products</a></li>
             <li><a href="?action=cdvet-list">Item list</a></li>
             <li><a href="?action=cdvet-checker-report">Checker report</a></li>
             <li><a href="/a.php?action=cdvet-feed-report">Feed report</a></li>
@@ -117,7 +120,8 @@
           <ul class="dropdown-menu">
             <li><a href="http://info-rim.ru/filter/">product-filter</a></li>
             <li><a href="?action=filter-log">filter log</a></li>
-            <li><a href="?action=filter-langs">filter langs</a></li>
+            <li><a href="?action=filter-langs">filter langs (ebay)</a></li>
+            <li><a href="?action=filter-langs&for=gig-games">filter langs (gig-games)</a></li>
             <li><a href="?action=cron-filter-price-updater">cron-filter-price-updater</a></li>
             <li><a href="?action=cron-filter-price-updater-multi">cron-filter-price-updater-multi</a></li>
             <li><a href="?action=cron-filter-advantages-updater">cron-filter-advantages-updater</a></li>

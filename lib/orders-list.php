@@ -104,7 +104,7 @@
 </div>
 
 <!--===========order modal===================-->
-<div class="modal fade" id="orderModal">
+<div class="modal fade order-modal" id="orderModal">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">

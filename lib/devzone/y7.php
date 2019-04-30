@@ -2,6 +2,387 @@
 
 
 
+
+
+
+var_dump(iz_mobile());
+
+
+return;
+	$type = 'app';
+	$appid = '17430';
+	$dir_path = ROOT.'/steam-images/'.$type.'s-'.$appid;
+	// steam-images checker
+
+	cerate_thumbs($dir_path, 1);
+	cerate_thumbs($dir_path, 2);
+	cerate_thumbs($dir_path, 3);
+	cerate_thumbs($dir_path, 4);
+
+function cerate_thumbs($dir_path, $i)
+{
+	$big1_path = $dir_path.'/big'.$i.'.jpg';
+
+    $imagine = new Imagine\Gd\Imagine();
+    $mode = Imagine\Image\ImageInterface::THUMBNAIL_INSET;
+
+    $size = new Imagine\Image\Box(470, 1000);
+
+    $imagine->open($big1_path)
+        ->thumbnail($size, $mode)
+        ->save($dir_path.'/thumb-'.$i.'-m.jpg');
+
+    $size = new Imagine\Image\Box(1000, 120);
+
+    $imagine->open($big1_path)
+        ->thumbnail($size, $mode)
+        ->save($dir_path.'/thumb-'.$i.'-s.jpg');
+}
+
+
+return;
+function delTree($dir) { 
+   $files = array_diff(scandir($dir), array('.','..')); 
+    foreach ($files as $file) { 
+      (is_dir("$dir/$file")) ? delTree("$dir/$file") : unlink("$dir/$file"); 
+    } 
+    return rmdir($dir); 
+  } 
+var_dump(delTree(ROOT.'/steam-images/sub'));
+
+
+
+
+return;
+$table = 'steam_de';
+$options = array('http' => array('method' => "GET", 'header' => "Accept-language: en-US\r\n" . "Cookie: Steam_Language=".get_language_by_table($table)."; mature_content=1; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
+$context = stream_context_create($options);
+$link = 'http://store.steampowered.com/app/253230/';
+ $game_item = aqs_file_get_html($link, false, $context);
+
+$languages = []; // для игр
+foreach ($game_item->find('.game_language_options tr[class!=unsupported] .ellipsis') as $lang_item) {
+	sa(trim($lang_item->innertext));
+    $languages[] = trim($lang_item->innertext);
+}
+$languages = implode(',', $languages);
+sa($languages);
+
+
+
+
+
+
+
+return;
+$str1 = "Tom Clancy's Rainbow Six® Siege";
+$str1 = "";
+
+$str2 = slugify($str1 or 'none');
+
+sa($str2);
+
+
+
+
+return;
+
+$ebay_id = '253732048914';
+	$res = getSingleItem($ebay_id, ['as_array'=>true,'IncludeSelector'=>'Details,ItemSpecifics,Compatibility']);
+	sa($res);
+
+
+
+return;
+$_POST['q'] = 'micro mineral';
+
+sa(json_decode(Cdvet::filter_search()));
+
+
+
+
+return;
+$res = Ebay_shopping2::findItemsAdvanced(0, 'gig-games', $page = 1, $perPage = 100);
+sa(json_decode($res, 1));
+
+return;
+$itemId = '122716027161';
+
+				$url = 'http://open.api.ebay.com/shopping';
+				$url .= '?callname=GetSingleItem';
+				$url .= '&responseencoding=JSON';
+				$url .= '&appid=Konstant-Projekt1-PRD-bae576df5-1c0eec3d';
+		 $url .= '&siteid=77';
+				$url .= '&version=1079';
+				$url .= '&ItemID='.$itemId;
+				$url .= '&IncludeSelector=Details,ItemSpecifics';
+
+				sa($url);
+
+
+return;
+$categoryId = '139973';
+$categoryId = '22189';
+$categoryId = '63071';
+
+	// $res = EbayGigGames::GetCategorySpecifics($categoryId);
+
+	// $res = EbayGigGames::GetSellerListRequest($page=1, $entires=25);
+
+
+// $res = get_product_list_test($plattform = 'cdvet');
+
+	$arr = get_category_specifics_sorted($categoryId);
+
+sa(count($arr));
+sa($arr);
+
+
+
+
+
+
+return;
+$res = Ebay_shopping2::findItemsAdvanced(0, 'gig-games');
+
+sa(json_decode($res,1));
+
+
+
+return;
+$feed_new = csvToArr('http://www.cdvet.de/backend/export/index/productckeck?feedID=20&hash=5b1c9a571cf947e366411cddc68d9129', ['max_str' => 0,'encoding' => 'windows-1250']);
+$feed_new = array_column($feed_new, null, 0);
+
+sa($feed_new);
+
+
+
+
+
+
+
+
+return;
+	$ord_obj = new Ebay_shopping2;
+
+
+	$ord_arr = $ord_obj->GetSellerItemsArray();
+
+	sa($ord_arr);
+
+
+
+return;
+$added_arr = Cdvet::get_added_shop_ids();
+
+sa($added_arr);
+
+
+return;
+$added_arr_sorted = Cdvet::sort_added();
+
+sa(
+$added_arr_sorted);
+
+
+
+return;
+$item_id = '253201256795';
+
+
+$res = parse_item_specifics($item_id);
+
+sa($res);
+
+
+
+
+return;
+$str = <<<EOL
+<p><span style="color:#00B050;font-weight:bold;">Fit-BARF Öl D3</span> ist eine Mischung kaltgepresster Pflanzenöle aus Hanföl und  Nachtkerzenöl, welche für eine optimale, ausgewogene Versorgung mit essentiellen Fettsäuren sorgen können. Die zusätzliche Ergänzung mit Dorschlebertran als Vitamin D3 Lieferant macht diese Futteröl zu einer vollwertigen Quelle essentieller Fettsäuren.</p>
+<p> </p>
+<p><span style="color:#00B050;font-weight:bold;">Fit-BARF Öl D3</span> sorgt ernährungsbedingt für:</p>
+<p>- einen ausgeglichenen Calcium-Haushalt</p>
+<p>- starke Knochen und Zähne</p>
+<p>- eine Unterstützung des Immunsystems</p>
+<p>- eine Aufnahme fettlöslicher Vitamine (E,D,A,K – Vitamine)</p>
+<p>- mehr Energie</p>
+<p> </p>
+<p>Ergänzungsfuttermittel für Hunde und Katzen</p>
+<p> </p>
+<p><span style="font-weight:bold;text-decoration: underline;">Zusammensetzung:</span> Hanföl, Dorschlebertran, Nachtkerzenöl</p>
+<p> </p>
+<p><span style="font-weight:bold;text-decoration: underline;">Analytische Bestandteile und Gehalte:</span> Rohprotein < 0,3%, Rohfett 99,6%, Rohfaser < 0,5%, Rohasche < 0,4%</p>
+<p> </p>
+<p><span style="font-weight:bold;text-decoration: underline;">Fütterungsempfehlung:</span> 1 - 2 mal wöchentlich kleine Hunde, Katzen ½ Tl., mittlere Hunde 1 Tl., große Hunde 1 ½ Tl.</p>
+<p>Bei täglicher Fütterung empfehlen wir einen Zeiraum von 4 - 6 Wochen.</p>
+<p> </p>
+<p>Nach dem Öffnen gekühlt und dunkel aufbewahren und innerhalb von 6 Wochen verbrauchen!</p>
+EOL;
+
+sa(htmlspecialchars($str));
+
+$str = preg_replace('/<span[^>]*?>(.+?)<\/span>/', '${1}', $str);
+sa(htmlspecialchars($str));
+
+$zus = Cdvet::get_zusammen($str);
+sa($zus);
+
+$cd_arr = json_decode(file_get_contents('csv/eBayArtikel.json'), true);
+$zus = Cdvet::get_zusammen($cd_arr[465]['I']);
+sa($zus);
+
+
+return;
+// 	$cd_arr = json_decode(file_get_contents('csv/eBayArtikel.json'), true);
+
+// 	foreach ($cd_arr as $key => $row) {
+// 		if (in_array('300698', explode('|', $row['L']))) {
+// 			sa($row['C'].);
+// 		}
+// 	}
+
+
+
+
+// return;
+$categories = readExcel('csv/eBayArtikel.xlsx', 1); // сохранение категорий
+
+$sorted_cats = Cdvet::cd_ebay_cat_sort($categories);
+sa($sorted_cats);
+    $cat_ids = Cdvet::get_ebay_cat('300687|300718|300771|300805|300809|300823|300825|300826|300844|300859|300861|300863|300864|300887|300888|300939|301127|301360|301394|301398|301412|301414|301415|301433|301448|301450|301452|301453|301476|301477|301528|301777|302256|302288|302313|302317|302331|302333|302352|302367|302369|302371|302372|302395|302396|302447|302498|302747|30274', $sorted_cats);
+sa($cat_ids);
+
+
+return;
+// <PictureDetails>
+// 	<GalleryDuration></GalleryDuration> 'Days_7' and 'Lifetime'
+// 	<GalleryType></GalleryType>
+// 	<PhotoDisplay></PhotoDisplay>
+// 	<PictureURL></PictureURL>
+// </PictureDetails>
+
+
+$ebay_id = '253453464293';
+
+$res = EbayGigGames::setTokenByName('cdvet')
+         ->updateItem__TEST__($ebay_id, '
+         	<PictureDetails>
+		      <GalleryDuration>Lifetime</GalleryDuration>
+		      <GalleryType>Featured</GalleryType>
+		    </PictureDetails>');
+
+sa($res);
+
+
+
+
+
+return;
+$ebay_id = '253247197461';
+
+$res = Cdvet::updateItemSubtitle($ebay_id, '★Direkt vom Hersteller ★Made in Germany ★inkl. Beratung');
+
+sa($res);
+
+
+
+
+
+
+
+return;
+$ebay_id = '253202702626';
+
+
+	$item_info = getSingleItem($ebay_id, ['as_array'=>true,'IncludeSelector'=>'Description']);
+
+	$description = $item_info['Item']['Description'];
+
+	// var_dump($description);
+
+
+	$top_desc = trim(str_get_html($description)->find('.cv-desc-top', 0)->innertext);
+
+	var_dump($top_desc);
+
+$top_desc = $top_desc;
+$top_desc = str_replace(['</div>','</p>','&nbsp;'], ['</div><br>','</p><br>',' '], $top_desc);
+
+$top_desc = trim(preg_replace('/<br>$/', '', $top_desc));
+$top_desc = trim(preg_replace('/<br>$/', '', $top_desc));
+
+$top_desc = strip_tags($top_desc, '<br>');
+
+$top_desc = str_replace(['<br>','<br/>'], '<br>', $top_desc);
+
+$top_desc = str_replace("\r\n", ' ', $top_desc);
+
+$top_desc = preg_replace('/\s{2,}/', ' ', $top_desc);
+
+$top_desc = str_replace(['<br><br>','<br> <br>'], '<br>', $top_desc);
+str_replace(['<br>','<br/>'], '<br>', $top_desc, $br_count);
+	// каждый <br> стоит 50 символов
+	$char_limit = 750 - ($br_count * 5);
+	// $char_limit = 750;
+	if (strlen($top_desc) > $char_limit) {
+		$top_desc = strip_tags($top_desc);
+		if (strlen($top_desc) > $char_limit) {
+			$top_desc = substr($top_desc, 0, $char_limit);
+		}
+	}
+echo('<hr>'.$top_desc);
+
+sa($br_count.'|'.strlen($top_desc));
+
+return;
+$top_desc = '<div class="cv-desc cv-desc-top">
+<p>- Zusätzlicher Schutz vor Flöhen, Milben, Haarlingen und fliegenden Insekten wie Stechmücken und Bremsen</p><p>- Enthält rein pflanzliche Inhaltsstoffe</p><p>- Einfach in der Anwendung</p><p>&nbsp;</p><p><span style="color:#00B050;font-weight:bold;">ZeckEx SpotOn</span> ist die pflanzliche Alternative zu den chemischen Repellentien.</p><p>- Hervorragender Langzeitschutz für alle Wirbeltiere</p><p>- Auch für Katzen und Junghunde geeignet</p><p>&nbsp;</p><p>Repellent</p><p>&nbsp;</p>
+</div>';
+
+echo $top_desc;
+echo "<hr>";
+$top_desc = str_replace(['</div>','</p>'], ['</div><br><br>','</p><br><br>'], $top_desc);
+
+echo strip_tags($top_desc, '<br>');
+
+str_replace(['<br>','<br/>'], '<br>', $top_desc, $count);
+
+sa($count);
+
+
+
+
+return;
+	$ord_obj = new EbayOrders;
+
+		$user = $ord_obj->GetUser('whaboom', '112570774366');
+sa($user);
+		return;
+
+	$c = array_merge(['NumberOfDays'=>1,'SortingOrder'=>'Ascending','PageNumber'=>'1'],[]);
+
+	$ord_obj = new EbayOrders;
+
+	$ord_arr = $ord_obj->getOrders($c);
+
+	sa($ord_arr);
+
+
+
+return;
+$steam_desc = "<h2>Über dieses Spiel</h2>  							What <h2>Über dieses Spiel</h2> kills you makes you stronger! Play as the red shirted fool as he jumps on spikes, drowns, ingests poison and finds other horrible ways to die, and then uses his corpses to reach the end! Play through over 30 levels while listening to a great retro soundtrack by VVVVVV composer, SoulEye. Are the story mode and bonus stages not enough for you? Try one of the levels that didn't make the cut on the steam workshop, or make your own for others to play! And once you've died a bunch, try flinging your corpses around on the title screen! It's quite satisfying.";
+
+$steam_desc = trim(preg_replace('/<h2>.+?<\/h2>/', '', $steam_desc, 1));
+
+sa($steam_desc);
+
+
+return;
+		$user = (new EbayOrders())->GetUser('hermzone', '122791233215');
+sa($user);
+
+return;
 $ebay_id = '112567976204';
 $ebay_id = '253201262577';
 
@@ -501,7 +882,7 @@ $feed_new = csvToArr('http://www.cdvet.de/backend/export/index/productckeck?feed
 sa($feed_new);
 
 return;
-$str = '<div>
+$top_desc = '<div>
 	<p>
 		<span style="color:#00B050;font-weight:bold;">ArthroGreen Gelenkfit HD</span><span> dient der ern&auml;hrungsbedingten Unterst&uuml;tzung der Funktion des Bewegungsapparates. Es unterst&uuml;tzt intensiv die Versorgung der B&auml;nder, Sehnen und Bindegewebe.</span></p>
 	<p><span>&nbsp;</span></p>
@@ -529,14 +910,14 @@ $str = '<div>
 	<p><span>1 Messl&ouml;ffel entspricht ca. 1g</span></p>
 </div>';
 
-	$str = preg_replace('/<span>(.+?)<\/span>/', '${1}', $str);
+	$top_desc = preg_replace('/<span>(.+?)<\/span>/', '${1}', $top_desc);
 
-sa(htmlspecialchars($str));
+sa(htmlspecialchars($top_desc));
 
 return;
-$str = 'https://i.ebayimg.com/00/s/ODAwWDk1NA==/z/bYAAAOSwQN5ad0ZJ/$_1.PNG?set_id=2';
+$top_desc = 'https://i.ebayimg.com/00/s/ODAwWDk1NA==/z/bYAAAOSwQN5ad0ZJ/$_1.PNG?set_id=2';
 
-var_dump(preg_match('/\/z\/(.+?)\//', $str, $matches));
+var_dump(preg_match('/\/z\/(.+?)\//', $top_desc, $matches));
 
 sa($matches);
 sa('https://i.ebayimg.com/images/g/'.$matches[1].'/s-l1600.jpg');

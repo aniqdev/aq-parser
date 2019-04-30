@@ -267,6 +267,23 @@ class CreateDesc2017
 
 		$new_full_desc = preg_replace($search, $replace, $new_full_desc);
 
+		$steam_desc = $this->_data_array['about_de'];
+		$steam_desc = trim(preg_replace('/<h2>.+?<\/h2>/', '', $steam_desc, 1));
+		$steam_desc = strip_tags($steam_desc, '<ol><ul><li><br><br/>');
+
+		$char_limit = 700;
+		if (strlen($steam_desc) > $char_limit) {
+			$steam_desc = strip_tags($steam_desc);
+			if (strlen($steam_desc) > $char_limit) {
+				$steam_desc = substr($steam_desc, 0, $char_limit);
+			}
+		}
+
+		$new_full_desc = '<div vocab="https://schema.org/" typeof="Product" style="display:none;">
+			<span property="description">'.$steam_desc.'</span>
+		</div>
+		'.$new_full_desc;
+
 		return $new_full_desc;
 	}
 

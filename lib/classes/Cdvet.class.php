@@ -313,7 +313,7 @@ class Cdvet
 		$temp = $title.' '.$cat_ids[$_POST['chosen_cat_id']][0]['cat_name'];
 		if(strlen($temp) < 81) $title = $temp;
 
-		$sostav_str = self::get_zusammen($row['I']);
+		$sostav_str = self::get_zusammen($row['I-initial']);
 
 		if ($sostav_str) {
 			foreach (explode(',', $sostav_str) as $key => $ingr) {
@@ -328,10 +328,12 @@ class Cdvet
 	}
 
 
-	public static function add_buttons($k, $cats, $shop_id, &$added_arr_sorted)
+	public static function add_buttons($k, $cats, $shop_id, &$added_arr_sorted, &$added_arr)
 	{
 		$btns = '';
 		foreach ($cats as $key => $cat) {
+			// пропускаем новые добавленные
+			if(in_array($key, ['300707','304198','300698']) && in_array($shop_id, $added_arr)) continue;
 			$ok = ''; $not = '';
 			if (isset($added_arr_sorted[$shop_id][$key])) {
 				$ok = '<i class="glyphicon glyphicon-ok"></i>';
@@ -387,6 +389,12 @@ class Cdvet
 		}
 
 		return $sorted_arr;
+	}
+
+
+	public static function get_added_shop_ids()
+	{
+		return array_column(arrayDB("SELECT shop_id FROM cdvet"), 'shop_id');
 	}
 
 	// массовое редактирование цен и количества товаров
@@ -517,6 +525,30 @@ class Cdvet
 			<Item ComplexType="ItemType">
 				<ItemID>'.$item_id.'</ItemID>
 				<Description>'.htmlspecialchars($desc, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</Description>
+			</Item>
+			<MessageID>1</MessageID>
+			<WarningLevel>High</WarningLevel>
+			<Version>837</Version>
+		</ReviseItemRequest>​';
+
+		$headers = self::getHeaders('ReviseItem'); // 983
+		$result = self::request(self::$api_url, $xml, $headers);
+		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
+
+	public static function updateItemSubtitle($item_id, $subtitle = false)
+	{
+		$item_id = preg_replace('/\D/', '', $item_id);
+		if(!$item_id || !$subtitle) return false;
+
+		$xml = '<?xml version="1.0" encoding="utf-8"?>
+		<ReviseItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+			<RequesterCredentials>
+				<eBayAuthToken>'.EBAY_CDVET_TOKEN.'</eBayAuthToken>
+			</RequesterCredentials>
+			<Item ComplexType="ItemType">
+				<ItemID>'.$item_id.'</ItemID>
+				<SubTitle>'.htmlspecialchars($subtitle, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</SubTitle>
 			</Item>
 			<MessageID>1</MessageID>
 			<WarningLevel>High</WarningLevel>
@@ -706,19 +738,9 @@ class Cdvet
 	}
 
 
-	public static function filter_search()
-	{		$where_and = '';
-		if (isset($_POST['q']) && $_POST['q']) {
-			if(strlen(trim($_POST['q'])) < 3) return '';
-			$query = _esc(trim($_POST['q']));
-			$where_and = "cdvet.title LIKE '%$query%' AND";
-		}
-		if (isset($_POST['ebay_category']) && $_POST['ebay_category']) {
-			$ebay_category = _esc(trim($_POST['ebay_category']));
-			$where_and = "ebay_cat = '$ebay_category' AND";
-		}
-		
-		$ret = arrayDB("SELECT cdvet_feed.title,ebay_id,cdvet.shop_id,
+	private static function sql_query_for_search($and_where)
+	{
+		return "SELECT cdvet_feed.title,ebay_id,cdvet.shop_id,
 			cat_id,
 			price,
 			`desc` as zusammen,
@@ -733,10 +755,40 @@ class Cdvet
 			from cdvet
 			join cdvet_feed
 			on cdvet.shop_id = cdvet_feed.shop_id 
-			WHERE $where_and instock = 'instock'
+			WHERE instock = 'instock'
 				AND link <> ''
 				AND image <> ''
-			group by ebay_id");
+				$and_where
+			LIMIT 20";
+	}
+
+
+	public static function filter_search()
+	{
+		if (isset($_POST['q']) && $_POST['q']) {
+			if(strlen(trim($_POST['q'])) < 3) return '';
+
+			$query = _esc(str_replace(' ', '%', trim($_POST['q'])));
+
+			$and_where = "AND cdvet_feed.title LIKE '%$query%'";
+			$ret1 = arrayDB(self::sql_query_for_search($and_where));
+			$and_where = "AND cdvet_feed.`desc` LIKE '%$query%'";
+			$ret2 = arrayDB(self::sql_query_for_search($and_where));
+			$and_where = "AND MATCH (cdvet_feed.title) AGAINST ('$query')";
+			$ret3 = arrayDB(self::sql_query_for_search($and_where));
+			$and_where = "AND MATCH (cdvet_feed.desc) AGAINST ('$query')";
+			$ret4 = arrayDB(self::sql_query_for_search($and_where));
+
+			$ret = array_merge($ret1, $ret2, $ret3, $ret4);
+			$ret = array_column($ret, null, 'ebay_id');
+			$ret = array_values($ret);
+		}
+		if (isset($_POST['ebay_category']) && $_POST['ebay_category']) {
+			$ebay_category = _esc(trim($_POST['ebay_category']));
+			$and_where = "AND ebay_cat = '$ebay_category'";
+			$ret = arrayDB(self::sql_query_for_search($and_where));
+		}
+		
 
 		$wrap_file = include ROOT.'/lib/adds/cdvet-perenos.php';
 		$from = array_map(function($el){return str_replace('|', '', $el);}, $wrap_file);
@@ -757,6 +809,7 @@ class Cdvet
 			// $el['units'] = $units;
 		} 
 
+		// global $_ERRORS;
 		return json_encode($ret);
 	}
 

@@ -1,9 +1,9 @@
 <?php
 
 if (isset($_GET['sales-chart'])) {
-	$res = arrayDB("SELECT DATE_FORMAT(ShippedTime, '%d-%m') as date ,count(*) as count FROM ebay_orders WHERE ShippedTime > NOW() - INTERVAL 28 DAY GROUP BY day(ShippedTime) order by ShippedTime");
-	$ret = [['date','sales']];
-	foreach ($res as $k => $val) if($k > 0) $ret[] = [$val['date'], +$val['count']];
+	$res = arrayDB("SELECT DATE_FORMAT(ShippedTime, '%d-%m') as date, sum(total_price ) as sum ,count(*) as count FROM ebay_orders WHERE ShippedTime > NOW() - INTERVAL 28 DAY GROUP BY day(ShippedTime) order by ShippedTime");
+	$ret = [['date','sales', 'sum']];
+	foreach ($res as $k => $val) if($k > 0) $ret[] = [$val['date'], +$val['count'], +$val['sum']];
 	header('Content-Type: application/json');
 	echo json_encode($ret);
 	return;

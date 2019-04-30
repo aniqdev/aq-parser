@@ -74,7 +74,7 @@ class Ebay_shopping{
 				$url = 'http://open.api.ebay.com/shopping';
 				$url .= '?callname=GetSingleItem';
 				$url .= '&responseencoding=JSON';
-				$url .= '&appid=Aniq6478a-a8de-47dd-840b-8abca107e57';
+				$url .= '&appid='.EBAY_API_KEY;
 		//  $url .= '&siteid=77';
 				$url .= '&version=515';
 				$url .= '&ItemID='.$itemId;

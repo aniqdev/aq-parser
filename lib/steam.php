@@ -3,7 +3,7 @@ $offsets = get_steam_offsets();
 ?><style>
 .nums,.get-steam-btn{
 	display: inline-block;
-	width: 80px;
+	width: 84px;
 	text-align: center;
 	cursor: pointer;
 }
@@ -15,13 +15,15 @@ $offsets = get_steam_offsets();
     <button name="steam2" value="steam_fr" type="button" class="js-get-steam2 get-steam-btn">Steam FR</button>
     <button name="steam2" value="steam_es" type="button" class="js-get-steam2 get-steam-btn">Steam ES</button>
     <button name="steam2" value="steam_it" type="button" class="js-get-steam2 get-steam-btn">Steam IT</button>
+    <button name="steam2" value="steam_ru" type="button" class="js-get-steam2 get-steam-btn">Steam RU</button>
     offset: <input type="number" id="offset" value="0" style="width: 70px; padding: 1px 5px;">
     <br>
-    <div class="nums" title="last offset"><?= @$offsets['steam_de'];?></div>
-    <div class="nums" title="last offset"><?= @$offsets['steam_en'];?></div>
-    <div class="nums" title="last offset"><?= @$offsets['steam_fr'];?></div>
-    <div class="nums" title="last offset"><?= @$offsets['steam_es'];?></div>
-    <div class="nums" title="last offset"><?= @$offsets['steam_it'];?></div>
+    <div class="nums" title="last offset"><?= @(int)$offsets['steam_de'];?></div>
+    <div class="nums" title="last offset"><?= @(int)$offsets['steam_en'];?></div>
+    <div class="nums" title="last offset"><?= @(int)$offsets['steam_fr'];?></div>
+    <div class="nums" title="last offset"><?= @(int)$offsets['steam_es'];?></div>
+    <div class="nums" title="last offset"><?= @(int)$offsets['steam_it'];?></div>
+    <div class="nums" title="last offset"><?= @(int)$offsets['steam_ru'];?></div>
 </form><br><br><br>
 <script>
 $('.nums').on('click', function() {

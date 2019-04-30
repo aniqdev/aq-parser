@@ -24,6 +24,7 @@ if (isset($_POST['ebayId']) && isset($_POST['action']) && $_POST['action'] == 'c
 			'post' => $_POST,
 			'ebay_title' => $ebay_title,
 			'price' => $ebay_price,
+			'resp' => $itemArr,
 			'ERRORS' => $_ERRORS,
 		);
 
