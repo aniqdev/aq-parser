@@ -16,7 +16,6 @@ require_once 'lib/kint-master/Kint.class.php';
 require_once 'lib/PHPExcel.php';
 require_once 'lib/simple_html_dom.php';
 require_once 'lib/array_DB.php';
-define('ROOT', __DIR__);
 ?>
 <!doctype html>
 <html lang="en">
