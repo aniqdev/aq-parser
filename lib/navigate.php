@@ -113,6 +113,7 @@
             <li><a href="?action=search-charts">Search</a></li>
             <li><a href="?action=exporter">exporter</a></li>
             <li><a href="?action=imagine">Picture</a></li>
+            <li><a href="?action=migrations">migrations</a></li>
           </ul>
         </li>
 

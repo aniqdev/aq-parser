@@ -1721,28 +1721,28 @@ form label{
 }
 
 .msg-count-badge{
-		position: absolute;
-		left: 15%;
-		top: -36%;
-		background: rgba(80, 186, 47, 0.74);
-		padding: 2px 5px 1px;
-		color: #ffffff;
-		border-radius: 4px;
-		font-weight: bold;
-}
-
-.all-msg-count-badge{
 	position: absolute;
-	bottom: -9px;
-	left: 89px;
+	left: 15%;
+	top: -36%;
 	background: rgba(80, 186, 47, 0.74);
-	padding: 2px 5px 0px;
+	padding: 2px 5px 1px;
 	color: #ffffff;
 	border-radius: 4px;
 	font-weight: bold;
-	min-width: 47px;
-	text-align: center;
-	z-index: 5;
+}
+
+.all-msg-count-badge{
+    position: absolute;
+    bottom: -9px;
+    left: 83px;
+    background: rgba(80, 186, 47, 0.74);
+    padding: 2px 5px 0px;
+    color: #ffffff;
+    border-radius: 4px;
+    font-weight: bold;
+    min-width: 55px;
+    text-align: center;
+    z-index: 5;
 }
 
 .all-msg-count-badge a{
