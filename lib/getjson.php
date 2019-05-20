@@ -274,7 +274,7 @@ if (isset($_POST['getjson'])) {
 <script>
 function ajax_724y67(action, callable) {
 	$('#filter_'+action+'_update').attr('disabled', true);
-	$.get('http://parser.gig-games.de/ajax-cross.php?action=cron-filter-'+action+'-updater',
+	$.get('/ajax-cross.php?action=cron-filter-'+action+'-updater',
 		function function_name(data) {
 			$('#filter_'+action+'_update').append('&nbsp;<i class="glyphicon glyphicon-ok"></i>');
 			callable();
