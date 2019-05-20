@@ -24,9 +24,9 @@ if (isset($_GET['migration']) && $_GET['migration'] === 'create') {
 		
 	$bytes = file_put_contents(ROOT.'/migrations.json', json_encode($create_code_arr));
 
-	sa(count($create_code_arr));
+	sa('count: '.count($create_code_arr));
 	sa($create_code_arr);
-	var_dump($bytes);
+	var_dump('$bytes: '.$bytes);
 }
 
 
@@ -49,5 +49,6 @@ if (isset($_GET['migration']) && $_GET['migration'] === 'migrate'){
 		<button type="submit" name="migration" value="create" class="btn btn-primary">create migraions</button>
 		<button type="submit" class="btn btn-default">reload</button>
 		<button type="submit" name="migration" value="migrate" class="btn btn-success">..migrate..</button>
-	</form>
+	</form><br><br>
+	<?php sa("'ROOT'.'/migrations.json'"); ?>
 </div>
