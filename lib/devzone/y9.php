@@ -9,6 +9,21 @@
 
 
 
+
+
+
+sa(array_filter([
+	'afsd' => 'ads',
+	'agsd' => 'a3ds',
+	'ahsd' => '',
+	'asjd' => '4',
+]));
+
+
+
+
+
+
 return;
 		$res = Cdvet::GetSellerListRequest(1, 200);
 sa($res);
