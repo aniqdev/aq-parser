@@ -33,11 +33,14 @@ if ($_GET['scan']) {
     $aggregator = [];
     foreach ($page->find('a[data-ds-appid]') as $game_block) {
 
+        // ==> Название
         $title = ($title = $game_block->find('.title', 0)) ? $title->innertext : '';
 
+        // ==> Ссылка
         $link = clean_url_from_query($game_block->href);
         $link = clean_steam_url($link);
 
+        // ==> Тип продукта
         $appsub = explode('/', $link)[3];
 
         if ($appsub === 'sub') {
@@ -46,6 +49,7 @@ if ($_GET['scan']) {
             $appid = $game_block->getAttribute('data-ds-appid');
         }
 
+        // ==> Год выпуска
         $year = trim($game_block->find('.search_released', 0)->innertext);
         $year = substr($year, strlen($year) - 4, 4);
 
@@ -53,18 +57,26 @@ if ($_GET['scan']) {
         $release = $game_block->find('.search_released', 0);
         $release = $release ? $release->innertext : '';
 
+        // ==> Цена
         $price_block = $game_block->find('.search_price', 0);
-        $reg_price = strip_tags(preg_replace("'<span[^>]*>.*</span>'si", '', $price_block->innertext));
-        preg_match("'<span[^>]*>(.*)</span>'si", $price_block->innertext, $old_price);
+        $price_text = $price_block->innertext;
+        if (trim($price_text)) {
+            $reg_price = strip_tags(preg_replace("'<span[^>]*>.*</span>'si", '', $price_text));
+            preg_match("'<span[^>]*>(.*)</span>'si", $price_block->innertext, $old_price);
 
-        $searchInPrice = array('p&#1091;&#1073;.','&#36;','$',"&nbsp;",);
-        $reg_price = trim(str_replace($searchInPrice, '', $reg_price));
-        $old_price = trim(str_replace($searchInPrice, '', strip_tags(@$old_price[1])));
-        $reg_price = str_replace(',', '.', $reg_price);
-        $old_price = str_replace(',', '.', $old_price);
+            $searchInPrice = array('p&#1091;&#1073;.','&#36;','$',"&nbsp;",);
+            $reg_price = trim(str_replace($searchInPrice, '', $reg_price));
+            $old_price = trim(str_replace($searchInPrice, '', strip_tags(@$old_price[1])));
+            $reg_price = str_replace(',', '.', $reg_price);
+            $old_price = str_replace(',', '.', $old_price);
+        }else{
+            $reg_price = '-1';
+            $old_price = '-1';
+        }
 
-        $revStr = $game_block->find('span[data-store-tooltip]',0);
-        ($revStr) ? $revStr = $revStr->attr['data-store-tooltip'] : $revStr = '';
+        // ==> Отзывы
+        $revStr = $game_block->find('span[data-tooltip-html]',0);
+        ($revStr) ? $revStr = $revStr->attr['data-tooltip-html'] : $revStr = '';
         preg_match_all("/[\d]+/", $revStr, $matches);
         if (isset($matches[0][0])) {
             if (isset($matches[0][2])) {
@@ -110,8 +122,10 @@ if ($_GET['scan']) {
             null)");
 
         arrayDB("UPDATE steam_de 
-                    SET reg_price = '$reg_price', old_price = '$old_price', 
-                        o_rating = '$rating', o_reviews = '$reviews' 
+                    SET reg_price = '$reg_price',
+                        old_price = '$old_price', 
+                        o_rating = '$rating',
+                        o_reviews = '$reviews' 
                     WHERE link = '$link'");
 
     } // end foreach
