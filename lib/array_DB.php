@@ -3567,6 +3567,13 @@ if (!function_exists('gig_to_steam')){
 }
 
 
+
+function get_gig_game_link_2(&$steam_game, $home_url = 'https://gig-games.de')
+{
+	return $home_url.'/game/?type='.$steam_game['type'].'&appid='.steam_to_gig($steam_game['appid']).'&title='.get_gig_game_url_title($steam_game['title']);
+}
+
+
 //  aqs sanitize  START =========================================================
 //taken from wordpress
 function gig_utf8_uri_encode( $utf8_string, $length = 0 ) {
@@ -3697,4 +3704,32 @@ function iz_mobile()
 	  }
 	}
 	return false;
+}
+
+// Returns SimpleXML Safe XML keeping the elements attributes as well
+function sanitizeXML($xml_content, $xml_followdepth=true){
+
+    if (preg_match_all('%<((\w+)\s?.*?)>(.+?)</\2>%si', $xml_content, $xmlElements, PREG_SET_ORDER)) {
+
+        $xmlSafeContent = '';
+
+        foreach($xmlElements as $xmlElem){
+            $xmlSafeContent .= '<'.$xmlElem['1'].'>';
+            if (preg_match('%<((\w+)\s?.*?)>(.+?)</\2>%si', $xmlElem['3'])) {
+                $xmlSafeContent .= sanitizeXML($xmlElem['3'], false);
+            }else{
+                $xmlSafeContent .= htmlspecialchars($xmlElem['3'],ENT_NOQUOTES);
+            }
+            $xmlSafeContent .= '</'.$xmlElem['2'].'>';
+        }
+
+        if(!$xml_followdepth)
+            return $xmlSafeContent;
+        else
+            return "<?xml version='1.0' encoding='UTF-8'?>".$xmlSafeContent;
+
+    } else {
+        return htmlspecialchars($xml_content,ENT_NOQUOTES);
+    }
+
 }

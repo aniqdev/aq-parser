@@ -31,7 +31,8 @@ if ($_GET['scan']) {
     //var_dump($doc);
     $page = str_get_html($doc);
     $aggregator = [];
-    foreach ($page->find('a[data-ds-appid]') as $game_block) {
+    
+    if(is_object($page)) foreach ($page->find('a[data-ds-appid]') as $game_block) {
 
         // ==> Название
         $title = ($title = $game_block->find('.title', 0)) ? $title->innertext : '';

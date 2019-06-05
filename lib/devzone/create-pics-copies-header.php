@@ -6,7 +6,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 	$offset = (int)$_POST['offset'];
 
 	$table = 'steam_de';
-	$where = "WHERE pics <> ''";
+	$where = "WHERE pics <> '' AND pics like '%header%' AND pics not like '%80p%'";
 
 	$count = arrayDB("SELECT count(*) FROM $table $where")[0]['count(*)'];
 
@@ -115,7 +115,7 @@ function it_ins_msg(msg) {
 		$('#message li:last').remove();
 	}
 }
-var from = 40000;
+var from = 0;
 var to = 400000;
 function send_post(offset) {
 	$.post('ajax.php' + window.location.search,
