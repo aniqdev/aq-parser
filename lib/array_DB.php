@@ -3733,3 +3733,9 @@ function sanitizeXML($xml_content, $xml_followdepth=true){
     }
 
 }
+
+
+function ajax_gift_keys_add_key()
+{
+	return Gift_keys::save_key();
+}

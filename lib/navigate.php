@@ -91,6 +91,8 @@
             <li><a href="?action=ak-add-key">add keys</a></li>
             <li><a href="?action=ak-keys">keys list</a></li>
             <li><a href="?action=ak-sellers">sellers</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="?action=gift-keys&offset=0&limit=10">gift keys</a></li>
           </ul>
         </li>
 

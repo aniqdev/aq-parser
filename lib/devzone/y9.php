@@ -1,23 +1,22 @@
-<select name="select-city" onchange="location = this.value;">
-<option value="">Select-City</option>
- <option value="https://en.wikipedia.org/wiki/New_Delhi">New Delhi</option>
- <option value="https://en.wikipedia.org/wiki/New_York">New York</option>
- <option value="https://en.wikipedia.org/wiki/Bern">Bern</option>
- <option value="https://en.wikipedia.org/wiki/Beijing">Beijing</option>
-</select>
 <?php ini_get('safe_mode') or set_time_limit(2000); // Указываем скрипту, чтобы не обрывал связь.
 
 
 
+sa(round(2.73, 0, PHP_ROUND_HALF_DOWN));
 
 
+return;
+$date = new DateTime();
+sa($date);
+sa($date->getTimestamp());
+$time = time();
+$date->setTimestamp($time);
+$date->add(date_interval_create_from_date_string('1 hour'));
+$date->setTime($date->format('H'), 0);
+$time_stamp = $date->getTimestamp();
 
-sa(array_filter([
-	'afsd' => 'ads',
-	'agsd' => 'a3ds',
-	'ahsd' => '',
-	'asjd' => '4',
-]));
+sa($date);
+sa($time_stamp);
 
 
 

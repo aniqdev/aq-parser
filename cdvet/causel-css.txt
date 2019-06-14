@@ -1,0 +1,63 @@
+<style> 
+.emotion--wrapper:nth-child(2){
+    position: relative;
+}
+.emotion--wrapper:nth-child(2) .emotion--container .is--hidden-m {
+    display: block;
+}
+.emotion--wrapper:nth-child(2) .emotion--container{
+    display: flex;
+}
+.emotion--wrapper:nth-child(2) .emotion--element .emotion--category-teaser .category-teaser--link {
+    height: 187px;
+    margin-bottom: 47px;
+    position: relative;
+}
+.emotion--wrapper:nth-child(2) .emotion--container.emotion--column-5 .col-l-1{
+    position: static;
+    width: 100%;
+}
+.emotion--wrapper:nth-child(2) .emotion--container .emotion--element:nth-child(n+6){
+    display: none;
+}
+@media (max-width: 1199px) {
+.emotion--wrapper:nth-child(2) .emotion--container .emotion--element:nth-child(n+5){
+    display: none;
+}}
+@media (max-width: 991px) {
+.emotion--wrapper:nth-child(2) .emotion--container .emotion--element:nth-child(n+4){
+    display: none;
+}}
+@media (max-width: 767px) {
+.emotion--wrapper:nth-child(2) .emotion--container .emotion--element:nth-child(n+3){
+    display: none;
+}}
+.emotion--wrapper:nth-child(2) .emotion--container div[class*=emotion--sizer],
+.emotion--wrapper:nth-child(2) .gkarusel{
+    display: none!important;
+}
+.emotion--wrapper:nth-child(2) .aqs-controls{
+    position: absolute;
+    height: 35px;
+    width: 35px;
+    line-height: 29px;
+    font-size: 37px;
+    background: green;
+    color: wheat;
+    border-radius: 50px;
+    top: 50%;
+    font-family: cursive;
+    text-align: center;
+    cursor: pointer;;
+}
+.emotion--wrapper:nth-child(2) .aqs-controls.prev-btn{
+    left: 18px;    
+}
+.emotion--wrapper:nth-child(2) .aqs-controls.next-btn{
+    right: 18px;    
+}
+.emotion--wrapper:nth-child(2) .emotion--category-teaser .category-teaser--title{
+    bottom: initial;
+    top: 100%;
+}
+</style>
