@@ -2982,7 +2982,7 @@ function get_ebay_black_list($game_id)
 function delete_old_records($table, $column)
 {
 	$table = _esc($table);
-	return arrayDB("DELETE FROM `$table` WHERE `$table`.`$column` < NOW() - INTERVAL 2 WEEK");
+	return arrayDB("DELETE FROM `$table` WHERE `$table`.`$column` < NOW() - INTERVAL 4 WEEK");
 }
 
 

@@ -4,8 +4,8 @@
 
 
 
-
-var_dump(iz_mobile());
+sa(time());
+sa(date('Y-m-d H:i'));
 
 
 return;
