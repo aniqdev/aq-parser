@@ -116,6 +116,9 @@
             <li><a href="?action=exporter">exporter</a></li>
             <li><a href="?action=imagine">Picture</a></li>
             <li><a href="?action=migrations">migrations</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="?action=google-parser">google-parser</a></li>
+            <li><a href="?action=google-parser-2">google-parser-2</a></li>
           </ul>
         </li>
 

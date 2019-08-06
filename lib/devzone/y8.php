@@ -1,10 +1,83 @@
+<form action="http://parser/?action=devzone/y8" method="POST" enctype="multipart/form-data">
+	<input type="file" name="sys">
+	<input type="submit">
+</form>
 <?php
 ini_get('safe_mode') or set_time_limit(1000); // Указываем скрипту, чтобы не обрывал связь.
 
 
 
+var_dump($_FILES);
 
 
+
+return;
+$res = Cdvet::GetSellerListRequest(1, 200);
+
+sa($res);
+
+
+return;
+$ebay_item_arr = Cdvet::GetSellerList();
+
+
+sa($ebay_item_arr);
+
+
+
+return;
+function _aqs_log($ret = '')
+{
+	$debug = debug_backtrace()[1];
+	$debug['returned'] = $ret;
+	$log_str = '<pre>'.PHP_EOL.date('d-m-Y H:i:s').print_r($debug,1).
+	'==========================================================</pre>'.PHP_EOL;
+	file_put_contents(__DIR__.'/log.html', $log_str, FILE_APPEND);
+	return $debug;
+}
+
+
+function aqs_debug_backtrace(){
+    $e = new Exception();
+    $trace = $e->getTrace();
+    //position 0 would be the line that called this function so we ignore it
+    $last_call = $trace[1];
+    return($last_call);
+}
+/**
+ * 
+ */
+class AsdQwe
+{
+	
+	function __construct()
+	{
+		# code...
+	}
+
+	function asd($value='')
+	{
+		sa(aqs_debug_backtrace());
+		sa(debug_backtrace()[0]);
+		return $value;
+	}
+}
+
+$asd = new AsdQwe();
+
+// $asd->asd(111,222);
+
+function dsa($value='')
+{
+	sa(_aqs_log($value));
+	return $value;
+}
+
+dsa(333,444);
+
+
+
+return;
 $feed_new = csvToArr('http://www.cdvet.de/backend/export/index/productckeck?feedID=20&hash=5b1c9a571cf947e366411cddc68d9129', ['max_str' => 0,'encoding' => 'windows-1250']);
 
 

@@ -642,8 +642,8 @@ class Cdvet
 		  <ErrorLanguage>en_US</ErrorLanguage>
 		  <WarningLevel>High</WarningLevel>
 		  <GranularityLevel>Coarse</GranularityLevel>
-		  <EndTimeFrom>'.date('Y-m-d\TH:i:s.B\Z', time()-2592000*3).'</EndTimeFrom>
-		  <EndTimeTo>'.date('Y-m-d\TH:i:s.B\Z', time()+2592000).'</EndTimeTo>
+		  <EndTimeFrom>'.date('Y-m-d\TH:i:s.B\Z', time()-(60*60*24*30*2)).'</EndTimeFrom>
+		  <EndTimeTo>'.date('Y-m-d\TH:i:s.B\Z', time()+(60*60*24*30*2)).'</EndTimeTo>
 		  <IncludeWatchCount>true</IncludeWatchCount>
 		  <Pagination> 
 		  	<PageNumber>'.$page.'</PageNumber>

@@ -142,8 +142,8 @@ class EbayGigGames
 		  <ErrorLanguage>en_US</ErrorLanguage>
 		  <WarningLevel>High</WarningLevel>
 		  <GranularityLevel>Coarse</GranularityLevel>
-		  <EndTimeFrom>'.date('Y-m-d\TH:i:s.B\Z', time()-(2592000*3)).'</EndTimeFrom>
-		  <EndTimeTo>'.date('Y-m-d\TH:i:s.B\Z', time()+(2592000*1)).'</EndTimeTo>
+		  <EndTimeFrom>'.date('Y-m-d\TH:i:s.B\Z', time()-(2592000*2)).'</EndTimeFrom>
+		  <EndTimeTo>'.date('Y-m-d\TH:i:s.B\Z', time()+(2592000*2)).'</EndTimeTo>
 		  <IncludeWatchCount>true</IncludeWatchCount>
 		  <Pagination> 
 		  	<PageNumber>'.$page.'</PageNumber>

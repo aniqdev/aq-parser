@@ -39,9 +39,9 @@ foreach ($ebay_item_arr as $key => $ebay_item) {
 		pc_add_to_items_arr($items_arr, $elements_arr);
 		continue;
 	}
-	if ($feed_new[$shop_id][17] === '2 Tage' && $quantity != '1') {
+	if ($feed_new[$shop_id][17] === '2 Tage' && $quantity != '2') {
 		$elements_arr['ItemID'] =  $ebay_id;
-		$elements_arr['Quantity'] = '1';
+		$elements_arr['Quantity'] = '2';
 	}
 	if ($feed_new[$shop_id][12] == 0) {
 		$elements_arr['ItemID'] =  $ebay_id;

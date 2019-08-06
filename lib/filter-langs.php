@@ -17,6 +17,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'save_filter_lang') {
     $lang_fr = _esc($_POST['fr']);
     $lang_es = _esc($_POST['es']);
     $lang_it = _esc($_POST['it']);
+    $lang_ru = _esc($_POST['ru']);
 
     if (arrayDB("SELECT id FROM `$sql_table` WHERE slug = '$slug' LIMIT 1")) {
         $res = arrayDB("UPDATE `$sql_table` SET
@@ -24,11 +25,12 @@ if (isset($_POST['action']) && $_POST['action'] === 'save_filter_lang') {
                 en = '$lang_en',
                 fr = '$lang_fr',
                 es = '$lang_es',
-                it = '$lang_it'
+                it = '$lang_it',
+                ru = '$lang_ru'
             WHERE slug = '$slug'");
     }else{
-        $res = arrayDB("INSERT INTO `$sql_table` (slug,de,en,fr,es,it)
-            VALUES('$slug','$lang_de','$lang_en','$lang_fr','$lang_es','$lang_it')");
+        $res = arrayDB("INSERT INTO `$sql_table` (slug,de,en,fr,es,it,ru)
+            VALUES('$slug','$lang_de','$lang_en','$lang_fr','$lang_es','$lang_it','$lang_ru')");
     }
 
     echo json_encode(['post'=>$_POST,'res'=>$res,'errors'=>$_ERROS]);
@@ -41,7 +43,7 @@ $langs_arr = arrayDB("SELECT * FROM `$sql_table`");
 
 ?>
 <style>
-.container{
+.fl-container{
     background: #fff;
     color: #555;
 }
@@ -73,7 +75,7 @@ $langs_arr = arrayDB("SELECT * FROM `$sql_table`");
     font-weight: bold;
 }
 </style>
-<div class="container">
+<div class="container-fluid fl-container">
     <h4 class="header-title">Filter languages <?= $page_title; ?></h4>
     <p class="text-muted">do not forget to save changes after editing</p>
 
@@ -81,6 +83,7 @@ $langs_arr = arrayDB("SELECT * FROM `$sql_table`");
         <div class="aqs-table-row aqs-table-head-row">
             <div class="aqs-table-cell">slug</div>
             <div class="aqs-table-cell">German</div>
+            <div class="aqs-table-cell">Russian</div>
             <div class="aqs-table-cell">English</div>
             <div class="aqs-table-cell">French</div>
             <div class="aqs-table-cell">Spanish</div>
@@ -92,6 +95,7 @@ $langs_arr = arrayDB("SELECT * FROM `$sql_table`");
         echo '<form class="aqs-table-row js-save-form">
             <div class="aqs-table-cell"><input class="form-control" type="text" name="slug" value="',$val['slug'],'" readonly></div>
             <div class="aqs-table-cell"><input class="form-control" type="text" name="de" value="',htmlspecialchars($val['de']),'"></div>
+            <div class="aqs-table-cell"><input class="form-control" type="text" name="ru" value="',htmlspecialchars($val['ru']),'"></div>
             <div class="aqs-table-cell"><input class="form-control" type="text" name="en" value="',htmlspecialchars($val['en']),'"></div>
             <div class="aqs-table-cell"><input class="form-control" type="text" name="fr" value="',htmlspecialchars($val['fr']),'"></div>
             <div class="aqs-table-cell"><input class="form-control" type="text" name="es" value="',htmlspecialchars($val['es']),'"></div>
@@ -118,12 +122,13 @@ $langs_arr = arrayDB("SELECT * FROM `$sql_table`");
             </form> 
         </div> 
     </div><br>
-</div><!-- /container -->
+</div><!-- /container-fluid -->
 
 <script id="hidden_template" type="text/x-custom-template">
     <form class="aqs-table-row js-save-form">
         <div class="aqs-table-cell"><input class="form-control" type="text" name="slug" value="{{slug}}" readonly></div>
         <div class="aqs-table-cell"><input class="form-control" type="text" name="de" value=""></div>
+        <div class="aqs-table-cell"><input class="form-control" type="text" name="ru" value=""></div>
         <div class="aqs-table-cell"><input class="form-control" type="text" name="en" value=""></div>
         <div class="aqs-table-cell"><input class="form-control" type="text" name="fr" value=""></div>
         <div class="aqs-table-cell"><input class="form-control" type="text" name="es" value=""></div>

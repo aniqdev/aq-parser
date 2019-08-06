@@ -2486,8 +2486,8 @@ function ef_build_post_data($page, $entires = 200){
 		  <ErrorLanguage>en_US</ErrorLanguage>
 		  <WarningLevel>High</WarningLevel>
 		  <GranularityLevel>Coarse</GranularityLevel>
-		  <EndTimeFrom>'.date('Y-m-d\TH:i:s.B\Z', time()-2592000*3).'</EndTimeFrom>
-		  <EndTimeTo>'.date('Y-m-d\TH:i:s.B\Z', time()+2592000).'</EndTimeTo>
+		  <EndTimeFrom>'.date('Y-m-d\TH:i:s.B\Z', time()-2592000*2).'</EndTimeFrom>
+		  <EndTimeTo>'.date('Y-m-d\TH:i:s.B\Z', time()+2592000*2).'</EndTimeTo>
 		  <IncludeWatchCount>true</IncludeWatchCount>
 		  <Pagination> 
 		  	<PageNumber>'.$page.'</PageNumber>
@@ -2506,8 +2506,8 @@ function cdvet_GetList_post_data($page, $entires = 200){
 		  <ErrorLanguage>en_US</ErrorLanguage>
 		  <WarningLevel>High</WarningLevel>
 		  <GranularityLevel>Coarse</GranularityLevel>
-		  <EndTimeFrom>'.date('Y-m-d\TH:i:s.B\Z', time()-2592000*3).'</EndTimeFrom>
-		  <EndTimeTo>'.date('Y-m-d\TH:i:s.B\Z', time()+2592000).'</EndTimeTo>
+		  <EndTimeFrom>'.date('Y-m-d\TH:i:s.B\Z', time()-2592000*2).'</EndTimeFrom>
+		  <EndTimeTo>'.date('Y-m-d\TH:i:s.B\Z', time()+2592000*2).'</EndTimeTo>
 		  <IncludeWatchCount>true</IncludeWatchCount>
 		  <Pagination> 
 		  	<PageNumber>'.$page.'</PageNumber>
@@ -2983,6 +2983,18 @@ function delete_old_records($table, $column)
 {
 	$table = _esc($table);
 	return arrayDB("DELETE FROM `$table` WHERE `$table`.`$column` < NOW() - INTERVAL 4 WEEK");
+}
+
+
+function delete_old_records_2($table, $limit = 5)
+{
+	$res = arrayDB("SELECT scan from `$table` group by scan");
+
+	if (count($res) > $limit) {
+		$scan = $res[0]['scan'];
+		arrayDB("DELETE FROM `$table` WHERE scan = '$scan'");
+		delete_old_records_2($table);
+	}
 }
 
 
@@ -3738,4 +3750,96 @@ function sanitizeXML($xml_content, $xml_followdepth=true){
 function ajax_gift_keys_add_key()
 {
 	return Gift_keys::save_key();
+}
+
+
+function save_domens($word, $offset = 0)
+{	
+	$url = 'https://www.google.com/search?ved=0ahUKEwjmnKSd_N7jAhVxlIsKHaPWAQEQxdoBCFw&hl=ru&yv=3&q='.urlencode($word).'&lr=&tbm=isch&ei=SnBBXebPD_GorgSjrYcI&vet=10ahUKEwjmnKSd_N7jAhVxlIsKHaPWAQEQuT0IQCgB.SnBBXebPD_GorgSjrYcI.i&ijn=4&start='.$offset.'&asearch=ichunk&async=_id:rg_s,_pms:s,_fmt:pc';
+
+	$data = getSslPage($url);
+
+	preg_match_all('/"rh":"(.+?)"/', $data, $matches);
+
+	if (isset($matches[1]) && $matches[1]) {
+		$domens_arr = $matches[1];
+
+		foreach ($domens_arr as $domen) {
+			$domen = _esc(trim($domen));
+			$arr = explode('.', $domen);
+			$zone = array_pop($arr);
+			$check = arrayDB("SELECT id FROM gp_domens_mi WHERE domen = '$domen'");
+			if($check){
+				$id = $check[0]['id'];
+				arrayDB("UPDATE gp_domens_mi SET keywords = '$word' WHERE id = '$id'");
+			}else{
+				arrayDB("INSERT INTO gp_domens_mi SET domen = '$domen', zone = '$zone', keywords = '$word'");
+			}
+		}
+
+		$count = save_domens($word, $offset + 100);
+		return $count + count($domens_arr);
+	}else{
+		return 0;
+	}	
+}
+
+
+function save_domens_multi($word)
+{
+	$_GET['gp_count'] = 0;
+	$_GET['gp_inserted'] = 0;
+	$_GET['gp_multiquery'] = [];
+	$_GET['gp_word'] = $word;
+
+	$multi_curl = new \Curl\MultiCurl();
+
+	$multi_curl->success(function($instance) {
+
+		preg_match_all('/"rh":"(.+?)"/', $instance->response, $matches);
+
+		if (isset($matches[1]) && $matches[1]) {
+			$domens_arr = $matches[1];
+
+			foreach ($domens_arr as $domen) {
+				$domen = _esc(trim($domen));
+				$arr = explode('.', $domen);
+				$zone = array_pop($arr);
+				$word = $_GET['gp_word'];
+				$check = arrayDB("SELECT id FROM gp_domens_mi WHERE domen = '$domen'");
+				if($check){
+					// $id = $check[0]['id'];
+					// arrayDB("UPDATE gp_domens_mi SET keywords = '$word' WHERE id = '$id'");
+				}else{
+					$_GET['gp_inserted'] += 1;
+					$_GET['gp_multiquery'][] = "INSERT INTO gp_domens_mi SET domen = '$domen', zone = '$zone', keywords = '$word'";
+				}
+			}
+
+			$_GET['gp_count'] += count($domens_arr);
+		}
+	});
+
+	$multi_curl->error(function($instance) {
+		global $_ERRORS;
+		$_ERRORS[] = 'THAT WAS multi_curl ERROR!!!';
+	    $_ERRORS[] = $instance->errorMessage;
+	});
+
+	for ($offs=0; $offs < 701; $offs += 100) { 
+		$url = get_google_url($word, $offs);
+		$multi_curl->addGet($url);
+	}
+
+	$multi_curl->start();
+
+	arrayDB(implode(';', $_GET['gp_multiquery']), true);
+
+	return $_GET['gp_count'];
+}
+
+
+function get_google_url($word, $offset = 0)
+{
+	return 'https://www.google.com/search?ved=0ahUKEwjmnKSd_N7jAhVxlIsKHaPWAQEQxdoBCFw&hl=ru&yv=3&q='.urlencode($word).'&lr=&tbm=isch&ei=SnBBXebPD_GorgSjrYcI&vet=10ahUKEwjmnKSd_N7jAhVxlIsKHaPWAQEQuT0IQCgB.SnBBXebPD_GorgSjrYcI.i&ijn=4&start='.$offset.'&asearch=ichunk&async=_id:rg_s,_pms:s,_fmt:pc';
 }

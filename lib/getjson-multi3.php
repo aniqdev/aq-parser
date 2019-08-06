@@ -47,7 +47,8 @@ if (isset($_POST['getjson'])) {
 	if (isset($_POST['scan']) && $_POST['scan'] != '0') $scan = $_POST['scan'];
 	else {
 		$scan = time();
-		delete_old_records('items','date');
+		// delete_old_records('items','date'); // depricated
+		delete_old_records_2('items');
 		// deprecated
 		// $scandate = date('d-m-y H:i:s');
 		// arrayDB("INSERT INTO scans VALUES(null,'$scandate','$scan')");

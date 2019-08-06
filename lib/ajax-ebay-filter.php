@@ -170,7 +170,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_filter_data') {
 		// sa($_POST);
 	$steam_table = _esc($_POST['steam_table']);
 
-	$filter_data = arrayDB("SELECT * FROM filter_values WHERE steam_table = '$steam_table' ORDER BY value");
+	$filter_data = arrayDB("SELECT * FROM filter_values_all WHERE steam_table = '$steam_table' ORDER BY value");
 	$to_json_arr = [];
 	foreach ($filter_data as $v) {
 		// $to_json_arr[$v['name']][$v['value']] = $v['count'];
@@ -199,6 +199,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_translations'){
 	$to_json_arr['translations']['steam_fr'] = array_column($res, 'fr', 'slug');
 	$to_json_arr['translations']['steam_es'] = array_column($res, 'es', 'slug');
 	$to_json_arr['translations']['steam_it'] = array_column($res, 'it', 'slug');
+	$to_json_arr['translations']['steam_ru'] = array_column($res, 'ru', 'slug');
 
 	echo json_encode($to_json_arr);
 	return;

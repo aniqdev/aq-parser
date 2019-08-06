@@ -4,7 +4,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 	header('Content-Type: application/json');
 	$offset = (int)$_POST['offset'];
 
-	$table = 'steam_de';
+	$table = 'steam_en';
 	$where = "";
 
 	$count = arrayDB("SELECT count(*) FROM $table $where")[0]['count(*)'];
@@ -57,7 +57,7 @@ if($_POST) return;
 	
 </style>
 
-<h3>fill-steam_de-pics</h3>
+<h3>fill-steam-pics</h3>
 <form id="js_go_form" class="go-form">
     <button name="aaa" value="bbb" type="button" class="js-go-btn">Go!</button>
 </form><br><br><br>
