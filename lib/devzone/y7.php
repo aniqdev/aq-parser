@@ -1203,12 +1203,6 @@ sa($dir_size/1024 . ' Kb');
 sa($dir_size/1024/1024 . ' Mb');
 sa($dir_size/1024/1024/1024 . ' Gb');
 
-return;
-$platiObj = new PlatiRuBuy();
-$chosen_item_id = '2201685';
-
-		$inv_res = $platiObj->getInvoice($chosen_item_id);
-var_dump($inv_res);
 
 return;
 		$includes_arr = explode(',', '27050,27020,27000');

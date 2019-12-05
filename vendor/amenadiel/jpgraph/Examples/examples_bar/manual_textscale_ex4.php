@@ -1,12 +1,24 @@
-<?php // content="text/plain; charset=utf-8"
-require_once '../../vendor/autoload.php';
-require_once 'jpgraph/jpgraph_line.php';
+<?php
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
+use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Plot;
 
 define('DATAPERMONTH', 40);
+// new Graph\Graph with a drop shadow
+$__width  = 400;
+$__height = 200;
+$graph    = new Graph\Graph($__width, $__height);
+//$graph->SetShadow();
 
 // Some data
-$m = $gDateLocale->GetShortMonth();
-$k = 0;
+$months = [];
+$datay  = [];
+$m      = $graph->gDateLocale->GetShortMonth();
+$k      = 0;
 for ($i = 0; $i < 480; ++$i) {
     $datay[$i] = rand(1, 40);
     if ($i % DATAPERMONTH === 0) {
@@ -14,12 +26,7 @@ for ($i = 0; $i < 480; ++$i) {
     } else {
         $months[$i] = 'xx';
     }
-
 }
-
-// new Graph\Graph with a drop shadow
-$graph = new Graph\Graph(400, 200);
-//$graph->SetShadow();
 
 // Use a "text" X-scale
 $graph->SetScale('textlin');

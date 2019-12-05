@@ -1,20 +1,25 @@
-<?php // content="text/plain; charset=utf-8"
-require_once '../../vendor/autoload.php';
+<?php
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
 use Amenadiel\JpGraph\Graph;
 use Amenadiel\JpGraph\Plot;
-require_once 'jpgraph/jpgraph_line.php';
 
 // Some "random" data
-$ydata = array(10, 120, 80, 190, 260, 170, 60, 40, 20, 230);
-$ydata2 = array(10, 70, 40, 120, 200, 60, 80, 40, 20, 5);
-
-// Get a list of month using the current locale
-$months = $gDateLocale->GetShortMonth();
+$ydata  = [10, 120, 80, 190, 260, 170, 60, 40, 20, 230];
+$ydata2 = [10, 70, 40, 120, 200, 60, 80, 40, 20, 5];
 
 // Create the graph.
-$graph = new Graph\Graph(300, 200);
-$graph->SetScale("textlin");
+$__width  = 300;
+$__height = 200;
+$graph    = new Graph\Graph($__width, $__height);
+$graph->SetScale('textlin');
 $graph->SetMarginColor('white');
+
+// Get a list of month using the current locale
+$months = $graph->gDateLocale->GetShortMonth();
 
 // Adjust the margin slightly so that we use the
 // entire area (since we don't use a frame)

@@ -1,19 +1,24 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Themes;
 
 /**
- * Aqua Theme class
+ * Aqua Theme class.
  */
 class AquaTheme extends Theme
 {
-    protected $font_color = '#0044CC';
+    protected $font_color       = '#0044CC';
     protected $background_color = '#DDFFFF';
-    protected $axis_color = '#0066CC';
-    protected $grid_color = '#3366CC';
+    protected $axis_color       = '#0066CC';
+    protected $grid_color       = '#3366CC';
 
     public function GetColorList()
     {
-        return array(
+        return [
             '#183152',
             '#C4D7ED',
             '#375D81',
@@ -48,12 +53,11 @@ class AquaTheme extends Theme
 '#77AAFF',
 '#00FFCC',
  */
-        );
+        ];
     }
 
     public function SetupGraph($graph)
     {
-
         // graph
         /*
         $img = $graph->img;
@@ -102,7 +106,6 @@ class AquaTheme extends Theme
 
     public function SetupPieGraph($graph)
     {
-
         // graph
         $graph->SetFrame(false);
 
@@ -128,7 +131,7 @@ class AquaTheme extends Theme
     public function PreStrokeApply($graph)
     {
         if ($graph->legend->HasItems()) {
-            $img = $graph->img;
+            $img    = $graph->img;
             $height = $img->height;
             $graph->SetMargin(
                 $img->raw_left_margin,
@@ -141,26 +144,23 @@ class AquaTheme extends Theme
 
     public function ApplyPlot($plot)
     {
-
         switch (get_class($plot)) {
             case 'GroupBarPlot':
-                {
+
                     foreach ($plot->plots as $_plot) {
                         $this->ApplyPlot($_plot);
                     }
-                    break;
-                }
 
+                    break;
             case 'AccBarPlot':
-                {
+
                     foreach ($plot->plots as $_plot) {
                         $this->ApplyPlot($_plot);
                     }
-                    break;
-                }
 
+                    break;
             case 'BarPlot':
-                {
+
                     $plot->Clear();
 
                     $color = $this->GetNextColor();
@@ -168,34 +168,26 @@ class AquaTheme extends Theme
                     $plot->SetFillColor($color);
                     //$plot->SetShadow();
                     break;
-                }
-
             case 'LinePlot':
-                {
+
                     $plot->Clear();
                     $plot->SetColor($this->GetNextColor());
                     $plot->SetWeight(2);
                     //                $plot->SetBarCenter();
                     break;
-                }
-
             case 'PiePlot':
-                {
+
                     $plot->SetCenter(0.5, 0.45);
                     $plot->ShowBorder(false);
                     $plot->SetSliceColors($this->GetThemeColors());
-                    break;
-                }
 
+                    break;
             case 'PiePlot3D':
-                {
-                    $plot->SetSliceColors($this->GetThemeColors());
-                    break;
-                }
 
+                    $plot->SetSliceColors($this->GetThemeColors());
+
+                    break;
             default:
-                {
-                }
         }
     }
 }

@@ -19,12 +19,24 @@ class Options
     /**
      * Default WooCommerce REST API version.
      */
-    const VERSION = 'v3';
+    const VERSION = 'wc/v3';
 
     /**
      * Default request timeout.
      */
     const TIMEOUT = 15;
+
+    /**
+     * Default WP API prefix.
+     * Including leading and trailing slashes.
+     */
+    const WP_API_PREFIX = '/wp-json/';
+
+    /**
+     * Default User Agent.
+     * No version number.
+     */
+    const USER_AGENT = 'WooCommerce API Client-PHP';
 
     /**
      * Options.
@@ -91,6 +103,46 @@ class Options
      */
     public function isWPAPI()
     {
-        return isset($this->options['wp_api']) ? (bool) $this->options['wp_api'] : false;
+        return isset($this->options['wp_api']) ? (bool) $this->options['wp_api'] : true;
+    }
+
+    /**
+     * Custom API Prefix for WP API.
+     *
+     * @return string
+     */
+    public function apiPrefix()
+    {
+        return isset($this->options['wp_api_prefix']) ? $this->options['wp_api_prefix'] : self::WP_API_PREFIX;
+    }
+
+    /**
+     * oAuth timestamp.
+     *
+     * @return string
+     */
+    public function oauthTimestamp()
+    {
+        return isset($this->options['oauth_timestamp']) ? $this->options['oauth_timestamp'] : \time();
+    }
+
+    /**
+     * Custom user agent.
+     *
+     * @return string
+     */
+    public function userAgent()
+    {
+        return isset($this->options['user_agent']) ? $this->options['user_agent'] : self::USER_AGENT;
+    }
+
+    /**
+     * Get follow redirects
+     *
+     * @return bool
+     */
+    public function getFollowRedirects()
+    {
+        return isset($this->options['follow_redirects']) ? (bool) $this->options['follow_redirects'] : false;
     }
 }

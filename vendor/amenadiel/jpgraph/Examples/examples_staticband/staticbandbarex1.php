@@ -1,18 +1,25 @@
-<?php // content="text/plain; charset=utf-8"
-require_once 'jpgraph/jpgraph.php';
-require_once 'jpgraph/jpgraph_bar.php';
+<?php
 
-$datay = array(12, 0, -19, -7, 17, -6);
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
+use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Plot;
+
+$datay = [12, 0, -19, -7, 17, -6];
 
 // Create the graph.
-$graph = new Graph\Graph(400, 300);
+$__width  = 400;
+$__height = 300;
+$graph    = new Graph\Graph($__width, $__height);
 $graph->img->SetMargin(60, 30, 50, 40);
-$graph->SetScale("textlin");
+$graph->SetScale('textlin');
 $graph->SetShadow();
 
 $graph->title->SetFont(FF_ARIAL, FS_BOLD, 15);
-$graph->title->Set("Cash flow ");
-$graph->subtitle->Set("(Department X)");
+$graph->title->Set('Cash flow ');
+$graph->subtitle->Set('(Department X)');
 
 // Show both X and Y grid
 $graph->xgrid->Show(true, false);
@@ -26,14 +33,14 @@ $graph->yaxis->SetTickSide(SIDE_LEFT);
 
 // Create a bar pot
 $bplot = new Plot\BarPlot($datay);
-$bplot->SetFillColor("orange");
+$bplot->SetFillColor('orange');
 
 // Show the actual value for each bar on top/bottom
 $bplot->value->Show(true);
-$bplot->value->SetFormat("%02d kr");
+$bplot->value->SetFormat('%02d kr');
 
 // Position the X-axis at the bottom of the plotare
-$graph->xaxis->SetPos("min");
+$graph->xaxis->SetPos('min');
 
 // .. and add the plot to the graph
 $graph->Add($bplot);
@@ -42,8 +49,8 @@ $graph->Add($bplot);
 $graph->Add(new Plot\PlotBand(HORIZONTAL, BAND_HLINE, 0, 10));
 
 //$graph->title->Set("Test of bar gradient fill");
-$graph->xaxis->title->Set("X-title");
-$graph->yaxis->title->Set("Y-title");
+$graph->xaxis->title->Set('X-title');
+$graph->yaxis->title->Set('Y-title');
 
 $graph->yaxis->title->SetFont(FF_ARIAL, FS_BOLD, 11);
 $graph->xaxis->title->SetFont(FF_ARIAL, FS_BOLD, 11);

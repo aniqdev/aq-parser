@@ -1,19 +1,24 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Themes;
 
 /**
- * Softy Theme class
+ * Softy Theme class.
  */
 class SoftyTheme extends Theme
 {
-    protected $font_color = '#000000';
+    protected $font_color       = '#000000';
     protected $background_color = '#F7F8F4';
-    protected $axis_color = '#000000';
-    protected $grid_color = '#CCCCCC';
+    protected $axis_color       = '#000000';
+    protected $grid_color       = '#CCCCCC';
 
     public function GetColorList()
     {
-        return array(
+        return [
             '#CFE7FB',
             '#F9D76F',
             '#B9D566',
@@ -41,12 +46,11 @@ class SoftyTheme extends Theme
 '#9D080D',
 '#A186BE',
  */
-        );
+        ];
     }
 
     public function SetupGraph($graph)
     {
-
         // graph
         $graph->SetFrame(false);
         $graph->SetMarginColor('white');
@@ -115,7 +119,6 @@ class SoftyTheme extends Theme
 
     public function SetupPieGraph($graph)
     {
-
         // graph
         $graph->SetFrame(false);
 
@@ -138,10 +141,9 @@ class SoftyTheme extends Theme
 
     public function ApplyPlot($plot)
     {
-
         switch (get_class($plot)) {
             case 'BarPlot':
-                {
+
                     $plot->Clear();
 
                     $color = $this->GetNextColor();
@@ -149,58 +151,47 @@ class SoftyTheme extends Theme
                     $plot->SetFillColor($color);
                     $plot->SetShadow('red', 3, 4, false);
                     $plot->value->SetAlign('center', 'center');
-                    break;
-                }
 
+                    break;
             case 'LinePlot':
-                {
+
                     $plot->Clear();
 
                     $plot->SetColor($this->GetNextColor());
                     $plot->SetWeight(2);
                     //                $plot->SetBarCenter();
                     break;
-                }
-
             case 'PiePlot':
-                {
+
                     $plot->ShowBorder(false);
                     $plot->SetSliceColors($this->GetThemeColors());
-                    break;
-                }
 
+                    break;
             case 'GroupBarPlot':
-                {
+
                     foreach ($plot->plots as $_plot) {
                         $this->ApplyPlot($_plot);
                     }
-                    break;
-                }
 
+                    break;
             case 'AccBarPlot':
-                {
+
                     $plot->value->SetAlign('center', 'center');
                     foreach ($plot->plots as $_plot) {
                         $this->ApplyPlot($_plot);
                         $_plot->SetValuePos('center');
                     }
-                    break;
-                }
 
+                    break;
             case 'ScatterPlot':
-                {
-                    break;
-                }
 
+                    break;
             case 'PiePlot3D':
-                {
-                    $plot->SetSliceColors($this->GetThemeColors());
-                    break;
-                }
 
+                    $plot->SetSliceColors($this->GetThemeColors());
+
+                    break;
             default:
-                {
-                }
         }
     }
 }

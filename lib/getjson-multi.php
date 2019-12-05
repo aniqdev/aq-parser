@@ -27,7 +27,7 @@ function getResultsFromApi($response, $blacklist, $blacksell){
 			$itemID      = $result->items[$i]->id;
 			$sellID      = $result->items[$i]->seller_id;
 		    $name        = $result->items[$i]->name;
-		    $price       = $result->items[$i]->price_rur;
+		    $price       = $result->items[$i]->price_usd;
 		    $description = $result->items[$i]->description;
 
    			$nameLow = mb_convert_case($name, MB_CASE_LOWER, "UTF-8");

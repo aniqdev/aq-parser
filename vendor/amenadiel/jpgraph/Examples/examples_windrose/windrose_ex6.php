@@ -1,26 +1,33 @@
 <?php
-require_once '../../vendor/autoload.php';
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
 use Amenadiel\JpGraph\Graph;
 use Amenadiel\JpGraph\Plot;
+
 // Data can be specified using both ordinal index of the axis
 // as well as the direction label
-$data = array(
-    '10' => array(1, 1, 2.5, 4),
-    '32.0' => array(3, 4, 1, 4),
-    '120.5' => array(2, 3, 4, 4, 3, 2, 1),
-    '223.2' => array(2, 4, 1, 2, 2),
-    '285.7' => array(2, 2, 1, 2, 4, 2, 1, 1),
-);
+$data = [
+    '10'    => [1, 1, 2.5, 4],
+    '32.0'  => [3, 4, 1, 4],
+    '120.5' => [2, 3, 4, 4, 3, 2, 1],
+    '223.2' => [2, 4, 1, 2, 2],
+    '285.7' => [2, 2, 1, 2, 4, 2, 1, 1],
+];
 
 // Specify text for direction labels
-$labels = array('120.5' => "Plant\n#1275",
-    '285.7' => "Reference\n#13 Ver:2");
+$labels = ['120.5'     => "Plant\n#1275",
+    '285.7'            => "Reference\n#13 Ver:2", ];
 
 // Range colors to be used
-$rangeColors = array('khaki', 'yellow', 'orange', 'orange:0.7', 'brown', 'darkred', 'black');
+$rangeColors = ['khaki', 'yellow', 'orange', 'orange:0.7', 'brown', 'darkred', 'black'];
 
 // First create a new windrose graph with a title
-$graph = new Graph\WindroseGraph(400, 450);
+$__width  = 400;
+$__height = 450;
+$graph    = new Graph\WindroseGraph($__width, $__height);
 
 // Setup titles
 $graph->title->Set('Windrose example 6');

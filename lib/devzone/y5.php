@@ -231,18 +231,6 @@ sa($res);
 
 
 
-return;
-
-$platiObj = new PlatiRuBuy();
-
-$itemid = '1739981';
-
-$res = $platiObj->getInvoice($itemid);
-
-sa($res);
-
-
-
 
 
 

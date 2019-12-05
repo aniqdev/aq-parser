@@ -1,12 +1,19 @@
-<?php // content="text/plain; charset=utf-8"
-require_once 'jpgraph/jpgraph.php';
-require_once 'jpgraph/jpgraph_line.php';
+<?php
 
-$ydata = array(12, 17, 22, 19, 5, 15);
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
+use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Plot;
 
-$graph = new Graph\Graph(270, 170);
+$ydata = [12, 17, 22, 19, 5, 15];
+
+$__width  = 270;
+$__height = 170;
+$graph    = new Graph\Graph($__width, $__height);
 $graph->SetMargin(30, 90, 30, 30);
-$graph->SetScale("textlin");
+$graph->SetScale('textlin');
 
 $graph->img->SetAngle(45);
 

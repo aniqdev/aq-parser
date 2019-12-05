@@ -1,13 +1,21 @@
-<?php // content="text/plain; charset=utf-8"
-require_once 'jpgraph/jpgraph.php';
-require_once 'jpgraph/jpgraph_line.php';
-require_once 'jpgraph/jpgraph_utils.inc.php';
+<?php
 
-$f = new FuncGenerator('cos($i)', '$i*$i*$i');
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
+
+use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Plot;
+use Amenadiel\JpGraph\Util;
+
+$f                   = new Util\FuncGenerator('cos($i)', '$i*$i*$i');
 list($xdata, $ydata) = $f->E(-M_PI, M_PI, 25);
 
-$graph = new Graph\Graph(300, 200);
-$graph->SetScale("linlin");
+$__width  = 300;
+$__height = 200;
+$graph    = new Graph\Graph($__width, $__height);
+$graph->SetScale('linlin');
 $graph->SetMargin(50, 50, 20, 30);
 $graph->SetFrame(false);
 $graph->SetBox(true, 'black', 2);
@@ -21,7 +29,7 @@ $graph->SetAxisStyle(AXSTYLE_YBOXIN);
 $graph->xgrid->Show();
 
 $lp1 = new Plot\LinePlot($ydata, $xdata);
-$lp1->SetColor("blue");
+$lp1->SetColor('blue');
 $lp1->SetWeight(2);
 $graph->Add($lp1);
 

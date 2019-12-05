@@ -1,4 +1,4 @@
-<?php
+<?php ini_set('max_execution_time', 300);
 if (isset($_GET['steam-link'])) {
 	$options = array('http' => array('method' => "GET", 'header' => "Accept-language: de\r\n" . "Cookie: Steam_Language=german; mature_content=1; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
 	$context = stream_context_create($options);

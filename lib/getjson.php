@@ -25,7 +25,7 @@ function getResultsFromApi($request, $blacklist, $blacksell){
 			$itemID      = $result->items[$i]->id;
 			$sellID      = $result->items[$i]->seller_id;
 		    $name        = $result->items[$i]->name;
-		    $price       = $result->items[$i]->price_rur;
+		    $price       = $result->items[$i]->price_usd;
 		    $description = $result->items[$i]->description;
 
    			$nameLow = mb_convert_case($name, MB_CASE_LOWER, "UTF-8");
@@ -247,9 +247,9 @@ if (isset($_POST['getjson'])) {
 		<button id="filter_price_update" class="btn btn-warning pull-right">Обновить фильтр (цены)</button><br><br>
 		<button id="filter_advantages_update" class="btn btn-warning pull-right">Обновить фильтр (приемущества)</button><br><br>
 		<button id="filter_values_update" class="btn btn-warning pull-right">Обновить фильтр (переменные)</button>
-		<button id="getjson" class="getjson-btn">Спарсить</button>
-		<button id="getjson_multi" class="getjson-btn" style="margin:4px 0 -30px;" title="в 1.7 раз быстрее">v2.0 beta</button>
-		<button id="getjson_multi3" class="getjson-btn" style="margin:35px 0 -62px;" title="в 10 раз быстрее">v3.0 beta</button>
+		<!-- <button id="getjson" class="getjson-btn">Спарсить</button> -->
+		<!-- <button id="getjson_multi" class="getjson-btn" style="margin:4px 0 -30px;" title="в 1.7 раз быстрее">v2.0 beta</button> -->
+		<button id="getjson_multi3" class="getjson-btn" style="margin:35px 0 -62px;" title="в 10 раз быстрее">Спарсить (v3.0)</button>
 		<span class="loading loading1"></span>
 		<h3>Состояние процесса:</h3>
 		<ul id="message1" class="message li_height44"><li></li></ul>

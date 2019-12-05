@@ -1,16 +1,21 @@
-<?php // content="text/plain; charset=utf-8"
+<?php
 
-require_once 'jpgraph/jpgraph.php';
-require_once 'jpgraph/jpgraph_bar.php';
-require_once 'jpgraph/jpgraph_flags.php';
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
+use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Plot;
 
 // Some data
-$datay1 = array(140, 110, 50);
-$datay2 = array(35, 90, 190);
-$datay3 = array(20, 60, 70);
+$datay1 = [140, 110, 50];
+$datay2 = [35, 90, 190];
+$datay3 = [20, 60, 70];
 
 // Create the basic graph
-$graph = new Graph\Graph(300, 200);
+$__width  = 300;
+$__height = 200;
+$graph    = new Graph\Graph($__width, $__height);
 $graph->SetScale('textlin');
 $graph->SetMargin(40, 20, 20, 40);
 $graph->SetMarginColor('white:0.9');
@@ -26,7 +31,7 @@ $graph->legend->SetFillColor('lightblue@0.1');
 $graph->legend->Hide();
 
 // Get localised version of the month names
-$graph->xaxis->SetTickLabels($gDateLocale->GetShortMonth());
+$graph->xaxis->SetTickLabels($graph->gDateLocale->GetShortMonth());
 $graph->SetBackgroundCountryFlag('mais', BGIMG_COPY, 50);
 
 // Set axis titles and fonts
@@ -70,7 +75,7 @@ $bplot1->SetShadow('black@0.4');
 $bplot2->SetShadow('black@0.4');
 $bplot3->SetShadow('black@0.4');
 
-$gbarplot = new Plot\GroupBarPlot(array($bplot1, $bplot2, $bplot3));
+$gbarplot = new Plot\GroupBarPlot([$bplot1, $bplot2, $bplot3]);
 $gbarplot->SetWidth(0.6);
 $graph->Add($gbarplot);
 

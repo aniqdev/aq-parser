@@ -1,24 +1,33 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Image;
 
+use Amenadiel\JpGraph\Graph;
 use Amenadiel\JpGraph\Util;
 
-//===================================================
-// CLASS IconImage
-// Description: Holds properties for an icon image
-//===================================================
+/**
+ * @class IconImage
+ * // Description: Holds properties for an icon image
+ */
 class IconImage
 {
-    private $iGDImage = null;
-    private $iWidth, $iHeight;
-    private $ixalign = 'left', $iyalign = 'center';
-    private $iScale = 1.0;
+    private $iGDImage;
+    private $iWidth;
+    private $iHeight;
+    private $ixalign = 'left';
+    private $iyalign = 'center';
+    private $iScale  = 1.0;
 
     public function __construct($aIcon, $aScale = 1)
     {
-        global $_gPredefIcons;
+        $_gPredefIcons = new PredefIcons();
+
         if (is_string($aIcon)) {
-            $this->iGDImage = Graph::LoadBkgImage('', $aIcon);
+            $this->iGDImage = Graph\Graph::LoadBkgImage('', $aIcon);
         } elseif (is_integer($aIcon)) {
             // Builtin image
             $this->iGDImage = $_gPredefIcons->GetImg($aIcon);
@@ -26,8 +35,8 @@ class IconImage
             Util\JpGraphError::RaiseL(6011);
             //('Argument to IconImage must be string or integer');
         }
-        $this->iScale = $aScale;
-        $this->iWidth = Image::GetWidth($this->iGDImage);
+        $this->iScale  = $aScale;
+        $this->iWidth  = Image::GetWidth($this->iGDImage);
         $this->iHeight = Image::GetHeight($this->iGDImage);
     }
 
@@ -49,7 +58,6 @@ class IconImage
 
     public function Stroke($aImg, $x, $y)
     {
-
         if ($this->ixalign == 'right') {
             $x -= $this->iWidth;
         } elseif ($this->ixalign == 'center') {
@@ -62,9 +70,16 @@ class IconImage
             $y -= round($this->iHeight / 2 * $this->iScale);
         }
 
-        $aImg->Copy($this->iGDImage,
-            $x, $y, 0, 0,
-            round($this->iWidth * $this->iScale), round($this->iHeight * $this->iScale),
-            $this->iWidth, $this->iHeight);
+        $aImg->Copy(
+            $this->iGDImage,
+            $x,
+            $y,
+            0,
+            0,
+            round($this->iWidth * $this->iScale),
+            round($this->iHeight * $this->iScale),
+            $this->iWidth,
+            $this->iHeight
+        );
     }
 }

@@ -1,12 +1,18 @@
-<?php // content="text/plain; charset=utf-8"
-require_once '../../vendor/autoload.php';
+<?php
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
 use Amenadiel\JpGraph\Graph;
 use Amenadiel\JpGraph\Plot;
 
-$datay = array(10, 29, 3, 6);
+$datay = [10, 29, 3, 6];
 
 // Create the graph.
-$graph = new Graph\Graph(200, 200);
+$__width  = 200;
+$__height = 200;
+$graph    = new Graph\Graph($__width, $__height);
 $graph->SetScale('textlin');
 $graph->SetMargin(25, 10, 20, 25);
 $graph->SetBox(true);
@@ -16,7 +22,7 @@ $graph->yscale->SetGrace(10);
 
 // Create a bar pot
 $bplot = new Plot\BarPlot($datay);
-$bplot->SetFillColor("lightblue");
+$bplot->SetFillColor('lightblue');
 
 $graph->ygrid->Show(false);
 

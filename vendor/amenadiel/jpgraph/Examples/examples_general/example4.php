@@ -1,19 +1,23 @@
-<?php // content="text/plain; charset=utf-8"
-require_once '../../vendor/autoload.php';
+<?php
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
 use Amenadiel\JpGraph\Graph;
 use Amenadiel\JpGraph\Plot;
 
 // Some (random) data
-$ydata = array(11, 3, 8, 12, 5, 1, 9, 13, 5, 7);
-$ydata2 = array(1, 19, 15, 7, 22, 14, 5, 9, 21, 13);
+$ydata  = [11, 3, 8, 12, 5, 1, 9, 13, 5, 7];
+$ydata2 = [1, 19, 15, 7, 22, 14, 5, 9, 21, 13];
 
 // Size of the overall graph
-$width = 350;
-$height = 250;
+$__width  = 350;
+$__height = 250;
 
 // Create the graph and set a scale.
 // These two calls are always required
-$graph = new Graph\Graph($width, $height);
+$graph = new Graph\Graph($__width, $__height);
 $graph->SetScale('intlin');
 $graph->SetShadow();
 

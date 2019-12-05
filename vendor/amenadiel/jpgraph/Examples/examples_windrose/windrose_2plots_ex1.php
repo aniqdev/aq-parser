@@ -1,22 +1,29 @@
 <?php
-require_once '../../vendor/autoload.php';
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
 use Amenadiel\JpGraph\Graph;
 use Amenadiel\JpGraph\Plot;
+
 // Data can be specified using both ordinal idex of axis as well
 // as the direction label
-$data = array(
-    1 => array(10, 10, 13, 7),
-    2 => array(2, 8, 10),
-    4 => array(1, 12, 22),
-);
+$data = [
+    1 => [10, 10, 13, 7],
+    2 => [2, 8, 10],
+    4 => [1, 12, 22],
+];
 
-$data2 = array(
-    4 => array(12, 8, 2, 3),
-    2 => array(5, 4, 4, 5, 2),
-);
+$data2 = [
+    4 => [12, 8, 2, 3],
+    2 => [5, 4, 4, 5, 2],
+];
 
 // Create a new small windrose graph
-$graph = new Graph\WindroseGraph(660, 400);
+$__width  = 660;
+$__height = 400;
+$graph    = new Graph\WindroseGraph($__width, $__height);
 $graph->SetShadow();
 
 $graph->title->Set('Two windrose plots in one graph');
@@ -34,7 +41,7 @@ $wp2->SetType(WINDROSE_TYPE16);
 $wp2->SetSize(0.42);
 $wp2->SetPos(0.74, 0.55);
 $wp2->SetBox();
-$wp2->SetRangeColors(array('green', 'yellow', 'red', 'brown'));
+$wp2->SetRangeColors(['green', 'yellow', 'red', 'brown']);
 
 $graph->Add($wp);
 $graph->Add($wp2);

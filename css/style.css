@@ -596,6 +596,8 @@ span.loading.inaction,
 
 .getjson-btn{
 	display: block;
+	position: relative;
+    z-index: 5;
 }
 
 .add-shadow{

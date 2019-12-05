@@ -3,6 +3,18 @@
 
 //$ord_arr = $ord_obj->getOrders(['order_status'=>'Completed','OrderIDArray'=>['216865269010','216842562010']]);
 
+$o = [];
+// $o = ['EntriesPerPage' => 20, 'NumberOfDays'=>3];
+
+$ord_array = getOrderArray($o);
+
+
+	//echo json_encode($ord_array);
+	echo "<pre>";
+	if($ord_array['success'] === 'OK') saveOrders($ord_array['ord_arr']);
+	else print_r($ord_array);
+	print_r($_ERRORS);
+	echo "</pre>";
 
 function saveOrders($ord_arr = []){
 	
@@ -66,7 +78,9 @@ function saveOrders($ord_arr = []){
 			$d = new DateTime($ShippedTime);
 			$d->add(date_interval_create_from_date_string('1 hour'));
 			$ShippedTime = $d->format('Y-m-d H:i:s');
-		}else $ShippedTime = '';
+		}else{
+			$ShippedTime = '';
+		}
 
 		$check = arrayDB("SELECT id FROM ebay_orders WHERE order_id='$order_id'");
 		if ($check) {
@@ -81,12 +95,6 @@ function saveOrders($ord_arr = []){
 				 PaymentMethod='$PaymentMethod',
 				 ShippingAddress='$ShippingAddress'
 				WHERE order_id='$order_id';";
-			// arrayDB($query);
-
-	// echo "<pre>";
-	// print_r($query);
-	// echo "</pre>";
-
 		}else{
 			arrayDB("INSERT INTO ebay_orders (id,
 				order_id,
@@ -127,15 +135,17 @@ function saveOrders($ord_arr = []){
 			}
 			$gig_order_id = DB::getInstance()->lastid();
 			foreach ($goods as $key => $good) {
+				
+				$title = _esc($good['title']);
+				$price = _esc($good['price']);
+				$amount = _esc($good['amount']);
+				$ebay_id = _esc($good['itemid']);
+
 				for ($i=0; $i < $good['amount']; $i++) { 
 
 					if ($order_id_checker === $order['OrderID']) $npp++;
 					else{ $order_id_checker = $order['OrderID']; $npp = 1; }
 
-					$title = _esc($good['title']);
-					$price = _esc($good['price']);
-					$amount = _esc($good['amount']);
-					$ebay_id = _esc($good['itemid']);
 					arrayDB("INSERT INTO ebay_order_items (gig_order_id,title,price,amount,ebay_id,npp,total)
 							VALUES('$gig_order_id','$title','$price','$amount','$ebay_id','$npp','$total')");
 				}
@@ -161,16 +171,3 @@ function saveOrders($ord_arr = []){
 	arrayDB($update_query, true);
 }
 
-
-$o = [];
-// $o = ['EntriesPerPage' => 20, 'NumberOfDays'=>3];
-
-$ord_array = getOrderArray($o);
-
-
-	//echo json_encode($ord_array);
-	echo "<pre>";
-	if($ord_array['success'] === 'OK') saveOrders($ord_array['ord_arr']);
-	else print_r($ord_array);
-	print_r($_ERRORS);
-	echo "</pre>";

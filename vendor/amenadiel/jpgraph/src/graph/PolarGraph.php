@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Graph;
 
 use Amenadiel\JpGraph\Util;
@@ -7,10 +12,10 @@ class PolarGraph extends Graph
 {
     public $scale;
     public $axis;
-    public $iType = POLAR_360;
+    public $iType       = POLAR_360;
     private $iClockwise = false;
 
-    public function __construct($aWidth = 300, $aHeight = 200, $aCachedName = "", $aTimeOut = 0, $aInline = true)
+    public function __construct($aWidth = 300, $aHeight = 200, $aCachedName = '', $aTimeOut = 0, $aInline = true)
     {
         parent::__construct($aWidth, $aHeight, $aCachedName, $aTimeOut, $aInline);
         $this->SetDensity(TICKD_DENSE);
@@ -61,26 +66,30 @@ class PolarGraph extends Graph
 
     public function SetPlotSize($w, $h)
     {
-        $this->SetMargin(($this->img->width - $w) / 2, ($this->img->width - $w) / 2,
-            ($this->img->height - $h) / 2, ($this->img->height - $h) / 2);
+        $this->SetMargin(
+            ($this->img->width - $w) / 2,
+            ($this->img->width - $w) / 2,
+            ($this->img->height - $h) / 2,
+            ($this->img->height - $h) / 2
+        );
     }
 
     // Private methods
     public function GetPlotsMax()
     {
-        $n = count($this->plots);
+        $n = safe_count($this->plots);
         $m = $this->plots[0]->Max();
         $i = 1;
         while ($i < $n) {
             $m = max($this->plots[$i]->Max(), $m);
             ++$i;
         }
+
         return $m;
     }
 
-    public function Stroke($aStrokeFileName = "")
+    public function Stroke($aStrokeFileName = '')
     {
-
         // Start by adjusting the margin so that potential titles will fit.
         $this->AdjustMarginsForTitles();
 
@@ -100,15 +109,19 @@ class PolarGraph extends Graph
         $this->iHasStroked = true;
 
         //Check if we should autoscale axis
-        if (!$this->scale->IsSpecified() && count($this->plots) > 0) {
+        if (!$this->scale->IsSpecified() && safe_count($this->plots) > 0) {
             $max = $this->GetPlotsMax();
-            $t1 = $this->img->plotwidth;
+            $t1  = $this->img->plotwidth;
             $this->img->plotwidth /= 2;
             $t2 = $this->img->left_margin;
             $this->img->left_margin += $this->img->plotwidth + 1;
-            $this->scale->AutoScale($this->img, 0, $max,
-                $this->img->plotwidth / $this->xtick_factor / 2);
-            $this->img->plotwidth = $t1;
+            $this->scale->AutoScale(
+                $this->img,
+                0,
+                $max,
+                $this->img->plotwidth / $this->xtick_factor / 2
+            );
+            $this->img->plotwidth   = $t1;
             $this->img->left_margin = $t2;
         } else {
             // The tick calculation will use the user suplied min/max values to determine
@@ -118,13 +131,17 @@ class PolarGraph extends Graph
             // so that the min and max values falls on an even major step.
             //$min = 0;
             $max = $this->scale->scale[1];
-            $t1 = $this->img->plotwidth;
+            $t1  = $this->img->plotwidth;
             $this->img->plotwidth /= 2;
             $t2 = $this->img->left_margin;
             $this->img->left_margin += $this->img->plotwidth + 1;
-            $this->scale->AutoScale($this->img, 0, $max,
-                $this->img->plotwidth / $this->xtick_factor / 2);
-            $this->img->plotwidth = $t1;
+            $this->scale->AutoScale(
+                $this->img,
+                0,
+                $max,
+                $this->img->plotwidth / $this->xtick_factor / 2
+            );
+            $this->img->plotwidth   = $t1;
             $this->img->left_margin = $t2;
         }
 
@@ -149,31 +166,40 @@ class PolarGraph extends Graph
         }
 
         // Stroke all plots for Y1 axis
-        for ($i = 0; $i < count($this->plots); ++$i) {
+        for ($i = 0; $i < safe_count($this->plots); ++$i) {
             $this->plots[$i]->Stroke($this->img, $this->scale);
         }
 
         if ($this->iDoClipping) {
             // Clipping only supports graphs at 0 and 90 degrees
             if ($this->img->a == 0) {
-                $this->img->CopyCanvasH($oldimage, $this->img->img,
-                    $this->img->left_margin, $this->img->top_margin,
-                    $this->img->left_margin, $this->img->top_margin,
-                    $this->img->plotwidth + 1, $this->img->plotheight + 1);
+                $this->img->CopyCanvasH(
+                    $oldimage,
+                    $this->img->img,
+                    $this->img->left_margin,
+                    $this->img->top_margin,
+                    $this->img->left_margin,
+                    $this->img->top_margin,
+                    $this->img->plotwidth + 1,
+                    $this->img->plotheight + 1
+                );
             } elseif ($this->img->a == 90) {
                 $adj1 = round(($this->img->height - $this->img->width) / 2);
                 $adj2 = round(($this->img->width - $this->img->height) / 2);
-                $lm = $this->img->left_margin;
-                $rm = $this->img->right_margin;
-                $tm = $this->img->top_margin;
-                $bm = $this->img->bottom_margin;
-                $this->img->CopyCanvasH($oldimage, $this->img->img,
+                $lm   = $this->img->left_margin;
+                $rm   = $this->img->right_margin;
+                $tm   = $this->img->top_margin;
+                $bm   = $this->img->bottom_margin;
+                $this->img->CopyCanvasH(
+                    $oldimage,
+                    $this->img->img,
                     $adj2 + round(($lm - $rm + $tm + $bm) / 2),
                     $adj1 + round(($tm - $bm + $lm + $rm) / 2),
                     $adj2 + round(($lm - $rm + $tm + $bm) / 2),
                     $adj1 + round(($tm - $bm + $lm + $rm) / 2),
                     $this->img->plotheight + 1,
-                    $this->img->plotwidth + 1);
+                    $this->img->plotwidth + 1
+                );
             }
             $this->img->Destroy();
             $this->img->SetCanvasH($oldimage);
@@ -194,14 +220,13 @@ class PolarGraph extends Graph
             $this->StrokeTitles();
         }
 
-        for ($i = 0; $i < count($this->plots); ++$i) {
+        for ($i = 0; $i < safe_count($this->plots); ++$i) {
             $this->plots[$i]->Legend($this);
         }
 
         $this->legend->Stroke($this->img);
 
         if (!$_csim) {
-
             $this->StrokeTexts();
             $this->img->SetAngle($aa);
 
@@ -215,10 +240,9 @@ class PolarGraph extends Graph
             // streamed back
             if ($aStrokeFileName == _IMG_HANDLER) {
                 return $this->img->img;
-            } else {
-                // Finally stream the generated picture
-                $this->cache->PutAndStream($this->img, $this->cache_name, $this->inline, $aStrokeFileName);
             }
+            // Finally stream the generated picture
+            $this->cache->PutAndStream($this->img, $this->cache_name, $this->inline, $aStrokeFileName);
         }
     }
 }

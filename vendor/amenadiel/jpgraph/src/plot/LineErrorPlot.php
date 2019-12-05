@@ -1,21 +1,33 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Plot;
 
-//===================================================
-// CLASS LineErrorPlot
-// Description: Combine a line and error plot
-//===================================================
+use Amenadiel\JpGraph\Util;
+
+/**
+ * @class LineErrorPlot
+ * // Description: Combine a line and error plot
+ */
 class LineErrorPlot extends ErrorPlot
 {
-    public $line = null;
-    //---------------
-    // CONSTRUCTOR
+    public $line;
+
+    /**
+     * CONSTRUCTOR.
+     *
+     * @param mixed $datay
+     * @param mixed $datax
+     */
     // Data is (val, errdeltamin, errdeltamax)
     public function __construct($datay, $datax = false)
     {
-        $ly = array();
-        $ey = array();
-        $n = count($datay);
+        $ly = [];
+        $ey = [];
+        $n  = safe_count($datay);
         if ($n % 3 != 0) {
             Util\JpGraphError::RaiseL(4002);
             //('Error in input data to LineErrorPlot. Number of data points must be a multiple of 3');
@@ -29,11 +41,14 @@ class LineErrorPlot extends ErrorPlot
         $this->line = new LinePlot($ly, $datax);
     }
 
-    //---------------
-    // PUBLIC METHODS
+    /**
+     * PUBLIC METHODS.
+     *
+     * @param mixed $graph
+     */
     public function Legend($graph)
     {
-        if ($this->legend != "") {
+        if ($this->legend != '') {
             $graph->legend->Add($this->legend, $this->color);
         }
 
@@ -45,6 +60,6 @@ class LineErrorPlot extends ErrorPlot
         parent::Stroke($img, $xscale, $yscale);
         $this->line->Stroke($img, $xscale, $yscale);
     }
-} // Class
+} // @class
 
 /* EOF */

@@ -1,10 +1,15 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Util;
 
-//===================================================
-// CLASS GanttConstraint
-// Just a structure to store all the values for a constraint
-//===================================================
+/**
+ * @class GanttConstraint
+ * // Just a structure to store all the values for a constraint
+ */
 class GanttConstraint
 {
     public $iConstrainRow;
@@ -13,13 +18,20 @@ class GanttConstraint
     public $iConstrainArrowSize;
     public $iConstrainArrowType;
 
-    //---------------
-    // CONSTRUCTOR
+    /**
+     * CONSTRUCTOR.
+     *
+     * @param mixed $aRow
+     * @param mixed $aType
+     * @param mixed $aColor
+     * @param mixed $aArrowSize
+     * @param mixed $aArrowType
+     */
     public function __construct($aRow, $aType, $aColor, $aArrowSize, $aArrowType)
     {
-        $this->iConstrainType = $aType;
-        $this->iConstrainRow = $aRow;
-        $this->iConstrainColor = $aColor;
+        $this->iConstrainType      = $aType;
+        $this->iConstrainRow       = $aRow;
+        $this->iConstrainColor     = $aColor;
         $this->iConstrainArrowSize = $aArrowSize;
         $this->iConstrainArrowType = $aArrowType;
     }

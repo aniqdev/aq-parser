@@ -1,0 +1,48 @@
+https://frostfutter-perleberg.de/de/
+	до согласия были подгружениы скрипты:
+	 - google (google-analytics)
+	 - facebook
+	 - peerius
+	в коде сайта я увидел некоторые условия которые должны разрешать или запрещать отслеживание, но на деле все трекеры были загружены заранее
+
+https://www.zooroyal.de/
+	до согласия были подгружениы скрипты:
+	 - google (google-analytics)
+	 - peerius
+	 - content.cptrack.de (https://channelpilot.ru/)
+	 - www.realytics.io
+	 - facebook
+	после согласия просто закрылось окно и некоторые трекеры на это среагировали и отправили данные 
+		(facebook,realytics)
+
+https://www.zooplus.de/
+	до согласия были подгружениы скрипты:
+	 - criteo.com
+	 - certona.com
+	 - google (googletagmanager)
+	 - facebook
+	после согласия просто закрылось окно
+
+https://www.cdvet.de/
+	- google (google-analytics)
+	после согласия просто закрылось окно
+
+https://www.tiierisch.de/produkte/hundefutter
+	 - Adcell
+	 - google (marketingplatform.google.com)
+	 - facebook
+	после согласия просто закрылось окно
+
+https://www.fressnapf.de/
+	 - google (marketingplatform.google.com)
+	 - facebook
+	предупреждение о кукис отсутствует
+
+https://www.aniforte.de/
+	 - google (google-analytics)
+	 - facebook
+	 - crazyegg.com
+	в коде нашел вот такое сообщение
+		"Ihr Google Analytics Opt-Out-Cookie für diese Webseite wurde gesetzt."
+	похоже что есть механизм отказа от отсеживания, но он не реализован до конца (только гугл, остальные трекеры просто работают)
+	после согласия закрылось окно и были отправлены статистические данные на фейсбук

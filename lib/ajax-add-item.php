@@ -112,6 +112,31 @@ function ajax_add_item()
 
 	$res = $eBay_obj->addItem($item);
 
+	// =========== WooCommerce ==================
+	$woo_data = [
+		'name' => $steam_de['title'],
+		'type' => 'simple',
+		'regular_price' => $item['price'],
+		'description' => $steam_de['desc'],
+		'short_description' => $steam_de['specs'],
+		'categories' => [['id'=>82]],
+		// 'images' => [
+		// 	['src' => $img_src]
+		// ],
+		// 'stock_status' => 'outofstock',
+	];
+
+	set_img_path($woo_data, $steam_de);
+
+	$woo_ret = post_curl('https://hot-body.net/parser/ajax-controller.php', [
+		'function' => 'ajax_hot_do_woocommerce_api_request',
+		'method' => 'post',
+		'endpoint' => 'products',
+		'data' => $woo_data,
+	]);
+	// =========== /WooCommerce ==================
+
+	$game_check = arrayDB("SELECT id FROM games WHERE steam_link = '$steam_link' AND ebay_id = ''");
 	if (isset($res['Ack']) && $res['Ack'] !== 'Failure' && isset($res['ItemID'])) {
 		$id = $steam_de['id'];
 
@@ -119,12 +144,20 @@ function ajax_add_item()
 		$ebay_id = _esc($res['ItemID']);
 		$steam_link = _esc($steam_de['link']);
 		$plati_id = _esc((int)$_POST['plati_id']);
-		$game_check = arrayDB("SELECT id FROM games WHERE steam_link = '$steam_link' AND ebay_id = ''");
 		if ($game_check) {
-			arrayDB("UPDATE games SET ebay_id = '$ebay_id' WHERE steam_link = '$steam_link'");
+			if (isset($woo_ret['res']['id'])) {
+				$woo_id = _esc($woo_ret['res']['id']);
+				arrayDB("UPDATE games SET ebay_id = '$ebay_id', woo_id = '$woo_id' WHERE steam_link = '$steam_link'");
+			}else{
+				arrayDB("UPDATE games SET ebay_id = '$ebay_id' WHERE steam_link = '$steam_link'");
+			}
 		}else{
-			arrayDB("INSERT INTO games (name, ebay_id, steam_link) 
-					VALUES('$name', '$ebay_id', '$steam_link')");
+			if (isset($woo_ret['res']['id'])) {
+				$woo_id = _esc($woo_ret['res']['id']);
+				arrayDB("INSERT INTO games SET name = '$name', steam_link = '$steam_link', ebay_id = '$ebay_id', woo_id = '$woo_id'");
+			}else{
+				arrayDB("INSERT INTO games SET name = '$name', steam_link = '$steam_link', ebay_id = '$ebay_id'");
+			}
 		}
 		
 		$price = $item['price'];
@@ -152,10 +185,22 @@ function ajax_add_item()
 	}elseif(isset($res['Ack']) && $res['Ack'] === 'Failure') {
 		$success = 0;
 		$resp = sa($res['Errors'], true);
-	} else{
+	}else{
 		$success = 0;
 		$resp = 'Fail!';
 	}
+
+	if (!$success && isset($woo_ret['res']['id'])) {
+		$woo_id = _esc($woo_ret['res']['id']);
+		if ($game_check) {
+			arrayDB("UPDATE games SET woo_id = '$woo_id' WHERE steam_link = '$steam_link'");
+		}else{
+			$name = _esc($steam_de['title'] . ' steam');
+			$steam_link = _esc($steam_de['link']);
+			arrayDB("INSERT INTO games SET name = '$name', steam_link = '$steam_link', woo_id = '$woo_id'");
+		}
+	}
+
 	unset($res['Fees']);
 	unset($item['Description']);
 	return ['success' => $success,
@@ -175,5 +220,19 @@ if (isset($_GET['sid']) && isset($_GET['price'])) {
 }
 
 //sleep(2);
+
+
+function set_img_path(&$data, &$game)
+{
+	if (file_exists(get_steam_images_dir_path($game['type'], $game['appid']).'/header-80p.jpg')) {
+		$img_src = get_steam_images_dir_url($game['type'], $game['appid']).'/header-80p.jpg';
+		$data['images'] = [['src' => $img_src]];
+	}elseif (file_exists(get_steam_images_dir_path($game['type'], $game['appid']).'/header.jpg')) {
+		$img_src = get_steam_images_dir_url($game['type'], $game['appid']).'/header-80p.jpg';
+		$data['images'] = [['src' => $img_src]];
+	}else{
+
+	}
+}
 
 ?>

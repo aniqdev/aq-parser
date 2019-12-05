@@ -119,7 +119,7 @@ class HttpClient
      */
     protected function buildApiUrl($url)
     {
-        $api = $this->options->isWPAPI() ? '/wp-json/' : '/wc-api/';
+        $api = $this->options->isWPAPI() ? $this->options->apiPrefix() : '/wc-api/';
 
         return \rtrim($url, '/') . $api . $this->options->getVersion() . '/';
     }
@@ -154,10 +154,24 @@ class HttpClient
     {
         // Setup authentication.
         if ($this->isSsl()) {
-            $basicAuth  = new BasicAuth($this->ch, $this->consumerKey, $this->consumerSecret, $this->options->isQueryStringAuth(), $parameters);
+            $basicAuth  = new BasicAuth(
+                $this->ch,
+                $this->consumerKey,
+                $this->consumerSecret,
+                $this->options->isQueryStringAuth(),
+                $parameters
+            );
             $parameters = $basicAuth->getParameters();
         } else {
-            $oAuth      = new OAuth($url, $this->consumerKey, $this->consumerSecret, $this->options->getVersion(), $method, $parameters);
+            $oAuth      = new OAuth(
+                $url,
+                $this->consumerKey,
+                $this->consumerSecret,
+                $this->options->getVersion(),
+                $method,
+                $parameters,
+                $this->options->oauthTimestamp()
+            );
             $parameters = $oAuth->getParameters();
         }
 
@@ -173,7 +187,7 @@ class HttpClient
     {
         if ('POST' == $method) {
             \curl_setopt($this->ch, CURLOPT_POST, true);
-        } else if (\in_array($method, ['PUT', 'DELETE', 'OPTIONS'])) {
+        } elseif (\in_array($method, ['PUT', 'DELETE', 'OPTIONS'])) {
             \curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $method);
         }
     }
@@ -181,15 +195,22 @@ class HttpClient
     /**
      * Get request headers.
      *
+     * @param  bool $sendData If request send data or not.
+     *
      * @return array
      */
-    protected function getRequestHeaders()
+    protected function getRequestHeaders($sendData = false)
     {
-        return [
-            'Accept'       => 'application/json',
-            'Content-Type' => 'application/json',
-            'User-Agent'   => 'WooCommerce API Client-PHP/' . Client::VERSION,
+        $headers = [
+            'Accept'     => 'application/json',
+            'User-Agent' => $this->options->userAgent() . '/' . Client::VERSION,
         ];
+
+        if ($sendData) {
+            $headers['Content-Type'] = 'application/json;charset=utf-8';
+        }
+
+        return $headers;
     }
 
     /**
@@ -204,8 +225,9 @@ class HttpClient
      */
     protected function createRequest($endpoint, $method, $data = [], $parameters = [])
     {
-        $body = '';
-        $url  = $this->url . $endpoint;
+        $body    = '';
+        $url     = $this->url . $endpoint;
+        $hasData = !empty($data);
 
         // Setup authentication.
         $parameters = $this->authenticate($url, $method, $parameters);
@@ -214,12 +236,18 @@ class HttpClient
         $this->setupMethod($method);
 
         // Include post fields.
-        if (!empty($data)) {
+        if ($hasData) {
             $body = \json_encode($data);
             \curl_setopt($this->ch, CURLOPT_POSTFIELDS, $body);
         }
 
-        $this->request = new Request($this->buildUrlQuery($url, $parameters), $method, $parameters, $this->getRequestHeaders(), $body);
+        $this->request = new Request(
+            $this->buildUrlQuery($url, $parameters),
+            $method,
+            $parameters,
+            $this->getRequestHeaders($hasData),
+            $body
+        );
 
         return $this->getRequest();
     }
@@ -242,7 +270,8 @@ class HttpClient
             }
 
             list($key, $value) = \explode(': ', $line);
-            $headers[$key] = $value;
+
+            $headers[$key] = isset($headers[$key]) ? $headers[$key] . ', ' . trim($value) : trim($value);
         }
 
         return $headers;
@@ -279,12 +308,16 @@ class HttpClient
      */
     protected function setDefaultCurlSettings()
     {
-        $verifySsl = $this->options->verifySsl();
-        $timeout   = $this->options->getTimeout();
+        $verifySsl       = $this->options->verifySsl();
+        $timeout         = $this->options->getTimeout();
+        $followRedirects = $this->options->getFollowRedirects();
 
         \curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, $verifySsl);
         if (!$verifySsl) {
             \curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, $verifySsl);
+        }
+        if ($followRedirects) {
+            \curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, true);
         }
         \curl_setopt($this->ch, CURLOPT_CONNECTTIMEOUT, $timeout);
         \curl_setopt($this->ch, CURLOPT_TIMEOUT, $timeout);
@@ -302,17 +335,24 @@ class HttpClient
     {
         // Any non-200/201/202 response code indicates an error.
         if (!\in_array($this->response->getCode(), ['200', '201', '202'])) {
-            $errors = !empty($parsedResponse['errors']) ? $parsedResponse['errors'] : $parsedResponse;
+            $errors = isset($parsedResponse->errors) ? $parsedResponse->errors : $parsedResponse;
+            $errorMessage = '';
+            $errorCode = '';
 
-            if (!empty($errors[0])) {
-                $errorMessage = $errors[0]['message'];
-                $errorCode    = $errors[0]['code'];
-            } else {
-                $errorMessage = $errors['message'];
-                $errorCode    = $errors['code'];
+            if (is_array($errors)) {
+                $errorMessage = $errors[0]->message;
+                $errorCode    = $errors[0]->code;
+            } elseif (isset($errors->message, $errors->code)) {
+                $errorMessage = $errors->message;
+                $errorCode    = $errors->code;
             }
 
-            throw new HttpClientException(\sprintf('Error: %s [%s]', $errorMessage, $errorCode), $this->response->getCode(), $this->request, $this->response);
+            throw new HttpClientException(
+                \sprintf('Error: %s [%s]', $errorMessage, $errorCode),
+                $this->response->getCode(),
+                $this->request,
+                $this->response
+            );
         }
     }
 
@@ -323,12 +363,24 @@ class HttpClient
      */
     protected function processResponse()
     {
-        $parsedResponse = \json_decode($this->response->getBody(), true);
+        $body = $this->response->getBody();
+
+        // Look for UTF-8 BOM and remove.
+        if (0 === strpos(bin2hex(substr($body, 0, 4)), 'efbbbf')) {
+            $body = substr($body, 3);
+        }
+
+        $parsedResponse = \json_decode($body);
 
         // Test if return a valid JSON.
         if (JSON_ERROR_NONE !== json_last_error()) {
             $message = function_exists('json_last_error_msg') ? json_last_error_msg() : 'Invalid JSON returned';
-            throw new HttpClientException($message, $this->response->getCode(), $this->request, $this->response);
+            throw new HttpClientException(
+                sprintf('JSON ERROR: %s', $message),
+                $this->response->getCode(),
+                $this->request,
+                $this->response
+            );
         }
 
         $this->lookForErrors($parsedResponse);

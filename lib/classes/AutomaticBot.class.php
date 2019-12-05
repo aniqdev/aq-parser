@@ -1,7 +1,14 @@
 <?php
 
 /**
-* 
+*
+example :
+
+AutomaticBot::sendMessage('Test message 1');  // msg to gig-automatic
+
+AutomaticBot::setChatId('-195283152');
+
+AutomaticBot::sendMessage('Test message 2'); // msg to gig-automatic-group
 */
 class AutomaticBot
 {
@@ -14,6 +21,12 @@ class AutomaticBot
 	// 278472749 => gig-automatic
 	// -195283152 => gig-automatic-group
 	function __construct($chat_id = '278472749')
+	{
+		self::$chat_id = $chat_id;
+	}
+
+
+	public static function setChatId($chat_id = '278472749')
 	{
 		self::$chat_id = $chat_id;
 	}

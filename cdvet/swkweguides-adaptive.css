@@ -1,0 +1,13 @@
+body.is--ctl-swkweguides .guides--content .guides--box{
+    margin-right: 0;
+}
+@media (max-width: 767px){
+    body.is--ctl-swkweguides .guides--content .guides--box{
+        width: 48%;
+    }
+}
+@media (max-width: 480px){
+    body.is--ctl-swkweguides .guides--content .guides--box{
+        width: 100%;
+    }
+}

@@ -1,26 +1,40 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Image;
 
 use Amenadiel\JpGraph\Util;
 
-//=======================================================================
-// CLASS ImgStreamCache
-// Description: Handle caching of graphs to files. All image output goes
-//              through this class
-//=======================================================================
+/**
+ * @class ImgStreamCache
+ * // Description: Handle caching of graphs to files. All image output goes
+ * //              through this class
+ */
 class ImgStreamCache
 {
-    private $cache_dir, $timeout = 0; // Infinite timeout
-    //---------------
-    // CONSTRUCTOR
+    private $cache_dir;
+    private $timeout = 0;
+
+    // Infinite timeout
+
+    /**
+     * CONSTRUCTOR.
+     *
+     * @param mixed $aCacheDir
+     */
     public function __construct($aCacheDir = CACHE_DIR)
     {
         $this->cache_dir = $aCacheDir;
     }
 
-    //---------------
-    // PUBLIC METHODS
-
+    /**
+     * PUBLIC METHODS.
+     *
+     * @param mixed $aTimeout
+     */
     // Specify a timeout (in minutes) for the file. If the file is older then the
     // timeout value it will be overwritten with a newer version.
     // If timeout is set to 0 this is the same as infinite large timeout and if
@@ -33,22 +47,19 @@ class ImgStreamCache
     // Output image to browser and also write it to the cache
     public function PutAndStream($aImage, $aCacheFileName, $aInline, $aStrokeFileName)
     {
-
         // Check if we should always stroke the image to a file
         if (_FORCE_IMGTOFILE) {
-            $aStrokeFileName = _FORCE_IMGDIR . GenImgName();
+            $aStrokeFileName = _FORCE_IMGDIR . Util\Helper::GenImgName();
         }
 
         if ($aStrokeFileName != '') {
-
             if ($aStrokeFileName == 'auto') {
-                $aStrokeFileName = GenImgName();
+                $aStrokeFileName = Util\Helper::GenImgName();
             }
 
             if (file_exists($aStrokeFileName)) {
-
                 // Wait for lock (to make sure no readers are trying to access the image)
-                $fd = fopen($aStrokeFileName, 'w');
+                $fd   = fopen($aStrokeFileName, 'w');
                 $lock = flock($fd, LOCK_EX);
 
                 // Since the image write routines only accepts a filename which must not
@@ -61,7 +72,6 @@ class ImgStreamCache
                 $aImage->Stream($aStrokeFileName);
                 $lock = flock($fd, LOCK_UN);
                 fclose($fd);
-
             } else {
                 $aImage->Stream($aStrokeFileName);
             }
@@ -70,7 +80,6 @@ class ImgStreamCache
         }
 
         if ($aCacheFileName != '' && USE_CACHE) {
-
             $aCacheFileName = $this->cache_dir . $aCacheFileName;
             if (file_exists($aCacheFileName)) {
                 if (!$aInline) {
@@ -85,11 +94,10 @@ class ImgStreamCache
                     if ($this->timeout > 0 && ($diff <= $this->timeout * 60)) {
                         return;
                     }
-
                 }
 
                 // Wait for lock (to make sure no readers are trying to access the image)
-                $fd = fopen($aCacheFileName, 'w');
+                $fd   = fopen($aCacheFileName, 'w');
                 $lock = flock($fd, LOCK_EX);
 
                 if (!@unlink($aCacheFileName)) {
@@ -100,7 +108,6 @@ class ImgStreamCache
                 $aImage->Stream($aCacheFileName);
                 $lock = flock($fd, LOCK_UN);
                 fclose($fd);
-
             } else {
                 $this->MakeDirs(dirname($aCacheFileName));
                 if (!is_writeable(dirname($aCacheFileName))) {
@@ -125,17 +132,18 @@ class ImgStreamCache
 
             $aImage->Destroy();
             if ($aInline) {
-                if ($fh = @fopen($aCacheFileName, "rb")) {
+                if ($fh = @fopen($aCacheFileName, 'rb')) {
                     $aImage->Headers();
                     fpassthru($fh);
+
                     return;
-                } else {
-                    Util\JpGraphError::RaiseL(25116, $aFile); //(" Cant open file from cache [$aFile]");
                 }
+                Util\JpGraphError::RaiseL(25116, $aFile); //(" Cant open file from cache [$aFile]");
             }
         } elseif ($aInline) {
             $aImage->Headers();
             $aImage->Stream();
+
             return;
         }
     }
@@ -147,12 +155,12 @@ class ImgStreamCache
             $diff = time() - filemtime($aCacheFileName);
             if ($this->timeout > 0 && ($diff > $this->timeout * 60)) {
                 return false;
-            } else {
-                return true;
             }
-        } else {
-            return false;
+
+            return true;
         }
+
+        return false;
     }
 
     public function StreamImgFile($aImage, $aCacheFileName)
@@ -164,10 +172,10 @@ class ImgStreamCache
             fpassthru($fh);
             $lock = flock($fh, LOCK_UN);
             fclose($fh);
+
             return true;
-        } else {
-            Util\JpGraphError::RaiseL(25117, $aCacheFileName); //(" Can't open cached image \"$aCacheFileName\" for reading.");
         }
+        Util\JpGraphError::RaiseL(25117, $aCacheFileName); //(" Can't open cached image \"$aCacheFileName\" for reading.");
     }
 
     // Check if a given image is in cache and in that case
@@ -182,19 +190,23 @@ class ImgStreamCache
         }
     }
 
-    //---------------
-    // PRIVATE METHODS
+    /**
+     * PRIVATE METHODS.
+     *
+     * @param mixed $aFile
+     */
+
     // Create all necessary directories in a path
     public function MakeDirs($aFile)
     {
-        $dirs = array();
+        $dirs = [];
         // In order to better work when open_basedir is enabled
         // we do not create directories in the root path
         while ($aFile != '/' && !(file_exists($aFile))) {
             $dirs[] = $aFile . '/';
-            $aFile = dirname($aFile);
+            $aFile  = dirname($aFile);
         }
-        for ($i = sizeof($dirs) - 1; $i >= 0; $i--) {
+        for ($i = safe_count($dirs) - 1; $i >= 0; --$i) {
             if (!@mkdir($dirs[$i], 0777)) {
                 Util\JpGraphError::RaiseL(25118, $aFile); //(" Can't create directory $aFile. Make sure PHP has write permission to this directory.");
             }
@@ -202,7 +214,7 @@ class ImgStreamCache
             // This is necessary if Apache user doesn't belong the
             // default group and hence can't specify group permission
             // in the previous mkdir() call
-            if (CACHE_FILE_GROUP != "") {
+            if (CACHE_FILE_GROUP != '') {
                 $res = true;
                 $res = @chgrp($dirs[$i], CACHE_FILE_GROUP);
                 $res = @chmod($dirs[$i], 0777);
@@ -211,6 +223,7 @@ class ImgStreamCache
                 }
             }
         }
+
         return true;
     }
-} // CLASS Cache
+} // @class Cache

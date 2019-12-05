@@ -1,25 +1,36 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Graph;
 
 use Amenadiel\JpGraph\Util;
 
-//===================================================
-// CLASS Grid
-// Description: responsible for drawing grid lines in graph
-//===================================================
+/**
+ * @class Grid
+ * // Description: responsible for drawing grid lines in graph
+ */
 class Grid
 {
     protected $img;
     protected $scale;
-    protected $majorcolor = '#CCCCCC', $minorcolor = '#DDDDDD';
-    protected $majortype = 'solid', $minortype = 'solid';
-    protected $show = false, $showMinor = false, $majorweight = 1, $minorweight = 1;
-    protected $fill = false, $fillcolor = array('#EFEFEF', '#BBCCFF');
+    protected $majorcolor  = '#CCCCCC';
+    protected $minorcolor  = '#DDDDDD';
+    protected $majortype   = 'solid';
+    protected $minortype   = 'solid';
+    protected $show        = false;
+    protected $showMinor   = false;
+    protected $majorweight = 1;
+    protected $minorweight = 1;
+    protected $fill        = false;
+    protected $fillcolor   = ['#EFEFEF', '#BBCCFF'];
 
     public function __construct($aAxis)
     {
         $this->scale = $aAxis->scale;
-        $this->img = $aAxis->img;
+        $this->img   = $aAxis->img;
     }
 
     public function SetColor($aMajColor, $aMinColor = false)
@@ -52,14 +63,14 @@ class Grid
     // Decide if both major and minor grid should be displayed
     public function Show($aShowMajor = true, $aShowMinor = false)
     {
-        $this->show = $aShowMajor;
+        $this->show      = $aShowMajor;
         $this->showMinor = $aShowMinor;
     }
 
     public function SetFill($aFlg = true, $aColor1 = 'lightgray', $aColor2 = 'lightblue')
     {
-        $this->fill = $aFlg;
-        $this->fillcolor = array($aColor1, $aColor2);
+        $this->fill      = $aFlg;
+        $this->fillcolor = [$aColor1, $aColor2];
     }
 
     // Display the grid
@@ -73,16 +84,21 @@ class Grid
         }
     }
 
-    //--------------
-    // Private methods
-    // Draw the grid
+    /**
+     * Private methods
+     * // Draw the grid.
+     *
+     * @param mixed $aTicksPos
+     * @param mixed $aType
+     * @param mixed $aColor
+     * @param mixed $aWeight
+     */
     public function DoStroke($aTicksPos, $aType, $aColor, $aWeight)
     {
-        if (!$this->show) {
+        $nbrgrids = safe_count($aTicksPos);
+        if (!$this->show || $nbrgrids === 0) {
             return;
         }
-
-        $nbrgrids = count($aTicksPos);
 
         if ($this->scale->type == 'y') {
             $xl = $this->img->left_margin;
@@ -91,7 +107,7 @@ class Grid
             if ($this->fill) {
                 // Draw filled areas
                 $y2 = $aTicksPos[0];
-                $i = 1;
+                $i  = 1;
                 while ($i < $nbrgrids) {
                     $y1 = $y2;
                     $y2 = $aTicksPos[$i++];
@@ -106,15 +122,20 @@ class Grid
             // Draw grid lines
             switch ($aType) {
                 case 'solid':$style = LINESTYLE_SOLID;
+
                     break;
                 case 'dotted':$style = LINESTYLE_DOTTED;
+
                     break;
                 case 'dashed':$style = LINESTYLE_DASHED;
+
                     break;
                 case 'longdashed':$style = LINESTYLE_LONGDASH;
+
                     break;
                 default:
                     $style = LINESTYLE_SOLID;
+
                     break;
             }
 
@@ -123,14 +144,14 @@ class Grid
                 $this->img->StyleLine($xl, $y, $xr, $y, $style, true);
             }
         } elseif ($this->scale->type == 'x') {
-            $yu = $this->img->top_margin;
-            $yl = $this->img->height - $this->img->bottom_margin;
+            $yu    = $this->img->top_margin;
+            $yl    = $this->img->height - $this->img->bottom_margin;
             $limit = $this->img->width - $this->img->right_margin;
 
             if ($this->fill) {
                 // Draw filled areas
                 $x2 = $aTicksPos[0];
-                $i = 1;
+                $i  = 1;
                 while ($i < $nbrgrids) {
                     $x1 = $x2;
                     $x2 = min($aTicksPos[$i++], $limit);
@@ -148,7 +169,7 @@ class Grid
             // to many gridlines
             $i = 0;
             $x = $aTicksPos[$i];
-            while ($i < count($aTicksPos) && ($x = $aTicksPos[$i]) <= $limit) {
+            while ($i < safe_count($aTicksPos) && ($x = $aTicksPos[$i]) <= $limit) {
                 if ($aType == 'solid') {
                     $this->img->Line($x, $yl, $x, $yu);
                 } elseif ($aType == 'dotted') {
@@ -164,6 +185,7 @@ class Grid
         } else {
             Util\JpGraphError::RaiseL(25054, $this->scale->type); //('Internal error: Unknown grid axis ['.$this->scale->type.']');
         }
+
         return true;
     }
-} // Class
+} // @class

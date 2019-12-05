@@ -1,4 +1,15 @@
-<?php $target = urldecode($_GET['target']); ?>
+<?php
+if (!isset($_GET['target'])) {
+    $_GET['target'] = 'axislabelbkgex01.php';
+}
+if (!isset($_GET['folder'])) {
+    $_GET['folder'] = 'examples_axis';
+}
+
+$target = basename(urldecode($_GET['target']));
+$folder = basename(urldecode($_GET['folder']));
+
+?>
 <!doctype html public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
 <head>
@@ -12,13 +23,18 @@ function resize()
 //-->
 </script>
 </head>
-<frameset rows="*,*" onLoad="resize()">
-	<?php 
-	if( !strstr($target,"csim") )
-		echo "<frame src=\"show-image.php?target=".basename($target)."\" name=\"image\">";
-	else
-		echo	"<frame src=\"".basename($target)."\" name=\"image\">";
-	?>
-	<frame src="show-source.php?target=<?php echo basename($target); ?>" name="source">
+
+	<?php
+if (!strstr($target, 'csim')) {
+    echo '<frameset rows="*,*" onLoad="resize()">';
+    echo '<frame src="show-image.php?' . 'folder=' . ($folder) . '&target=' . ($target) . '" name="image">';
+    echo '<frame src="show-source.php?folder=' . ($folder) . '&target=' . ($target) . '" name="source">';
+} else {
+    echo '<frameset rows="*" onLoad="resize()">';
+    echo '<frame src="' . ($folder) . '/' . ($target) . '" name="image">';
+}
+?>
+
+
 </frameset>
 </html>

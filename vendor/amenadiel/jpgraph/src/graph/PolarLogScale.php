@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Graph;
 
 class PolarLogScale extends LogScale
@@ -10,9 +15,10 @@ class PolarLogScale extends LogScale
     {
         parent::__construct(0, $aMax, 'x');
         $this->graph = $graph;
-        $this->ticks->SetLabelLogType(LOGLABELS_MAGNITUDE);
+        if ($this->ticks instanceof LogTicks) {
+            $this->ticks->SetLabelLogType(LOGLABELS_MAGNITUDE);
+        }
         $this->clockwise = $aClockwise;
-
     }
 
     public function SetClockwise($aFlg)
@@ -22,14 +28,13 @@ class PolarLogScale extends LogScale
 
     public function PTranslate($aAngle, $aRad)
     {
-
         if ($aRad == 0) {
             $aRad = 1;
         }
 
         $aRad = log10($aRad);
-        $m = $this->scale[1];
-        $w = $this->graph->img->plotwidth / 2;
+        $m    = $this->scale[1];
+        $w    = $this->graph->img->plotwidth / 2;
         $aRad = $aRad / $m * $w;
 
         $a = $aAngle / 180 * M_PI;
@@ -46,6 +51,7 @@ class PolarLogScale extends LogScale
         } else {
             $y = ($this->graph->img->top_margin + $this->graph->img->plotheight) - $y;
         }
+
         return [$x, $y];
     }
 }

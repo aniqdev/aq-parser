@@ -27,6 +27,8 @@
       			<li><a href="?action=blackl">BlackList</a></li>
       			<li><a href="?action=platiru_settings">Settings</a></li>
       			<li><a href="?action=trustees">Trust list</a></li>
+            <li><a href="?action=exrates">Exrates</a></li>
+            <li><a href="?action=devzone/items-compare">Items compare</a></li>
           </ul>
         </li>
 
@@ -79,12 +81,12 @@
           </ul>
         </li>
 
-        <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Parkovka <i class="caret"></i></a>
+<!--         <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Parkovka <i class="caret"></i></a>
           <ul class="dropdown-menu">
             <li><a href="?action=park-table">Table</a></li>
             <li><a href="?action=park-table-airport">Chart</a></li>
           </ul>
-        </li>
+        </li> -->
 
         <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Keys<i class="caret"></i></a>
           <ul class="dropdown-menu">
@@ -117,8 +119,8 @@
             <li><a href="?action=imagine">Picture</a></li>
             <li><a href="?action=migrations">migrations</a></li>
             <li role="separator" class="divider"></li>
-            <li><a href="?action=google-parser">google-parser</a></li>
-            <li><a href="?action=google-parser-2">google-parser-2</a></li>
+            <?= dz('<li><a href="?action=google-parser">google-parser</a></li>');?>
+            <?= dz('<li><a href="?action=google-words-downloader">google-words-downloader</a></li>');?>
           </ul>
         </li>
 

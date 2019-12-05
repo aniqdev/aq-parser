@@ -1,40 +1,50 @@
 <?php
 
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Plot;
 
-//===================================================
-// CLASS Plot
-// Description: Abstract base class for all concrete plot classes
-//===================================================
+require_once __DIR__ . '/../config.inc.php';
+
+use Amenadiel\JpGraph\Util;
+
+/**
+ * @class Plot
+ * // Description: Abstract base class for all concrete plot classes
+ */
 class Plot
 {
     public $numpoints = 0;
     public $value;
-    public $legend = '';
-    public $coords = array();
-    public $color = 'black';
-    public $hidelegend = false;
-    public $line_weight = 1;
-    public $csimtargets = array(), $csimwintargets = array(); // Array of targets for CSIM
-    public $csimareas = ''; // Resultant CSIM area tags
-    public $csimalts = null; // ALT:s for corresponding target
-    public $legendcsimtarget = '', $legendcsimwintarget = '';
-    public $legendcsimalt = '';
-    protected $weight = 1;
-    protected $center = false;
+    public $legend         = '';
+    public $coords         = [];
+    public $color          = 'black';
+    public $hidelegend     = false;
+    public $line_weight    = 1;
+    public $csimtargets    = [];
+    public $csimwintargets = []; // Array of targets for CSIM
+    public $csimareas      = ''; // Resultant CSIM area tags
+    public $csimalts; // ALT:s for corresponding target
+    public $legendcsimtarget    = '';
+    public $legendcsimwintarget = '';
+    public $legendcsimalt       = '';
+    protected $weight           = 1;
+    protected $center           = false;
 
     protected $inputValues;
     protected $isRunningClear = false;
 
     public function __construct($aDatay, $aDatax = false)
     {
-        $this->numpoints = count($aDatay);
+        $this->numpoints = safe_count($aDatay);
         if ($this->numpoints == 0) {
             Util\JpGraphError::RaiseL(25121); //("Empty input data array specified for plot. Must have at least one data point.");
         }
 
         if (!$this->isRunningClear) {
-            $this->inputValues = array();
+            $this->inputValues           = [];
             $this->inputValues['aDatay'] = $aDatay;
             $this->inputValues['aDatax'] = $aDatax;
         }
@@ -42,7 +52,7 @@ class Plot
         $this->coords[0] = $aDatay;
         if (is_array($aDatax)) {
             $this->coords[1] = $aDatax;
-            $n = count($aDatax);
+            $n               = safe_count($aDatax);
             for ($i = 0; $i < $n; ++$i) {
                 if (!is_numeric($aDatax[$i])) {
                     Util\JpGraphError::RaiseL(25070);
@@ -70,7 +80,6 @@ class Plot
         if (!$this->hidelegend) {
             $this->Legend($graph);
         }
-
     }
 
     public function StrokeDataValue($img, $aVal, $x, $y)
@@ -81,9 +90,9 @@ class Plot
     // Set href targets for CSIM
     public function SetCSIMTargets($aTargets, $aAlts = '', $aWinTargets = '')
     {
-        $this->csimtargets = $aTargets;
+        $this->csimtargets    = $aTargets;
         $this->csimwintargets = $aWinTargets;
-        $this->csimalts = $aAlts;
+        $this->csimalts       = $aAlts;
     }
 
     // Get all created areas
@@ -96,9 +105,10 @@ class Plot
     // or axis are stroked used to do any plot specific adjustment
     public function PreStrokeAdjust($aGraph)
     {
-        if (substr($aGraph->axtype, 0, 4) == "text" && (isset($this->coords[1]))) {
+        if (substr($aGraph->axtype, 0, 4) == 'text' && (isset($this->coords[1]))) {
             Util\JpGraphError::RaiseL(25123); //("JpGraph: You can't use a text X-scale with specified X-coords. Use a \"int\" or \"lin\" scale instead.");
         }
+
         return true;
     }
 
@@ -117,17 +127,17 @@ class Plot
         } else {
             $x = '';
         }
-        if ($x != '' && count($x) > 0) {
+        if ($x != '' && safe_count($x) > 0) {
             $xm = min($x);
         } else {
             $xm = 0;
         }
-        $y = $this->coords[0];
-        $cnt = count($y);
+        $y   = $this->coords[0];
+        $cnt = safe_count($y);
         if ($cnt > 0) {
             $i = 0;
             while ($i < $cnt && !is_numeric($ym = $y[$i])) {
-                $i++;
+                ++$i;
             }
             while ($i < $cnt) {
                 if (is_numeric($y[$i])) {
@@ -138,7 +148,8 @@ class Plot
         } else {
             $ym = '';
         }
-        return array($xm, $ym);
+
+        return [$xm, $ym];
     }
 
     // Get maximum value in plot
@@ -150,17 +161,17 @@ class Plot
             $x = '';
         }
 
-        if ($x != '' && count($x) > 0) {
+        if ($x != '' && safe_count($x) > 0) {
             $xm = max($x);
         } else {
             $xm = $this->numpoints - 1;
         }
         $y = $this->coords[0];
-        if (count($y) > 0) {
-            $cnt = count($y);
-            $i = 0;
+        if (safe_count($y) > 0) {
+            $cnt = safe_count($y);
+            $i   = 0;
             while ($i < $cnt && !is_numeric($ym = $y[$i])) {
-                $i++;
+                ++$i;
             }
             while ($i < $cnt) {
                 if (is_numeric($y[$i])) {
@@ -171,7 +182,8 @@ class Plot
         } else {
             $ym = '';
         }
-        return array($xm, $ym);
+
+        return [$xm, $ym];
     }
 
     public function SetColor($aColor)
@@ -181,10 +193,10 @@ class Plot
 
     public function SetLegend($aLegend, $aCSIM = '', $aCSIMAlt = '', $aCSIMWinTarget = '')
     {
-        $this->legend = $aLegend;
-        $this->legendcsimtarget = $aCSIM;
+        $this->legend              = $aLegend;
+        $this->legendcsimtarget    = $aCSIM;
         $this->legendcsimwintarget = $aCSIMWinTarget;
-        $this->legendcsimalt = $aCSIMAlt;
+        $this->legendcsimalt       = $aCSIMAlt;
     }
 
     public function SetWeight($aWeight)
@@ -223,5 +235,4 @@ class Plot
         $this->__construct($this->inputValues['aDatay'], $this->inputValues['aDatax']);
         $this->isRunningClear = false;
     }
-
-} // Class
+} // @class

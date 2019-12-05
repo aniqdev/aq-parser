@@ -1,13 +1,19 @@
-<?php // content="text/plain; charset=utf-8"
-require_once '../../vendor/autoload.php';
+<?php
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
 
 use Amenadiel\JpGraph\Graph;
 use Amenadiel\JpGraph\Plot;
 
-$ydata = array(12, 19, 3, 9, 15, 10);
+$ydata = [12, 19, 3, 9, 15, 10];
 
 // The code to setup a very basic graph
-$graph = new Graph\Graph(200, 150);
+$__width  = 200;
+$__height = 150;
+$graph    = new Graph\Graph($__width, $__height);
 $graph->SetScale('intlin');
 $graph->SetMargin(30, 15, 40, 30);
 $graph->SetMarginColor('white');

@@ -59,6 +59,7 @@ foreach ($scans as $value) {
 <table class="ppp-table tch-table-deligator">
 	<thead><tr>
 		<th class="sort asc" data-sort="row1">№</th>
+		<th class="sort asc" data-sort="row1">id</th>
 		<th class="sort" data-sort="row2">Наименование товара</th>
 		<th class="sort" data-sort="row3">Цена 1</th>
 		<th>Links</th>
@@ -77,17 +78,14 @@ foreach ($scans as $value) {
 	}else{
 		$scan = 0;
 	}
-	$res = arrayDB("SELECT games.name,  items.item1_price, items.item1_name, items.item1_desc, items.item1_id,
-										items.item2_price, items.item2_name, items.item2_desc, items.item2_id,
-										items.item3_price, items.item3_name, items.item3_desc, items.item3_id
+	$res = arrayDB("SELECT games.name, items.game_id,
+							items.item1_price, items.item1_name, items.item1_desc, items.item1_id,
+							items.item2_price, items.item2_name, items.item2_desc, items.item2_id,
+							items.item3_price, items.item3_name, items.item3_desc, items.item3_id
 						FROM games INNER JOIN items ON games.id=items.game_id
 						WHERE items.scan='$scan'");
-
+// sa($res);
 $n = 1;
-
-	// echo "<pre>";
-	// print_r($res);
-	// echo "</pre>";
 $tr_list = [];
 $tres = arrayDB("SELECT plati_id from gig_trustee_items");
 foreach ($tres as $v) $tr_list[] = $v['plati_id'];
@@ -101,6 +99,7 @@ foreach ($res as $key => $value) {
 	// $euro = round($euro, 4);
 	echo   '<tr>
 				<td class="row1">',$n++,'</td>
+				<td class="row1">',$value['game_id'],'</td>
 				<td class="row2">',$value['name'],'</td>
 				<td class="row3 js-change-delim" title="',$value['item1_name'],'">',$value['item1_price'],'</td>
 				<td class="row4 ',isTtrusted($tr_list,$value['item1_id']),'" title="',$value['item1_name'],'">

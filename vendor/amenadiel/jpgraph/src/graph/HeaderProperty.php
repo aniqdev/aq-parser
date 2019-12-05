@@ -1,33 +1,48 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Graph;
 
-//===================================================
-// CLASS HeaderProperty
-// Description: Data encapsulating class to hold property
-// for each type of the scale headers
-//===================================================
+/**
+ * @class HeaderProperty
+ * // Description: Data encapsulating class to hold property
+ * // for each type of the scale headers
+ */
 class HeaderProperty
 {
     public $grid;
-    public $iShowLabels = true, $iShowGrid = true;
-    public $iTitleVertMargin = 3, $iFFamily = FF_FONT0, $iFStyle = FS_NORMAL, $iFSize = 8;
-    public $iStyle = 0;
-    public $iFrameColor = "black", $iFrameWeight = 1;
-    public $iBackgroundColor = "white";
-    public $iWeekendBackgroundColor = "lightgray", $iSundayTextColor = "red"; // these are only used with day scale
-    public $iTextColor = "black";
-    public $iLabelFormStr = "%d";
-    public $iIntervall = 1;
+    public $iShowLabels             = true;
+    public $iShowGrid               = true;
+    public $iTitleVertMargin        = 3;
+    public $iFFamily                = FF_FONT0;
+    public $iFStyle                 = FS_NORMAL;
+    public $iFSize                  = 8;
+    public $iStyle                  = 0;
+    public $iFrameColor             = 'black';
+    public $iFrameWeight            = 1;
+    public $iBackgroundColor        = 'white';
+    public $iWeekendBackgroundColor = 'lightgray';
+    public $iSundayTextColor        = 'red'; // these are only used with day scale
+    public $iTextColor              = 'black';
+    public $iLabelFormStr           = '%d';
+    public $iIntervall              = 1;
 
-    //---------------
-    // CONSTRUCTOR
+    /**
+     * CONSTRUCTOR.
+     */
     public function __construct()
     {
         $this->grid = new LineProperty();
     }
 
-    //---------------
-    // PUBLIC METHODS
+    /**
+     * PUBLIC METHODS.
+     *
+     * @param mixed $aShow
+     */
     public function Show($aShow = true)
     {
         $this->iShowLabels = $aShow;
@@ -51,8 +66,8 @@ class HeaderProperty
     public function SetFont($aFFamily, $aFStyle = FS_NORMAL, $aFSize = 10)
     {
         $this->iFFamily = $aFFamily;
-        $this->iFStyle = $aFStyle;
-        $this->iFSize = $aFSize;
+        $this->iFStyle  = $aFStyle;
+        $this->iFSize   = $aFSize;
     }
 
     public function SetFontColor($aColor)
@@ -63,18 +78,21 @@ class HeaderProperty
     public function GetFontHeight($aImg)
     {
         $aImg->SetFont($this->iFFamily, $this->iFStyle, $this->iFSize);
+
         return $aImg->GetFontHeight();
     }
 
     public function GetFontWidth($aImg)
     {
         $aImg->SetFont($this->iFFamily, $this->iFStyle, $this->iFSize);
+
         return $aImg->GetFontWidth();
     }
 
     public function GetStrWidth($aImg, $aStr)
     {
         $aImg->SetFont($this->iFFamily, $this->iFStyle, $this->iFSize);
+
         return $aImg->GetTextWidth($aStr);
     }
 
@@ -124,5 +142,4 @@ class HeaderProperty
     {
         $this->SetLabelFormatString($aStr);
     }
-
 }

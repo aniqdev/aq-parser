@@ -4,29 +4,13 @@
 
 
 
+// $res = post_curl($url, $post);
 
+$res = file_get_contents('https://esi.evetech.net/latest/alliances/');
 
+$res = json_decode($res, true);
 
-
-$arr = file(ROOT.'/Files/words.txt');
-
-$arr = array_map(function($val){
-	$val = str_getcsv($val, ';');
-	return trim($val[0]);
-}, $arr);
-
-sa($arr);
-
-
-return;
-
-$table = 'gp_keywords';
-$table = 'gp_keywords_2';
-
-foreach ($arr as $word) {
-	$word = _esc($word);
-	arrayDB("INSERT INTO $table SET word = '$word'");
-}
+sa($res);
 
 
 

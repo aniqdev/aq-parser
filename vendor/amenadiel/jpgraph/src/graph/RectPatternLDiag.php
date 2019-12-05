@@ -1,14 +1,18 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Graph;
 
-//=====================================================================
-// Class RectPatternLDiag
-// Implements left diagonal pattern
-//=====================================================================
+/**
+ * @class RectPatternLDiag
+ * // Implements left diagonal pattern
+ */
 class RectPatternLDiag extends RectPattern
 {
-
-    public function __construct($aColor = "black", $aWeight = 1, $aLineSpacing = 12)
+    public function __construct($aColor = 'black', $aWeight = 1, $aLineSpacing = 12)
     {
         $this->linespacing = $aLineSpacing;
         parent::__construct($aColor, $aWeight);
@@ -49,16 +53,16 @@ class RectPatternLDiag extends RectPattern
         } else {
             // Height larger than width
             $diff = $x0 - $xe;
-            $y0 = $ye - $diff;
-            $x0 = $xe;
+            $y0   = $ye - $diff;
+            $x0   = $xe;
             while ($y1 >= $this->rect->y) {
                 $aImg->Line($x0, $y0, $x1, $y1);
                 $y0 -= $this->linespacing;
                 $y1 -= $this->linespacing;
             }
             $diff = $this->rect->y - $y1;
-            $x1 = $this->rect->x + $diff;
-            $y1 = $this->rect->y;
+            $x1   = $this->rect->x + $diff;
+            $y1   = $this->rect->y;
         }
         while ($y0 >= $this->rect->y) {
             $aImg->Line($x0, $y0, $x1, $y1);

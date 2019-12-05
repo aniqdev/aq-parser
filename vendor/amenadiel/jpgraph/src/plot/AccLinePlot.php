@@ -1,20 +1,32 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Plot;
 
-//===================================================
-// CLASS AccLinePlot
-// Description:
-//===================================================
+use Amenadiel\JpGraph\Util;
+
+/**
+ * @class AccLinePlot
+ * // Description:
+ */
 class AccLinePlot extends Plot
 {
-    protected $plots = null, $nbrplots = 0;
+    protected $plots;
+    protected $nbrplots    = 0;
     private $iStartEndZero = true;
-    //---------------
-    // CONSTRUCTOR
+
+    /**
+     * CONSTRUCTOR.
+     *
+     * @param mixed $plots
+     */
     public function __construct($plots)
     {
-        $this->plots = $plots;
-        $this->nbrplots = count($plots);
+        $this->plots     = $plots;
+        $this->nbrplots  = safe_count($plots);
         $this->numpoints = $plots[0]->numpoints;
 
         // Verify that all plots have the same number of data points
@@ -29,8 +41,11 @@ class AccLinePlot extends Plot
         }
     }
 
-    //---------------
-    // PUBLIC METHODS
+    /**
+     * PUBLIC METHODS.
+     *
+     * @param mixed $graph
+     */
     public function Legend($graph)
     {
         foreach ($this->plots as $p) {
@@ -41,62 +56,63 @@ class AccLinePlot extends Plot
     public function Max()
     {
         list($xmax) = $this->plots[0]->Max();
-        $nmax = 0;
-        $n = count($this->plots);
+        $nmax       = 0;
+        $n          = safe_count($this->plots);
         for ($i = 0; $i < $n; ++$i) {
-            $nc = count($this->plots[$i]->coords[0]);
-            $nmax = max($nmax, $nc);
+            $nc      = safe_count($this->plots[$i]->coords[0]);
+            $nmax    = max($nmax, $nc);
             list($x) = $this->plots[$i]->Max();
-            $xmax = Max($xmax, $x);
+            $xmax    = max($xmax, $x);
         }
-        for ($i = 0; $i < $nmax; $i++) {
+        for ($i = 0; $i < $nmax; ++$i) {
             // Get y-value for line $i by adding the
             // individual bars from all the plots added.
             // It would be wrong to just add the
             // individual plots max y-value since that
             // would in most cases give to large y-value.
             $y = $this->plots[0]->coords[0][$i];
-            for ($j = 1; $j < $this->nbrplots; $j++) {
+            for ($j = 1; $j < $this->nbrplots; ++$j) {
                 $y += $this->plots[$j]->coords[0][$i];
             }
             $ymax[$i] = $y;
         }
         $ymax = max($ymax);
-        return array($xmax, $ymax);
+
+        return [$xmax, $ymax];
     }
 
     public function Min()
     {
-        $nmax = 0;
+        $nmax                 = 0;
         list($xmin, $ysetmin) = $this->plots[0]->Min();
-        $n = count($this->plots);
+        $n                    = safe_count($this->plots);
         for ($i = 0; $i < $n; ++$i) {
-            $nc = count($this->plots[$i]->coords[0]);
-            $nmax = max($nmax, $nc);
+            $nc          = safe_count($this->plots[$i]->coords[0]);
+            $nmax        = max($nmax, $nc);
             list($x, $y) = $this->plots[$i]->Min();
-            $xmin = Min($xmin, $x);
-            $ysetmin = Min($y, $ysetmin);
+            $xmin        = min($xmin, $x);
+            $ysetmin     = min($y, $ysetmin);
         }
-        for ($i = 0; $i < $nmax; $i++) {
+        for ($i = 0; $i < $nmax; ++$i) {
             // Get y-value for line $i by adding the
             // individual bars from all the plots added.
             // It would be wrong to just add the
             // individual plots min y-value since that
             // would in most cases give to small y-value.
             $y = $this->plots[0]->coords[0][$i];
-            for ($j = 1; $j < $this->nbrplots; $j++) {
+            for ($j = 1; $j < $this->nbrplots; ++$j) {
                 $y += $this->plots[$j]->coords[0][$i];
             }
             $ymin[$i] = $y;
         }
-        $ymin = Min($ysetmin, Min($ymin));
-        return array($xmin, $ymin);
+        $ymin = min($ysetmin, min($ymin));
+
+        return [$xmin, $ymin];
     }
 
     // Gets called before any axis are stroked
     public function PreStrokeAdjust($graph)
     {
-
         // If another plot type have already adjusted the
         // offset we don't touch it.
         // (We check for empty in case the scale is  a log scale
@@ -116,7 +132,6 @@ class AccLinePlot extends Plot
             $graph->SetTextScaleOff($b);
             $graph->xaxis->scale->ticks->SupressMinorTickMarks();
         }
-
     }
 
     public function SetInterpolateMode($aIntMode)
@@ -129,8 +144,7 @@ class AccLinePlot extends Plot
     // will be replaced by the the first valid data point
     public function LineInterpolate(&$aData)
     {
-
-        $n = count($aData);
+        $n = safe_count($aData);
         $i = 0;
 
         // If first point is undefined we will set it to the same as the first
@@ -147,7 +161,6 @@ class AccLinePlot extends Plot
                     } else {
                         $aData[$j] = $aData[$i];
                     }
-
                 }
             } else {
                 // All '-' => Error
@@ -169,7 +182,7 @@ class AccLinePlot extends Plot
                 if ($i < $n) {
                     $pend = $i;
                     $size = $pend - $pstart;
-                    $k = ($aData[$pend] - $aData[$pstart]) / $size;
+                    $k    = ($aData[$pend] - $aData[$pstart]) / $size;
                     // Replace the segment of '-' with a linear interpolated value.
                     for ($j = 1; $j < $size; ++$j) {
                         $aData[$pstart + $j] = $aData[$pstart] + $j * $k;
@@ -185,10 +198,10 @@ class AccLinePlot extends Plot
                             $aData[$j] = $aData[$pstart];
                         }
                     }
-
                 }
             }
         }
+
         return true;
     }
 
@@ -201,21 +214,21 @@ class AccLinePlot extends Plot
     public function Stroke($img, $xscale, $yscale)
     {
         $img->SetLineWeight($this->weight);
-        $this->numpoints = count($this->plots[0]->coords[0]);
+        $this->numpoints = safe_count($this->plots[0]->coords[0]);
         // Allocate array
         $coords[$this->nbrplots][$this->numpoints] = 0;
-        for ($i = 0; $i < $this->numpoints; $i++) {
+        for ($i = 0; $i < $this->numpoints; ++$i) {
             $coords[0][$i] = $this->plots[0]->coords[0][$i];
-            $accy = $coords[0][$i];
+            $accy          = $coords[0][$i];
             for ($j = 1; $j < $this->nbrplots; ++$j) {
                 $coords[$j][$i] = $this->plots[$j]->coords[0][$i] + $accy;
-                $accy = $coords[$j][$i];
+                $accy           = $coords[$j][$i];
             }
         }
         for ($j = $this->nbrplots - 1; $j >= 0; --$j) {
             $p = $this->plots[$j];
             for ($i = 0; $i < $this->numpoints; ++$i) {
-                $tmp[$i] = $p->coords[0][$i];
+                $tmp[$i]          = $p->coords[0][$i];
                 $p->coords[0][$i] = $coords[$j][$i];
             }
             $p->Stroke($img, $xscale, $yscale);
@@ -225,4 +238,4 @@ class AccLinePlot extends Plot
             $p->coords[0][] = $tmp;
         }
     }
-} // Class
+} // @class

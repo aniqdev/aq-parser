@@ -1,0 +1,8 @@
+@media (max-width: 767px){
+    body.is--ctl-listing .is--categoryTeaser .is--teaser {
+        width: 50%;
+    }
+    body.is--ctl-listing .is--categoryTeaser .is--teaser a .is--cHolder .is--hlWrap .is--headline {
+        font-size: 13px;
+    }
+}

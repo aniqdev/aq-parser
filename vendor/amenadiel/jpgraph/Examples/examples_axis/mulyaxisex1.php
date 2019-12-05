@@ -1,17 +1,25 @@
-<?php // content="text/plain; charset=utf-8"
-require_once 'jpgraph/jpgraph.php';
-require_once 'jpgraph/jpgraph_line.php';
+<?php
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
+
+use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Plot;
 
 $n = 8;
 for ($i = 0; $i < $n; ++$i) {
-    $datay[$i] = rand(1, 10);
+    $datay[$i]  = rand(1, 10);
     $datay2[$i] = rand(10, 55);
     $datay3[$i] = rand(200, 600);
     $datay4[$i] = rand(500, 800);
 }
 
 // Setup the graph
-$graph = new Graph\Graph(450, 250);
+$__width  = 450;
+$__height = 250;
+$graph    = new Graph\Graph($__width, $__height);
 $graph->SetMargin(40, 150, 40, 30);
 $graph->SetMarginColor('white');
 

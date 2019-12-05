@@ -1,12 +1,17 @@
-<?php // content="text/plain; charset=utf-8"
-require_once 'jpgraph/jpgraph.php';
-require_once 'jpgraph/jpgraph_gantt.php';
+<?php
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
+use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Plot;
 
 // A new Graph\Graph with automatic size
-$graph = new GanttGraph();
+$graph = new Graph\GanttGraph();
 
 //  A new activity on row '0'
-$activity = new GanttBar(0, "Activity 1", "2001-12-21", "2002-01-19");
+$activity = new Plot\GanttBar(0, 'Activity 1', '2001-12-21', '2002-01-19');
 $graph->Add($activity);
 
 // Display the Gantt chart

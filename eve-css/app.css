@@ -1,0 +1,31 @@
+.eve-time-wrapper{
+    background: #000;
+    color: #78a97d;
+    max-width: 600px;
+    background:  rgba(2,17,38,.88);
+    color: #23c299;
+    padding: 30px;
+    margin-bottom: 40px;
+}
+
+.eve-time-wrapper label {
+    color: #78a97d;
+}
+
+.eve-time-wrapper .callout.primary {
+    background-color: #d7ecfa;
+    color: #0a0a0a;
+}
+.eve-time-wrapper .callout {
+    position: relative;
+    margin: 0 0 1rem 0;
+    padding: 1rem;
+    border: 1px solid rgba(10, 10, 10, 0.25);
+    border-radius: 0;
+    background-color: white;
+    color: #0a0a0a;
+}
+
+.eve-time-wrapper form{
+	margin-bottom: 1rem
+}

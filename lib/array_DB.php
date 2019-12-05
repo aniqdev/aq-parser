@@ -81,7 +81,9 @@ function _esc($str){
 
 function aqs_get_page_title()
 {
-	return isset($_GET['action']) ? 'Aqs-Parser | ' . $_GET['action'] : 'Aqs-Parser';
+	$action = isset($_GET['action']) ? 'P | ' . $_GET['action'] : 'Aqs-Parser';
+	$action = str_replace('-', ' ', $action);
+	return ucwords($action);
 }
 
 function BlackListFilter(&$blacklist,&$itemID){
@@ -797,6 +799,29 @@ function add_comment_to_order($gig_order_id, $text, $notify = true){
 }
 
 
+function add_comment_to_Woo_order($gig_order_id, $text, $notify = true){
+	if($gig_order_id < 1) return false;
+
+	 $text = _esc($text);
+	if (is_array($gig_order_id)) {
+		$gig_order_id = $gig_order_id[0];
+		$gig_order_item_id = $gig_order_id[1];
+
+		arrayDB("UPDATE woo_order_items
+		SET item_comment='$text'
+		WHERE id='$gig_order_item_id'");
+	}
+
+	arrayDB("UPDATE woo_orders
+	SET comment='$text',
+		ExecutionMethod='cancelled',
+		`show`='yes'
+	WHERE id='$gig_order_id'");
+
+	if($notify) AutomaticGroupBot::sendMessage(date('H:i:s').' New order #'.$gig_order_id);
+}
+
+
 function date_shorter($date){
 	if($date == 0) return '';
 	return (new DateTime($date))->format('d-m-y H:i');
@@ -809,7 +834,7 @@ function date_shorter_dots($date){
 }
 
 
-function formula ($rurprice,$exrate) {
+function formula($rurprice,$exrate) {
 	if($exrate <= 0) return 0;
 	$rurprice = (float)$rurprice;
 	$res = (($rurprice/$exrate)*1.00952+0.4165)/(1-(0.1+0.019+0.078)*1.19);
@@ -977,7 +1002,7 @@ function _getResultsFromApi(&$result, &$blacklist, &$blacksell){
 			$itemID      = $result->items[$i]->id;
 			$sellID      = $result->items[$i]->seller_id;
 		    $name        = $result->items[$i]->name;
-		    $price       = $result->items[$i]->price_rur;
+		    $price       = $result->items[$i]->price_usd;
 		    $description = $result->items[$i]->description;
 
    			$nameLow = mb_convert_case($name, MB_CASE_LOWER, "UTF-8");
@@ -1003,6 +1028,9 @@ function _getResultsFromApi(&$result, &$blacklist, &$blacksell){
 	    		$arrItem[$k]['itemID'] = $itemID;
 			    $arrItem[$k]['name'] = $name;
 			    $arrItem[$k]['price'] = $price;
+			    $arrItem[$k]['price_rur'] = $result->items[$i]->price_rur;
+			    $arrItem[$k]['price_usd'] = $result->items[$i]->price_usd;
+			    $arrItem[$k]['price_eur'] = $result->items[$i]->price_eur;
 			    $arrItem[$k]['sellID'] = $sellID;
 			    $k++;
 			}
@@ -1014,14 +1042,32 @@ function _getResultsFromApi(&$result, &$blacklist, &$blacksell){
 
 
 // для функции uasort()
-function _sortN($a,$b){ return $a['price']-$b['price'];}
+function _sortN($a,$b){
+	if ((float)$a['price'] === (float)$b['price']) return 0;
+    return ((float)$a['price'] < (float)$b['price']) ? -1 : 1;
+
+ 	// return (float)$a['price']-(float)$b['price']; // depricated
+}
 
 
+// ALTER TABLE `items`
+// 	ADD COLUMN `item1_price_rur` DECIMAL(6,2) NOT NULL DEFAULT '0.00' AFTER `item1_price`,
+// 	ADD COLUMN `item1_price_usd` DECIMAL(6,2) NOT NULL DEFAULT '0.00' AFTER `item1_price_rur`,
+// 	ADD COLUMN `item1_price_eur` DECIMAL(6,2) NOT NULL DEFAULT '0.00' AFTER `item1_price_usd`,
+// 	ADD COLUMN `item2_price_rur` DECIMAL(6,2) NOT NULL DEFAULT '0.00' AFTER `item2_price`,
+// 	ADD COLUMN `item2_price_usd` DECIMAL(6,2) NOT NULL DEFAULT '0.00' AFTER `item2_price_rur`,
+// 	ADD COLUMN `item2_price_eur` DECIMAL(6,2) NOT NULL DEFAULT '0.00' AFTER `item2_price_usd`,
+// 	ADD COLUMN `item3_price_rur` DECIMAL(6,2) NOT NULL DEFAULT '0.00' AFTER `item3_price`,
+// 	ADD COLUMN `item3_price_usd` DECIMAL(6,2) NOT NULL DEFAULT '0.00' AFTER `item3_price_rur`,
+// 	ADD COLUMN `item3_price_eur` DECIMAL(6,2) NOT NULL DEFAULT '0.00' AFTER `item3_price_usd`;
 function _savePaltiRuToBase(&$arrItem, &$game_id, &$scan, $table = 'items', $operation = 'update'){
 
 	$item1_id = 0; $item1_name = 'No results'; $item1_price = 0; $item1_desc = 'No results';
 	$item2_id = 0; $item2_name = 'No results'; $item2_price = 0; $item2_desc = 'No results';
 	$item3_id = 0; $item3_name = 'No results'; $item3_price = 0; $item3_desc = 'No results';
+	$item1_price_rur = 0; $item2_price_rur = 0; $item3_price_rur = 0;
+	$item1_price_usd = 0; $item2_price_usd = 0; $item3_price_usd = 0;
+	$item1_price_eur = 0; $item2_price_eur = 0; $item3_price_eur = 0;
 
 	usort ($arrItem, '_sortN');
 	if (isset($arrItem[0])) {
@@ -1029,43 +1075,59 @@ function _savePaltiRuToBase(&$arrItem, &$game_id, &$scan, $table = 'items', $ope
 		$item1_name  = _esc(trim(strip_tags($arrItem[0]['name'])));
 		$item1_price = _esc(trim(strip_tags($arrItem[0]['price'])));
 		$item1_desc  = _esc(trim(strip_tags($arrItem[0]['sellID'])));
+		$item1_price_rur = _esc(trim(strip_tags($arrItem[0]['price_rur'])));
+		$item1_price_usd = _esc(trim(strip_tags($arrItem[0]['price_usd'])));
+		$item1_price_eur = _esc(trim(strip_tags($arrItem[0]['price_eur'])));
 	}
 	if (isset($arrItem[1])) {
 		$item2_id    = _esc(trim(strip_tags($arrItem[1]['itemID'])));
 	 	$item2_name  = _esc(trim(strip_tags($arrItem[1]['name'])));
 		$item2_price = _esc(trim(strip_tags($arrItem[1]['price'])));
 		$item2_desc  = _esc(trim(strip_tags($arrItem[1]['sellID'])));
+		$item2_price_rur = _esc(trim(strip_tags($arrItem[1]['price_rur'])));
+		$item2_price_usd = _esc(trim(strip_tags($arrItem[1]['price_usd'])));
+		$item2_price_eur = _esc(trim(strip_tags($arrItem[1]['price_eur'])));
 	}
 	if (isset($arrItem[2])) {
 		$item3_id    = _esc(trim(strip_tags($arrItem[2]['itemID'])));
 	 	$item3_name  = _esc(trim(strip_tags($arrItem[2]['name'])));
 		$item3_price = _esc(trim(strip_tags($arrItem[2]['price'])));
 		$item3_desc  = _esc(trim(strip_tags($arrItem[2]['sellID'])));
+		$item3_price_rur = _esc(trim(strip_tags($arrItem[2]['price_rur'])));
+		$item3_price_usd = _esc(trim(strip_tags($arrItem[2]['price_usd'])));
+		$item3_price_eur = _esc(trim(strip_tags($arrItem[2]['price_eur'])));
 	}
+
+	$set = "SET game_id     = '$game_id',
+				item1_id    = '$item1_id',
+				item1_name  = '$item1_name',
+				item1_price = '$item1_price',
+				item1_desc  = '$item1_desc',
+				item2_id    = '$item2_id',
+				item2_name  = '$item2_name',
+				item2_price = '$item2_price',
+				item2_desc  = '$item2_desc',
+				item3_id    = '$item3_id',
+				item3_name  = '$item3_name',
+				item3_price = '$item3_price',
+				item3_desc  = '$item3_desc',
+				 item1_price_rur = '$item1_price_rur',
+				 item1_price_usd = '$item1_price_usd',
+				 item1_price_eur = '$item1_price_eur',
+				 item2_price_rur = '$item2_price_rur',
+				 item2_price_usd = '$item2_price_usd',
+				 item2_price_eur = '$item2_price_eur',
+				 item3_price_rur = '$item3_price_rur',
+				 item3_price_usd = '$item3_price_usd',
+				 item3_price_eur = '$item3_price_eur'";
 
 	$exist = arrayDB("SELECT id from $table where game_id = '$game_id' order by id desc");
 	if ($exist && $operation === 'update') {
 		$id = $exist[0]['id'];
-		$query = "UPDATE $table
-				SET item1_id    = '$item1_id',
-					item1_name  = '$item1_name',
-					item1_price = '$item1_price',
-					item1_desc  = '$item1_desc',
-					item2_id    = '$item2_id',
-					item2_name  = '$item2_name',
-					item2_price = '$item2_price',
-					item2_desc  = '$item2_desc',
-					item3_id    = '$item3_id',
-					item3_name  = '$item3_name',
-					item3_price = '$item3_price',
-					item3_desc  = '$item3_desc'
-				WHERE game_id = '$game_id'";
+		$query = "UPDATE $table	$set WHERE game_id = '$game_id'";
 		arrayDB($query);
 	}else{
-		$query = "INSERT INTO $table 
-				VALUES( null,'$game_id','$item1_id','$item1_name','$item1_price','$item1_desc',
-										'$item2_id','$item2_name','$item2_price','$item2_desc',
-										'$item3_id','$item3_name','$item3_price','$item3_desc','$scan',null)";
+		$query = "INSERT INTO $table $set, scan = '$scan'";
 		arrayDB($query);
 	}
 	return $query;
@@ -1492,6 +1554,20 @@ function is_eve($ebay_id)
 }
 
 
+function is_eve_by_title($title='')
+{
+	foreach ([
+		' plex',
+		'milliarden isk',
+		'skill injector'
+	] as $eve_sub) {
+		if(stripos($title, $eve_sub) !== false) return true;
+	}
+	return false;
+	
+}
+
+
 function _get_urls_of_real_img($item_id){
 
 	$res = Ebay_shopping2::getSingleItem($item_id, JSON_OBJECT_AS_ARRAY);
@@ -1550,6 +1626,7 @@ function parse_item_specifics($item_id='')
 	foreach ($res as $key => $value) {
 		$specs[str_replace(':','',trim($value->plaintext))] = trim($value->nextSibling()->plaintext);
 	}
+	unset($specs['Artikelzustand']);
 	return $specs;
 }
 
@@ -1827,6 +1904,19 @@ function get_suitables2($ebay_id = ''){
     foreach ($games as $game) {
     	$game_id = $game['id'];
     	$ret = array_merge($ret,  arrayDB("SELECT * FROM items WHERE game_id = '$game_id' ORDER BY id DESC LIMIT 1"));
+    }
+    return $ret;
+}
+
+// в отличие от get_suitables, эта версия берет ПОСЛЕДНИЙ ДОСТУПНЫЙ РЕЗУЛЬТАТ
+function get_suitables2_Woo($product_id = ''){
+    if(!$product_id) return [];
+    $games = arrayDB("SELECT id FROM games WHERE woo_id = '$product_id'");
+    $ret = [];
+    foreach ($games as $game) {
+    	$game_id = $game['id'];
+    	$res = arrayDB("SELECT * FROM items WHERE game_id = '$game_id' ORDER BY id DESC LIMIT 1");
+    	if($res) $ret[] = $res[0];
     }
     return $ret;
 }
@@ -3812,7 +3902,7 @@ function save_domens_multi($word)
 					// arrayDB("UPDATE gp_domens_mi SET keywords = '$word' WHERE id = '$id'");
 				}else{
 					$_GET['gp_inserted'] += 1;
-					$_GET['gp_multiquery'][] = "INSERT INTO gp_domens_mi SET domen = '$domen', zone = '$zone', keywords = '$word'";
+					$_GET['gp_multiquery'][] = "INSERT IGNORE INTO gp_domens_mi SET domen = '$domen', zone = '$zone', keywords = '$word'";
 				}
 			}
 
@@ -3842,4 +3932,136 @@ function save_domens_multi($word)
 function get_google_url($word, $offset = 0)
 {
 	return 'https://www.google.com/search?ved=0ahUKEwjmnKSd_N7jAhVxlIsKHaPWAQEQxdoBCFw&hl=ru&yv=3&q='.urlencode($word).'&lr=&tbm=isch&ei=SnBBXebPD_GorgSjrYcI&vet=10ahUKEwjmnKSd_N7jAhVxlIsKHaPWAQEQuT0IQCgB.SnBBXebPD_GorgSjrYcI.i&ijn=4&start='.$offset.'&asearch=ichunk&async=_id:rg_s,_pms:s,_fmt:pc';
+}
+
+
+function get_setting($name='')
+{
+	$name = _esc($name);
+	$res = arrayDB("SELECT value FROM aq_settings WHERE name = '$name' LIMIT 1");
+
+	if ($res) {
+		return $res[0]['value'];
+	}else{
+		return '';
+	}
+}
+
+
+function set_setting($name = '', $value = '')
+{
+	$name = _esc($name);
+	$value = _esc($value);
+
+	$check = arrayDB("SELECT id FROM aq_settings WHERE name = '$name'");
+	if ($check) {
+		return arrayDB("UPDATE aq_settings SET value = '$value' WHERE name = '$name'");
+	}else{
+		return arrayDB("INSERT INTO aq_settings SET name = '$name', value = '$value'");
+	}
+}
+
+
+function what_currency($itemid)
+{
+	$res = arrayDB("SELECT * FROM items WHERE item1_id = '$itemid' ORDER BY id DESC LIMIT 1");
+
+	if ($res) {
+		$item = $res[0];
+
+		$exrate_wmr = get_setting('exrate_wmr');
+		$exrate_wmz = get_setting('exrate_wmz');
+
+		$currency = 'WMZ';
+		$min_price = 999999;
+		if ($item['item1_price_eur'] > 0 && $item['item1_price_eur'] < $min_price) {
+			$currency = 'WME';
+			$min_price = $item['item1_price_eur'];
+		}
+		if ($item['item1_price_rur'] > 0 && ($item['item1_price_rur'] / $exrate_wmr) < $min_price) {
+			$currency = 'WMR';
+			$min_price = $item['item1_price_rur'] / $exrate_wmr;
+		}
+		if ($item['item1_price_usd'] > 0 && ($item['item1_price_usd'] / $exrate_wmz) < $min_price) {
+			$currency = 'WMZ';
+		}
+		return $currency;
+	}else{
+		return 'WMZ';
+	}
+}
+
+
+function ajax_get_eve_data()
+{
+
+	$arr = [
+      ['Date', 'Tranquility', 'Singularity'],
+    ];
+
+	$res = arrayDB("SELECT * FROM eve_server_status where id mod 15 = 0 ORDER BY id DESC LIMIT 500");
+
+    $res = array_reverse($res);
+
+    foreach ($res as $rec) {
+    	$arr[] = [
+    		$rec['created_at'],
+    		(int)$rec['tr_players'],
+    		(int)$rec['si_players'],
+    	];
+    }
+
+	echo json_encode([
+		'status' => 'OK',
+		'data' => $arr,
+	]);
+}
+
+
+function script_title($file_path)
+{
+	$file_name = basename($file_path, '.php');
+
+	$file_name = str_replace('-', ' ', $file_name);
+	
+	return strtoupper($file_name);
+}
+
+
+function woocommerce_constrictor()
+{
+	return new \Automattic\WooCommerce\Client(
+						'https://gig-games.de/', // Your store URL
+						WOO_CK, // Your consumer key
+						WOO_CS, // Your consumer secret
+						[
+				        'wp_api' => true,
+				        'version' => 'wc/v3',
+						 'query_string_auth' => true,
+						 ]
+				);
+}
+
+
+function do_woocommerce_api_request($method, $endpoint, $data = [])
+{
+	global $_ERRORS;
+	$res = '';
+	try{
+		$res = woocommerce_constrictor()->$method($endpoint, $data);
+	}catch (Exception $e) {
+			$_ERRORS[] =  $e->getMessage();
+	}
+	return([
+		'res' => $res,
+		'errors' => $_ERRORS,
+	]);
+}
+
+
+function ajax_hot_do_woocommerce_api_request()
+{
+	return json_encode(
+		do_woocommerce_api_request($_POST['method'], $_POST['endpoint'], $_POST['data'])
+	);
 }

@@ -5,7 +5,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 	$offset = (int)$_POST['offset'];
 
 
-	$where = "WHERE extra_field2 LIKE 'sub%'";
+	// $where = "WHERE extra_field2 LIKE 'sub%'";
 	$where = '';
 
 	$count = arrayDB("SELECT count(*) FROM cdvet $where")[0]['count(*)'];

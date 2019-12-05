@@ -1,11 +1,18 @@
-## JPGRAPH 3.6.7, Community Edition
+## JPGRAPH v3.6.15, Community Edition
 
-[![Packagist](https://img.shields.io/packagist/dm/amenadiel/jpgraph.svg)](https://packagist.org/packages/amenadiel/jpgraph)
-[![Code Climate](https://codeclimate.com/github/HuasoFoundries/jpgraph/badges/gpa.svg)](https://codeclimate.com/github/HuasoFoundries/jpgraph)
+[![Packagist](https://img.shields.io/packagist/dm/amenadiel/jpgraph.svg)](https://packagist.org/packages/amenadiel/jpgraph) [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FHuasoFoundries%2Fjpgraph.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FHuasoFoundries%2Fjpgraph?ref=badge_shield)
+
+[![Code Climate](https://codeclimate.com/github/HuasoFoundries/jpgraph/badges/gpa.svg)](https://codeclimate.com/github/HuasoFoundries/jpgraph) 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1a7ea0cac1d84bc79545c9f6ff85cd25)](https://www.codacy.com/app/amenadiel/jpgraph?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=HuasoFoundries/jpgraph&amp;utm_campaign=Badge_Grade) 
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/HuasoFoundries/jpgraph/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/HuasoFoundries/jpgraph/?branch=master) 
+[![Build Status](https://scrutinizer-ci.com/g/HuasoFoundries/jpgraph/badges/build.png?b=master)](https://scrutinizer-ci.com/g/HuasoFoundries/jpgraph/build-status/master) 
+[![StyleCI](https://styleci.io/repos/39590412/shield?branch=master)](https://styleci.io/repos/39590412) 
+[![Code Coverage](https://scrutinizer-ci.com/g/HuasoFoundries/jpgraph/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/HuasoFoundries/jpgraph/?branch=master) 
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FHuasoFoundries%2Fjpgraph.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FHuasoFoundries%2Fjpgraph?ref=badge_shield)
 
 This is an unnoficial refactor of [JpGraph](http://jpgraph.net/) with thefollowing differences:
 - the app was fully refactored adding namespaces, proper folder hierarchy, separating each class in its own file and stripping the use of `require` and `include` to the bare minimum
-- dropping support for PHP < 5.4. 
+- dropping support for PHP < 5.6. 
 - it provides full composer compatibility
 - it has PSR-4 autoloading
 - it makes requirement checks so you can't go wrong
@@ -37,46 +44,50 @@ The examples work the same way you should use this library:
    - generate a graph with a snippet like the following
 
    ```php
-   use Amenadiel\JpGraph\Graph;
-   use Amenadiel\JpGraph\Plot;
+      require_once './vendor/autoload.php';
+      use Amenadiel\JpGraph\Graph;
+      use Amenadiel\JpGraph\Plot;
 
-   $data = array(40, 21, 17, 14, 23);
-   $p1 = new Plot\PiePlot($data);
-   $p1->ShowBorder();
-   $p1->SetColor('black');
-   $p1->SetSliceColors(array('#1E90FF', '#2E8B57', '#ADFF2F', '#DC143C', '#BA55D3'));
+      // Create the Pie Graph.
+      $graph = new Graph\PieGraph(350, 250);
+      $graph->title->Set("A Simple Pie Plot");
+      $graph->SetBox(true);
 
-   $graph = new Graph\PieGraph(350, 250);
-   $graph->title->Set("A Simple Pie Plot");
-   $graph->SetBox(true);
+      $data = array(40, 21, 17, 14, 23);
+      $p1   = new Plot\PiePlot($data);
+      $p1->ShowBorder();
+      $p1->SetColor('black');
+      $p1->SetSliceColors(array('#1E90FF', '#2E8B57', '#ADFF2F', '#DC143C', '#BA55D3'));
 
-   $graph->Add($p1);
-   $graph->Stroke();
+      $graph->Add($p1);
+      $graph->Stroke();
    ```
+
+   - **important** always instance your graph (of any kind) before creating its contents. This will in turn load all needed constants to the global scope.
 
 See the examples working by performing the following steps:
 
- - `composer install`
- - `php -S localhost:8000`
- - Open your browser at http://localhost:8000/Examples/index.html
+ - run `composer install`
+ - run `make start` **or** `php -S localhost:8000 -t Examples`
+ - Open your browser at http://localhost:8000
 
 
+### Change the config
 
-
+You can override some configs set on [config.inc.php](src/config.inc.php) by creating a `.env` file in your project root. 
+See [.env.example](.env.example) as a reference.
 
 
 ### Wishlist
 
-- Get all the examples working
-- If the project gains traction I can move the repo to an organization so there can be more mantainers and contributions
-- Add tests
-- Add CI tools
+- Get all the examples working (half of them have yet to be transformed from the old code to the new PSR-4 format)
+- Add more tests (We need to test more classes and methods besides the ones in the examples, as well as perform more assetions on the current tests)
 - Add alternative use of [imagick](http://php.net/manual/en/imagick.setup.php) 
 
 
 
 
-![jpgraph_logo](https://cloud.githubusercontent.com/assets/238439/8861477/e8aac1f0-3160-11e5-9d02-36838810ca26.jpg)
+![jpgraph_logo](https://raw.githubusercontent.com/HuasoFoundries/jpgraph/master/jpgraph_logo.jpg)
 
 README FOR JPGRAPH 3.5.x
 =========================
@@ -144,3 +155,7 @@ Should be reported using the contact form at
 
 http://jpgraph.net/contact/
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FHuasoFoundries%2Fjpgraph.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FHuasoFoundries%2Fjpgraph?ref=badge_large)

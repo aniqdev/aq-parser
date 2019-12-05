@@ -1,12 +1,18 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Plot;
 
-//===================================================
-// CLASS BoxPlot
-//===================================================
+/**
+ * @class BoxPlot
+ */
 class BoxPlot extends StockPlot
 {
-    private $iPColor = 'black', $iNColor = 'white';
+    private $iPColor = 'black';
+    private $iNColor = 'white';
 
     public function __construct($datay, $datax = false)
     {

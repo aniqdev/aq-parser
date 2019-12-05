@@ -1,27 +1,33 @@
-<?php // content="text/plain; charset=utf-8"
-require_once 'jpgraph/jpgraph.php';
-require_once 'jpgraph/jpgraph_line.php';
-require_once 'jpgraph/jpgraph_scatter.php';
+<?php
 
-$datay1 = array(15, 21, 24, 10, 37, 29, 47);
-$datay2 = array(8, 6, 11, 26, 10, 4, 2);
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
+use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Plot;
+
+$datay1 = [15, 21, 24, 10, 37, 29, 47];
+$datay2 = [8, 6, 11, 26, 10, 4, 2];
 
 // Setup the graph
-$graph = new Graph\Graph(300, 250);
+$__width  = 300;
+$__height = 250;
+$graph    = new Graph\Graph($__width, $__height);
 
-$graph->SetScale("textlin", 0, 50);
+$graph->SetScale('textlin', 0, 50);
 
 //$theme_class=new DefaultTheme;
 //$graph->SetTheme($theme_class);
 
-$graph->title->Set("Filled Area");
+$graph->title->Set('Filled Area');
 
 $graph->SetBox(false);
 $graph->yaxis->HideLine(false);
 $graph->yaxis->HideTicks(false, false);
 $graph->yaxis->HideZeroLabel();
 
-$graph->xaxis->SetTickLabels(array('A', 'B', 'C', 'D', 'E', 'F', 'G'));
+$graph->xaxis->SetTickLabels(['A', 'B', 'C', 'D', 'E', 'F', 'G']);
 
 // Create the plot
 $p1 = new Plot\LinePlot($datay1);
@@ -31,11 +37,11 @@ $p2 = new Plot\LinePlot($datay2);
 $graph->Add($p2);
 
 // Use an image of favourite car as marker
-$p1->mark->SetType(MARK_IMG, 'rose.gif', 1.0);
+$p1->mark->SetType(MARK_IMG, __DIR__ . '/../assets/rose.gif', 1.0);
 $p1->SetLegend('rose');
 $p1->SetColor('#CD5C5C');
 
-$p2->mark->SetType(MARK_IMG, 'sunflower.gif', 1.0);
+$p2->mark->SetType(MARK_IMG, __DIR__ . '/../assets/sunflower.gif', 1.0);
 $p2->SetLegend('sunflower');
 $p2->SetColor('#CD5C5C');
 

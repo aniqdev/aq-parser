@@ -1,18 +1,22 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Util;
 
 //
 // First of all set up a default error handler
 //
 
-//=============================================================
-// The default trivial text error handler.
-//=============================================================
+/**
+ * The default trivial text error handler.
+ */
 class JpGraphErrObject
 {
-
-    protected $iTitle = "JpGraph error: ";
-    protected $iDest = false;
+    protected $iTitle = 'JpGraph error: ';
+    protected $iDest  = false;
 
     public function __construct()
     {
@@ -37,7 +41,7 @@ class JpGraphErrObject
                 error_log($this->iTitle . $aMsg);
             } else {
                 $str = '[' . date('r') . '] ' . $this->iTitle . $aMsg . "\n";
-                $f = @fopen($this->iDest, 'a');
+                $f   = @fopen($this->iDest, 'a');
                 if ($f) {
                     @fwrite($f, $str);
                     @fclose($f);
@@ -56,6 +60,5 @@ class JpGraphErrObject
         if ($aHalt) {
             exit(1);
         }
-
     }
 }

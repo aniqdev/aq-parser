@@ -1,0 +1,156 @@
+<h3>Was ist B.A.R.F. bzw. BARFEN?</h3>
+<p>Das Akronym BARF wurde zuerst von &nbsp;der Amerikanerin Debbie Tripp genutzt, um die Menschen zu bezeichnen, die ihre Hunde mit rohem, frischem Futter ern&auml;hren, und um das Futter selber zu bezeichnen. In diesem Fall bedeutete es Born Again Raw Feeders (neugeborene Rohf&uuml;tterer) oder Bones And Raw Foods (Knochen und rohes Futter). In Deutschland hat sich die Bezeichnung "Biologisches Artgerechtes Rohes Futter" etabliert. In den letzten Jahren sehen immer mehr Hunde - und Katzenbesitzer die Vorteile der nat&uuml;rlichen, gesunden Ern&auml;hrung ihres Tieres mit Rohfleisch- und Knochenf&uuml;tterung.</p>
+<hr />
+<form name="barfrechner">
+   <table>
+      <tbody>
+         <tr>
+            <td>
+               <p>Nahrungsmenge in % des K&ouml;rpergewichts des Hundes:</p>
+            </td>
+            <td>
+               <select id="perc_of_weight_inp" class="menge" name="menge">
+                  <option value="1.5">1,5%</option>
+                  <option selected="selected" value="2">2%</option>
+                  <option value="2.5">2,5%</option>
+                  <option value="3">3%</option>
+                  <option value="3.5">3,5%</option>
+                  <option value="4">4% Welpen</option>
+                  <option value="4.5">4,5% Welpen</option>
+                  <option value="5">5% Welpen</option>
+                  <option value="5.5">5,5% Welpen</option>
+                  <option value="6">6% Welpen</option>
+               </select>
+            </td>
+         </tr>
+         <tr>
+            <td>
+               <p>K&ouml;rpergewicht Ihres Hundes in kg:</p>
+            </td>
+            <td><input id="dog_weight_inp" class="gewicht" type="number" name="gewicht" value="25" size="3" maxlength="3" style="width: 55px; padding-left: 3px;" /></td>
+         </tr>
+         <tr>
+            <td>
+               <p>Nahrungsaufteilung: &nbsp;</p>
+            </td>
+            <td>
+               <select id="meat_plant_inp" class="aufteilung" name="aufteilung">
+                  <option selected="selected" value="60">60% tierisch / 40% pflanzlich</option>
+                  <option value="65">65% tierisch / 35% pflanzlich</option>
+                  <option value="70">70% tierisch / 30% pflanzlich</option>
+                  <option value="75">75% tierisch / 25% pflanzlich</option>
+                  <option value="80">80% tierisch / 20% pflanzlich</option>
+               </select>
+            </td>
+         </tr>
+      </tbody>
+   </table>
+</form>
+<hr />
+<table>
+   <tbody>
+      <tr>
+         <td valign="top">
+            <table>
+               <tbody>
+                  <tr>
+                     <td nowrap="nowrap"><strong><br />Gesamtfuttermenge t&auml;glich:&nbsp;</strong></td>
+                     <td><br /><strong><span id="js_total_food" class="futtergesamt">500</span>g</strong></td>
+                  </tr>
+                  <tr>
+                     <td><strong>&nbsp;<br />Tierischer Anteil:&nbsp;</strong></td>
+                     <td><br /><span id="js_meet" class="futtergesamttierisch">400</span>g</td>
+                  </tr>
+                  <tr>
+                     <td>Muskelfleisch (durchwachsen 15-25% Fett):&nbsp;</td>
+                     <td><span id="js_meet_1" class="futtermuskelfleisch">200</span>g</td>
+                  </tr>
+                  <tr>
+                     <td>Pansen/Bl&auml;ttermagen:&nbsp;</td>
+                     <td><span id="js_meet_2" class="futterpansen">80</span>g</td>
+                  </tr>
+                  <tr>
+                     <td>Schlund, Herz, M&auml;gen:&nbsp;</td>
+                     <td><span id="js_meet_3" class="futterinnereien">60</span>g</td>
+                  </tr>
+                  <tr>
+                     <td>Knochen/Knorpel:&nbsp;</td>
+                     <td><span id="js_meet_4" class="futterknochen">60</span>g</td>
+                  </tr>
+                  <tr>
+                     <td><strong>&nbsp;<br />Pflanzlicher Anteil:</strong>&nbsp;</td>
+                     <td><br /><span id="js_plant" class="futtergesamtpflanzlich">100</span>g</td>
+                  </tr>
+                  <tr>
+                     <td>Gem&uuml;se:&nbsp;</td>
+                     <td><span id="js_plant_1" class="futtergemuese">75</span>g</td>
+                  </tr>
+                  <tr>
+                     <td>Obst:&nbsp;(1-2 mal w&ouml;chentliche F&uuml;tterung)</td>
+                     <td><span id="js_plant_2" class="futterobst">25</span>g</td>
+                  </tr>
+                  <tr>
+                     <td><strong>&nbsp;<br />&Ouml;l:</strong>&nbsp;</td>
+                     <td><br /><span id="js_fat" class="oeltag">8</span>g</td>
+                  </tr>
+               </tbody>
+            </table>
+         </td>
+         <td>&nbsp;</td>
+         <td valign="top">
+            <table>
+               <tbody>
+                  <tr>
+                     <td nowrap="nowrap"><strong><br />w&ouml;chentlich:&nbsp;</strong></td>
+                     <td><br /><strong><span id="js_total_food_m7" class="futtergesamt1">3.500</span>g</strong></td>
+                  </tr>
+                  <tr>
+                     <td><strong>&nbsp;<br />Tierischer Anteil:&nbsp;</strong></td>
+                     <td><br /><span id="js_meet_m7" class="futtergesamttierisch1">2.400</span>g</td>
+                  </tr>
+                  <tr>
+                     <td>Muskelfleisch (durchwachsen 15-25% Fett):&nbsp;</td>
+                     <td><span id="js_meet_1_m7" class="futtermuskelfleisch1">1.400</span>g</td>
+                  </tr>
+                  <tr>
+                     <td>Pansen/Bl&auml;ttermagen:&nbsp;</td>
+                     <td><span id="js_meet_2_m7" class="futterpansen1">560</span>g</td>
+                  </tr>
+                  <tr>
+                     <td>Schlund, Herz, M&auml;gen:&nbsp;</td>
+                     <td><span id="js_meet_3_m7" class="futterinnereien1">420</span>g</td>
+                  </tr>
+                  <tr>
+                     <td>Knochen/Knorpel:&nbsp;</td>
+                     <td><span id="js_meet_4_m7" class="futterknochen1">420</span>g</td>
+                  </tr>
+                  <tr>
+                     <td><strong>&nbsp;<br />Pflanzlicher Anteil:</strong>&nbsp;</td>
+                     <td><br /><span id="js_plant_m7" class="futtergesamtpflanzlich1">700</span>g</td>
+                  </tr>
+                  <tr>
+                     <td>Gem&uuml;se:&nbsp;</td>
+                     <td><span id="js_plant_1_m7" class="futtergemuese1">525</span>g</td>
+                  </tr>
+                  <tr>
+                     <td>Obst:&nbsp;(1-2 mal w&ouml;chentliche F&uuml;tterung)</td>
+                     <td><span id="js_plant_2_m7" class="futterobst1">175</span>g</td>
+                  </tr>
+                  <tr>
+                     <td><strong>&nbsp;<br />&Ouml;l:</strong>&nbsp;</td>
+                     <td><br /><span id="js_fat_m7" class="oelwoche">53</span>g</td>
+                  </tr>
+               </tbody>
+            </table>
+         </td>
+      </tr>
+   </tbody>
+</table>
+<p>Wie bei uns Menschen ist beim Hund eine ausgewogene abwechslungsreiche Ern&auml;hrung die Grundlage f&uuml;r ein gesundes Leben. Und genau wie bei uns muss hierf&uuml;r nicht t&auml;glich jeder N&auml;hrstoff mit der Briefwaage abgewogen und genau berechnet aufgenommen werden. Sie sind also frei anhand der Wochenration die t&auml;gliche Futtermenge abwechslungsreich zu variieren und so &uuml;ber diesen Zeitraum ausgewogen zu f&uuml;ttern. Gerade bei Obst hat es sich bew&auml;hrt die w&ouml;chentliche Ration nur auf 1-2 Mahlzeiten die Woche zu verteilen.</p>
+<p>Damit Sie sich Ihren individuellen Barf Plan ausdrucken k&ouml;nnen, haben wir einen Blanko Plan zum Ausf&uuml;llen<strong>&nbsp;<span style="color: #ff0000;"><em><a href="http://www.shop.cdvet.de/media/pdf/barfplan.pdf" target="_blank"><span style="color: #ff0000;">hier</span></a>&nbsp;</em></span></strong>bereit gestellt.</p>
+<p>F&uuml;r weitere Informationen &uuml;ber Fett beim Barfen klicken Sie <span style="text-decoration: underline; color: #ff0000; background-color: #ffffff;"><em><strong><a href="http://www.shop.cdvet.de/media/pdf/fett.pdf" target="_blank"><span style="color: #ff0000; background-color: #ffffff;">hier</span></a></strong></em></span>.</p>
+
+
+<script>
+   <?php include __DIR__.'/cdvet-calc.js'; ?>
+</script>

@@ -4,7 +4,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 	header('Content-Type: application/json');
 
 	$offset = (int)$_POST['offset'];
-	$table = @$_GET['table'] ? $_GET['table'] : 'gp_keywords';
+	$table = @$_GET['table'] ? $_GET['table'] : 'gp_keywords_1';
 	$where = "WHERE flag <> 'done1'";
 
 	if($offset == 0) arrayDB("UPDATE $table SET flag = 'done1' WHERE flag = 'done2'");
@@ -24,8 +24,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 	if ($amount) {
 		arrayDB("UPDATE $table SET flag = 'done2' WHERE id = '$id'");
 	}
-
-	// UPDATE gp_keywords SET flag = 'done1' WHERE flag = 'done2'
+	
 	//=============================================================================
 
 

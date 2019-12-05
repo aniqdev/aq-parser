@@ -1,37 +1,56 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Plot;
 
 use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Text;
+use Amenadiel\JpGraph\Util;
 
 class GanttVLine extends GanttPlotObject
 {
+    private $iLine;
+    private $title_margin = 3;
+    private $iDayOffset   = 0.5;
+    private $iStartRow    = -1;
+    private $iEndRow      = -1;
 
-    private $iLine, $title_margin = 3, $iDayOffset = 0.5;
-    private $iStartRow = -1, $iEndRow = -1;
-
-    //---------------
-    // CONSTRUCTOR
-    public function __construct($aDate, $aTitle = "", $aColor = "darkred", $aWeight = 2, $aStyle = "solid")
+    /**
+     * CONSTRUCTOR.
+     *
+     * @param mixed $aDate
+     * @param mixed $aTitle
+     * @param mixed $aColor
+     * @param mixed $aWeight
+     * @param mixed $aStyle
+     */
+    public function __construct($aDate, $aTitle = '', $aColor = 'darkred', $aWeight = 2, $aStyle = 'solid')
     {
-        GanttPlotObject::__construct();
+        parent::__construct();
         $this->iLine = new Graph\LineProperty();
         $this->iLine->SetColor($aColor);
         $this->iLine->SetWeight($aWeight);
         $this->iLine->SetStyle($aStyle);
         $this->iStart = $aDate;
-        $this->title = new TextPropertyBelow();
+        $this->title  = new Text\TextPropertyBelow();
         $this->title->Set($aTitle);
     }
 
-    //---------------
-    // PUBLIC METHODS
-
+    /**
+     * PUBLIC METHODS.
+     *
+     * @param mixed $aStart
+     * @param mixed $aEnd
+     */
     // Set start and end rows for the VLine. By default the entire heigh of the
     // Gantt chart is used
     public function SetRowSpan($aStart, $aEnd = -1)
     {
         $this->iStartRow = $aStart;
-        $this->iEndRow = $aEnd;
+        $this->iEndRow   = $aEnd;
     }
 
     public function SetDayOffset($aOff = 0.5)
@@ -79,7 +98,7 @@ class GanttVLine extends GanttPlotObject
         }
 
         $this->iLine->Stroke($aImg, $x, $y1, $x, $y2);
-        $this->title->Align("center", "top");
+        $this->title->Align('center', 'top');
         $this->title->Stroke($aImg, $x, $y2 + $this->title_margin);
     }
 }

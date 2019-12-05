@@ -1,30 +1,35 @@
-<?php // content="text/plain; charset=utf-8"
-require_once 'jpgraph/jpgraph.php';
-require_once 'jpgraph/jpgraph_scatter.php';
+<?php
 
-DEFINE('WORLDMAP', 'worldmap1.jpg');
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
+use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Plot;
 
-function markCallback($y, $x)
-{
+define('WORLDMAP', __DIR__ . '/../assets/worldmap1.jpg');
+
+$markCallback = function ($y, $x) {
     // Return array width
     // width,color,fill color, marker filename, imgscale
     // any value can be false, in that case the default value will
     // be used.
     // We only make one pushpin another color
     if ($x == 54) {
-        return array(false, false, false, 'red', 0.8);
-    } else {
-        return array(false, false, false, 'green', 0.8);
+        return [false, false, false, 'red', 0.8];
     }
 
-}
+    return [false, false, false, 'green', 0.8];
+};
 
 // Data arrays
-$datax = array(10, 20, 30, 40, 54, 60, 70, 80);
-$datay = array(12, 23, 65, 18, 84, 28, 86, 44);
+$datax = [10, 20, 30, 40, 54, 60, 70, 80];
+$datay = [12, 23, 65, 18, 84, 28, 86, 44];
 
 // Setup the graph
-$graph = new Graph\Graph(400, 270);
+$__width  = 400;
+$__height = 270;
+$graph    = new Graph\Graph($__width, $__height);
 
 // We add a small 1pixel left,right,bottom margin so the plot area
 // doesn't cover the frame around the graph.
@@ -39,20 +44,20 @@ $graph->yaxis->Hide();
 $graph->SetBackgroundImage(WORLDMAP, BGIMG_FILLPLOT);
 
 // Setup a nice title with a striped bevel background
-$graph->title->Set("Pushpin graph");
+$graph->title->Set('Pushpin graph');
 $graph->title->SetFont(FF_ARIAL, FS_BOLD, 16);
 $graph->title->SetColor('white');
 $graph->SetTitleBackground('darkgreen', TITLEBKG_STYLE1, TITLEBKG_FRAME_BEVEL);
 $graph->SetTitleBackgroundFillStyle(TITLEBKG_FILLSTYLE_HSTRIPED, 'blue', 'darkgreen');
 
 // Finally create the scatterplot
-$sp = new ScatterPlot($datay, $datax);
+$sp = new Plot\ScatterPlot($datay, $datax);
 
 // We want the markers to be an image
 $sp->mark->SetType(MARK_IMG_PUSHPIN, 'blue', 0.6);
 
 // Install the Y-X callback for the markers
-$sp->mark->SetCallbackYX('markCallback');
+$sp->mark->SetCallbackYX($markCallback);
 
 // ...  and add it to the graph
 $graph->Add($sp);

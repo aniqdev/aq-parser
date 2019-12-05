@@ -23,7 +23,7 @@ save_steam_offset($table, $offset);
 
 $query = "SELECT * FROM slist 
 		  WHERE $whr_and scan = (select scan from slist order by id desc limit 1) 
-		  LIMIT $offset,30";
+		  LIMIT $offset,10";
 $slist = arrayDB($query);
 $affected = 0; $was_no_img = 0; $aggregator = [];
 $aggregate = false; // использовать для отладки
@@ -261,7 +261,7 @@ foreach ($slist as $row) {
 	foreach ($overlay as $overlay) $includes[] = preg_replace('/\D/', '', $overlay->href);
 	$includes = implode(',', $includes);
 
-// ==> Включаемые в пак игры ($pics)
+// ==> Список картинок ($pics)
     $path = get_steam_images_dir_path($type, $appid);
     $dir = @scandir($path);
     $pics = '';

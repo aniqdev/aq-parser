@@ -1,18 +1,21 @@
-<?php // content="text/plain; charset=utf-8"
-require_once ('jpgraph/jpgraph.php');
-require_once ('jpgraph/jpgraph_pie.php');
+<?php
 
-$data = array(40,60,21,33);
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
+use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Plot;
 
-$graph = new PieGraph(300,200);
+$data = [40, 60, 21, 33];
+
+$__width  = 300;
+$__height = 200;
+$graph    = new Graph\PieGraph($__width, $__height);
 $graph->SetShadow();
 
-$graph->title->Set("A simple Pie plot");
+$graph->title->Set('A simple Pie plot');
 
-$p1 = new PiePlot($data);
+$p1 = new Plot\PiePlot($data);
 $graph->Add($p1);
 $graph->Stroke();
-
-?>
-
-

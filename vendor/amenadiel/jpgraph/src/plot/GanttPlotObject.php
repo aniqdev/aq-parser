@@ -1,26 +1,38 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Plot;
 
-//===================================================
-// CLASS GanttPlotObject
-// The common signature for a Gantt object
-//===================================================
+use Amenadiel\JpGraph\Text;
+use Amenadiel\JpGraph\Util;
+
+/**
+ * @class GanttPlotObject
+ * // The common signature for a Gantt object
+ */
 class GanttPlotObject
 {
-    public $title, $caption;
-    public $csimarea = '', $csimtarget = '', $csimwintarget = '', $csimalt = '';
-    public $constraints = array();
-    public $iCaptionMargin = 5;
-    public $iConstrainPos = array();
-    protected $iStart = ""; // Start date
-    public $iVPos = 0; // Vertical position
+    public $title;
+    public $caption;
+    public $csimarea            = '';
+    public $csimtarget          = '';
+    public $csimwintarget       = '';
+    public $csimalt             = '';
+    public $constraints         = [];
+    public $iCaptionMargin      = 5;
+    public $iConstrainPos       = [];
+    protected $iStart           = ''; // Start date
+    public $iVPos               = 0; // Vertical position
     protected $iLabelLeftMargin = 2; // Title margin
 
     public function __construct()
     {
-        $this->title = new TextProperty();
+        $this->title = new Text\TextProperty();
         $this->title->Align('left', 'center');
-        $this->caption = new TextProperty();
+        $this->caption = new Text\TextProperty();
     }
 
     public function GetCSIMArea()
@@ -41,9 +53,9 @@ class GanttPlotObject
             //('CSIM Alt text must be specified as a string.'."\nStart of alt text is:\n$tv");
         }
 
-        $this->csimtarget = $aTarget;
+        $this->csimtarget    = $aTarget;
         $this->csimwintarget = $aWinTarget;
-        $this->csimalt = $aAlt;
+        $this->csimalt       = $aAlt;
     }
 
     public function SetCSIMAlt($aAlt)
@@ -58,12 +70,12 @@ class GanttPlotObject
 
     public function SetConstrain($aRow, $aType, $aColor = 'black', $aArrowSize = ARROW_S2, $aArrowType = ARROWT_SOLID)
     {
-        $this->constraints[] = new GanttConstraint($aRow, $aType, $aColor, $aArrowSize, $aArrowType);
+        $this->constraints[] = new Util\GanttConstraint($aRow, $aType, $aColor, $aArrowSize, $aArrowType);
     }
 
     public function SetConstrainPos($xt, $yt, $xb, $yb)
     {
-        $this->iConstrainPos = array($xt, $yt, $xb, $yb);
+        $this->iConstrainPos = [$xt, $yt, $xb, $yb];
     }
 
     public function GetMinDate()
@@ -98,7 +110,7 @@ class GanttPlotObject
 
     public function StrokeActInfo($aImg, $aScale, $aYPos)
     {
-        $cols = array();
+        $cols = [];
         $aScale->actinfo->GetColStart($aImg, $cols, true);
         $this->title->Stroke($aImg, $cols, $aYPos);
     }

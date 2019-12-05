@@ -1,20 +1,25 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Graph;
 
-//=====================================================================
-// Class RectPatternDiagCross
-// Vert/Hor crosses
-//=====================================================================
-
+/**
+ * @class RectPatternDiagCross
+ * // Vert/Hor crosses
+ */
 class RectPatternDiagCross extends RectPattern
 {
-    private $left = null;
-    private $right = null;
-    public function __construct($aColor = "black", $aWeight = 1)
+    private $left;
+    private $right;
+
+    public function __construct($aColor = 'black', $aWeight = 1)
     {
         parent::__construct($aColor, $aWeight);
         $this->right = new RectPatternRDiag($aColor, $aWeight);
-        $this->left = new RectPatternLDiag($aColor, $aWeight);
+        $this->left  = new RectPatternLDiag($aColor, $aWeight);
     }
 
     public function SetOrder($aDepth)
@@ -41,5 +46,4 @@ class RectPatternDiagCross extends RectPattern
         $this->left->DoPattern($aImg);
         $this->right->DoPattern($aImg);
     }
-
 }

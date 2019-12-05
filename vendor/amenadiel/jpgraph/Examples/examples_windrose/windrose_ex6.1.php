@@ -1,14 +1,19 @@
 <?php
-require_once '../../vendor/autoload.php';
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
 use Amenadiel\JpGraph\Graph;
 use Amenadiel\JpGraph\Plot;
-$data = array(
-    '10' => array(1, 1, 2.5, 4),
-    '32.0' => array(3, 4, 1, 4),
-    '120.5' => array(2, 3, 4, 4, 3, 2, 1),
-    '223.2' => array(2, 4, 1, 2, 2),
-    '285.7' => array(2, 2, 1, 2, 4, 2, 1, 1),
-);
+
+$data = [
+    '10'    => [1, 1, 2.5, 4],
+    '32.0'  => [3, 4, 1, 4],
+    '120.5' => [2, 3, 4, 4, 3, 2, 1],
+    '223.2' => [2, 4, 1, 2, 2],
+    '285.7' => [2, 2, 1, 2, 4, 2, 1, 1],
+];
 
 // This file is encode din utf-8. The two Kanji characters roughly means
 // 中 = Chinese
@@ -16,15 +21,17 @@ $data = array(
 $ctxt = '中文';
 
 // Specify text for direction labels
-$labels = array(
+$labels = [
     '120.5' => $ctxt,
-    '232.2' => "Reference\n#13 Ver:2");
+    '232.2' => "Reference\n#13 Ver:2", ];
 
 // Range colors to be used
-$rangeColors = array('khaki', 'yellow', 'orange', 'orange:0.7', 'brown', 'darkred', 'black');
+$rangeColors = ['khaki', 'yellow', 'orange', 'orange:0.7', 'brown', 'darkred', 'black'];
 
 // First create a new windrose graph with a title
-$graph = new Graph\WindroseGraph(400, 450);
+$__width  = 400;
+$__height = 450;
+$graph    = new Graph\WindroseGraph($__width, $__height);
 
 // Setup title
 $graph->title->Set('Using chinese charecters');

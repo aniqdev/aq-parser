@@ -1,21 +1,33 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Plot;
 
 use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Util;
 
-//===================================================
-// CLASS ScatterPlot
-// Description: Render X and Y plots
-//===================================================
+/**
+ * @class ScatterPlot
+ * // Description: Render X and Y plots
+ */
 class ScatterPlot extends Plot
 {
-    public $mark, $link;
+    public $mark;
+    public $link;
     private $impuls = false;
-    //---------------
-    // CONSTRUCTOR
+
+    /**
+     * CONSTRUCTOR.
+     *
+     * @param mixed $datay
+     * @param mixed $datax
+     */
     public function __construct($datay, $datax = false)
     {
-        if ((count($datax) != count($datay)) && is_array($datax)) {
+        if ((safe_count($datax) != safe_count($datay)) && is_array($datax)) {
             Util\JpGraphError::RaiseL(20003); //("Scatterplot must have equal number of X and Y points.");
         }
         parent::__construct($datay, $datax);
@@ -24,12 +36,15 @@ class ScatterPlot extends Plot
         $this->mark->SetColor($this->color);
         $this->value->SetAlign('center', 'center');
         $this->value->SetMargin(0);
-        $this->link = new Graph\LineProperty(1, 'black', 'solid');
+        $this->link        = new Graph\LineProperty(1, 'black', 'solid');
         $this->link->iShow = false;
     }
 
-    //---------------
-    // PUBLIC METHODS
+    /**
+     * PUBLIC METHODS.
+     *
+     * @param mixed $f
+     */
     public function SetImpuls($f = true)
     {
         $this->impuls = $f;
@@ -41,17 +56,16 @@ class ScatterPlot extends Plot
     }
 
     // Combine the scatter plot points with a line
-    public function SetLinkPoints($aFlag = true, $aColor = "black", $aWeight = 1, $aStyle = 'solid')
+    public function SetLinkPoints($aFlag = true, $aColor = 'black', $aWeight = 1, $aStyle = 'solid')
     {
-        $this->link->iShow = $aFlag;
-        $this->link->iColor = $aColor;
+        $this->link->iShow   = $aFlag;
+        $this->link->iColor  = $aColor;
         $this->link->iWeight = $aWeight;
-        $this->link->iStyle = $aStyle;
+        $this->link->iStyle  = $aStyle;
     }
 
     public function Stroke($img, $xscale, $yscale)
     {
-
         $ymin = $yscale->scale_abs[0];
         if ($yscale->scale[0] < 0) {
             $yzero = $yscale->Translate(0);
@@ -61,7 +75,6 @@ class ScatterPlot extends Plot
 
         $this->csimareas = '';
         for ($i = 0; $i < $this->numpoints; ++$i) {
-
             // Skip null values
             if ($this->coords[0][$i] === '' || $this->coords[0][$i] === '-' || $this->coords[0][$i] === 'x') {
                 continue;
@@ -117,10 +130,17 @@ class ScatterPlot extends Plot
     // Framework function
     public function Legend($aGraph)
     {
-        if ($this->legend != "") {
-            $aGraph->legend->Add($this->legend, $this->mark->fill_color, $this->mark, 0,
-                $this->legendcsimtarget, $this->legendcsimalt, $this->legendcsimwintarget);
+        if ($this->legend != '') {
+            $aGraph->legend->Add(
+                $this->legend,
+                $this->mark->fill_color,
+                $this->mark,
+                0,
+                $this->legendcsimtarget,
+                $this->legendcsimalt,
+                $this->legendcsimwintarget
+            );
         }
     }
-} // Class
+} // @class
 /* EOF */

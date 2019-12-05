@@ -1,24 +1,35 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Plot;
 
-use \Amenadiel\JpGraph\Text;
+use Amenadiel\JpGraph\Text;
+use Amenadiel\JpGraph\Util;
 
-//===================================================
-// CLASS DisplayValue
-// Description: Used to print data values at data points
-//===================================================
+/**
+ * @class DisplayValue
+ * // Description: Used to print data values at data points
+ */
 class DisplayValue
 {
-    public $margin = 5;
-    public $show = false;
-    public $valign = '', $halign = 'center';
-    public $format = '%.1f', $negformat = '';
-    private $ff = FF_DEFAULT, $fs = FS_NORMAL, $fsize = 8;
+    public $margin         = 5;
+    public $show           = false;
+    public $valign         = '';
+    public $halign         = 'center';
+    public $format         = '%.1f';
+    public $negformat      = '';
+    private $ff            = FF_DEFAULT;
+    private $fs            = FS_NORMAL;
+    private $fsize         = 8;
     private $iFormCallback = '';
-    private $angle = 0;
-    private $color = 'navy', $negcolor = '';
-    private $iHideZero = false;
-    public $txt = null;
+    private $angle         = 0;
+    private $color         = 'navy';
+    private $negcolor      = '';
+    private $iHideZero     = false;
+    public $txt;
 
     public function __construct()
     {
@@ -32,14 +43,14 @@ class DisplayValue
 
     public function SetColor($aColor, $aNegcolor = '')
     {
-        $this->color = $aColor;
+        $this->color    = $aColor;
         $this->negcolor = $aNegcolor;
     }
 
     public function SetFont($aFontFamily, $aFontStyle = FS_NORMAL, $aFontSize = 8)
     {
-        $this->ff = $aFontFamily;
-        $this->fs = $aFontStyle;
+        $this->ff    = $aFontFamily;
+        $this->fs    = $aFontStyle;
         $this->fsize = $aFontSize;
     }
 
@@ -66,7 +77,7 @@ class DisplayValue
 
     public function SetFormat($aFormat, $aNegFormat = '')
     {
-        $this->format = $aFormat;
+        $this->format    = $aFormat;
         $this->negformat = $aNegFormat;
     }
 
@@ -82,7 +93,6 @@ class DisplayValue
 
     public function Stroke($img, $aVal, $x, $y)
     {
-
         if ($this->show) {
             if ($this->negformat == '') {
                 $this->negformat = $this->format;
@@ -104,7 +114,7 @@ class DisplayValue
             // graph we simply display the formatted value, but in the case where the user
             // has already specified a text string we don't fo anything.
             if ($this->iFormCallback != '') {
-                $f = $this->iFormCallback;
+                $f    = $this->iFormCallback;
                 $sval = call_user_func($f, $aVal);
             } elseif (is_numeric($aVal)) {
                 if ($aVal >= 0) {
@@ -116,16 +126,16 @@ class DisplayValue
                 $sval = $aVal;
             }
 
-            $y = $y - sign($aVal) * $this->margin;
+            $y = $y - Util\Helper::sign($aVal) * $this->margin;
 
             $this->txt->Set($sval);
             $this->txt->SetPos($x, $y);
             $this->txt->SetFont($this->ff, $this->fs, $this->fsize);
             if ($this->valign == '') {
                 if ($aVal >= 0) {
-                    $valign = "bottom";
+                    $valign = 'bottom';
                 } else {
-                    $valign = "top";
+                    $valign = 'top';
                 }
             } else {
                 $valign = $this->valign;

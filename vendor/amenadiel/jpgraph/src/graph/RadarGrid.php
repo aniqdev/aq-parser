@@ -1,28 +1,32 @@
 <?php
-namespace Amenadiel\JpGraph\Graph;
 
-/*=======================================================================
-// File:        JPGRAPH_RADAR.PHP
-// Description: Radar plot extension for JpGraph
-// Created:     2001-02-04
-// Ver:         $Id: jpgraph_radar.php 1783 2009-08-25 11:41:01Z ljp $
-//
-// Copyright (c) Asial Corporation. All rights reserved.
-//========================================================================
+/**
+ * JPGraph v3.6.21
  */
 
-require_once 'jpgraph_plotmark.inc.php';
+namespace Amenadiel\JpGraph\Graph;
 
-//===================================================
-// CLASS RadarGrid
-// Description: Draws grid for the radar graph
-//===================================================
+/*
+ * File:        JPGRAPH_RADAR.PHP
+ * // Description: Radar plot extension for JpGraph
+ * // Created:     2001-02-04
+ * // Ver:         $Id: jpgraph_radar.php 1783 2009-08-25 11:41:01Z ljp $
+ * //
+ * // Copyright (c) Asial Corporation. All rights reserved.
+ */
+use Amenadiel\JpGraph\Plot;
+
+/**
+ * @class RadarGrid
+ * // Description: Draws grid for the radar graph
+ */
 class RadarGrid
 {
     //extends Grid {
-    private $type = 'solid';
+    private $type       = 'solid';
     private $grid_color = '#DDDDDD';
-    private $show = false, $weight = 1;
+    private $show       = false;
+    private $weight     = 1;
 
     public function __construct()
     {
@@ -57,14 +61,14 @@ class RadarGrid
             return;
         }
 
-        $nbrticks = count($grid[0]) / 2;
-        $nbrpnts = count($grid);
+        $nbrticks = safe_count($grid[0]) / 2;
+        $nbrpnts  = safe_count($grid);
         $img->SetColor($this->grid_color);
         $img->SetLineWeight($this->weight);
 
         for ($i = 0; $i < $nbrticks; ++$i) {
             for ($j = 0; $j < $nbrpnts; ++$j) {
-                $pnts[$j * 2] = $grid[$j][$i * 2];
+                $pnts[$j * 2]     = $grid[$j][$i * 2];
                 $pnts[$j * 2 + 1] = $grid[$j][$i * 2 + 1];
             }
             for ($k = 0; $k < $nbrpnts; ++$k) {
@@ -78,48 +82,51 @@ class RadarGrid
                 } elseif ($this->type == 'longdashed') {
                     $img->DashedLine($pnts[$k * 2], $pnts[$k * 2 + 1], $pnts[$l * 2], $pnts[$l * 2 + 1], 8, 6);
                 }
-
             }
-            $pnts = array();
+            $pnts = [];
         }
     }
-} // Class
+} // @class
 
-//===================================================
-// CLASS RadarPlot
-// Description: Plot a radarplot
-//===================================================
+/**
+ * @class RadarPlot
+ * // Description: Plot a radarplot
+ */
 class RadarPlot
 {
-    public $mark = null;
-    public $legend = '';
+    public $mark;
+    public $legend           = '';
     public $legendcsimtarget = '';
-    public $legendcsimalt = '';
-    public $csimtargets = array(); // Array of targets for CSIM
-    public $csimareas = ""; // Resultant CSIM area tags
-    public $csimalts = null; // ALT:s for corresponding target
-    private $data = array();
-    private $fill = false, $fill_color = array(200, 170, 180);
-    private $color = array(0, 0, 0);
-    private $weight = 1;
-    private $linestyle = 'solid';
+    public $legendcsimalt    = '';
+    public $csimtargets      = []; // Array of targets for CSIM
+    public $csimareas        = ''; // Resultant CSIM area tags
+    public $csimalts; // ALT:s for corresponding target
+    private $data       = [];
+    private $fill       = false;
+    private $fill_color = [200, 170, 180];
+    private $color      = [0, 0, 0];
+    private $weight     = 1;
+    private $linestyle  = 'solid';
 
-    //---------------
-    // CONSTRUCTOR
+    /**
+     * CONSTRUCTOR.
+     *
+     * @param mixed $data
+     */
     public function __construct($data)
     {
         $this->data = $data;
-        $this->mark = new PlotMark();
+        $this->mark = new Plot\PlotMark();
     }
 
     public function Min()
     {
-        return Min($this->data);
+        return min($this->data);
     }
 
     public function Max()
     {
-        return Max($this->data);
+        return max($this->data);
     }
 
     public function SetLegend($legend)
@@ -140,7 +147,7 @@ class RadarPlot
     public function SetFillColor($aColor)
     {
         $this->fill_color = $aColor;
-        $this->fill = true;
+        $this->fill       = true;
     }
 
     public function SetFill($f = true)
@@ -161,7 +168,7 @@ class RadarPlot
     public function SetCSIMTargets($aTargets, $aAlts = null)
     {
         $this->csimtargets = $aTargets;
-        $this->csimalts = $aAlts;
+        $this->csimalts    = $aAlts;
     }
 
     // Get all created areas
@@ -172,18 +179,17 @@ class RadarPlot
 
     public function Stroke($img, $pos, $scale, $startangle)
     {
-        $nbrpnts = count($this->data);
-        $astep = 2 * M_PI / $nbrpnts;
-        $a = $startangle;
+        $nbrpnts = safe_count($this->data);
+        $astep   = 2 * M_PI / $nbrpnts;
+        $a       = $startangle;
 
         for ($i = 0; $i < $nbrpnts; ++$i) {
-
             // Rotate each non null point to the correct axis-angle
             $cs = $scale->RelTranslate($this->data[$i]);
-            $x = round($cs * cos($a) + $scale->scale_abs[0]);
-            $y = round($pos - $cs * sin($a));
+            $x  = round($cs * cos($a) + $scale->scale_abs[0]);
+            $y  = round($pos - $cs * sin($a));
 
-            $pnts[$i * 2] = $x;
+            $pnts[$i * 2]     = $x;
             $pnts[$i * 2 + 1] = $y;
 
             // If the next point is null then we draw this polygon segment
@@ -193,10 +199,10 @@ class RadarPlot
             // to handle the boundary conditions
             if ($i < $nbrpnts - 1) {
                 if (is_null($this->data[$i + 1])) {
-                    $cs = 0;
-                    $x = round($cs * cos($a) + $scale->scale_abs[0]);
-                    $y = round($pos - $cs * sin($a));
-                    $pnts[$i * 2] = $x;
+                    $cs               = 0;
+                    $x                = round($cs * cos($a) + $scale->scale_abs[0]);
+                    $y                = round($pos - $cs * sin($a));
+                    $pnts[$i * 2]     = $x;
                     $pnts[$i * 2 + 1] = $y;
                     $a += $astep;
                 }
@@ -232,12 +238,11 @@ class RadarPlot
                 }
             }
         }
-
     }
 
     public function GetCount()
     {
-        return count($this->data);
+        return safe_count($this->data);
     }
 
     public function Legend($graph)
@@ -251,7 +256,6 @@ class RadarPlot
             $graph->legend->Add($this->legend, $this->color, $this->mark);
         }
     }
-
-} // Class
+} // @class
 
 /* EOF */

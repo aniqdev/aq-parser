@@ -1,25 +1,32 @@
 <?php
 
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Graph;
 
 use Amenadiel\JpGraph\Util;
 
-//===================================================
-// CLASS LogTicks
-// Description:
-//===================================================
+/**
+ * @class LogTicks
+ * // Description:
+ */
 class LogTicks extends Ticks
 {
-    private $label_logtype = LOGLABELS_MAGNITUDE;
-    private $ticklabels_pos = array();
-    //---------------
-    // CONSTRUCTOR
+    private $label_logtype  = LOGLABELS_MAGNITUDE;
+    private $ticklabels_pos = [];
+
+    /**
+     * CONSTRUCTOR.
+     */
     public function LogTicks()
     {
     }
 
-    //---------------
-    // PUBLIC METHODS
+    /**
+     * PUBLIC METHODS.
+     */
     public function IsSpecified()
     {
         return true;
@@ -55,27 +62,27 @@ class LogTicks extends Ticks
     // absolute x-position.
     public function Stroke($img, $scale, $pos)
     {
-        $start = $scale->GetMinVal();
-        $limit = $scale->GetMaxVal();
+        $start     = $scale->GetMinVal();
+        $limit     = $scale->GetMaxVal();
         $nextMajor = 10 * $start;
-        $step = $nextMajor / 10.0;
+        $step      = $nextMajor / 10.0;
 
         $img->SetLineWeight($this->weight);
 
-        if ($scale->type == "y") {
+        if ($scale->type == 'y') {
             // member direction specified if the ticks should be on
             // left or right side.
-            $a = $pos + $this->direction * $this->GetMinTickAbsSize();
+            $a  = $pos + $this->direction * $this->GetMinTickAbsSize();
             $a2 = $pos + $this->direction * $this->GetMajTickAbsSize();
 
-            $count = 1;
-            $this->maj_ticks_pos[0] = $scale->Translate($start);
+            $count                       = 1;
+            $this->maj_ticks_pos[0]      = $scale->Translate($start);
             $this->maj_ticklabels_pos[0] = $scale->Translate($start);
             if ($this->supress_first) {
-                $this->maj_ticks_label[0] = "";
+                $this->maj_ticks_label[0] = '';
             } else {
                 if ($this->label_formfunc != '') {
-                    $f = $this->label_formfunc;
+                    $f                        = $this->label_formfunc;
                     $this->maj_ticks_label[0] = call_user_func($f, $start);
                 } elseif ($this->label_logtype == LOGLABELS_PLAIN) {
                     $this->maj_ticks_label[0] = $start;
@@ -85,12 +92,12 @@ class LogTicks extends Ticks
             }
             $i = 1;
             for ($y = $start; $y <= $limit; $y += $step, ++$count) {
-                $ys = $scale->Translate($y);
-                $this->ticks_pos[] = $ys;
+                $ys                     = $scale->Translate($y);
+                $this->ticks_pos[]      = $ys;
                 $this->ticklabels_pos[] = $ys;
                 if ($count % 10 == 0) {
                     if (!$this->supress_tickmarks) {
-                        if ($this->majcolor != "") {
+                        if ($this->majcolor != '') {
                             $img->PushColor($this->majcolor);
                             $img->Line($pos, $ys, $a2, $ys);
                             $img->PopColor();
@@ -99,11 +106,11 @@ class LogTicks extends Ticks
                         }
                     }
 
-                    $this->maj_ticks_pos[$i] = $ys;
+                    $this->maj_ticks_pos[$i]      = $ys;
                     $this->maj_ticklabels_pos[$i] = $ys;
 
                     if ($this->label_formfunc != '') {
-                        $f = $this->label_formfunc;
+                        $f                         = $this->label_formfunc;
                         $this->maj_ticks_label[$i] = call_user_func($f, $nextMajor);
                     } elseif ($this->label_logtype == 0) {
                         $this->maj_ticks_label[$i] = $nextMajor;
@@ -116,27 +123,27 @@ class LogTicks extends Ticks
                     $count = 1;
                 } else {
                     if (!$this->supress_tickmarks && !$this->supress_minor_tickmarks) {
-                        if ($this->mincolor != "") {
+                        if ($this->mincolor != '') {
                             $img->PushColor($this->mincolor);
                         }
                         $img->Line($pos, $ys, $a, $ys);
-                        if ($this->mincolor != "") {
+                        if ($this->mincolor != '') {
                             $img->PopColor();
                         }
                     }
                 }
             }
         } else {
-            $a = $pos - $this->direction * $this->GetMinTickAbsSize();
-            $a2 = $pos - $this->direction * $this->GetMajTickAbsSize();
-            $count = 1;
-            $this->maj_ticks_pos[0] = $scale->Translate($start);
+            $a                           = $pos - $this->direction * $this->GetMinTickAbsSize();
+            $a2                          = $pos - $this->direction * $this->GetMajTickAbsSize();
+            $count                       = 1;
+            $this->maj_ticks_pos[0]      = $scale->Translate($start);
             $this->maj_ticklabels_pos[0] = $scale->Translate($start);
             if ($this->supress_first) {
-                $this->maj_ticks_label[0] = "";
+                $this->maj_ticks_label[0] = '';
             } else {
                 if ($this->label_formfunc != '') {
-                    $f = $this->label_formfunc;
+                    $f                        = $this->label_formfunc;
                     $this->maj_ticks_label[0] = call_user_func($f, $start);
                 } elseif ($this->label_logtype == 0) {
                     $this->maj_ticks_label[0] = $start;
@@ -146,18 +153,18 @@ class LogTicks extends Ticks
             }
             $i = 1;
             for ($x = $start; $x <= $limit; $x += $step, ++$count) {
-                $xs = $scale->Translate($x);
-                $this->ticks_pos[] = $xs;
+                $xs                     = $scale->Translate($x);
+                $this->ticks_pos[]      = $xs;
                 $this->ticklabels_pos[] = $xs;
                 if ($count % 10 == 0) {
                     if (!$this->supress_tickmarks) {
                         $img->Line($xs, $pos, $xs, $a2);
                     }
-                    $this->maj_ticks_pos[$i] = $xs;
+                    $this->maj_ticks_pos[$i]      = $xs;
                     $this->maj_ticklabels_pos[$i] = $xs;
 
                     if ($this->label_formfunc != '') {
-                        $f = $this->label_formfunc;
+                        $f                         = $this->label_formfunc;
                         $this->maj_ticks_label[$i] = call_user_func($f, $nextMajor);
                     } elseif ($this->label_logtype == 0) {
                         $this->maj_ticks_label[$i] = $nextMajor;
@@ -175,7 +182,8 @@ class LogTicks extends Ticks
                 }
             }
         }
+
         return true;
     }
-} // Class
+} // @class
 /* EOF */

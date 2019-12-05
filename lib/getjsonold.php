@@ -59,7 +59,7 @@ if (isset($_POST['getjson'])) {
 		    $name = $result->items[$i]->name;
 		    $arrItem[$i][1] = mysql_escape_string(trim(strip_tags($name)));
 
-		    $price = $result->items[$i]->price_rur;
+		    $price = $result->items[$i]->price_usd;
 		    $arrItem[$i][2] = mysql_escape_string(trim(strip_tags($price)));
 		    
 		    $description = $result->items[$i]->description;

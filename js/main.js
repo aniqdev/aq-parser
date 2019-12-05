@@ -43,7 +43,8 @@ function round_hood_price(prc) {
 }
 
 function ajax_woo_url() {
-	return 'https://hot-body.net/parser/ajax.php?action=ajax-woo';
+	// return 'https://hot-body.net/parser/ajax.php?action=ajax-woo';
+	return 'https://parser.gig-games.de/ajax.php?action=ajax-woo';
 }
 
 
@@ -114,7 +115,8 @@ function getSteam2 (offset, script, table) {
 			$('#message li:last').remove();
 			$('#message li:last').remove();
 		}
-		offset = +offset+30;
+		if (script === 'ajax-steam') offset = +offset+10;
+		else offset = +offset+30;
 		if (offset < data.count) {
 			getSteam2(offset, script, table);
 		}else{
@@ -1032,9 +1034,9 @@ $('#modal_ebay_repars').on('click', function() {
 });
 
 $('#modal_ebay_price_up').on('click', function() {
-	var competitor_price = $('#js_modal_ebay_prices td').eq(1).text();
-	var recom_price = window.recom_price
-	var dif = competitor_price - window.recom_price;
+	var competitor_price = $('#js_modal_ebay_prices td').eq(1).text(); // первая цена ибея
+	var recom_price = window.recom_price // рекомендованная
+	var dif = competitor_price - window.recom_price; // разница
 	if(!competitor_price || !dif) return;
  	var set_price = 0;
 	if (dif >= 0.1) set_price = competitor_price - 0.1;

@@ -16,8 +16,8 @@ class Ebay_shopping{
 		// }
 
 
-		static function findItemsAdvanced($request, $seller, $page = 1, $categoryId = false){
-				 $url = "http://svcs.ebay.com/services/search/FindingService/v1";
+		static function findItemsAdvanced($request, $seller = 0, $page = 1, $categoryId = false){
+				 $url = "https://svcs.ebay.com/services/search/FindingService/v1";
 				 $url .= "?OPERATION-NAME=findItemsAdvanced";
 		//   $url .= "?OPERATION-NAME=findItemsByKeywords";
 		//   $url .= "?OPERATION-NAME=findItemsByCategory";

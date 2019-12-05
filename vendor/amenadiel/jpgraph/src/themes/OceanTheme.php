@@ -1,19 +1,24 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Themes;
 
 /**
- * Ocean Theme class
+ * Ocean Theme class.
  */
 class OceanTheme extends Theme
 {
-    protected $font_color = '#0066FF';
+    protected $font_color     = '#0066FF';
     private $background_color = '#DDEEFF';
-    private $axis_color = '#0000CC';
-    private $grid_color = '#3333CC';
+    private $axis_color       = '#0000CC';
+    private $grid_color       = '#3333CC';
 
     public function GetColorList()
     {
-        return array(
+        return [
             '#0066FF',
             '#CCCCFF',
             '#0000FF',
@@ -32,12 +37,11 @@ class OceanTheme extends Theme
             '#7744EE',
             '#002288',
             '#6666FF',
-        );
+        ];
     }
 
     public function SetupGraph($graph)
     {
-
         // graph
         /*
         $img = $graph->img;
@@ -86,7 +90,6 @@ class OceanTheme extends Theme
 
     public function SetupPieGraph($graph)
     {
-
         // graph
         $graph->SetFrame(false);
 
@@ -112,7 +115,7 @@ class OceanTheme extends Theme
     public function PreStrokeApply($graph)
     {
         if ($graph->legend->HasItems()) {
-            $img = $graph->img;
+            $img    = $graph->img;
             $height = $img->height;
             $graph->SetMargin($img->left_margin, $img->right_margin, $img->top_margin, $height * 0.25);
         }
@@ -120,60 +123,51 @@ class OceanTheme extends Theme
 
     public function ApplyPlot($plot)
     {
-
         switch (get_class($plot)) {
             case 'GroupBarPlot':
-                {
+
                     foreach ($plot->plots as $_plot) {
                         $this->ApplyPlot($_plot);
                     }
-                    break;
-                }
 
+                    break;
             case 'AccBarPlot':
-                {
+
                     foreach ($plot->plots as $_plot) {
                         $this->ApplyPlot($_plot);
                     }
-                    break;
-                }
 
+                    break;
             case 'BarPlot':
-                {
+
                     $plot->Clear();
 
                     $color = $this->GetNextColor();
                     $plot->SetColor($color);
                     $plot->SetFillColor($color);
                     $plot->SetShadow('red', 3, 4, false);
-                    break;
-                }
 
+                    break;
             case 'LinePlot':
-                {
+
                     $plot->Clear();
 
                     $plot->SetColor($this->GetNextColor());
                     $plot->SetWeight(2);
-                    break;
-                }
 
+                    break;
             case 'PiePlot':
-                {
+
                     $plot->ShowBorder(false);
                     $plot->SetSliceColors($this->GetThemeColors());
-                    break;
-                }
 
+                    break;
             case 'PiePlot3D':
-                {
-                    $plot->SetSliceColors($this->GetThemeColors());
-                    break;
-                }
 
+                    $plot->SetSliceColors($this->GetThemeColors());
+
+                    break;
             default:
-                {
-                }
         }
     }
 }

@@ -1,23 +1,30 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Graph;
 
-//===================================================
-// CLASS RadarAxis
-// Description: Implements axis for the radar graph
-//===================================================
+use Amenadiel\JpGraph\Text;
+
+/**
+ * @class RadarAxis
+ * // Description: Implements axis for the radar graph
+ */
 class RadarAxis extends AxisPrototype
 {
-    public $title = null;
+    public $title;
     private $title_color = 'navy';
-    private $len = 0;
+    private $len         = 0;
 
-    public function __construct($img, $aScale, $color = array(0, 0, 0))
+    public function __construct($img, $aScale, $color = [0, 0, 0])
     {
         parent::__construct($img, $aScale, $color);
-        $this->len = $img->plotheight;
-        $this->title = new Text();
+        $this->len   = $img->plotheight;
+        $this->title = new Text\Text();
         $this->title->SetFont(FF_FONT1, FS_BOLD);
-        $this->color = array(0, 0, 0);
+        $this->color = [0, 0, 0];
     }
 
     // Stroke the axis
@@ -43,7 +50,7 @@ class RadarAxis extends AxisPrototype
         $this->scale->ticks->Stroke($this->img, $grid, $pos, $aAxisAngle, $this->scale, $majpos, $majlabel);
         $ncolor = 0;
         if (isset($this->ticks_label_colors)) {
-            $ncolor = count($this->ticks_label_colors);
+            $ncolor = safe_count($this->ticks_label_colors);
         }
 
         // Draw labels
@@ -54,7 +61,7 @@ class RadarAxis extends AxisPrototype
 
             // majpos contains (x,y) coordinates for labels
             if (!$this->hide_labels) {
-                $n = floor(count($majpos) / 2);
+                $n = floor(safe_count($majpos) / 2);
                 for ($i = 0; $i < $n; ++$i) {
                     // Set specific label color if specified
                     if ($ncolor > 0) {
@@ -76,8 +83,8 @@ class RadarAxis extends AxisPrototype
     {
         $this->title->Set($title);
         $marg = 6 + $this->title->margin;
-        $xt = round(($this->scale->world_abs_size + $marg) * cos($aAxisAngle) + $this->scale->scale_abs[0]);
-        $yt = round($pos - ($this->scale->world_abs_size + $marg) * sin($aAxisAngle));
+        $xt   = round(($this->scale->world_abs_size + $marg) * cos($aAxisAngle) + $this->scale->scale_abs[0]);
+        $yt   = round($pos - ($this->scale->world_abs_size + $marg) * sin($aAxisAngle));
 
         // Position the axis title.
         // dx, dy is the offset from the top left corner of the bounding box that sorrounds the text
@@ -144,5 +151,4 @@ class RadarAxis extends AxisPrototype
             $this->title->Stroke($this->img, $xt - $dx * $w, $yt - $dy * $h, $title);
         }
     }
-
-} // Class
+} // @class

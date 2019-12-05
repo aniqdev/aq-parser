@@ -31,7 +31,7 @@ if (isset($_FILES['file1']) && $_FILES['file1']['size']) {
 	sa($arr);
 	foreach ($arr as $word) {
 		$word = _esc($word);
-		arrayDB("INSERT INTO gp_keywords SET word = '$word'");
+		arrayDB("INSERT INTO gp_keywords_1 SET word = '$word'");
 	}
 }
 

@@ -107,12 +107,12 @@ if (isset($_POST['getjson'])) {
 	        $arrItem1 = array_merge($arrItem1, $arrItem2);
 	    }
 
-	    $idsArr = array();
+	    $idsArr = [];
 	    foreach ($arrItem1 as $v) {
 	        $idsArr[$v['itemID']] = $v;
 	    }
 
-	    $arrItem = array();
+	    $arrItem = [];
 	    foreach ($idsArr as $va) {
 	        $arrItem[] = $va;
 	    }

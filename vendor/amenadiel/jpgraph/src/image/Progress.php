@@ -1,19 +1,26 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Image;
 
 use Amenadiel\JpGraph\Util;
 
-//===================================================
-// CLASS Progress
-// Holds parameters for the progress indicator
-// displyed within a bar
-//===================================================
+/**
+ * @class Progress
+ * // Holds parameters for the progress indicator
+ * // displyed within a bar
+ */
 class Progress
 {
-    public $iProgress = -1;
-    public $iPattern = GANTT_SOLID;
-    public $iColor = "black", $iFillColor = 'black';
-    public $iDensity = 98, $iHeight = 0.65;
+    public $iProgress  = -1;
+    public $iPattern   = GANTT_SOLID;
+    public $iColor     = 'black';
+    public $iFillColor = 'black';
+    public $iDensity   = 98;
+    public $iHeight    = 0.65;
 
     public function Set($aProg)
     {
@@ -24,10 +31,10 @@ class Progress
         $this->iProgress = $aProg;
     }
 
-    public function SetPattern($aPattern, $aColor = "blue", $aDensity = 98)
+    public function SetPattern($aPattern, $aColor = 'blue', $aDensity = 98)
     {
         $this->iPattern = $aPattern;
-        $this->iColor = $aColor;
+        $this->iColor   = $aColor;
         $this->iDensity = $aDensity;
     }
 

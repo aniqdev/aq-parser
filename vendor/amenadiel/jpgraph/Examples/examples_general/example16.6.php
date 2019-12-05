@@ -1,30 +1,35 @@
-<?php // content="text/plain; charset=utf-8"
-require_once '../../vendor/autoload.php';
-require_once 'jpgraph/jpgraph_scatter.php';
+<?php
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
+
 use Amenadiel\JpGraph\Graph;
 use Amenadiel\JpGraph\Plot;
-require_once 'jpgraph/jpgraph_utils.inc.php';
+use Amenadiel\JpGraph\Util;
 
 // Create some "fake" regression data
-$datay = array();
-$datax = array();
-$a = 3.2;
-$b = 2.5;
+$datay = [];
+$datax = [];
+$a     = 3.2;
+$b     = 2.5;
 for ($x = 0; $x < 20; ++$x) {
     $datax[$x] = $x;
     $datay[$x] = $a + $b * $x + rand(-20, 20);
 }
 
-$lr = new LinearRegression($datax, $datay);
-list($stderr, $corr) = $lr->GetStat();
-list($xd, $yd) = $lr->GetY(0, 19);
-
 // Create the graph
-$graph = new Graph\Graph(300, 250);
+$__width  = 300;
+$__height = 250;
+$graph    = new Graph\Graph($__width, $__height);
 $graph->SetScale('linlin');
 
+$lr                  = new Util\LinearRegression($datax, $datay);
+list($stderr, $corr) = $lr->GetStat();
+list($xd, $yd)       = $lr->GetY(0, 19);
 // Setup title
-$graph->title->Set("Linear regression");
+$graph->title->Set('Linear regression');
 $graph->title->SetFont(FF_ARIAL, FS_BOLD, 14);
 
 $graph->subtitle->Set('(stderr=' . sprintf('%.2f', $stderr) . ', corr=' . sprintf('%.2f', $corr) . ')');
@@ -36,10 +41,10 @@ $graph->subtitle->SetFont(FF_ARIAL, FS_NORMAL, 12);
 $graph->xaxis->SetPos('min');
 
 // Create the scatter plot with some nice colors
-$sp1 = new ScatterPlot($datay, $datax);
+$sp1 = new Plot\ScatterPlot($datay, $datax);
 $sp1->mark->SetType(MARK_FILLEDCIRCLE);
-$sp1->mark->SetFillColor("red");
-$sp1->SetColor("blue");
+$sp1->mark->SetFillColor('red');
+$sp1->SetColor('blue');
 $sp1->SetWeight(3);
 $sp1->mark->SetWidth(4);
 

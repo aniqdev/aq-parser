@@ -1,14 +1,21 @@
-<?php // content="text/plain; charset=utf-8"
-require_once '../../vendor/autoload.php';
+<?php
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
 
 use Amenadiel\JpGraph\Graph;
 use Amenadiel\JpGraph\Plot;
+
 // Some data
-$ydata = array(11, 3, 8, 12, 5, 1, 9, 13, 5, 7);
+$ydata = [11, 3, 8, 12, 5, 1, 9, 13, 5, 7];
 
 // Create the graph. These two calls are always required
-$graph = new Graph\Graph(350, 250);
-$graph->SetScale("textlin");
+$__width  = 350;
+$__height = 250;
+$graph    = new Graph\Graph($__width, $__height);
+$graph->SetScale('textlin');
 $graph->SetMargin(40, 40, 50, 50);
 
 // Setup the grid and plotarea box
@@ -24,12 +31,12 @@ $graph->subtitle->Set('"BGIMG_COPY"');
 $graph->subtitle->SetColor('darkred');
 
 // Add background with 25% mix
-$graph->SetBackgroundImage('heat1.jpg', BGIMG_COPY);
+$graph->SetBackgroundImage(__DIR__ . '/../assets/heat1.jpg', BGIMG_COPY);
 $graph->SetBackgroundImageMix(25);
 
 // Create the linear plot
 $lineplot = new Plot\LinePlot($ydata);
-$lineplot->SetColor("blue");
+$lineplot->SetColor('blue');
 
 // Add the plot to the graph
 $graph->Add($lineplot);

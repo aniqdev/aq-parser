@@ -1,19 +1,23 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Graph;
 
 use Amenadiel\JpGraph\Util;
 
-//===================================================
-// CLASS Axis
-// Description: Defines X and Y axis. Notes that at the
-// moment the code is not really good since the axis on
-// several occasion must know wheter it's an X or Y axis.
-// This was a design decision to make the code easier to
-// follow.
-//===================================================
+/**
+ * @class Axis
+ * // Description: Defines X and Y axis. Notes that at the
+ * // moment the code is not really good since the axis on
+ * // several occasion must know wheter it's an X or Y axis.
+ * // This was a design decision to make the code easier to
+ * // follow.
+ */
 class Axis extends AxisPrototype
 {
-
     public function __construct($img, $aScale, $color = 'black')
     {
         parent::__construct($img, $aScale, $color);
@@ -32,12 +36,12 @@ class Axis extends AxisPrototype
             // Default to minimum of other scale if pos not set
             if (($aOtherAxisScale->GetMinVal() >= 0 && $this->pos == false) || $this->pos == 'min') {
                 $pos = $aOtherAxisScale->scale_abs[0];
-            } elseif ($this->pos == "max") {
+            } elseif ($this->pos == 'max') {
                 $pos = $aOtherAxisScale->scale_abs[1];
             } else {
                 // If negative set x-axis at 0
                 $this->pos = 0;
-                $pos = $aOtherAxisScale->Translate(0);
+                $pos       = $aOtherAxisScale->Translate(0);
             }
         }
 
@@ -46,7 +50,7 @@ class Axis extends AxisPrototype
         $this->img->SetColor($this->color);
         $this->img->SetFont($this->font_family, $this->font_style, $this->font_size);
 
-        if ($this->scale->type == "x") {
+        if ($this->scale->type == 'x') {
             if (!$this->hide_line) {
                 // Stroke X-axis
                 $this->img->FilledRectangle(
@@ -57,10 +61,10 @@ class Axis extends AxisPrototype
                 );
             }
             if ($this->title_side == SIDE_DOWN) {
-                $y = $pos + $this->img->GetFontHeight() + $this->title_margin + $this->title->margin;
+                $y      = $pos + $this->img->GetFontHeight() + $this->title_margin + $this->title->margin;
                 $yalign = 'top';
             } else {
-                $y = $pos - $this->img->GetFontHeight() - $this->title_margin - $this->title->margin;
+                $y      = $pos - $this->img->GetFontHeight() - $this->title_margin - $this->title->margin;
                 $yalign = 'bottom';
             }
 
@@ -73,7 +77,7 @@ class Axis extends AxisPrototype
             } else {
                 Util\JpGraphError::RaiseL(25060, $this->title_adjust); //('Unknown alignment specified for X-axis title. ('.$this->title_adjust.')');
             }
-        } elseif ($this->scale->type == "y") {
+        } elseif ($this->scale->type == 'y') {
             // Add line weight to the height of the axis since
             // the x-axis could have a width>1 and we want the axis to fit nicely together.
             if (!$this->hide_line) {
@@ -107,7 +111,7 @@ class Axis extends AxisPrototype
             if ($this->title_adjust == 'high') {
                 $this->title->SetPos($x, $this->img->top_margin, $halign, 'top');
             } elseif ($this->title_adjust == 'middle' || $this->title_adjust == 'center') {
-                $this->title->SetPos($x, ($this->img->height - $this->img->top_margin - $this->img->bottom_margin) / 2 + $this->img->top_margin, $halign, "center");
+                $this->title->SetPos($x, ($this->img->height - $this->img->top_margin - $this->img->bottom_margin) / 2 + $this->img->top_margin, $halign, 'center');
             } elseif ($this->title_adjust == 'low') {
                 $this->title->SetPos($x, $this->img->height - $this->img->bottom_margin, $halign, 'bottom');
             } else {
@@ -123,13 +127,17 @@ class Axis extends AxisPrototype
         }
     }
 
-    //---------------
-    // PRIVATE METHODS
-    // Draw all the tick labels on major tick marks
+    /**
+     * PRIVATE METHODS
+     * // Draw all the tick labels on major tick marks.
+     *
+     * @param mixed $aPos
+     * @param mixed $aMinor
+     * @param mixed $aAbsLabel
+     */
     public function StrokeLabels($aPos, $aMinor = false, $aAbsLabel = false)
     {
-
-        if (is_array($this->label_color) && count($this->label_color) > 3) {
+        if (is_array($this->label_color) && safe_count($this->label_color) > 3) {
             $this->ticks_label_colors = $this->label_color;
             $this->img->SetColor($this->label_color[0]);
         } else {
@@ -139,7 +147,7 @@ class Axis extends AxisPrototype
         $yoff = $this->img->GetFontHeight() / 2;
 
         // Only draw labels at major tick marks
-        $nbr = count($this->scale->ticks->maj_ticks_label);
+        $nbr = safe_count($this->scale->ticks->maj_ticks_label);
 
         // We have the option to not-display the very first mark
         // (Usefull when the first label might interfere with another
@@ -152,7 +160,7 @@ class Axis extends AxisPrototype
         // of the scale.
         $ncolor = 0;
         if (isset($this->ticks_label_colors)) {
-            $ncolor = count($this->ticks_label_colors);
+            $ncolor = safe_count($this->ticks_label_colors);
         }
         while ($i < $nbr) {
             // $tpos holds the absolute text position for the label
@@ -166,7 +174,6 @@ class Axis extends AxisPrototype
             }
             // we only draw every $label_step label
             if (($i % $this->label_step) == 0) {
-
                 // Set specific label color if specified
                 if ($ncolor > 0) {
                     $this->img->SetColor($this->ticks_label_colors[$i % $ncolor]);
@@ -193,13 +200,11 @@ class Axis extends AxisPrototype
                     if ($this->scale->textscale &&
                         $this->scale->ticks->label_formfunc == '' &&
                         !$this->scale->ticks->HaveManualLabels()) {
-
                         ++$label;
-
                     }
                 }
 
-                if ($this->scale->type == "x") {
+                if ($this->scale->type == 'x') {
                     if ($this->labelPos == SIDE_DOWN) {
                         if ($this->label_angle == 0 || $this->label_angle == 90) {
                             if ($this->label_halign == '' && $this->label_valign == '') {
@@ -207,32 +212,41 @@ class Axis extends AxisPrototype
                             } else {
                                 $this->img->SetTextAlign($this->label_halign, $this->label_valign);
                             }
-
                         } else {
                             if ($this->label_halign == '' && $this->label_valign == '') {
-                                $this->img->SetTextAlign("right", "top");
+                                $this->img->SetTextAlign('right', 'top');
                             } else {
                                 $this->img->SetTextAlign($this->label_halign, $this->label_valign);
                             }
                         }
-                        $this->img->StrokeText($tpos, $aPos + $this->tick_label_margin, $label,
-                            $this->label_angle, $this->label_para_align);
+                        $this->img->StrokeText(
+                            $tpos,
+                            $aPos + $this->tick_label_margin,
+                            $label,
+                            $this->label_angle,
+                            $this->label_para_align
+                        );
                     } else {
                         if ($this->label_angle == 0 || $this->label_angle == 90) {
                             if ($this->label_halign == '' && $this->label_valign == '') {
-                                $this->img->SetTextAlign("center", "bottom");
+                                $this->img->SetTextAlign('center', 'bottom');
                             } else {
                                 $this->img->SetTextAlign($this->label_halign, $this->label_valign);
                             }
                         } else {
                             if ($this->label_halign == '' && $this->label_valign == '') {
-                                $this->img->SetTextAlign("right", "bottom");
+                                $this->img->SetTextAlign('right', 'bottom');
                             } else {
                                 $this->img->SetTextAlign($this->label_halign, $this->label_valign);
                             }
                         }
-                        $this->img->StrokeText($tpos, $aPos - $this->tick_label_margin - 1, $label,
-                            $this->label_angle, $this->label_para_align);
+                        $this->img->StrokeText(
+                            $tpos,
+                            $aPos - $this->tick_label_margin - 1,
+                            $label,
+                            $this->label_angle,
+                            $this->label_para_align
+                        );
                     }
                 } else {
                     // scale->type == "y"
@@ -241,7 +255,7 @@ class Axis extends AxisPrototype
                     if ($this->labelPos == SIDE_LEFT) {
                         // To the left of y-axis
                         if ($this->label_halign == '' && $this->label_valign == '') {
-                            $this->img->SetTextAlign("right", "center");
+                            $this->img->SetTextAlign('right', 'center');
                         } else {
                             $this->img->SetTextAlign($this->label_halign, $this->label_valign);
                         }
@@ -249,7 +263,7 @@ class Axis extends AxisPrototype
                     } else {
                         // To the right of the y-axis
                         if ($this->label_halign == '' && $this->label_valign == '') {
-                            $this->img->SetTextAlign("left", "center");
+                            $this->img->SetTextAlign('left', 'center');
                         } else {
                             $this->img->SetTextAlign($this->label_halign, $this->label_valign);
                         }
@@ -260,5 +274,4 @@ class Axis extends AxisPrototype
             ++$i;
         }
     }
-
 }

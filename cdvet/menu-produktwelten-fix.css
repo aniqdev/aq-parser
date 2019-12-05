@@ -1,0 +1,28 @@
+/*** Produktwelten menu fix ***/
+.navigation-main ul.navigation--list{
+	font-size: 0;
+    padding: 0 3px;
+}
+
+div[data-dreisc-menu--cat="304836"] .dreiscMenu .dreiscMenuColumns5 {
+    float: none;
+    width: 20%;
+    display: table-cell;
+        vertical-align: middle;
+}
+div[data-dreisc-menu--cat="304836"] .dreiscMenuElementBanner{
+	height: 130px;
+	width: auto!important;
+}
+div[data-dreisc-menu--cat="304836"] #dreiscMenuColumnContent .dreiscMenuElementBanner a{
+    display: flex;
+}
+div[data-dreisc-menu--cat="304836"] #dreiscMenuColumnContent .dreiscMenuElementBanner a img{
+    margin: auto;
+    width: auto!important;
+}
+div[data-dreisc-menu--cat="304836"]{
+	max-height: calc(95vh - 90px);
+    overflow-y: auto;
+}
+/*** /Produktwelten menu fix ***/

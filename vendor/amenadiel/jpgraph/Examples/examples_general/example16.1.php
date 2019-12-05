@@ -1,14 +1,20 @@
-<?php // content="text/plain; charset=utf-8"
-require_once '../../vendor/autoload.php';
+<?php
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
 use Amenadiel\JpGraph\Graph;
 use Amenadiel\JpGraph\Plot;
 
-$l1datay = array(11, 9, 2, 4, 3, 13, 17);
-$l2datay = array(23, 12, 5, 19, 17, 10, 15);
-$datax = array('Jan', 'Feb', 'Mar', 'Apr', 'May');
+$l1datay = [11, 9, 2, 4, 3, 13, 17];
+$l2datay = [23, 12, 5, 19, 17, 10, 15];
+$datax   = ['Jan', 'Feb', 'Mar', 'Apr', 'May'];
 
 // Create the graph.
-$graph = new Graph\Graph(400, 200);
+$__width  = 400;
+$__height = 200;
+$graph    = new Graph\Graph($__width, $__height);
 $graph->SetScale('textlin');
 
 $graph->img->SetMargin(40, 130, 20, 40);

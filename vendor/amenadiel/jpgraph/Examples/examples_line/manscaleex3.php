@@ -1,11 +1,18 @@
-<?php // content="text/plain; charset=utf-8"
-require_once 'jpgraph/jpgraph.php';
-require_once 'jpgraph/jpgraph_line.php';
+<?php
 
-$ydata = array(12, 17, 22, 19, 5, 15);
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
+use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Plot;
 
-$graph = new Graph\Graph(250, 170);
-$graph->SetScale("textlin", 3, 35);
+$ydata = [12, 17, 22, 19, 5, 15];
+
+$__width  = 250;
+$__height = 170;
+$graph    = new Graph\Graph($__width, $__height);
+$graph->SetScale('textlin', 3, 35);
 $graph->SetTickDensity(TICKD_DENSE);
 $graph->yscale->SetAutoTicks();
 

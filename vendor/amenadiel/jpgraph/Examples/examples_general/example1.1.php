@@ -1,21 +1,27 @@
-<?php // content="text/plain; charset=utf-8"
-require_once '../../vendor/autoload.php';
+<?php
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
 use Amenadiel\JpGraph\Graph;
 use Amenadiel\JpGraph\Plot;
 
-$ydata = array(11, 11, 11);
+$ydata = [11, 11, 11];
 
 // Create the graph.
-$graph = new Graph\Graph(350, 250);
-$graph->SetScale("textlin");
+$__width  = 350;
+$__height = 250;
+$graph    = new Graph\Graph($__width, $__height);
+$graph->SetScale('textlin');
 $graph->img->SetMargin(30, 90, 40, 50);
 $graph->xaxis->SetFont(FF_FONT1, FS_BOLD);
-$graph->title->Set("Example 1.1 same y-values");
+$graph->title->Set('Example 1.1 same y-values');
 
 // Create the linear plot
 $lineplot = new Plot\LinePlot($ydata);
-$lineplot->SetLegend("Test 1");
-$lineplot->SetColor("blue");
+$lineplot->SetLegend('Test 1');
+$lineplot->SetColor('blue');
 $lineplot->SetWeight(5);
 
 // Add the plot to the graph

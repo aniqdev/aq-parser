@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Util;
 
 class JpGraphExceptionL extends JpGraphException

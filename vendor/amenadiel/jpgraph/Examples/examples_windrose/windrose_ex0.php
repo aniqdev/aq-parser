@@ -1,18 +1,25 @@
 <?php
-require_once '../../vendor/autoload.php';
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
 use Amenadiel\JpGraph\Graph;
 use Amenadiel\JpGraph\Plot;
+
 // Data can be specified using both ordinal index of the axis
 // as well as the direction label
-$data = array(
-    0 => array(5, 5, 5, 8),
-    1 => array(3, 4, 1, 4),
-    'WSW' => array(1, 5, 5, 3),
-    'N' => array(2, 3, 8, 1, 1),
-    15 => array(2, 3, 5));
+$data = [
+    0     => [5, 5, 5, 8],
+    1     => [3, 4, 1, 4],
+    'WSW' => [1, 5, 5, 3],
+    'N'   => [2, 3, 8, 1, 1],
+    15    => [2, 3, 5], ];
 
 // First create a new windrose graph with a title
-$graph = new Graph\WindroseGraph(400, 400);
+$__width  = 400;
+$__height = 400;
+$graph    = new Graph\WindroseGraph($__width, $__height);
 $graph->title->Set('A basic Windrose graph');
 
 // Create the windrose plot.

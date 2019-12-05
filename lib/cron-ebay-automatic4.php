@@ -26,9 +26,9 @@ else{
 	AutomaticBot::sendMessage(['text' => date('H:i:s').' Проблема с exrate (no exrate)']);
 	die('no exrate');
 } 
-if($dataex < 40){
-	AutomaticBot::sendMessage(['text' => date('H:i:s').' Проблема с exrate (< 40)']);
-	die('exrate < 40');
+if($dataex < 1){
+	AutomaticBot::sendMessage(['text' => date('H:i:s').' Проблема с exrate ( < 1 )']);
+	die('exrate < 1');
 } 
 
 
@@ -251,7 +251,7 @@ foreach ($orders as $k => $order):
 			$wh_tolerant = $continue = true;
 		}
 
-	}else{
+	}else{ // товара нет на плати.ру
 
 		$is_removed = $ebay2Obj->removeFromSale($ebay_item_id);
 		$rem = $is_removed ? 'has been' : 'was NOT';

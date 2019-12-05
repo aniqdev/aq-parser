@@ -1,10 +1,15 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Util;
 
-//=============================================================================
-// CLASS DateScaleUtils
-// Description: Help to create a manual date scale
-//=============================================================================
+/*
+ * @class DateScaleUtils
+ * // Description: Help to create a manual date scale
+ */
 define('DSUTILS_MONTH', 1); // Major and minor ticks on a monthly basis
 define('DSUTILS_MONTH1', 1); // Major and minor ticks on a monthly basis
 define('DSUTILS_MONTH2', 2); // Major ticks on a bi-monthly basis
@@ -22,12 +27,19 @@ define('DSUTILS_YEAR5', 13); // Major ticks on a five-yearly basis
 
 class DateScaleUtils
 {
-    public static $iMin = 0, $iMax = 0;
+    public static $iMin = 0;
+    public static $iMax = 0;
 
-    private static $starthour, $startmonth, $startday, $startyear;
-    private static $endmonth, $endyear, $endday;
-    private static $tickPositions = array(), $minTickPositions = array();
-    private static $iUseWeeks = true;
+    private static $starthour;
+    private static $startmonth;
+    private static $startday;
+    private static $startyear;
+    private static $endmonth;
+    private static $endyear;
+    private static $endday;
+    private static $tickPositions    = [];
+    private static $minTickPositions = [];
+    private static $iUseWeeks        = true;
 
     public static function UseWeekFormat($aFlg)
     {
@@ -60,6 +72,7 @@ class DateScaleUtils
                     }
                     self::$tickPositions[$i++] = mktime(0, 0, 0, 1, 1, $y);
                 }
+
                 break;
             case DSUTILS_YEAR2:
                 $y = self::$startyear;
@@ -73,6 +86,7 @@ class DateScaleUtils
                     }
                     ++$y;
                 }
+
                 break;
             case DSUTILS_YEAR5:
                 $y = self::$startyear;
@@ -86,6 +100,7 @@ class DateScaleUtils
                     }
                     ++$y;
                 }
+
                 break;
         }
     }
@@ -107,12 +122,13 @@ class DateScaleUtils
         switch ($aType) {
             case DSUTILS_DAY1:
                 while ($t <= self::$iMax) {
-                    $t = strtotime('+1 day', $t);
+                    $t                         = strtotime('+1 day', $t);
                     self::$tickPositions[$i++] = $t;
                     if ($aMinor) {
                         self::$minTickPositions[$j++] = strtotime('+12 hours', $t);
                     }
                 }
+
                 break;
             case DSUTILS_DAY2:
                 while ($t <= self::$iMax) {
@@ -120,9 +136,10 @@ class DateScaleUtils
                     if ($aMinor) {
                         self::$minTickPositions[$j++] = $t;
                     }
-                    $t = strtotime('+1 day', $t);
+                    $t                         = strtotime('+1 day', $t);
                     self::$tickPositions[$i++] = $t;
                 }
+
                 break;
             case DSUTILS_DAY4:
                 while ($t <= self::$iMax) {
@@ -132,9 +149,10 @@ class DateScaleUtils
                             self::$minTickPositions[$j++] = $t;
                         }
                     }
-                    $t = strtotime('+1 day', $t);
+                    $t                         = strtotime('+1 day', $t);
                     self::$tickPositions[$i++] = $t;
                 }
+
                 break;
         }
     }
@@ -144,8 +162,8 @@ class DateScaleUtils
         $hpd = 3600 * 24;
         $hpw = 3600 * 24 * 7;
         // Find out week number of min date
-        $thursday = self::$iMin + $hpd * (3 - (date('w', self::$iMin) + 6) % 7);
-        $week = 1 + (date('z', $thursday) - (11 - date('w', mktime(0, 0, 0, 1, 1, date('Y', $thursday)))) % 7) / 7;
+        $thursday  = self::$iMin + $hpd * (3 - (date('w', self::$iMin) + 6) % 7);
+        $week      = 1 + (date('z', $thursday) - (11 - date('w', mktime(0, 0, 0, 1, 1, date('Y', $thursday)))) % 7) / 7;
         $daynumber = date('w', self::$iMin);
         if ($daynumber == 0) {
             $daynumber = 7;
@@ -161,7 +179,7 @@ class DateScaleUtils
         // week.
         if ($daynumber == 1) {
             self::$tickPositions[$i++] = mktime(0, 0, 0, $m, $d, $y);
-            $t = mktime(0, 0, 0, $m, $d, $y) + $hpw;
+            $t                         = mktime(0, 0, 0, $m, $d, $y) + $hpw;
         } else {
             $t = mktime(0, 0, 0, $m, $d, $y) + $hpd * (8 - $daynumber);
         }
@@ -169,12 +187,15 @@ class DateScaleUtils
         switch ($aType) {
             case DSUTILS_WEEK1:
                 $cnt = 0;
+
                 break;
             case DSUTILS_WEEK2:
                 $cnt = 1;
+
                 break;
             case DSUTILS_WEEK4:
                 $cnt = 3;
+
                 break;
         }
         while ($t <= self::$iMax) {
@@ -192,15 +213,15 @@ class DateScaleUtils
     public static function doMonthly($aType, $aMinor = false)
     {
         $monthcount = 0;
-        $m = self::$startmonth;
-        $y = self::$startyear;
-        $i = 0;
-        $j = 0;
+        $m          = self::$startmonth;
+        $y          = self::$startyear;
+        $i          = 0;
+        $j          = 0;
 
         // Skip the first month label if it is before the startdate
         if (self::$startday == 1) {
             self::$tickPositions[$i++] = mktime(0, 0, 0, $m, 1, $y);
-            $monthcount = 1;
+            $monthcount                = 1;
         }
         if ($aType == 1) {
             if (self::$startday < 15) {
@@ -225,7 +246,6 @@ class DateScaleUtils
                                 if (!($y == self::$endyear && $m == $stopmonth && self::$endday < 15)) {
                                     self::$minTickPositions[$j++] = mktime(0, 0, 0, $m, 15, $y);
                                 }
-
                             }
                         }
                         // Major at month
@@ -244,6 +264,7 @@ class DateScaleUtils
                         if ($monthcount % 2 == 0) {
                             self::$tickPositions[$i++] = mktime(0, 0, 0, $m, 1, $y);
                         }
+
                         break;
                     case DSUTILS_MONTH3:
                         if ($aMinor) {
@@ -255,6 +276,7 @@ class DateScaleUtils
                         if ($monthcount % 3 == 0) {
                             self::$tickPositions[$i++] = mktime(0, 0, 0, $m, 1, $y);
                         }
+
                         break;
                     case DSUTILS_MONTH6:
                         if ($aMinor) {
@@ -266,6 +288,7 @@ class DateScaleUtils
                         if ($monthcount % 6 == 0) {
                             self::$tickPositions[$i++] = mktime(0, 0, 0, $m, 1, $y);
                         }
+
                         break;
                 }
                 ++$m;
@@ -281,22 +304,23 @@ class DateScaleUtils
             self::$tickPositions[$i++] = mktime(0, 0, 0, self::$startmonth + 1, 1, self::$startyear);
         }
 
-        return array(self::$tickPositions, self::$minTickPositions);
+        return [self::$tickPositions, self::$minTickPositions];
     }
 
     public static function GetTicks($aData, $aType = 1, $aMinor = false, $aEndPoints = false)
     {
-        $n = count($aData);
+        $n = safe_count($aData);
+
         return self::GetTicksFromMinMax($aData[0], $aData[$n - 1], $aType, $aMinor, $aEndPoints);
     }
 
     public static function GetAutoTicks($aMin, $aMax, $aMaxTicks = 10, $aMinor = false)
     {
         $diff = $aMax - $aMin;
-        $spd = 3600 * 24;
-        $spw = $spd * 7;
-        $spm = $spd * 30;
-        $spy = $spd * 352;
+        $spd  = 3600 * 24;
+        $spw  = $spd * 7;
+        $spm  = $spd * 30;
+        $spy  = $spd * 352;
 
         if (self::$iUseWeeks) {
             $w = 'W';
@@ -307,24 +331,25 @@ class DateScaleUtils
         // Decision table for suitable scales
         // First value: Main decision point
         // Second value: Array of formatting depending on divisor for wanted max number of ticks. <divisor><formatting><format-string>,..
-        $tt = array(
-            array($spw, array(1, DSUTILS_DAY1, 'd M', 2, DSUTILS_DAY2, 'd M', -1, DSUTILS_DAY4, 'd M')),
-            array($spm, array(1, DSUTILS_DAY1, 'd M', 2, DSUTILS_DAY2, 'd M', 4, DSUTILS_DAY4, 'd M', 7, DSUTILS_WEEK1, $w, -1, DSUTILS_WEEK2, $w)),
-            array($spy, array(1, DSUTILS_DAY1, 'd M', 2, DSUTILS_DAY2, 'd M', 4, DSUTILS_DAY4, 'd M', 7, DSUTILS_WEEK1, $w, 14, DSUTILS_WEEK2, $w, 30, DSUTILS_MONTH1, 'M', 60, DSUTILS_MONTH2, 'M', -1, DSUTILS_MONTH3, 'M')),
-            array(-1, array(30, DSUTILS_MONTH1, 'M-Y', 60, DSUTILS_MONTH2, 'M-Y', 90, DSUTILS_MONTH3, 'M-Y', 180, DSUTILS_MONTH6, 'M-Y', 352, DSUTILS_YEAR1, 'Y', 704, DSUTILS_YEAR2, 'Y', -1, DSUTILS_YEAR5, 'Y')));
+        $tt = [
+            [$spw, [1, DSUTILS_DAY1, 'd M', 2, DSUTILS_DAY2, 'd M', -1, DSUTILS_DAY4, 'd M']],
+            [$spm, [1, DSUTILS_DAY1, 'd M', 2, DSUTILS_DAY2, 'd M', 4, DSUTILS_DAY4, 'd M', 7, DSUTILS_WEEK1, $w, -1, DSUTILS_WEEK2, $w]],
+            [$spy, [1, DSUTILS_DAY1, 'd M', 2, DSUTILS_DAY2, 'd M', 4, DSUTILS_DAY4, 'd M', 7, DSUTILS_WEEK1, $w, 14, DSUTILS_WEEK2, $w, 30, DSUTILS_MONTH1, 'M', 60, DSUTILS_MONTH2, 'M', -1, DSUTILS_MONTH3, 'M']],
+            [-1, [30, DSUTILS_MONTH1, 'M-Y', 60, DSUTILS_MONTH2, 'M-Y', 90, DSUTILS_MONTH3, 'M-Y', 180, DSUTILS_MONTH6, 'M-Y', 352, DSUTILS_YEAR1, 'Y', 704, DSUTILS_YEAR2, 'Y', -1, DSUTILS_YEAR5, 'Y']], ];
 
-        $ntt = count($tt);
-        $nd = floor($diff / $spd);
+        $ntt = safe_count($tt);
+        $nd  = floor($diff / $spd);
         for ($i = 0; $i < $ntt; ++$i) {
             if ($diff <= $tt[$i][0] || $i == $ntt - 1) {
                 $t = $tt[$i][1];
-                $n = count($t) / 3;
+                $n = safe_count($t) / 3;
                 for ($j = 0; $j < $n; ++$j) {
                     if ($nd / $t[3 * $j] <= $aMaxTicks || $j == $n - 1) {
-                        $type = $t[3 * $j + 1];
-                        $fs = $t[3 * $j + 2];
+                        $type                                   = $t[3 * $j + 1];
+                        $fs                                     = $t[3 * $j + 2];
                         list($tickPositions, $minTickPositions) = self::GetTicksFromMinMax($aMin, $aMax, $type, $aMinor);
-                        return array($fs, $tickPositions, $minTickPositions, $type);
+
+                        return [$fs, $tickPositions, $minTickPositions, $type];
                     }
                 }
             }
@@ -333,15 +358,15 @@ class DateScaleUtils
 
     public static function GetTicksFromMinMax($aMin, $aMax, $aType, $aMinor = false, $aEndPoints = false)
     {
-        self::$starthour = date('G', $aMin);
+        self::$starthour  = date('G', $aMin);
         self::$startmonth = date('n', $aMin);
-        self::$startday = date('j', $aMin);
-        self::$startyear = date('Y', $aMin);
-        self::$endmonth = date('n', $aMax);
-        self::$endyear = date('Y', $aMax);
-        self::$endday = date('j', $aMax);
-        self::$iMin = $aMin;
-        self::$iMax = $aMax;
+        self::$startday   = date('j', $aMin);
+        self::$startyear  = date('Y', $aMin);
+        self::$endmonth   = date('n', $aMax);
+        self::$endyear    = date('Y', $aMax);
+        self::$endday     = date('j', $aMax);
+        self::$iMin       = $aMin;
+        self::$iMax       = $aMax;
 
         if ($aType <= DSUTILS_MONTH6) {
             self::doMonthly($aType, $aMinor);
@@ -364,6 +389,6 @@ class DateScaleUtils
             $tickPositions[$i] = $aData[$n - 1];
         }
 
-        return array(self::$tickPositions, self::$minTickPositions);
+        return [self::$tickPositions, self::$minTickPositions];
     }
 }

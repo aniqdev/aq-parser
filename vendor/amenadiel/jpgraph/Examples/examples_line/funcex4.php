@@ -1,17 +1,24 @@
-<?php // content="text/plain; charset=utf-8"
-require_once 'jpgraph/jpgraph.php';
-require_once 'jpgraph/jpgraph_line.php';
-require_once 'jpgraph/jpgraph_utils.inc.php';
+<?php
 
-$f = new FuncGenerator('cos($x)*$x');
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
+use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Plot;
+use Amenadiel\JpGraph\Util;
+
+$f                   = new Util\FuncGenerator('cos($x)*$x');
 list($xdata, $ydata) = $f->E(-1.2 * M_PI, 1.2 * M_PI);
 
-$f = new FuncGenerator('$x*$x');
+$f                     = new Util\FuncGenerator('$x*$x');
 list($x2data, $y2data) = $f->E(-2, 2);
 
 // Setup the basic graph
-$graph = new Graph\Graph(450, 350);
-$graph->SetScale("linlin");
+$__width  = 450;
+$__height = 350;
+$graph    = new Graph\Graph($__width, $__height);
+$graph->SetScale('linlin');
 //$graph->SetShadow();
 $graph->img->SetMargin(5, 10, 60, 9);
 $graph->SetBox(true, 'green', 2);
@@ -48,7 +55,7 @@ $lp1 = new Plot\LinePlot($ydata, $xdata);
 $lp1->SetColor('yellow');
 $lp1->SetWeight(2);
 
-$lp2 = new Plot\LinePlot($y2data, $x2data);
+$lp2           = new Plot\LinePlot($y2data, $x2data);
 list($xm, $ym) = $lp2->Max();
 $lp2->SetColor('blue');
 $lp2->SetWeight(2);

@@ -7,11 +7,13 @@ namespace Composer\Autoload;
 class ComposerStaticInit920844333485d70c18c57609e87d17fe
 {
     public static $files = array (
-        '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
+        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '72579e7bd17821bb1321b87411366eae' => __DIR__ . '/..' . '/illuminate/support/helpers.php',
+        '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        'f084d01b0a599f67676cffef638aa95b' => __DIR__ . '/..' . '/smarty/smarty/libs/bootstrap.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -25,13 +27,20 @@ class ComposerStaticInit920844333485d70c18c57609e87d17fe
         ),
         'S' => 
         array (
+            'Symfony\\Polyfill\\Mbstring\\' => 26,
+            'Symfony\\Contracts\\Translation\\' => 30,
+            'Symfony\\Component\\Translation\\' => 30,
             'Symfony\\Component\\Finder\\' => 25,
+            'Symfony\\Component\\Dotenv\\' => 25,
             'Symfony\\Component\\Debug\\' => 24,
         ),
         'P' => 
         array (
+            'Psr\\SimpleCache\\' => 16,
             'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
+            'Psr\\Container\\' => 14,
+            'PhpImap\\' => 8,
             'Philo\\Blade\\' => 12,
         ),
         'I' => 
@@ -51,6 +60,7 @@ class ComposerStaticInit920844333485d70c18c57609e87d17fe
         ),
         'D' => 
         array (
+            'Doctrine\\Common\\Inflector\\' => 26,
             'Ddeboer\\Transcoder\\Tests\\' => 25,
             'Ddeboer\\Transcoder\\' => 19,
             'Ddeboer\\Imap\\Tests\\' => 19,
@@ -59,6 +69,7 @@ class ComposerStaticInit920844333485d70c18c57609e87d17fe
         'C' => 
         array (
             'Curl\\' => 5,
+            'Carbon\\' => 7,
         ),
         'A' => 
         array (
@@ -76,20 +87,40 @@ class ComposerStaticInit920844333485d70c18c57609e87d17fe
     public static $prefixDirsPsr4 = array (
         'baibaratsky\\WebMoney\\' => 
         array (
-            0 => __DIR__ . '/..' . '/baibaratsky/php-wmsigner',
-            1 => __DIR__ . '/..' . '/baibaratsky/php-webmoney',
+            0 => __DIR__ . '/..' . '/baibaratsky/php-webmoney',
+            1 => __DIR__ . '/..' . '/baibaratsky/php-wmsigner',
         ),
         'Zyberspace\\SteamWebApi\\' => 
         array (
             0 => __DIR__ . '/..' . '/zyberspace/steam-web-api-client/lib/Zyberspace/SteamWebApi',
         ),
+        'Symfony\\Polyfill\\Mbstring\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
+        ),
+        'Symfony\\Contracts\\Translation\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/translation-contracts',
+        ),
+        'Symfony\\Component\\Translation\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/translation',
+        ),
         'Symfony\\Component\\Finder\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/finder',
         ),
+        'Symfony\\Component\\Dotenv\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/dotenv',
+        ),
         'Symfony\\Component\\Debug\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/debug',
+        ),
+        'Psr\\SimpleCache\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
         ),
         'Psr\\Log\\' => 
         array (
@@ -98,6 +129,14 @@ class ComposerStaticInit920844333485d70c18c57609e87d17fe
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
+        ),
+        'Psr\\Container\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/container/src',
+        ),
+        'PhpImap\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/php-imap/php-imap/src/PhpImap',
         ),
         'Philo\\Blade\\' => 
         array (
@@ -139,6 +178,10 @@ class ComposerStaticInit920844333485d70c18c57609e87d17fe
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
         ),
+        'Doctrine\\Common\\Inflector\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/doctrine/inflector/lib/Doctrine/Common/Inflector',
+        ),
         'Ddeboer\\Transcoder\\Tests\\' => 
         array (
             0 => __DIR__ . '/..' . '/ddeboer/transcoder/tests',
@@ -158,6 +201,10 @@ class ComposerStaticInit920844333485d70c18c57609e87d17fe
         'Curl\\' => 
         array (
             0 => __DIR__ . '/..' . '/php-curl-class/php-curl-class/src/Curl',
+        ),
+        'Carbon\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon',
         ),
         'Automattic\\WooCommerce\\' => 
         array (
@@ -194,25 +241,11 @@ class ComposerStaticInit920844333485d70c18c57609e87d17fe
     );
 
     public static $prefixesPsr0 = array (
-        'P' => 
-        array (
-            'PhpImap' => 
-            array (
-                0 => __DIR__ . '/..' . '/php-imap/php-imap/src',
-            ),
-        ),
         'I' => 
         array (
             'Imagine' => 
             array (
                 0 => __DIR__ . '/..' . '/imagine/imagine/lib',
-            ),
-        ),
-        'D' => 
-        array (
-            'Doctrine\\Common\\Inflector\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/doctrine/inflector/lib',
             ),
         ),
     );

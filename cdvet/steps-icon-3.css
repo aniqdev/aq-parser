@@ -1,0 +1,14 @@
+.steps--container .steps--content .steps--entry .icon {
+    background-color: #007d40;
+    background-image: none;
+}
+.steps--container .steps--content .is--active .icon {
+    background-color: #fff13d;
+    background-image: linear-gradient(to bottom, #fff13d 0%, #ffed00 100%);
+}
+.steps--container .steps--content .steps--entry .text{
+    color: #007d40;
+}
+.steps--container .steps--content .is--active .text{
+    color: #fff13d;
+}

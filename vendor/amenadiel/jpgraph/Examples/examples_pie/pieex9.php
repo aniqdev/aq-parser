@@ -1,16 +1,22 @@
-<?php // content="text/plain; charset=utf-8"
-require_once '../../vendor/autoload.php';
+<?php
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
 use Amenadiel\JpGraph\Graph;
 use Amenadiel\JpGraph\Plot;
 
-$data = array(40, 60, 31, 35);
+$data = [40, 60, 31, 35];
 
 // A new pie graph
-$graph = new Graph\PieGraph(250, 200);
+$__width  = 250;
+$__height = 200;
+$graph    = new Graph\PieGraph($__width, $__height);
 $graph->SetShadow();
 
 // Title setup
-$graph->title->Set("Exploding all slices");
+$graph->title->Set('Exploding all slices');
 $graph->title->SetFont(FF_FONT1, FS_BOLD);
 
 // Setup the pie plot
@@ -22,7 +28,7 @@ $p1->SetCenter(0.5, 0.52);
 
 // Setup slice labels and move them into the plot
 $p1->value->SetFont(FF_FONT1, FS_BOLD);
-$p1->value->SetColor("darkred");
+$p1->value->SetColor('darkred');
 $p1->SetLabelPos(0.65);
 
 // Explode all slices

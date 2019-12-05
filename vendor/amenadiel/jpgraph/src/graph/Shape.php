@@ -1,28 +1,32 @@
 <?php
-namespace Amenadiel\JpGraph\Graph;
 
-/*=======================================================================
-// File:        JPGRAPH_CANVTOOLS.PHP
-// Description: Some utilities for text and shape drawing on a canvas
-// Created:     2002-08-23
-// Ver:         $Id: jpgraph_canvtools.php 1857 2009-09-28 14:38:14Z ljp $
-//
-// Copyright (c) Asial Corporation. All rights reserved.
-//========================================================================
+/**
+ * JPGraph v3.6.21
  */
 
+namespace Amenadiel\JpGraph\Graph;
+
+/*
+ * File:        JPGRAPH_CANVTOOLS.PHP
+ * // Description: Some utilities for text and shape drawing on a canvas
+ * // Created:     2002-08-23
+ * // Ver:         $Id: jpgraph_canvtools.php 1857 2009-09-28 14:38:14Z ljp $
+ * //
+ * // Copyright (c) Asial Corporation. All rights reserved.
+ */
 define('CORNER_TOPLEFT', 0);
 define('CORNER_TOPRIGHT', 1);
 define('CORNER_BOTTOMRIGHT', 2);
 define('CORNER_BOTTOMLEFT', 3);
 
-//===================================================
-// CLASS Shape
-// Description: Methods to draw shapes on canvas
-//===================================================
+/**
+ * @class Shape
+ * // Description: Methods to draw shapes on canvas
+ */
 class Shape
 {
-    private $img, $scale;
+    private $img;
+    private $scale;
 
     public function __construct($aGraph, $scale)
     {
@@ -50,9 +54,9 @@ class Shape
 
     public function Polygon($p, $aClosed = false)
     {
-        $n = count($p);
+        $n = safe_count($p);
         for ($i = 0; $i < $n; $i += 2) {
-            $p[$i] = $this->scale->TranslateX($p[$i]);
+            $p[$i]     = $this->scale->TranslateX($p[$i]);
             $p[$i + 1] = $this->scale->TranslateY($p[$i + 1]);
         }
         $this->img->Polygon($p, $aClosed);
@@ -60,9 +64,9 @@ class Shape
 
     public function FilledPolygon($p)
     {
-        $n = count($p);
+        $n = safe_count($p);
         for ($i = 0; $i < $n; $i += 2) {
-            $p[$i] = $this->scale->TranslateX($p[$i]);
+            $p[$i]     = $this->scale->TranslateX($p[$i]);
             $p[$i + 1] = $this->scale->TranslateY($p[$i + 1]);
         }
         $this->img->FilledPolygon($p);
@@ -92,10 +96,10 @@ class Shape
         $x_old = $x0;
         $y_old = $y0;
         for ($t = $delta; $t <= 1.0; $t += $delta) {
-            $tt = $t * $t;
+            $tt  = $t * $t;
             $ttt = $tt * $t;
-            $x = $ax * $ttt + $bx * $tt + $cx * $t + $x0;
-            $y = $ay * $ttt + $by * $tt + $cy * $t + $y0;
+            $x   = $ax * $ttt + $bx * $tt + $cx * $t + $x0;
+            $y   = $ay * $ttt + $by * $tt + $cy * $t + $y0;
             $this->Line($x_old, $y_old, $x, $y);
             $x_old = $x;
             $y_old = $y;
@@ -173,7 +177,7 @@ class Shape
         $this->img->FilledRoundedRectangle($x1, $y1, $x2, $y2, $r);
     }
 
-    public function ShadowRectangle($x1, $y1, $x2, $y2, $fcolor = false, $shadow_width = null, $shadow_color = array(102, 102, 102))
+    public function ShadowRectangle($x1, $y1, $x2, $y2, $fcolor = false, $shadow_width = null, $shadow_color = [102, 102, 102])
     {
         list($x1, $y1) = $this->scale->Translate($x1, $y1);
         list($x2, $y2) = $this->scale->Translate($x2, $y2);
@@ -186,12 +190,12 @@ class Shape
         $this->img->ShadowRectangle($x1, $y1, $x2, $y2, $fcolor, $shadow_width, $shadow_color);
     }
 
-    public function SetTextAlign($halign, $valign = "bottom")
+    public function SetTextAlign($halign, $valign = 'bottom')
     {
-        $this->img->SetTextAlign($halign, $valign = "bottom");
+        $this->img->SetTextAlign($halign, $valign = 'bottom');
     }
 
-    public function StrokeText($x1, $y1, $txt, $dir = 0, $paragraph_align = "left")
+    public function StrokeText($x1, $y1, $txt, $dir = 0, $paragraph_align = 'left')
     {
         list($x1, $y1) = $this->scale->Translate($x1, $y1);
         $this->img->StrokeText($x1, $y1, $txt, $dir, $paragraph_align);
@@ -200,11 +204,10 @@ class Shape
     // A rounded rectangle where one of the corner has been moved "into" the
     // rectangle 'iw' width and 'ih' height. Corners:
     // 0=Top left, 1=top right, 2=bottom right, 3=bottom left
-    public function IndentedRectangle($xt, $yt, $w, $h, $iw = 0, $ih = 0, $aCorner = 3, $aFillColor = "", $r = 4)
+    public function IndentedRectangle($xt, $yt, $w, $h, $iw = 0, $ih = 0, $aCorner = 3, $aFillColor = '', $r = 4)
     {
-
         list($xt, $yt) = $this->scale->Translate($xt, $yt);
-        list($w, $h) = $this->scale->Translate($w, $h);
+        list($w, $h)   = $this->scale->Translate($w, $h);
         list($iw, $ih) = $this->scale->Translate($iw, $ih);
 
         $xr = $xt + $w - 0;
@@ -245,7 +248,6 @@ class Shape
                 }
 
                 break;
-
             case 1: // Upper right
 
                 // Bottom line, left &  right arc
@@ -280,7 +282,6 @@ class Shape
                 }
 
                 break;
-
             case 2: // Lower right
                 // Top line, Top left & Top right arc
                 $this->img->Line($xt + $r, $yt, $xr - $r, $yt);
@@ -314,7 +315,6 @@ class Shape
                 }
 
                 break;
-
             case 3: // Lower left
                 // Top line, Top left & Top right arc
                 $this->img->Line($xt + $r, $yt, $xr - $r, $yt);

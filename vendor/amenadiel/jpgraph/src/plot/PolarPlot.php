@@ -1,21 +1,24 @@
 <?php
-namespace Amenadiel\JpGraph\Plot;
 
-/*=======================================================================
-// File:        JPGRAPH_POLAR.PHP
-// Description: Polar plot extension for JpGraph
-// Created:     2003-02-02
-// Ver:         $Id: jpgraph_polar.php 1796 2009-09-07 09:37:19Z ljp $
-//
-// Copyright (c) Asial Corporation. All rights reserved.
-//========================================================================
+/**
+ * JPGraph v3.6.21
  */
 
-require_once 'jpgraph_plotmark.inc.php';
-require_once "jpgraph_log.php";
+namespace Amenadiel\JpGraph\Plot;
 
-define('POLAR_360', 1);
-define('POLAR_180', 2);
+use Amenadiel\JpGraph\Util;
+
+/*
+ * File:        JPGRAPH_POLAR.PHP
+ * // Description: Polar plot extension for JpGraph
+ * // Created:     2003-02-02
+ * // Ver:         $Id: jpgraph_polar.php 1796 2009-09-07 09:37:19Z ljp $
+ * //
+ * // Copyright (c) Asial Corporation. All rights reserved.
+ */
+
+defined('POLAR_360') || define('POLAR_360', 1);
+defined('POLAR_180') || define('POLAR_180', 2);
 
 //
 // Note. Don't attempt to make sense of this code.
@@ -29,34 +32,36 @@ define('POLAR_180', 2);
 // We choose 2: here in order to save some time.
 //
 
-//--------------------------------------------------------------------------
-// class PolarPlot
-//--------------------------------------------------------------------------
+/**
+ * @class PolarPlot
+ */
 class PolarPlot
 {
-    public $line_style = 'solid', $mark;
+    public $line_style = 'solid';
+    public $mark;
     public $legendcsimtarget = '';
-    public $legendcsimalt = '';
-    public $legend = "";
-    public $csimtargets = []; // Array of targets for CSIM
-    public $csimareas = ""; // Resultant CSIM area tags
-    public $csimalts = null; // ALT:s for corresponding target
-    public $scale = null;
-    private $numpoints = 0;
-    private $iColor = 'navy', $iFillColor = '';
+    public $legendcsimalt    = '';
+    public $legend           = '';
+    public $csimtargets      = []; // Array of targets for CSIM
+    public $csimareas        = ''; // Resultant CSIM area tags
+    public $csimalts; // ALT:s for corresponding target
+    public $scale;
+    private $numpoints   = 0;
+    private $iColor      = 'navy';
+    private $iFillColor  = '';
     private $iLineWeight = 1;
-    private $coord = null;
+    private $coord;
 
     public function __construct($aData)
     {
-        $n = count($aData);
+        $n = safe_count($aData);
         if ($n & 1) {
             Util\JpGraphError::RaiseL(17001);
             //('Polar plots must have an even number of data point. Each data point is a tuple (angle,radius).');
         }
         $this->numpoints = $n / 2;
-        $this->coord = $aData;
-        $this->mark = new PlotMark();
+        $this->coord     = $aData;
+        $this->mark      = new PlotMark();
     }
 
     public function SetWeight($aWeight)
@@ -82,6 +87,7 @@ class PolarPlot
             $m = max($m, $this->coord[2 * $i + 1]);
             ++$i;
         }
+
         return $m;
     }
 
@@ -89,7 +95,7 @@ class PolarPlot
     public function SetCSIMTargets($aTargets, $aAlts = null)
     {
         $this->csimtargets = $aTargets;
-        $this->csimalts = $aAlts;
+        $this->csimalts    = $aAlts;
     }
 
     // Get all created areas
@@ -98,11 +104,11 @@ class PolarPlot
         return $this->csimareas;
     }
 
-    public function SetLegend($aLegend, $aCSIM = "", $aCSIMAlt = "")
+    public function SetLegend($aLegend, $aCSIM = '', $aCSIMAlt = '')
     {
-        $this->legend = $aLegend;
+        $this->legend           = $aLegend;
         $this->legendcsimtarget = $aCSIM;
-        $this->legendcsimalt = $aCSIMAlt;
+        $this->legendcsimalt    = $aCSIMAlt;
     }
 
     // Private methods
@@ -110,27 +116,38 @@ class PolarPlot
     public function Legend($aGraph)
     {
         $color = $this->iColor;
-        if ($this->legend != "") {
+        if ($this->legend != '') {
             if ($this->iFillColor != '') {
                 $color = $this->iFillColor;
-                $aGraph->legend->Add($this->legend, $color, $this->mark, 0,
-                    $this->legendcsimtarget, $this->legendcsimalt);
+                $aGraph->legend->Add(
+                    $this->legend,
+                    $color,
+                    $this->mark,
+                    0,
+                    $this->legendcsimtarget,
+                    $this->legendcsimalt
+                );
             } else {
-                $aGraph->legend->Add($this->legend, $color, $this->mark, $this->line_style,
-                    $this->legendcsimtarget, $this->legendcsimalt);
+                $aGraph->legend->Add(
+                    $this->legend,
+                    $color,
+                    $this->mark,
+                    $this->line_style,
+                    $this->legendcsimtarget,
+                    $this->legendcsimalt
+                );
             }
         }
     }
 
     public function Stroke($img, $scale)
     {
-
-        $i = 0;
-        $p = [];
+        $i               = 0;
+        $p               = [];
         $this->csimareas = '';
         while ($i < $this->numpoints) {
             list($x1, $y1) = $scale->PTranslate($this->coord[2 * $i], $this->coord[2 * $i + 1]);
-            $p[2 * $i] = $x1;
+            $p[2 * $i]     = $x1;
             $p[2 * $i + 1] = $y1;
 
             if (isset($this->csimtargets[$i])) {

@@ -1,41 +1,50 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Graph;
 
 use Amenadiel\JpGraph\Util;
 
-/*=======================================================================
-// File:        JPGRAPH_LOG.PHP
-// Description: Log scale plot extension for JpGraph
-// Created:     2001-01-08
-// Ver:         $Id: jpgraph_log.php 1106 2009-02-22 20:16:35Z ljp $
-//
-// Copyright (c) Asial Corporation. All rights reserved.
-//========================================================================
+/*
+ * File:        JPGRAPH_LOG.PHP
+ * // Description: Log scale plot extension for JpGraph
+ * // Created:     2001-01-08
+ * // Ver:         $Id: jpgraph_log.php 1106 2009-02-22 20:16:35Z ljp $
+ * //
+ * // Copyright (c) Asial Corporation. All rights reserved.
  */
+define('LOGLABELS_PLAIN', 0);
+define('LOGLABELS_MAGNITUDE', 1);
 
-DEFINE('LOGLABELS_PLAIN', 0);
-DEFINE('LOGLABELS_MAGNITUDE', 1);
-
-//===================================================
-// CLASS LogScale
-// Description: Logarithmic scale between world and screen
-//===================================================
+/**
+ * @class LogScale
+ * // Description: Logarithmic scale between world and screen
+ */
 class LogScale extends LinearScale
 {
-    //---------------
-    // CONSTRUCTOR
-
+    /**
+     * CONSTRUCTOR.
+     *
+     * @param mixed $min
+     * @param mixed $max
+     * @param mixed $type
+     */
     // Log scale is specified using the log of min and max
-    public function __construct($min, $max, $type = "y")
+    public function __construct($min, $max, $type = 'y')
     {
         parent::__construct($min, $max, $type);
         $this->ticks = new LogTicks('log');
-        $this->name = 'log';
+        $this->name  = 'log';
     }
 
-    //----------------
-    // PUBLIC METHODS
-
+    /**
+     * PUBLIC METHODS.
+     *
+     * @param mixed $a
+     */
     // Translate between world and screen
     public function Translate($a)
     {
@@ -44,6 +53,7 @@ class LogScale extends LinearScale
                 Util\JpGraphError::RaiseL(11001);
                 // ('Your data contains non-numeric values.');
             }
+
             return 1;
         }
         if ($a < 0) {
@@ -56,6 +66,7 @@ class LogScale extends LinearScale
         }
 
         $a = log10($a);
+
         return ceil($this->off + ($a * 1.0 - $this->scale[0]) * $this->scale_factor);
     }
 
@@ -68,32 +79,34 @@ class LogScale extends LinearScale
                 Util\JpGraphError::RaiseL(11001);
                 //('Your data contains non-numeric values.');
             }
+
             return 1;
         }
         if ($a == 0) {
             $a = 1;
         }
         $a = log10($a);
+
         return round(($a * 1.0 - $this->scale[0]) * $this->scale_factor);
     }
 
     // Use bcpow() for increased precision
     public function GetMinVal()
     {
-        if (function_exists("bcpow")) {
+        if (function_exists('bcpow')) {
             return round(bcpow(10, $this->scale[0], 15), 14);
-        } else {
-            return round(pow(10, $this->scale[0]), 14);
         }
+
+        return round(pow(10, $this->scale[0]), 14);
     }
 
     public function GetMaxVal()
     {
-        if (function_exists("bcpow")) {
+        if (function_exists('bcpow')) {
             return round(bcpow(10, $this->scale[1], 15), 14);
-        } else {
-            return round(pow(10, $this->scale[1]), 14);
         }
+
+        return round(pow(10, $this->scale[1]), 14);
     }
 
     // Logarithmic autoscaling is much simplier since we just
@@ -127,12 +140,12 @@ class LogScale extends LinearScale
             } else {
                 $smax = ceil(log10($max));
             }
-
         }
 
         $this->Update($img, $smin, $smax);
     }
 
-    //---------------
-    // PRIVATE METHODS
-} // Class
+    /*
+     * PRIVATE METHODS
+     */
+} // @class

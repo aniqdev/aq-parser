@@ -1,35 +1,43 @@
 <?php
-namespace Amenadiel\JpGraph\Util;
 
-/*=======================================================================
-// File:        JPGRAPH_UTILS.INC
-// Description: Collection of non-essential "nice to have" utilities
-// Created:     2005-11-20
-// Ver:         $Id: jpgraph_utils.inc.php 1777 2009-08-23 17:34:36Z ljp $
-//
-// Copyright (c) Asial Corporation. All rights reserved.
-//========================================================================
+/**
+ * JPGraph v3.6.21
  */
 
-//===================================================
-// CLASS FuncGenerator
-// Description: Utility class to help generate data for function plots.
-// The class supports both parametric and regular functions.
-//===================================================
+namespace Amenadiel\JpGraph\Util;
+
+/**
+ * File:        JPGRAPH_UTILS.INC
+ * // Description: Collection of non-essential "nice to have" utilities
+ * // Created:     2005-11-20
+ * // Ver:         $Id: jpgraph_utils.inc.php 1777 2009-08-23 17:34:36Z ljp $
+ * //
+ * // Copyright (c) Asial Corporation. All rights reserved.
+ */
+
+/**
+ * @class FuncGenerator
+ * // Description: Utility class to help generate data for function plots.
+ * // The class supports both parametric and regular functions.
+ */
 class FuncGenerator
 {
-    private $iFunc = '', $iXFunc = '', $iMin, $iMax, $iStepSize;
+    private $iFunc  = '';
+    private $iXFunc = '';
+    private $iMin;
+    private $iMax;
+    private $iStepSize;
 
     public function __construct($aFunc, $aXFunc = '')
     {
-        $this->iFunc = $aFunc;
+        $this->iFunc  = $aFunc;
         $this->iXFunc = $aXFunc;
     }
 
     public function E($aXMin, $aXMax, $aSteps = 50)
     {
-        $this->iMin = $aXMin;
-        $this->iMax = $aXMax;
+        $this->iMin      = $aXMin;
+        $this->iMax      = $aXMax;
         $this->iStepSize = ($aXMax - $aXMin) / $aSteps;
 
         if ($this->iXFunc != '') {
@@ -50,6 +58,6 @@ class FuncGenerator
         }
         //('FuncGenerator : Syntax error in function specification ');
 
-        return array($xa, $ya);
+        return [$xa, $ya];
     }
 }

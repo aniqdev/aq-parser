@@ -1,0 +1,22 @@
+
+страница товара
+\CdVet\frontend\detail\image.tpl    добавлен
+\CdVet\frontend\detail\imageы.tpl    добавлен
+
+
+страница категории
+\CdVet\frontend\listing\product-box\product-image.tpl    заменен
+
+
+главная страница
+\CdVet\widgets\emotion\components\component_banner_slider.tpl    добавлен
+\CdVet\widgets\emotion\components\component_banner.tpl    добавлен
+
+
+меню
+\DreiscMenu\Views\_default\frontend\dreisc_menu\_elements\banner.tpl    заменен
+\DreiscMenu\Views\emotion\frontend\dreisc_menu\_elements\banner.tpl    заменен
+
+футер
+\DreiscFooter\Views\_default\frontend\dreisc_footer\_elements\banner.tpl    заменен
+\DreiscFooter\Views\emotion\frontend\dreisc_footer\_elements\banner.tpl    заменен

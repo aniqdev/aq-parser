@@ -3,11 +3,18 @@ header('Access-Control-Allow-Origin: http://parser.gig-games.de');
 
 if (isset($_POST['wooId']) && isset($_POST['action']) && $_POST['action'] == 'check') {
 
-	$Woo = new WooCommerceApi();
-	$woo_item = $Woo->checkProductById($_POST['wooId']);
-	if($woo_item){
-		$woo_title = $woo_item['product']['title'];
-		$woo_price = $woo_item['product']['regular_price'];
+	// $Woo = new WooCommerceApi();
+	// $woo_item = $Woo->checkProductById($_POST['wooId']);
+	// get('products/'.(int)$item_id);
+
+	$woo_item = post_curl('https://hot-body.net/parser/ajax-controller.php', [
+		'function' => 'ajax_hot_do_woocommerce_api_request',
+		'method' => 'get',
+		'endpoint' => 'products/'.(int)$_POST['wooId'],
+	]);
+	if($woo_item && isset($woo_item['res'])){
+		$woo_title = $woo_item['res']['name'];
+		$woo_price = $woo_item['res']['regular_price'];
 		$answer = 'good';
 		$game_id = _esc($_POST['gameId']);
 		$woo_id = _esc($_POST['wooId']);
@@ -32,6 +39,7 @@ if (isset($_POST['wooId']) && isset($_POST['action']) && $_POST['action'] == 'ch
 
 	$Woo = new WooCommerceApi();
 	$woo_item = $Woo->updateProductPrice((int)$_POST['wooId'], (float)$_POST['price']);
+	
 	if($woo_item){
 		$woo_title = $woo_item['product']['title'];
 		$answer = 'good';

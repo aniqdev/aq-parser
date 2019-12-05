@@ -1,0 +1,6 @@
+.is--ctl-listing .price--uvp{
+    clear: both;
+}
+.is--ctl-listing .price--uvp:nth-of-type(2){
+    display: none;
+}

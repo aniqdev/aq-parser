@@ -1,17 +1,23 @@
 <?php
+
+/**
+ * JPGraph v3.6.21
+ */
+
 namespace Amenadiel\JpGraph\Graph;
 
 use Amenadiel\JpGraph\Util;
 
-//===================================================
-// CLASS RadarLinear
-// Description: Linear ticks
-//===================================================
+/**
+ * @class RadarLinear
+ * // Description: Linear ticks
+ */
 class RadarLinearTicks extends Ticks
 {
-
-    private $minor_step = 1, $major_step = 2;
-    private $xlabel_offset = 0, $xtick_offset = 0;
+    private $minor_step    = 1;
+    private $major_step    = 2;
+    private $xlabel_offset = 0;
+    private $xtick_offset  = 0;
 
     public function __construct()
     {
@@ -44,7 +50,7 @@ class RadarLinearTicks extends Ticks
 
         $this->major_step = $aMajStep;
         $this->minor_step = $aMinStep;
-        $this->is_set = true;
+        $this->is_set     = true;
     }
 
     public function Stroke($aImg, &$grid, $aPos, $aAxisAngle, $aScale, &$aMajPos, &$aMajLabel)
@@ -52,20 +58,20 @@ class RadarLinearTicks extends Ticks
         // Prepare to draw linear ticks
         $maj_step_abs = abs($aScale->scale_factor * $this->major_step);
         $min_step_abs = abs($aScale->scale_factor * $this->minor_step);
-        $nbrmaj = round($aScale->world_abs_size / $maj_step_abs);
-        $nbrmin = round($aScale->world_abs_size / $min_step_abs);
-        $skip = round($nbrmin / $nbrmaj); // Don't draw minor on top of major
+        $nbrmaj       = round($aScale->world_abs_size / $maj_step_abs);
+        $nbrmin       = round($aScale->world_abs_size / $min_step_abs);
+        $skip         = round($nbrmin / $nbrmaj); // Don't draw minor on top of major
 
         // Draw major ticks
         $ticklen2 = $this->major_abs_size;
-        $dx = round(sin($aAxisAngle) * $ticklen2);
-        $dy = round(cos($aAxisAngle) * $ticklen2);
-        $label = $aScale->scale[0] + $this->major_step;
+        $dx       = round(sin($aAxisAngle) * $ticklen2);
+        $dy       = round(cos($aAxisAngle) * $ticklen2);
+        $label    = $aScale->scale[0] + $this->major_step;
 
         $aImg->SetLineWeight($this->weight);
 
-        $aMajPos = array();
-        $aMajLabel = array();
+        $aMajPos   = [];
+        $aMajLabel = [];
 
         for ($i = 1; $i <= $nbrmaj; ++$i) {
             $xt = round($i * $maj_step_abs * cos($aAxisAngle)) + $aScale->scale_abs[0];
@@ -80,9 +86,9 @@ class RadarLinearTicks extends Ticks
 
             $aMajLabel[] = $l;
             $label += $this->major_step;
-            $grid[] = $xt;
-            $grid[] = $yt;
-            $aMajPos[($i - 1) * 2] = $xt + 2 * $dx;
+            $grid[]                    = $xt;
+            $grid[]                    = $yt;
+            $aMajPos[($i - 1) * 2]     = $xt + 2 * $dx;
             $aMajPos[($i - 1) * 2 + 1] = $yt - $aImg->GetFontheight() / 2;
             if (!$this->supress_tickmarks) {
                 if ($this->majcolor != '') {
@@ -97,8 +103,8 @@ class RadarLinearTicks extends Ticks
 
         // Draw minor ticks
         $ticklen2 = $this->minor_abs_size;
-        $dx = round(sin($aAxisAngle) * $ticklen2);
-        $dy = round(cos($aAxisAngle) * $ticklen2);
+        $dx       = round(sin($aAxisAngle) * $ticklen2);
+        $dy       = round(cos($aAxisAngle) * $ticklen2);
         if (!$this->supress_tickmarks && !$this->supress_minor_tickmarks) {
             if ($this->mincolor != '') {
                 $aImg->PushColor($this->mincolor);

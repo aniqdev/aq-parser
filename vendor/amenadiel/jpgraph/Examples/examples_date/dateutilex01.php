@@ -1,17 +1,22 @@
-<?php // content="text/plain; charset=utf-8"
-require_once 'jpgraph/jpgraph.php';
-require_once 'jpgraph/jpgraph_line.php';
-require_once 'jpgraph/jpgraph_utils.inc.php';
+<?php
+
+/**
+ * JPGraph v3.6.21
+ */
+require_once __DIR__ . '/../../src/config.inc.php';
+use Amenadiel\JpGraph\Graph;
+use Amenadiel\JpGraph\Plot;
+use Amenadiel\JpGraph\Util;
 
 // Get a dataset stored in $xdata and $ydata
-require_once 'dataset01.inc.php';
+include __DIR__ . '/../assets/dataset01.inc.php';
 
-$dateUtils = new DateScaleUtils();
+$dateUtils = new Util\DateScaleUtils();
 
 // Setup a basic graph
-$width = 500;
-$height = 300;
-$graph = new Graph\Graph($width, $height);
+$__width  = 500;
+$__height = 300;
+$graph    = new Graph\Graph($__width, $__height);
 
 // We set the x-scale min/max values to avoid empty space
 // on the side of the plot
