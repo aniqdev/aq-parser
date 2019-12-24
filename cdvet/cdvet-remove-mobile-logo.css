@@ -1,0 +1,9 @@
+/* cdvet-remove-mobile-logo */
+@media (max-width: 48em){
+	.logo-main.block-group{
+		display: none;
+	}
+	.container.header--navigation{
+		padding: 15px 0 5px;
+	}
+}

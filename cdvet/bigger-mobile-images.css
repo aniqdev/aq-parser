@@ -1,0 +1,10 @@
+/* bigger mobile images */
+@media (max-width: 48em){
+	.product--box.box--minimal .product--image {
+	    height: 17.5rem;
+	}
+	.is--ctl-swkweguides .product--stream .product--box .box--content {
+	    height: auto;
+	}
+}
+
