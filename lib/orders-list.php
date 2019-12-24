@@ -1,23 +1,27 @@
 <link rel="stylesheet" href="css/hot-line1.css">
 <link rel="stylesheet" href="css/hot-line2.css">
 <div class="container order-list" id="js-listdeligator">
-    <?php
+<?php
+
+
     $orders = arrayDB(" SELECT *,ebay_order_items.id as gig_item_id
                         FROM ebay_orders 
                         LEFT JOIN ebay_order_items
                         ON ebay_orders.id = ebay_order_items.gig_order_id
                         left join ebay_users
                         on ebay_orders.BuyerUserID = ebay_users.user_id
-                        WHERE PaidTime > (NOW() - INTERVAL 2 MONTH)
+                        WHERE 1
+                        -- PaidTime > (NOW() - INTERVAL 2 MONTH)
                             AND ebay_order_items.shipped_time = 0
                             AND OrderStatus = 'Completed'
-                            AND `show` = 'yes' 
+                            -- AND `show` = 'yes' 
                         ORDER BY ebay_orders.id DESC
                         LIMIT 50");
     //sa($orders);
     $ebay_games = arrayDB("SELECT item_id,picture_hash FROM ebay_prices");
     $pics_hashes = array_column($ebay_games, 'picture_hash', 'item_id');
     foreach ($orders as $key => $order):
+    if($key < 2) sa($order);
     $address = json_decode($order['ShippingAddress'], true); //sa($order);
     $goods = json_decode($order['goods'], true); //sa($goods);
     $comment = $order['item_comment'] ? $order['item_comment'] : $order['comment'];

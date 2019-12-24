@@ -400,17 +400,17 @@ foreach ($orders as $k => $order):
 		
 		$msg_email = str_replace('{{PRODUCT}}', $product_list, $msg_email);
 		$msg_email = str_replace('{{USER_EMAIL}}', $order['email'], $msg_email);
-		$msg_email = str_replace('{{MISTER}}', $order['BuyerFirstName'], $msg_email);
+		$msg_email = str_replace('{{MISTER}}', $order['first_name'], $msg_email);
 		$msg_email = fill_email_item_panel($msg_email);
 		$msg_email = str_replace('{{PRIVATE_MAIL_LINK}}', private_mail_link($secret_hash), $msg_email);
 		if ($is_trusted_country) {
-			if (count($games_count) === 1) {
+			if ($games_count === 1) {
 				$msg_email = str_replace('{{HERE_IS_GAMES}}', 'Hier ist dein Spiel', $msg_email);
 			}else{
 				$msg_email = str_replace('{{HERE_IS_GAMES}}', 'Hier sind deine Spiele', $msg_email);
 			}
 		}else{
-			if (count($games_count) === 1) {
+			if ($games_count === 1) {
 				$msg_email = str_replace('{{HERE_IS_GAMES}}', 'Here is you game', $msg_email);
 			}else{
 				$msg_email = str_replace('{{HERE_IS_GAMES}}', 'Here is you games', $msg_email);
@@ -459,11 +459,12 @@ foreach ($orders as $k => $order):
 		// $ebay_send_result = $ebayObj->SendMessage($userId, $itemId, $subject, $body);
 
 		arrayDB("UPDATE woo_automatic_log 
-			SET email_send_resp='$is_email_sent'
+			SET email_send_resp='$is_email_sent',
+			out_of='"._esc('('.$order['npp'].'/'.$order['total_qtty'].')')."'
 			WHERE id='$automatic_id'");
 	}else{
 		arrayDB("UPDATE woo_automatic_log 
-			SET msg_email='"._esc('('.$order['npp'].'/'.$order['total_qtty'].')')."', 
+			SET out_of='"._esc('('.$order['npp'].'/'.$order['total_qtty'].')')."', 
 			msg_ebay='"._esc('Multiple order')."' WHERE id='$automatic_id'");
 		// arrayDB("UPDATE woo_automatic_log 
 		// 	SET email_send_resp='"._esc('Multiple order')."', 

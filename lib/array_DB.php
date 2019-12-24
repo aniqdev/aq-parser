@@ -7,11 +7,11 @@ spl_autoload_register(function($class)
 });
 
 if (function_exists('apc_load_constants')) {
-    function define_array($key, $arr, $case_sensitive = true)
-    {   if (!apc_load_constants($key, $case_sensitive)) {
-            apc_define_constants($key, $arr, $case_sensitive); } }
-} else { function define_array($key, $arr, $case_sensitive = true)
-    { foreach ($arr as $name => $value) define($name, $value, $case_sensitive); } }
+    function define_array($key, $arr)
+    {   if (!apc_load_constants($key)) {
+            apc_define_constants($key, $arr); } }
+} else { function define_array($key, $arr)
+    { foreach ($arr as $name => $value) define($name, $value); } }
 
 //in your code you just write something like this:
 define_array('CLASSES', Array(
@@ -4064,4 +4064,10 @@ function ajax_hot_do_woocommerce_api_request()
 	return json_encode(
 		do_woocommerce_api_request($_POST['method'], $_POST['endpoint'], $_POST['data'])
 	);
+}
+
+
+function _esc_attr($str)
+{
+	 htmlspecialchars($str, ENT_QUOTES);
 }

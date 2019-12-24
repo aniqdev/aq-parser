@@ -1,4 +1,7 @@
+<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TVT8N2C"
+	height="0" width="0" style="display:none;visibility:hidden"></iframe>
 <?php
+
 
 
 $orders = arrayDB( "SELECT *
@@ -7,18 +10,30 @@ $orders = arrayDB( "SELECT *
 					ON woo_orders.id = woo_order_items.gig_order_id 
 					WHERE status = 'processing'
 					LIMIT 500");
+
+
 $orders = arrayDB( "SELECT *
 					FROM woo_orders 
 					LEFT JOIN woo_order_items
 					ON woo_orders.id = woo_order_items.gig_order_id 
 					WHERE status = 'processing' 
-						-- AND `show`='no' 
+						AND `show`='no' 
 						AND shipped_time = '0'
-						-- AND ExecutionMethod='default' 
+						AND ExecutionMethod='default' 
 					LIMIT 500");
+
+$orders = arrayDB( "SELECT *
+                    FROM woo_orders 
+                    LEFT JOIN woo_order_items
+                    ON woo_orders.id = woo_order_items.gig_order_id 
+                    WHERE status = 'processing'
+                    AND `show` = 'yes' 
+                    LIMIT 500");
+
+sa(count($orders));
 foreach ($orders as $key => $order) {
-	sa($order['name']);
-	var_dump(is_eve_by_title($order['name']));
+	sa($order);
+	// var_dump(is_eve_by_title($order['name']));
 }
 
 

@@ -394,13 +394,13 @@ foreach ($orders as $k => $order):
 		$msg_email = fill_email_item_panel($msg_email);
 		$msg_email = str_replace('{{PRIVATE_MAIL_LINK}}', private_mail_link($secret_hash), $msg_email);
 		if ($is_trusted_country) {
-			if (count($games_count) === 1) {
+			if ($games_count === 1) {
 				$msg_email = str_replace('{{HERE_IS_GAMES}}', 'Hier ist dein Spiel', $msg_email);
 			}else{
 				$msg_email = str_replace('{{HERE_IS_GAMES}}', 'Hier sind deine Spiele', $msg_email);
 			}
 		}else{
-			if (count($games_count) === 1) {
+			if ($games_count === 1) {
 				$msg_email = str_replace('{{HERE_IS_GAMES}}', 'Here is you game', $msg_email);
 			}else{
 				$msg_email = str_replace('{{HERE_IS_GAMES}}', 'Here is you games', $msg_email);
