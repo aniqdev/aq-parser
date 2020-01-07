@@ -148,13 +148,13 @@ if (isset($_POST['action']) &&
 
 	$res = arrayDB($sql_query);
 
-	$res = array_map(function($el){
+	if(isset($res[0]['title'])) $res = array_map(function($el){
 		$el['slug'] = get_gig_game_url_title($el['title']);
 		return $el;
 	}, $res);
 
 	echo json_encode([
-			'count' => @$res[0]['count(*)'] ? $res[0]['count(*)'] : count($res),
+			'count' => isset($res[0]['count(*)']) ? $res[0]['count(*)'] : count($res),
 			'results' => $res,
 			'pagination' => $pagination,
 			'sql_query' => $sql_query,

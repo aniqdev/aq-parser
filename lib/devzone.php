@@ -1,12 +1,22 @@
+
 <br><div class="container text-center"><?php 
 
 $files = scandir(__DIR__.'/devzone');
 
+$prev_char = '';
+
+echo '<div class="row char-block">';
 for ($i=2; $i < count($files); $i++) {
     if(stripos($files[$i], '.php') === false) continue;
 	$text = str_ireplace('.php', '', $files[$i]);
-	echo '<p class="col-xs-4"><a class="devzone-btn" href="?action=devzone/',$text,'" title="',$text,'">',$text,'</a></p>';
+    if($prev_char !== $text[0]) {
+        echo '</div><div class="row char-block">';
+        echo '<div class="first-char col-xs-4"><b>'.$text[0].'</b></div>';
+    }
+    $prev_char = $text[0];
+	echo '<div class="col-xs-4"><a class="devzone-btn" href="?action=devzone/',$text,'" title="',$text,'">',$text,'</a></div>';
 }
+echo '</div>';
 
 ?></div>
 
@@ -20,10 +30,7 @@ function hashCode(str) { // java String#hashCode
 } 
 
 function intToRGB(i){
-    var c = (i & 0x00FFFFFF)
-        .toString(16)
-        .toUpperCase();
-
+    var c = (i & 0x00FFFFFF).toString(16).toUpperCase();
     return "00000".substring(0, 6 - c.length) + c;
 }
 

@@ -7,9 +7,57 @@ ajax_hot_do_woocommerce_api_request
 
 
 
+	$sql_query = "SELECT count(*) FROM `steam_de` WHERE title <> ''   AND `os` REGEXP 'win|mac' AND `year` = '2035'";
+
+	$res = arrayDB($sql_query);
+
+	if(isset($res[0]['title'])) $res = array_map(function($el){
+		$el['slug'] = get_gig_game_url_title($el['title']);
+		return $el;
+	}, $res);
+
+	sa([
+			'count' => isset($res[0]['count(*)']) ? $res[0]['count(*)'] : count($res),
+			'results' => $res,
+			// 'pagination' => $pagination,
+			'sql_query' => $sql_query,
+			'ERRORS' => $_ERRORS,
+	]);
 
 
 
+
+return;
+$content = '[dd-owl-carousel id="1" title="Carousel Title"]';
+
+preg_match_all( '@\[([^<>&/\[\]\x00-\x20=]++)@', $content, $matches );
+
+sa($matches);
+
+$shortcode_tags = [
+    'embed' => '__return_false',
+    'dd-owl-carousel' => [
+            '0' => [
+                    'plugin_name:Owl_Carousel_2_Public:private' => 'owl-carousel-2',
+                    'version:Owl_Carousel_2_Public:private' => '1.0.8'
+                ],
+            '1' => 'dd_owl_carousel_two'
+        ]
+	];
+
+$tagnames = array_intersect( array_keys( $shortcode_tags ), $matches[1] );
+
+sa($tagnames);
+
+$ignore_html = false;
+
+$content = do_shortcodes_in_html_tags( $content, $ignore_html, $tagnames );
+
+sa($content);
+
+
+
+return;
 	$item = post_curl('https://hot-body.net/parser/ajax-controller.php', [
 		'function' => 'ajax_hot_do_woocommerce_api_request',
 		'method' => 'get',

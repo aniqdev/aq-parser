@@ -133,7 +133,7 @@
             <li><a href="?action=cron-filter-price-updater">cron-filter-price-updater</a></li>
             <li><a href="?action=cron-filter-price-updater-multi">cron-filter-price-updater-multi</a></li>
             <li><a href="?action=cron-filter-advantages-updater">cron-filter-advantages-updater</a></li>
-            <li><a href="?action=cron-filter-values-updater">cron-filter-values-updater</a></li>
+            <li><a href="?action=cron-filter-values-all-updater">cron-filter-values-all-updater</a></li>
             <li><a href="?action=cron-filter-tops">cron-filter-tops</a></li>
           </ul>
         </li>
