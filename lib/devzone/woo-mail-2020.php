@@ -24,11 +24,20 @@
 	margin-bottom: 50px;
 }
 .wm-menu{
-	color: #25c99e;
-	text-align: right;
+    color: #25c99e;
+    text-align: right;
+    background: #042b4a;
+    padding: 8px 15px;
 }
 .wm-menu-item{
-
+	margin-left: 18px;
+}
+.wm-small{
+	font-size: 12px;
+	line-height: 16px;
+}
+.order_item img{
+	max-width: 120px;
 }
 </style>
 
@@ -63,7 +72,7 @@
 		</thead> -->
 		<tbody>
 	<tr class="order_item">
-		<td><img style="max-width: 150px;" class="gig-games-logo" src="https://gig-games.de/wp-content/uploads/2017/04/skill-injector-2.png" alt="gig-eve-logo"></td>
+		<td><img src="https://gig-games.de/wp-content/uploads/2017/04/skill-injector-2.png" alt="gig-eve-logo"></td>
 		<td class="td" style="color: #ffffff; border: 1px solid transparent; padding: 12px; text-align: left; vertical-align: middle; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif; word-wrap: break-word;">
 		Cortex Command (PC) x 1		</td>
 		<td class="td" style="color: #ffffff; border: 1px solid transparent; padding: 12px; text-align: left; vertical-align: middle; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;">
@@ -71,7 +80,7 @@
 	</tr>
 	
 	<tr class="order_item">
-		<td><img style="max-width: 150px;" class="gig-games-logo" src="https://gig-games.de/wp-content/uploads/2017/04/plex-1.png" alt="gig-eve-logo"></td>
+		<td><img src="https://gig-games.de/wp-content/uploads/2017/04/plex-1.png" alt="gig-eve-logo"></td>
 		<td class="td" style="color: #ffffff; border: 1px solid transparent; padding: 12px; text-align: left; vertical-align: middle; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif; word-wrap: break-word;">
 		Call of Duty: World at War (PC) x 2		</td>
 		<td class="td" style="color: #ffffff; border: 1px solid transparent; padding: 12px; text-align: left; vertical-align: middle; font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;">
@@ -106,5 +115,7 @@
 	<p>
 		Mit besten grüßen <br>
 		gig-games.de Team
-	</p>
+	</p><br><br>
+	<p class="wm-small">Bitte beachten Sie: Diese E-Mail dient lediglich der Bestätigung des Einganges Ihrer Bestellung und stellt noch keine Annahme Ihres Angebotes auf Abschluss eines Kaufvertrages dar. Ihr Kaufvertrag für einen Artikel kommt zu Stande, wenn wir Ihre Bestellung annehmen, indem wir Ihnen eine E-Mail mit der Benachrichtigung zusenden, dass der Artikel an Sie abgeschickt wurde.</p>
+	<p class="wm-small">Dies ist eine automatisch versendete Nachricht. Bitte antworten Sie nicht auf dieses Schreiben, da die Adresse nur zur Versendung von E-Mails eingerichtet ist.</p>
 </div>

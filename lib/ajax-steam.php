@@ -25,7 +25,9 @@ $query = "SELECT * FROM slist
 		  WHERE $whr_and scan = (select scan from slist order by id desc limit 1) 
 		  LIMIT $offset,10";
 $slist = arrayDB($query);
-$affected = 0; $was_no_img = 0; $aggregator = [];
+$affected = 0; 
+$was_no_img = 0; 
+$aggregator = [];
 $aggregate = false; // использовать для отладки
 foreach ($slist as $row) {
 
@@ -35,12 +37,12 @@ foreach ($slist as $row) {
     $game_exists = arrayDB("SELECT id,notice,pics from $table where link = '$link'");
 
     // удалить после восстановления картинок
-    if (isset($game_exists[0])) {
-    	$pics = $game_exists[0]['pics'];
-    	if (strpos($pics, 'thumb') !== false) {
-    		continue;
-    	}
-    }
+    // if (isset($game_exists[0])) {
+    // 	$pics = $game_exists[0]['pics'];
+    // 	if (strpos($pics, 'thumb') !== false) {
+    // 		continue;
+    // 	}
+    // }
 
     // $dest = ROOT.'/steam-images/'.$row['appsub'].'s-'.$row['appid'];
     $dest = get_steam_images_dir_path($row['appsub'], $row['appid']);
@@ -85,11 +87,11 @@ foreach ($slist as $row) {
     }
 
     // if($game_exists) continue;
-    $affected++;
 
     if ($img_exists || $dev_mode) $game_item = aqs_file_get_html($link, false, $context);
     // пропускаем игру в случае ошибки
     if (!is_object($game_item)) continue;
+    $affected++;
 // ==> Тип товара ($appsub['app','sub','dlc'])
     $appsub = $row['appsub'];
     $main_game_title = '';

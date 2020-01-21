@@ -38,7 +38,7 @@ html,body{
 	height: 100%;
 }
 body {
-	background: url('images/Colorful-Nature-Hd.jpg');
+	background: url('images/parser-bg-2020.jpg');
 	font-family: helvetica, arial;
 	background-size: cover;
 	background-attachment: fixed;
@@ -49,7 +49,7 @@ form{
 	position: absolute;
     width: 300px;
     margin-left: -150px;
-	top: 50%;
+	top: 65%;
 	left: 50%;
 	border: 1px solid #616161;
 	background-color: rgba(9, 30, 37, 0.5);

@@ -1,8 +1,8 @@
 RewriteEngine on
 
-RewriteRule ^(.*)/$ /asd/%{REQUEST_URI} [L,R=302]
+#RewriteRule ^(.*)/$ /asd/%{REQUEST_URI} [L,R=302]
 
-RewriteRule ^(.*)barf-rechner$ /$1barf-rechner/ [L,R=302]
+#RewriteRule ^(.*)barf-rechner$ /$1barf-rechner/ [L,R=302]
 
 #RewriteRule ^(.*)wellcome.txt$ /$1wellcome.txt/ [L,R=302]
 

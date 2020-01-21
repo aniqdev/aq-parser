@@ -18,7 +18,7 @@ $tables_arr = [
 foreach ($tables_arr as $steam_table) {
 
 	$games_arr = arrayDB("SELECT genres,tags,year,developer,publisher,specs,lang,os 
-		FROM $steam_table ORDER BY id DESC LIMIT 5000");
+		FROM $steam_table ORDER BY id DESC LIMIT 15000");
 	if(!$games_arr) continue;
 	update_filter_values($games_arr, $steam_table);
 }
@@ -116,7 +116,7 @@ function update_filter_values(&$games_arr, $steam_table)
 	foreach ($games_arr as $k => $v) {
 		$tags = explode(',', $v['specs']);
 		foreach ($tags as $val) {
-			if($val) @$specs_res[$val] += 1;
+			if($val) @$specs_res[trim($val)] += 1;
 		}
 	}
 	sa('specs: ' . count($specs_res));
@@ -168,6 +168,7 @@ function update_filter_values(&$games_arr, $steam_table)
 	$insert_query = substr(trim($insert_query), 0, -1);
 	// sa($insert_query);
 	var_dump(arrayDB($insert_query));
+	sa($insert_query);
 	unset($insert_query);
 	echo "<hr><br>=============================================================================";
 

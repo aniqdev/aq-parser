@@ -1,12 +1,19 @@
-ajax_hot_do_woocommerce_api_request
 <?php
 
 
 
 
+var_dump(mail('aniq.dev@gmail.com', 'Hay', 'do not foget your name!'));
+
+
+return;
+$res = arrayDB("SELECT year,count(*) FROM `steam_de` WHERE `os` = '' group by year");
+
+sa(explode(',', ''));
 
 
 
+return;
 	$sql_query = "SELECT count(*) FROM `steam_de` WHERE title <> ''   AND `os` REGEXP 'win|mac' AND `year` = '2035'";
 
 	$res = arrayDB($sql_query);
