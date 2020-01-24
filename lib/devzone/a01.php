@@ -1,9 +1,60 @@
-<?php
+<?php ini_get('safe_mode') or set_time_limit(1300);
+
+
+
+// $res = (new Ebay_shopping2())->GetCategories();
+
+// sa(count($res['CategoryArray']['Category']));
+
+// // return;
+// foreach ($res['CategoryArray']['Category'] as $key => $val) {
+
+// 	$val['CategoryName'] = _esc($val['CategoryName']);
+
+// 	arrayDB("INSERT IGNORE INTO moda_cats SET
+// 		CategoryID = '{$val['CategoryID']}',
+// 		CategoryLevel = '{$val['CategoryLevel']}',
+// 		CategoryName = '{$val['CategoryName']}',
+// 		CategoryParentID = '{$val['CategoryParentID']}'");
+// }
+
+
+// return;
+
+$res = Ebay_shopping2::findItemsAdvanced_moda($categoryId = '260010', $page = 100, $perPage = 5);
+
+$res = json_decode($res,1);
+
+// $counter = 0;
+
+function ccallback($item)
+{
+	// return 3;
+
+	// return $item;
+	if (is_array($item) && isset($item[0]) && count($item) === 1) {
+		// var_dump($item[0]);
+		return $item[0];
+	}elseif (is_array($item)) {
+		return array_map('ccallback', $item);
+		return $item;
+	}else{
+		return $item;
+	}
+}
+
+$res = array_map('ccallback', $res);
+$res = array_map('ccallback', $res);
+$res = array_map('ccallback', $res);
+$res = array_map('ccallback', $res);
+// $res = array_map('ccallback', $res);
+
+// sa($res['findItemsAdvancedResponse']['searchResult']['item'][3]);
+sa($res);
 
 
 
 
-var_dump(mail('aniq.dev@gmail.com', 'Hay', 'do not foget your name!'));
 
 
 return;

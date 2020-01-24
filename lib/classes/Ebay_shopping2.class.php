@@ -24,7 +24,7 @@ class Ebay_shopping2{
 	}
 
 
-		static function findItemsAdvanced($request, $seller = 0, $page = 1, $perPage = 100, $categoryId = false){
+		static function findItemsAdvanced($request = false, $seller = 0, $page = 1, $perPage = 100, $categoryId = false){
 				 $url = "https://svcs.ebay.com/services/search/FindingService/v1";
 				 $url .= "?OPERATION-NAME=findItemsAdvanced";
 		//   $url .= "?OPERATION-NAME=findItemsByKeywords";
@@ -40,8 +40,42 @@ class Ebay_shopping2{
 				 $url .= "&itemFilter(0).value=".$seller;
 				}
 				 if($categoryId) $url .= "&categoryId=".$categoryId;
-				 if($request != '0') $url .= "&keywords=".rawurlencode($request);
+				 if($request) $url .= "&keywords=".rawurlencode($request);
 				 $url .= "&paginationInput.entriesPerPage=$perPage";
+				 $url .= "&paginationInput.pageNumber=".$page;
+		//     $url .= "&sortOrder=currentPrice";
+
+
+				// Открываем файл с помощью установленных выше HTTP-заголовков
+				$json = file_get_contents($url);
+				return $json;
+				//return json_decode($json);
+		}
+
+
+		static function findItemsAdvanced_moda($categoryId, $page = 1, $perPage = 5, $request = false){
+				 $url = "https://svcs.ebay.com/services/search/FindingService/v1";
+				 $url .= "?OPERATION-NAME=findItemsAdvanced";
+		//   $url .= "?OPERATION-NAME=findItemsByKeywords";
+		//   $url .= "?OPERATION-NAME=findItemsByCategory";
+				 $url .= "&SERVICE-VERSION=1.0.0";
+				 $url .= "&SECURITY-APPNAME=Konstant-Projekt1-PRD-bae576df5-1c0eec3d";
+				 $url .= "&GLOBAL-ID=EBAY-DE";
+				 $url .= "&RESPONSE-DATA-FORMAT=JSON";
+				 $url .= "&REST-PAYLOAD";
+		  		 // $url .= "&IncludeSelector=Details";
+		  		 // $url .= "&IncludeSelector=Details,Description";
+		  		 // $url .= "&IncludeSelector=Details,TextDescription";
+		  		 $url .= "&IncludeSelector=Details,Description,TextDescription,ItemSpecifics";
+				 if($categoryId) $url .= "&categoryId=".$categoryId;
+				 if($request) $url .= "&keywords=".rawurlencode($request);
+				 $url .= '&itemFilter(0).name=ExcludeCategory';
+				 $url .= '&itemFilter(0).value(0)=168093';
+				 $url .= '&itemFilter(0).value(1)=56170';
+				 $url .= '&itemFilter(0).value(2)=73834';
+				 // $url .= '&itemFilter(1).name=LocatedIn';
+				 // $url .= '&itemFilter(1).value=European';
+				 $url .= "&paginationInput.entriesPerPage=".$perPage;
 				 $url .= "&paginationInput.pageNumber=".$page;
 		//     $url .= "&sortOrder=currentPrice";
 
@@ -943,6 +977,29 @@ class Ebay_shopping2{
    		//$res = file_get_contents($url);
 		return json_decode($res,1);
 		return json_decode(json_encode(simplexml_load_string($res)), true);
+	}
+
+
+	public function GetCategories()
+	{
+		$post = '<?xml version="1.0" encoding="utf-8"?>
+				<GetCategoriesRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+				  <RequesterCredentials>
+				    <eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
+				  </RequesterCredentials>
+				  <CategorySiteID>0</CategorySiteID>
+				  <DetailLevel>ReturnAll</DetailLevel>
+				  <LevelLimit>8</LevelLimit>
+				  <ViewAllNodes>true</ViewAllNodes>
+				</GetCategoriesRequest> ';
+
+		$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
+		"X-EBAY-API-CALL-NAME: GetCategories",
+		"X-EBAY-API-SITEID: 0",
+		"Content-Type: text/xml");
+
+		$result_xml = $this->request($this->api_url, $post, $headers);
+		return json_decode(json_encode(simplexml_load_string($result_xml)), true);
 	}
 
 
