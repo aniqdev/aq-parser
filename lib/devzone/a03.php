@@ -1,9 +1,16 @@
-<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TVT8N2C"
-	height="0" width="0" style="display:none;visibility:hidden"></iframe>
 <?php
 
 
 
+
+
+$final_res = get_moda_women_cats();
+
+sa($final_res);
+
+
+
+return;
 $orders = arrayDB( "SELECT *
 					FROM woo_orders 
 					LEFT JOIN woo_order_items

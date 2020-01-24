@@ -21,7 +21,9 @@
 
 // return;
 
-$res = Ebay_shopping2::findItemsAdvanced_moda($categoryId = '260010', $page = 100, $perPage = 5);
+// Women = 260010 
+
+$res = Ebay_shopping2::findItemsAdvanced_moda($categoryId = '169291', $page = 100, $perPage = 5);
 
 $res = json_decode($res,1);
 
@@ -49,8 +51,8 @@ $res = array_map('ccallback', $res);
 $res = array_map('ccallback', $res);
 // $res = array_map('ccallback', $res);
 
-// sa($res['findItemsAdvancedResponse']['searchResult']['item'][3]);
-sa($res);
+sa($res['findItemsAdvancedResponse']['searchResult']['item'][3]);
+// sa($res);
 
 
 

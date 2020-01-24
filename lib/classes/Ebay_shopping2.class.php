@@ -69,10 +69,10 @@ class Ebay_shopping2{
 		  		 $url .= "&IncludeSelector=Details,Description,TextDescription,ItemSpecifics";
 				 if($categoryId) $url .= "&categoryId=".$categoryId;
 				 if($request) $url .= "&keywords=".rawurlencode($request);
-				 $url .= '&itemFilter(0).name=ExcludeCategory';
-				 $url .= '&itemFilter(0).value(0)=168093';
-				 $url .= '&itemFilter(0).value(1)=56170';
-				 $url .= '&itemFilter(0).value(2)=73834';
+				 // $url .= '&itemFilter(0).name=ExcludeCategory';
+				 // $url .= '&itemFilter(0).value(0)=168093';
+				 // $url .= '&itemFilter(0).value(1)=56170';
+				 // $url .= '&itemFilter(0).value(2)=73834';
 				 // $url .= '&itemFilter(1).name=LocatedIn';
 				 // $url .= '&itemFilter(1).value=European';
 				 $url .= "&paginationInput.entriesPerPage=".$perPage;
