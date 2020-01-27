@@ -2,84 +2,95 @@
 
 if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 	header('Content-Type: application/json');
-	$offset = (int)$_POST['offset'];
 
 
-	// $where = "WHERE extra_field2 LIKE 'sub%'";
-	$where = '';
 
-	$count = arrayDB("SELECT count(*) FROM cdvet $where")[0]['count(*)'];
+	if ($_POST['btn'] === 'restart') {
+		arrayDB("UPDATE moda_cats SET page = 0, done = 0, err = ''");
+	}
 
-	$res = arrayDB("SELECT * FROM cdvet $where LIMIT $offset , 1");
+
+	$cats = arrayDB("SELECT * from moda_cats where type = 'women' AND done = 0 LIMIT 1");
+
+	if (!$cats) {
+		echo json_encode([
+			'finish' => 1,
+			'ERRORS' => $_ERRORS,
+		]);
+		return;
+	}
+
+	$page = $cats[0]['page'];
+
+	$categoryId = $cats[0]['CategoryID'];
+
+	$res = Ebay_shopping2::findItemsAdvanced_moda($categoryId, ++$page, $perPage = 100);
+
+	$res = json_decode($res,1);
+
+	$res = clean_result($res);
+
 	//=============================================================================
 	// sript below
 
-	$extra_field = 'extra_field';
-	$extra_field_mark = 'specs_fixed';
+	$updated = $inserted = 0;
 
-	if(!$res || $res[0][$extra_field] === $extra_field_mark){
-		echo json_encode([
-			'offset' => $offset,
-			'count' => $count,
-			'res' => $res[0],
-			'resp' => $extra_field_mark,
-			'itm_link' => 'https://www.ebay.de/itm/'.$ebay_id,
-			'ERRORS' => $_ERRORS,
-		]);
-		return;
+	if ($categoryId 
+			&& $res['findItemsAdvancedResponse']['ack'] === 'Success' 
+			&& isset($res['findItemsAdvancedResponse']['searchResult']['item'][0]) 
+			&& count($res['findItemsAdvancedResponse']['searchResult']['item']) > 0) {
+
+		foreach ($res['findItemsAdvancedResponse']['searchResult']['item'] as $item) {
+
+			array_walk_recursive($item, function(&$val){ $val = _esc($val); });
+
+			$item['subtitle'] = isset($item['subtitle']) ? $item['subtitle'] : '';
+
+			$set_list = "itemId = '$item[itemId]',
+						title = '$item[title]',
+						globalId = '$item[globalId]',
+						subtitle = '$item[subtitle]',
+						categoryId = '{$item['primaryCategory']['categoryId']}',
+						categoryName = '{$item['primaryCategory']['categoryName']}',
+						galleryURL = '$item[galleryURL]',
+						viewItemURL = '$item[viewItemURL]',
+						location = '$item[location]',
+						country = '$item[country]',
+						currentPrice = '{$item['sellingStatus']['currentPrice']['__value__']}',
+						sellingState = '{$item['sellingStatus']['sellingState']}',
+						timeLeft = '{$item['sellingStatus']['timeLeft']}',
+						startTime = '{$item['listingInfo']['startTime']}',
+						endTime = '{$item['listingInfo']['endTime']}'";
+
+			$check = arrayDB("SELECT id FROM moda_list WHERE itemId = '$item[itemId]' LIMIT 1");
+			if ($check) {
+				$sql_query = "UPDATE moda_list SET $set_list WHERE itemId = '$item[itemId]'";
+				$updated += 1;
+			}else{
+				$sql_query = "INSERT INTO moda_list SET $set_list";
+				$inserted += 1;
+			}
+			arrayDB($sql_query);
+			$title = $item['title'];
+		}
+		arrayDB("UPDATE moda_cats SET page = page + 1 WHERE CategoryID = '$categoryId'");
+
+	}else{
+
+		$err = _esc(json_encode($res));
+		arrayDB("UPDATE moda_cats SET done = 1, err = '$err' WHERE CategoryID = '$categoryId'");
+		$title = $sql_query = $cats[0]['CategoryName'].' | DONE!';
 	}
-
-	$ebay_id = $res[0]['ebay_id'];
-	$cdvet_id = $res[0]['id'];
-	$shop_id = $res[0]['shop_id'];
-
-	$specs = parse_item_specifics($ebay_id);
-
-	if (count($specs) < 3) {
-		echo json_encode([
-			'offset' => $offset,
-			'count' => $count,
-			'res' => $res[0],
-			'resp' => 'NO Specs!',
-			'$specs' => $specs,
-			'itm_link' => 'https://www.ebay.de/itm/'.$ebay_id,
-			'ERRORS' => $_ERRORS,
-		]);
-		return;
-	}
-
-	$title = 'cdvet specs backup';
-	$full_desc = _esc(json_encode($specs));
-	arrayDB("INSERT INTO ebay_data 
-		(ebay_id,title,full_desc)
-		VALUES
-		('$ebay_id','$title','$full_desc')");
-
-	//----------------------------------------------------------------------------
-
-	$specs['Kurzbeschreibung'] = explode(',', $specs['Kurzbeschreibung']);
-	$specs['Zusammensetzung'] = explode(',', $specs['Zusammensetzung']);
-	$specs['Analytische Bestandteile und Gehalte'] = explode(',', $specs['Analytische Bestandteile und Gehalte']);
-
-	//----------------------------------------------------------------------------
-
-
-	$resp = Cdvet::updateItemSpecifics($ebay_id, $specs);
-	unset($resp['Fees']);
-
-	if (isset($resp['Ack']) && $resp['Ack'] !== 'Failure') {
-		arrayDB("UPDATE cdvet SET $extra_field = '$extra_field_mark' WHERE id = '$cdvet_id'");
-	}
-
 
 	//=============================================================================
 	echo json_encode([
-		'offset' => $offset,
-		'count' => $count,
-		'res' => $res[0],
-		'resp' => $resp,
-		'$specs' => $specs,
-		'itm_link' => 'https://www.ebay.de/itm/'.$ebay_id,
+		'finish' => 0,
+		'$updated' => $updated,
+		'$inserted' => $inserted,
+		'res' => @$res['findItemsAdvancedResponse'],
+		'title' => $title,
+		'sql_query' => $sql_query,
+		'itm_link' => $res['findItemsAdvancedResponse']['itemSearchURL'],
 		'ERRORS' => $_ERRORS,
 	]);
 }
@@ -95,7 +106,8 @@ if($_POST) return;
 
 <h3>update cdVet Specifics</h3>
 <form id="js_go_form" class="go-form">
-    <button name="aaa" value="bbb" type="button" class="js-go-btn">Go!</button>
+    <button name="aaa" value="continue" type="button" class="js-go-btn">Continue!</button>
+    <button name="aaa" value="restart" type="button" class="js-go-btn">Restart!</button>
 </form><br><br><br>
 <span class="loading"></span>
 <h3>Состояние процесса:</h3>
@@ -110,15 +122,13 @@ function it_ins_msg(msg) {
 }
 var first_row = 0; // first row
 var row_limit = 1000; // row limit
-function send_post(offset) {
+function send_post(offset, btn) {
 	$.post('ajax.php' + window.location.search,
-		{action:'iterate', offset:offset},
+		{action:'iterate', offset:offset, btn:btn},
 		function (data) {
-			if (offset < data.count && offset < row_limit) { // row limit
-				if (data.resp && data.resp.Ack) 	var add = data.resp.Ack;
-				else var add = data.resp;
-				it_ins_msg(offset + ' : <a href="'+data.itm_link+'" target="_blank">' + data.res.title + '</a> | ' + add);
-				send_post(offset+1);
+			if (!data.finish) {
+				it_ins_msg(offset + ' : <a href="'+data.itm_link+'" target="_blank">' + data.title + '</a>');
+				send_post(offset+1, 'continue');
 			}else{
 				$('.loading').removeClass('inaction');
 				it_ins_msg('Done!');
@@ -128,6 +138,45 @@ function send_post(offset) {
 }
 $('.js-go-btn').on('click', function() {
 	$(this).attr('disabled','true');
-	send_post(first_row);
+	var btn = $(this).val()
+	send_post(first_row, btn);
 });
 </script>
+
+
+
+
+
+<?php
+
+
+
+
+
+
+
+function ccallback($item)
+{
+	if (is_array($item) && isset($item[0]) && count($item) === 1) {
+		// var_dump($item[0]);
+		return $item[0];
+	}elseif (is_array($item)) {
+		return array_map('ccallback', $item);
+		return $item;
+	}else{
+		return $item;
+	}
+}
+
+
+function clean_result($res = [])
+{
+	if(!$res) return $res;
+	$res = array_map('ccallback', $res);
+	$res = array_map('ccallback', $res);
+	$res = array_map('ccallback', $res);
+	$res = array_map('ccallback', $res);
+	$res = array_map('ccallback', $res);
+	return $res;
+}
+

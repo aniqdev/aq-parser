@@ -4,11 +4,53 @@
 
 
 
+
+
+
+
+
+
+return;
 $final_res = get_moda_women_cats();
 
 sa($final_res);
 
+foreach ($final_res as $key => $val) {
+	arrayDB("UPDATE moda_cats SET type = 'women' WHERE id = '$val[id]'");
+}
 
+function get_moda_women_cats()
+{
+	$final_res = [];
+
+	$res3 = arrayDB("SELECT * from moda_cats where CategoryParentID= '260010'");
+	foreach ($res3 as $val3) {
+		$res4 = arrayDB("SELECT * from moda_cats where CategoryParentID= '{$val3['CategoryID']}'");
+		if ($res4) {
+			foreach ($res4 as $val4) {
+				$res5 = arrayDB("SELECT * from moda_cats where CategoryParentID= '{$val4['CategoryID']}'");
+				if ($res5) {
+					foreach ($res5 as $val5) {
+						$res6 = arrayDB("SELECT * from moda_cats where CategoryParentID= '{$val5['CategoryID']}'");
+						if ($res6) {
+							foreach ($res6 as $val6) {
+								$final_res[] = $val6;
+							}
+						}else{
+							$final_res[] = $val5;
+						}
+					}
+				}else{
+					$final_res[] = $val4;
+				}
+			}
+		}else{
+			$final_res[] = $val3;
+		}
+	}
+
+	return($final_res);
+}
 
 return;
 $orders = arrayDB( "SELECT *
