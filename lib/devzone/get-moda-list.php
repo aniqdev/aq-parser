@@ -1,6 +1,6 @@
 <?php
 
-if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
+if (isset($_POST['action']) && $_POST['action'] === 'iterate-list') {
 	header('Content-Type: application/json');
 
 
@@ -103,44 +103,48 @@ if($_POST) return;
 <style>
 	
 </style>
-
-<h3>update cdVet Specifics</h3>
-<form id="js_go_form" class="go-form">
-    <button name="aaa" value="continue" type="button" class="js-go-btn">Continue!</button>
-    <button name="aaa" value="restart" type="button" class="js-go-btn">Restart!</button>
-</form><br><br><br>
-<span class="loading"></span>
-<h3>Состояние процесса:</h3>
-<ul id="message" class="message"><li></li></ul>
-
+	<div id="<?= js_alpha_dash(__FILE__); ?>">
+	<h3>update cdVet Specifics</h3>
+	<form id="js_go_form" class="go-form">
+	    <button name="aaa" value="continue" type="button" class="js-go-btn">Continue!</button>
+	    <button name="aaa" value="restart" type="button" class="js-go-btn">Restart!</button>
+	</form><br><br><br>
+	<span class="loading"></span>
+	<h3>Состояние процесса:</h3>
+	<ul id="message" class="message"><li></li></ul>
+</div>
 <script>
+(function() {
+var js_alpha_dash = '<?= js_alpha_dash(__FILE__); ?>'
 function it_ins_msg(msg) {
-	$( "#message li:first" ).before( "<li>"+msg+"</li>" );
-	if($('#message li').length > 100) {
-		$('#message li:last').remove();
+	$( '#'+js_alpha_dash+" #message li:first" ).before( "<li>"+msg+"</li>" );
+	if($('#'+js_alpha_dash+' #message li').length > 100) {
+		$('#'+js_alpha_dash+' #message li:last').remove();
 	}
 }
 var first_row = 0; // first row
 var row_limit = 1000; // row limit
 function send_post(offset, btn) {
 	$.post('ajax.php' + window.location.search,
-		{action:'iterate', offset:offset, btn:btn},
+		{action:'iterate-list', offset:offset, btn:btn},
 		function (data) {
 			if (!data.finish) {
 				it_ins_msg(offset + ' : <a href="'+data.itm_link+'" target="_blank">' + data.title + '</a>');
 				send_post(offset+1, 'continue');
 			}else{
-				$('.loading').removeClass('inaction');
+				$('#'+js_alpha_dash+' .loading').removeClass('inaction');
 				it_ins_msg('Done!');
 				it_ins_msg( "или что-то пошло не так" );
 			}
 		}, 'json');
 }
-$('.js-go-btn').on('click', function() {
+$('#'+js_alpha_dash+' .js-go-btn').on('click', function() {
 	$(this).attr('disabled','true');
 	var btn = $(this).val()
 	send_post(first_row, btn);
 });
+}())
+
 </script>
 
 

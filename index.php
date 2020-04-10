@@ -8,7 +8,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] == null) {
 }
 if (isset($_GET['logout'])  && $_GET['logout'] === 'true') {
 	session_destroy();
-	header("location:login.php");
+    header("Location: login.php?".$_SERVER['QUERY_STRING']); 
 	die;
 }
 require_once 'vendor/autoload.php';

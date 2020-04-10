@@ -1,14 +1,125 @@
 <?php
 
 
-$res = arrayDB('select * from moda_cats');
 
-echo '<div class="container">';
-echo "<h2>Ebay categories</h2>";
 
-draw_table_with_sql_results($res, true);
-echo "</div>";
 
+
+
+
+
+$res = Ebay_shopping2::findItemsAdvanced_moda($categoryId = '169291', $page = 1, $perPage = 100);
+
+$res = json_decode($res,1);
+
+sa($res);
+
+
+
+
+
+return;
+/**
+ * 
+ */
+class ClassName3
+{
+	
+	function __construct()
+	{
+		# code...
+	}
+
+	public function FunctionName3($value='')
+	{
+		echo "FunctionName4";
+	}
+}
+
+
+/**
+ * 
+ */
+class ClassName2 extends ClassName3
+{
+	
+	function __construct()
+	{
+		# code...
+	}
+
+	public function FunctionName2($value='')
+	{
+		echo "FunctionName2";
+	}
+}
+
+
+/**
+ * 
+ */
+class ClassName1 extends ClassName2
+{
+	
+	function __construct()
+	{
+		# code...
+	}
+
+	public function FunctionName1($value='')
+	{
+		echo "FunctionName1";
+	}
+}
+
+sa(get_class_methods('ClassName1'));
+
+
+
+
+
+
+return;
+$moda_arr = arrayDB("SELECT * FROM moda_list LIMIT 20000,20");
+
+
+$results = [];
+foreach ($moda_arr as $key => $moda) {
+	$moda_meta = get_moda_meta($moda['id'], $meta_key = false);
+
+	// sa($moda_meta);
+	$results[] = [
+		'moda_id' => $moda['id'],
+		'QuantitySold' => $moda_meta['QuantitySold'],
+		'HitCount' => $moda_meta['HitCount'],
+	];
+}
+
+sa($results);
+
+
+
+
+
+
+
+return;
+$itemId = '292910188330';
+
+$res = Ebay_shopping2::getSingleItem_moda($itemId, $as_array = 1);
+
+// echo $res['Item']['Description'];
+sa($res);
+
+// $res['Item']['Description'] = 'Description HERE!!!';
+
+foreach ($res['Item']['Variations'] as $key => $value) {
+	// sa($key);
+	// sa($value);
+}
+
+// sa($res);
+// sa($res['Item']['Variations']['VariationSpecificsSet']['NameValueList']);
 
 return;
 $orders = arrayDB( "SELECT *
@@ -28,7 +139,7 @@ foreach ($orders as $key => $order) {
 
 
 
-return
+return;
 $smarty = new Smarty();
 
 if (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") {

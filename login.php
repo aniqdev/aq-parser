@@ -46,29 +46,41 @@ body {
 	padding: 15px;
 }
 form{
-	position: absolute;
-    width: 300px;
-    margin-left: -150px;
-	top: 65%;
-	left: 50%;
-	border: 1px solid #616161;
-	background-color: rgba(9, 30, 37, 0.5);
-	padding: 10px;
-	line-height: 18px;
-	margin-top: -100px;
-	color: #fff;
-	text-shadow: 0 1px 2px #444;
-	text-align: center;
+    position: absolute;
+    width: 500px;
+    height: 230px;
+    max-width: 100%;
+    margin-left: -250px;
+    top: 50%;
+    left: 50%;
+    /* border: 1px solid #616161; */
+    /* background-color: rgba(9, 30, 37, 0.5); */
+    background-image: url('images/pitno.png');
+    background-position: center;
+    background-size: 90%;
+    background-repeat: no-repeat;
+    padding: 10px;
+    line-height: 18px;
+    margin-top: -100px;
+    color: #fff;
+    text-shadow: 0 1px 2px #444;
+    text-align: center;
+}
+.form-inner{
+	width: 300px;
+	max-width: 100%;
+	margin: 60px auto 0;
 }
 form input{
 	display: block;
-	width: 100%;
-	border: 1px solid #818181;
-	margin-bottom: 5px;
-	padding: 5px;
-	box-sizing: border-box;
-	background: #0d0a3042;
-	color: white;
+    width: 100%;
+    border: 1px solid #818181;
+    margin-bottom: 5px;
+    padding: 5px;
+    box-sizing: border-box;
+    background: #0d0a3099;
+    color: white;
+    border: none;
 }
 /* input:-webkit-autofill {
 	background-color: #240259 !important;
@@ -78,14 +90,16 @@ form input{
 /* input:-webkit-autofill { -webkit-box-shadow:200px 200px 100px white inset; box-shadow:200px 200px 100px white inset; } */
 
 form button{
-    width: 100%;
+	width: 100%;
     display: block;
     padding: 5px;
     background: black;
     border: 1px solid #818181;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%,rgba(0,0,0,0) 100%);
+    background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%,rgba(0,0,0,0) 40%,rgba(0,0,0,0) 60%, rgba(0,0,0,0.65) 100%);
     color: #fff;
     /* background: linear-gradient(to bottom, rgb(41, 66, 126) 0%,rgba(0,0,0,0) 100%); */
+    border: none;
+    cursor: pointer;
 }
 @media (max-width: 767px){
 	form{
@@ -103,10 +117,12 @@ form button{
 </head>
 <body>
 	<form method="post">
-		<!-- <h2 align="center">Authorization!</h2> -->
-		<input type="text" name="login" maxlength="100" placeholder="login">
-		<input type="password" name="password" maxlength="100" placeholder="password">
-		<button type="submit" name="submitted" value="Войти">Sign In!</button>
+		<div class="form-inner">
+			<!-- <h2 align="center">Authorization!</h2> -->
+			<input type="text" name="login" maxlength="100" placeholder="login">
+			<input type="password" name="password" maxlength="100" placeholder="password">
+			<button type="submit" name="submitted" value="Войти">Sign In!</button>
+		</div>
 	</form>
 </body>
 </html>

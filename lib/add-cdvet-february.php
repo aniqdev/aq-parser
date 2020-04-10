@@ -115,7 +115,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_xcel_info') {
 if (isset($_POST['rescan_excel'])) {
 	// $excel = readExcel('csv/eBayArtikel.xlsx');  // старый файл
 	// $excel = readExcel('csv/eBayArtikel21-02-2018.xlsx', 1); // новый файл
-	$excel = readExcel('csv/ebayartikel15-10-2018.xlsx', 0); // новый файл
+	// $excel = readExcel('csv/ebayartikel15-10-2018.xlsx', 0); // новый файл
+	$excel = readExcel('csv/ebayartikel-kategorie-hund-27-01-2020.xlsx', 0); // новый файл
 	file_put_contents('csv/eBayArtikel.json', json_encode($excel));
 	$categories = readExcel('csv/eBayArtikel.xlsx', 1); // сохранение категорий
 	file_put_contents('csv/eBayArtikel_s2.json', json_encode($categories));
@@ -213,7 +214,12 @@ $added_arr = Cdvet::get_added_shop_ids();
 $cd_arr = json_decode(file_get_contents('csv/eBayArtikel.json'), true);
 
 $categories = json_decode(file_get_contents('csv/eBayArtikel_s2.json'), true);
+
+$sorted_cats = Cdvet::cd_ebay_cat_sort($categories);
+
 // sa($categories);
+// sa($sorted_cats);
+
 ?>
 <div class="container">
 <br>
@@ -237,15 +243,18 @@ $categories = json_decode(file_get_contents('csv/eBayArtikel_s2.json'), true);
 	</tr>
 <?php
 
-$sorted_cats = Cdvet::cd_ebay_cat_sort($categories);
 
 // sa($sorted_cats);
 $ii = 0; $txt = '';
 foreach ($cd_arr as $k => $cd_item):
-	$img_arr = (isset($cdvet_feed[$cd_item['A']]))?explode('|', $cdvet_feed[$cd_item['A']][16]):[];
+	$img_arr = (isset($cdvet_feed[$cd_item['A']])) ? explode('|', $cdvet_feed[$cd_item['A']][16]) : [];
 	$cats = Cdvet::get_ebay_cat($cd_item['L'], $sorted_cats);
 	$cats_count = count($cats); 
-	 
+	
+	// if ($cd_item['A'] == '270') {
+	// 	sa($cd_item);
+	// }
+
 	if($k === 1 || !$cats_count || !$img_arr){
 		$ii++; 
 		if (!$cats_count) {
@@ -264,6 +273,9 @@ foreach ($cd_arr as $k => $cd_item):
 					************************************
 				";
 		}
+		// echo "<tr>";
+		// echo '<td>',$ii,'</td>';
+		// echo "</tr>";
 		continue;
 	}
 	echo "<tr>";

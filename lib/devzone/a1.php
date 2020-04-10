@@ -2,16 +2,37 @@
 
 
 
+require_once(ROOT.'/lib/crest-master/src/crest.php');
+
+$result = CRest::installApp();
+
+
+var_dump($result);
+
+// sa(CRest::call('scope'));
+
+return;
+sa(ROOT.'/lib/crest-master/src/crest.php');
+// put an example below
+echo '<PRE>';
+print_r(CRest::call(
+   'crm.lead.add',
+   [
+      'fields' =>[
+        'TITLE' => 'Название лида',//Заголовок*[string]
+        'NAME' => 'Имя',//Имя[string]
+        'LAST_NAME' => 'Фамилия',//Фамилия[string]
+      ]
+   ])
+);
+
+echo '</PRE>';
 
 
 
-echo 'wellcome to a1 file';
 
 
-
-
-
-return
+return;
 define('EVE_TOKEN', '1|CfDJ8HHFK/DOe6xKoNPHamc0mCUUHq0abYfs6z9pL8akS2exbcWXXwNyJnbdbxSUwJCwsGU/9jYbaS9FHHepY7rRkABeHoJwxFgJyDo/YkPNaghzINc88SzC9VzlCxRv0z2RjwTIW4P/UDLaBB5KXNhjuOcV802xJ+jglN7/yj44I5BQ');
 
 /*

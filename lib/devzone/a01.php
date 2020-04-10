@@ -2,28 +2,201 @@
 
 
 
-// $res = (new Ebay_shopping2())->GetCategories();
 
-// sa(count($res['CategoryArray']['Category']));
 
-// // return;
-// foreach ($res['CategoryArray']['Category'] as $key => $val) {
 
-// 	$val['CategoryName'] = _esc($val['CategoryName']);
 
-// 	arrayDB("INSERT IGNORE INTO moda_cats SET
-// 		CategoryID = '{$val['CategoryID']}',
-// 		CategoryLevel = '{$val['CategoryLevel']}',
-// 		CategoryName = '{$val['CategoryName']}',
-// 		CategoryParentID = '{$val['CategoryParentID']}'");
-// }
+
+$res = Ebay_shopping2::findItemsAdvanced_moda($categoryId = '169291', $page = 1, $perPage = 100);
+
+$res = json_decode($res,1);
+
+sa($res);
+
+
+return;
+$src = 'https://parser.gig-games.de/steam-images/apps-351920/header.jpg';
+
+$res = (new Ebay_shopping2)->imageUpload($src);
+
+sa($res);
+
+
+
+
+
+
+
+return;
+function ajax_b24rest()
+{
+	
+	if ($dev = true) {
+		$login = CRM_LOGIN;
+		$password = CRM_PASSWORD;
+		$domen = 'b24-1cbkwk.bitrix24.ru';
+	}else{
+		$login = 'webline24w@gmail.com';
+		$password = 'bitr62fbfcvdfbdVDbd';
+		$domen = 'rasio.bitrix24.ru';
+	}
+
+	$query = [
+		'TITLE' => 'Расчитать стоимость доставки(тест)', // сохраняем нашу метку и формируем заголовок лида
+		'LOGIN' => $login,
+		'PASSWORD' => $password,
+		'NAME' => $_POST['page'],   // сохраняем имя
+		'PHONE_WORK' => $_POST['phone'], // сохраняем телефон
+		'COMMENTS' => $_POST['baza_name'] . '(' . $_POST['baza_price'] . ') | ' . $_POST['selects_text'],
+		// 'EMAIL_WORK' => 'asd@asd.df', // сохраняем почту
+		// 'UF_CRM_1583922274191' => $_POST['selects_text'],
+		// 'UF_CRM_1584012198249[0]' => $_POST['baza_name'] . '(' . $_POST['baza_price'] . ')', // dev:UF_CRM_1584007151734 UF_CRM_1584011488714 | prod:UF_CRM_1584010025644 UF_CRM_1584010694056 UF_CRM_1584012198249
+		// 'UF_CRM_1584011530360' => $_POST['selects_text'], // dev:UF_CRM_1584007253990 UF_CRM_1584011530360 | prod:UF_CRM_1584010216506 UF_CRM_1584010712263
+		'OPPORTUNITY' => $_POST['total_sum'],
+		'CURRENCY_ID' => 'RUB',
+		'ADDRESS' => $_POST['address'],
+	];
+
+
+	$resp = post_curl('https://'.$domen.'/crm/configs/import/lead.php', $query);
+
+	$resp = str_replace("'", '"', $resp);
+
+	$resp = json_decode($resp, 1);
+
+	if ($resp['error'] == '201') {
+		$_POST['form_message'] = 'Ваша заявка принята в обработку.';
+	}else{
+		$_POST['form_message'] = 'На сайте возникли технические трудности. Свяжитесь с нами по телефону или электронной почте.';
+	}
+
+	echo json_encode($_POST);
+	die;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+return;
+	$multi_curl = new \Curl\MultiCurl();
+
+		$multi_curl->success(function($instance) {
+
+		$res = json_decode($instance->response,1);
+
+		// $res = clean_result($res);
+
+		sa($res);
+
+	});
+
+	$multi_curl->error(function($instance) {
+		global $_ERRORS;
+		$_ERRORS[] = 'THAT WAS multi_curl ERROR!!!';
+	    $_ERRORS[] = $instance->errorMessage;
+	});
+
+	// for ($offs=0; $offs < 701; $offs += 100) { 
+	// 	$url = get_google_url($word, $offs);
+	// 	$multi_curl->addGet($url);
+	// }
+
+	$url = Ebay_shopping2::findItemsAdvanced_moda_url($categoryId = '169291', $page = 1, $perPage = 100);
+
+	$multi_curl->addGet($url);
+
+	$multi_curl->start();
+
+
+
+
+function cr_ccallback($item)
+{
+	if (is_array($item) && isset($item[0]) && count($item) === 1) {
+		// var_dump($item[0]);
+		return $item[0];
+	}elseif (is_array($item)) {
+		return array_map('cr_ccallback', $item);
+		return $item;
+	}else{
+		return $item;
+	}
+}
+
+
+function clean_result($res = [])
+{
+	if(!$res) return $res;
+	$res = array_map('cr_ccallback', $res);
+	$res = array_map('cr_ccallback', $res);
+	$res = array_map('cr_ccallback', $res);
+	$res = array_map('cr_ccallback', $res);
+	$res = array_map('cr_ccallback', $res);
+	return $res;
+}
+
+
+
+
+return;
+$res = (new Ebay_shopping2())->GetCategories(['CategorySiteID' => '77']);
+
+// sa($res);
+
+sa(count($res['CategoryArray']['Category']));
+
+
+
+foreach ($res['CategoryArray']['Category'] as $key => $val) {
+
+	$val['CategoryName'] = _esc($val['CategoryName']);
+
+	arrayDB("INSERT IGNORE INTO moda_cats SET
+		CategoryID = '{$val['CategoryID']}',
+		CategoryLevel = '{$val['CategoryLevel']}',
+		CategoryName_DE = '{$val['CategoryName']}',
+		CategoryParentID = '{$val['CategoryParentID']}'");
+}
+
+
+// return;
+foreach ($res['CategoryArray']['Category'] as $key => $val) {
+
+	$val['CategoryName'] = _esc($val['CategoryName']);
+
+	arrayDB("UPDATE moda_cats SET
+		CategoryName_DE = '{$val['CategoryName']}'
+		WHERE CategoryID = '{$val['CategoryID']}'");
+}
+
+
+
+return;
+foreach ($res['CategoryArray']['Category'] as $key => $val) {
+
+	$val['CategoryName'] = _esc($val['CategoryName']);
+
+	arrayDB("INSERT IGNORE INTO moda_cats SET
+		CategoryID = '{$val['CategoryID']}',
+		CategoryLevel = '{$val['CategoryLevel']}',
+		CategoryName = '{$val['CategoryName']}',
+		CategoryParentID = '{$val['CategoryParentID']}'");
+}
 
 
 // return;
 
 // Women = 260010 
 
-$res = Ebay_shopping2::findItemsAdvanced_moda($categoryId = '169291', $page = 100, $perPage = 100);
+$res = Ebay_shopping2::findItemsAdvanced_moda($categoryId = '169291', $page = 1, $perPage = 100);
 
 $res = json_decode($res,1);
 
@@ -46,11 +219,11 @@ $res = array_map('ccallback', $res);
 $res = array_map('ccallback', $res);
 $res = array_map('ccallback', $res);
 $res = array_map('ccallback', $res);
-// $res = array_map('ccallback', $res);
+$res = array_map('ccallback', $res);
 
 sa($res['findItemsAdvancedResponse']['itemSearchURL']);
-sa($res['findItemsAdvancedResponse']['searchResult']['item'][3]);
-// sa($res);
+// sa($res['findItemsAdvancedResponse']['searchResult']['item'][3]);
+sa($res);
 
 
 

@@ -26,14 +26,14 @@ span.twitter-typeahead{
 #game_img{
     border-radius: 4px;
 }
-#pics_form img{
+.pics-form img{
 	height:34px;
 	border-radius:4px;
 	border: 1px solid #ccc;
 	width: 100%;
 	transition: .4s all linear;
 }
-#pics_form img:hover{
+.pics-form img:hover{
     height: auto;
 	position: absolute;
     z-index: 1;
@@ -47,6 +47,16 @@ span.twitter-typeahead{
 }
 .last-col button{
     margin-right: 6px;
+}
+.upload-form{
+    padding: 15px;
+    background: #343a40;
+    border: 1px solid #ccc;
+    margin: 20px 0 30px;
+    border-radius: 8px;
+}
+.upload-form .file-input{
+    color: #ccc;
 }
 </style>
 <div class="container">
@@ -133,7 +143,7 @@ span.twitter-typeahead{
 
 
 	<div class="ge-subtitle">Item pictures:</div><hr>
-	<form class="form-horizontal" id="pics_form" name="pics_form">
+	<form class="form-horizontal pics-form" id="pics_form" name="pics_form">
 		<input type="hidden" name="function" value="ge_update_pictures">
 		<div id="pics_form_inner"></div>
 		<div class="form-group">
@@ -147,6 +157,17 @@ span.twitter-typeahead{
 	    </div>
 	</form>
 
+	<form class="form-inline row" id="upload_file_form" enctype="multipart/form-data">
+		<div class="col-xs-offset-2 col-xs-10"><div class="upload-form">
+			<h4>ebay file downloader</h4>
+			<input type="hidden" name="function" value="ge_upload_file">
+		    <div class="form-group">
+		      <label for="exampleInputFile">File input</label>
+		      <input name="ge-file" type="file" id="exampleInputFile" class="file-input">
+		      <button type="submit" class="btn btn-default">Upload</button>
+		    </div>
+		</div></div>
+	</form>
 
 	<div class="ge-subtitle">Item specifics:</div><hr>
 	<form class="form-horizontal" id="specs_form" name="specs_form">
@@ -392,6 +413,27 @@ $('#pics_form_inner').on('change', '.js-pic-input', function() {
 document.all.add_new_pic.onclick = function() {
   	$('#pics_form_inner').append(get_pic_row(pics_counter++, ''));
 }
+
+// --------------- ebay file downloader -------------------
+$('#upload_file_form').on('submit', function(e) {
+	e.preventDefault()
+
+	var form = document.getElementById('upload_file_form')
+	var fd = new FormData(form)
+	var url = "/ajax-controller.php"
+
+	$.ajax({
+	  url: url,
+	  type: "POST",
+	  data: fd,
+	  processData: false,  // tell jQuery not to process the data
+	  contentType: false,   // tell jQuery not to set contentType
+	  dataType: 'json',
+	}).done(function(data) {
+	  	if(data.FullURL) $('#pics_form_inner').append(get_pic_row(pics_counter++, data.FullURL));
+	});
+});
+//-----------------------------------------------------------
 
 var max_tit_len = 80;
 document.all.title_inp.onkeyup = function() {

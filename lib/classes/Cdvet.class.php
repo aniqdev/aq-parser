@@ -330,6 +330,11 @@ class Cdvet
 
 	public static function add_buttons($k, $cats, $shop_id, &$added_arr_sorted, &$added_arr)
 	{
+		// if ($shop_id === 270) {
+		// 	sa($shop_id);
+		// 	// sa($added_arr_sorted);
+		// 	sa($cats);
+		// }
 		$btns = '';
 		foreach ($cats as $key => $cat) {
 			// пропускаем новые добавленные

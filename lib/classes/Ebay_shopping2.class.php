@@ -43,7 +43,7 @@ class Ebay_shopping2{
 				 if($request) $url .= "&keywords=".rawurlencode($request);
 				 $url .= "&paginationInput.entriesPerPage=$perPage";
 				 $url .= "&paginationInput.pageNumber=".$page;
-		//     $url .= "&sortOrder=currentPrice";
+		    	 // $url .= "&sortOrder=StartTimeNewest";
 
 
 				// Открываем файл с помощью установленных выше HTTP-заголовков
@@ -75,9 +75,13 @@ class Ebay_shopping2{
 				 // $url .= '&itemFilter(0).value(2)=73834';
 				 // $url .= '&itemFilter(1).name=LocatedIn';
 				 // $url .= '&itemFilter(1).value=European';
+				 $url .= '&itemFilter(0).name=listingType';
+				 $url .= '&itemFilter(0).value(0)=AuctionWithBIN';
+				 $url .= '&itemFilter(0).value(1)=FixedPrice';
+				 $url .= '&itemFilter(0).value(2)=StoreInventory';
 				 $url .= "&paginationInput.entriesPerPage=".$perPage;
 				 $url .= "&paginationInput.pageNumber=".$page;
-		//     $url .= "&sortOrder=currentPrice";
+		    	 // $url .= "&sortOrder=WatchCountDecreaseSort";
 
 
 				// Открываем файл с помощью установленных выше HTTP-заголовков
@@ -87,17 +91,71 @@ class Ebay_shopping2{
 		}
 
 
+		static function findItemsAdvanced_moda_url($categoryId, $page = 1, $perPage = 5){
+				 $url = "https://svcs.ebay.com/services/search/FindingService/v1";
+				 $url .= "?OPERATION-NAME=findItemsAdvanced";
+				 $url .= "&SERVICE-VERSION=1.0.0";
+				 $url .= "&SECURITY-APPNAME=Konstant-Projekt1-PRD-bae576df5-1c0eec3d";
+				 $url .= "&GLOBAL-ID=EBAY-DE";
+				 $url .= "&RESPONSE-DATA-FORMAT=JSON";
+				 $url .= "&REST-PAYLOAD";
+		  		 $url .= "&IncludeSelector=Details,Description,TextDescription,ItemSpecifics";
+				 if($categoryId) $url .= "&categoryId=".$categoryId;
+				 $url .= "&paginationInput.entriesPerPage=".$perPage;
+				 $url .= "&paginationInput.pageNumber=".$page;
+		    	 $url .= "&sortOrder=StartTimeNewest";
+
+				return $url;
+		}
+
+
 		static function getSingleItem($itemId, $as_array = 0){
 				$url = 'http://open.api.ebay.com/shopping';
 				$url .= '?callname=GetSingleItem';
 				$url .= '&responseencoding=JSON';
-				$url .= '&appid='.EBAY_API_KEY;
+				$url .= '&appid='.EBAY_API_KEY_2;
 		 		$url .= '&siteid=77';
 				$url .= '&version=1079';
 				$url .= '&ItemID='.$itemId;
-				$url .= '&IncludeSelector=Details,ItemSpecifics';
-		//  $url .= '&IncludeSelector=Details,Description';
-		//  $url .= '&IncludeSelector=Details,TextDescription';
+				// $url .= '&IncludeSelector=Details,TextDescription';
+				$url .= '&IncludeSelector=Details,ItemSpecifics,Description,Variations';
+				// $url .= '&IncludeSelector=Details,TextDescription';
+
+				// Открываем файл с помощью установленных выше HTTP-заголовков
+				$json = file_get_contents($url);
+				if($as_array) return json_decode($json, true);
+				return $json;
+		}
+
+		static function getSingleItem_moda($itemId, $as_array = 0){
+				$url = 'http://open.api.ebay.com/shopping';
+				$url .= '?callname=GetSingleItem';
+				$url .= '&responseencoding=JSON';
+				$url .= '&appid='.EBAY_API_KEY_2;
+		 		$url .= '&siteid=77';
+				$url .= '&version=1079';
+				$url .= '&ItemID='.$itemId;
+				// $url .= '&IncludeSelector=Details,TextDescription'; // or Description
+				$url .= '&IncludeSelector=Details,ItemSpecifics,TextDescription,Variations';
+				// $url .= '&IncludeSelector=Details,TextDescription';
+
+				// Открываем файл с помощью установленных выше HTTP-заголовков
+				$json = file_get_contents($url);
+				if($as_array) return json_decode($json, true);
+				return $json;
+		}
+
+		static function getSingleItem_test($itemId, $as_array = 0){
+				$url = 'http://open.api.ebay.com/shopping';
+				$url .= '?callname=GetSingleItem';
+				$url .= '&responseencoding=JSON';
+				$url .= '&appid='.EBAY_API_KEY_2;
+		 		$url .= '&siteid=77';
+				$url .= '&version=1079';
+				$url .= '&ItemID='.$itemId;
+				$url .= '&IncludeSelector=Details,TextDescription';
+				// $url .= '&IncludeSelector=Details,ItemSpecifics,Description,Variations';
+				// $url .= '&IncludeSelector=Details,TextDescription';
 
 				// Открываем файл с помощью установленных выше HTTP-заголовков
 				$json = file_get_contents($url);
@@ -980,14 +1038,18 @@ class Ebay_shopping2{
 	}
 
 
-	public function GetCategories()
+	public function GetCategories($opts = [])
 	{
+		$opts = array_merge([
+			'CategorySiteID' => '0'
+		], $opts);
+
 		$post = '<?xml version="1.0" encoding="utf-8"?>
 				<GetCategoriesRequest xmlns="urn:ebay:apis:eBLBaseComponents">
 				  <RequesterCredentials>
 				    <eBayAuthToken>'.EBAY_GIG_TOKEN.'</eBayAuthToken>
 				  </RequesterCredentials>
-				  <CategorySiteID>0</CategorySiteID>
+				  <CategorySiteID>'.$opts['CategorySiteID'].'</CategorySiteID>
 				  <DetailLevel>ReturnAll</DetailLevel>
 				  <LevelLimit>8</LevelLimit>
 				  <ViewAllNodes>true</ViewAllNodes>
@@ -995,7 +1057,7 @@ class Ebay_shopping2{
 
 		$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
 		"X-EBAY-API-CALL-NAME: GetCategories",
-		"X-EBAY-API-SITEID: 0",
+		"X-EBAY-API-SITEID: ".$opts['CategorySiteID'],
 		"Content-Type: text/xml");
 
 		$result_xml = $this->request($this->api_url, $post, $headers);
@@ -1019,6 +1081,28 @@ class Ebay_shopping2{
 
 		$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
 		"X-EBAY-API-CALL-NAME: GetMyMessages",
+		"X-EBAY-API-SITEID: 0",
+		"Content-Type: text/xml");
+
+		$result_xml = $this->request($this->api_url, $post, $headers);
+		return json_decode(json_encode(simplexml_load_string($result_xml)), true);
+	}
+
+
+	public function imageUpload($src)
+	{
+		$post = '<?xml version="1.0" encoding="utf-8"?>
+				<UploadSiteHostedPicturesRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+				  <RequesterCredentials>
+				    <eBayAuthToken>'.EBAY_CDVET_TOKEN.'</eBayAuthToken>
+				  </RequesterCredentials>
+				  <WarningLevel>High</WarningLevel>
+				  <ExternalPictureURL>'.$src.'</ExternalPictureURL>
+				  <PictureName>Developer Page Banner</PictureName>
+				</UploadSiteHostedPicturesRequest>';
+
+		$headers = array("X-EBAY-API-COMPATIBILITY-LEVEL: 967",
+		"X-EBAY-API-CALL-NAME: UploadSiteHostedPictures",
 		"X-EBAY-API-SITEID: 0",
 		"Content-Type: text/xml");
 

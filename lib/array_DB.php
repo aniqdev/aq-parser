@@ -36,32 +36,28 @@ function aqSqlite($query,$multiquery = false){
 
 function aqMysqli($query, $multiquery = false){
 
-		if(!$query) return DB::getInstance();
-		if ($multiquery){
+	if(!$query) return DB::getInstance();
+	if ($multiquery){
 
-				$mysqli = new mysqli(db_HOST, db_USER, db_PASS, db_NAME);
+		$mysqli = new mysqli(db_HOST, db_USER, db_PASS, db_NAME);
 
-				if ($mysqli->connect_errno) die ($mysqli->connect_error);
+		if ($mysqli->connect_errno) die ($mysqli->connect_error);
 
-				$mysqli->set_charset( "utf8" );
-				
-				$res = $mysqli->multi_query($query);
+		$mysqli->set_charset( "utf8" );
+		
+		$res = $mysqli->multi_query($query);
 
-				$mysqli->close();
+		$mysqli->close();
 
-				return $res;
+		return $res;
 
+	}else{
+		if (stripos($query, 'select') === 0 || stripos($query, 'show') === 0 || stripos($query, 'describe') === 0) {
+				return DB::getInstance()->get_results($query);
 		}else{
-
-				if (stripos($query, 'select') === 0 || stripos($query, 'show') === 0 || stripos($query, 'describe') === 0) {
-						return DB::getInstance()->get_results($query);
-				}else{
-						return DB::getInstance()->query($query);
-				}
-				
-
+				return DB::getInstance()->query($query);
 		}
-
+	}
 }
 
 
@@ -74,6 +70,11 @@ function arrayDB($query = '', $multiquery = false){
 				echo "data base aq_error!";
 		}
 } // arrayDB
+
+function arraDB($query = '', $multiquery = false) // arraDB === arrayDB
+{
+	return arrayDB($query, $multiquery);
+}
 
 function _esc($str){
 		return DB::getInstance()->escape($str);
@@ -462,6 +463,20 @@ function sa($array = [], $save = false){
 	echo "<pre>";
 	print_r($array);
 	echo "</pre>";
+}
+function xa($array = [], $save = false){
+	if ($save) return '<pre>' . print_r($array, true) . '</pre>';
+	echo "<pre>";
+	var_export($array);
+	echo "</pre>";
+}
+function _sa_($array = [], $save = false, $pre_wrap = true){
+	$ret = '';
+	if($pre_wrap) $ret .= '<pre>';
+	$ret .= str_replace(["Array\n(","\n)"], '', print_r($array,1));
+	if($pre_wrap) $ret .= '</pre>';
+	if ($save) return $ret;
+	echo $ret;
 }
 
 
@@ -2503,6 +2518,7 @@ function draw_table_with_sql_results($res, $first_row_thead = false)
 			}
 			echo '</tr>';
 		}
+		echo '</table>';
 	}else{
 		print_r($res);
 	}
@@ -4069,9 +4085,87 @@ function ajax_hot_do_woocommerce_api_request()
 
 function _esc_attr($str)
 {
-	 htmlspecialchars($str, ENT_QUOTES);
+	 return htmlspecialchars($str, ENT_QUOTES);
 }
 
 
+function get_moda_meta($moda_id, $meta_key = false)
+{
+	if ($meta_key !== false) {
+		$meta_key = _esc($meta_key);
+		$res = arrayDB("SELECT * FROM moda_list_meta WHERE moda_id = '$moda_id' AND meta_key = '$meta_key' LIMIT 1");
+		return $res ? $res[0]['meta_value'] : '';
+	}else{
+		$res = arrayDB("SELECT * FROM moda_list_meta WHERE moda_id = '$moda_id'");
+		$ret = [];
+		foreach ($res as $val) {
+			$ret[$val['meta_key']] = $val['meta_value'];
+		}
+		return $ret;
+	}
+}
 
 
+function set_moda_meta($moda_id, $key_value_list = [])
+{
+	if(!$moda_id || !$key_value_list) return 0;
+	$meta_key_list = [];
+	$insert_list = [];
+	$moda_id = (int)$moda_id;
+	foreach ($key_value_list as $meta_key => $meta_value) {
+		$meta_key = _esc($meta_key);
+		$meta_value = _esc($meta_value);
+		$meta_key_list[] = "meta_key = '$meta_key'";
+		$insert_list[] = "('$moda_id','".$meta_key . "','" . $meta_value . "')";
+	}
+	$meta_key_list = implode(' OR ', $meta_key_list);
+	arrayDB("DELETE FROM moda_list_meta WHERE moda_id = '$moda_id' AND ($meta_key_list)");
+
+	$insert_list = implode(',', $insert_list);
+	arrayDB("INSERT INTO moda_list_meta (moda_id, meta_key, meta_value)	VALUES $insert_list");
+
+	return arrayDB()->affected();
+}
+
+
+function get_ebay_pic_url_by_hash($hash='')
+{
+	if($hash) return 'https://i.ebayimg.com/images/g/'.$hash.'/s-l200.jpg';
+}
+
+
+function ge_upload_file()
+{
+	global $_ERRORS;
+	$src = 0; $FullURL = 0; $res = 0;
+	if (isset($_FILES['ge-file']) && $_FILES['ge-file']['error'] == 0) {
+		$dir = '/game-editor-files/';
+		$name = basename($_FILES['ge-file']['name']);
+
+		if (move_uploaded_file($_FILES['ge-file']['tmp_name'], ROOT.$dir.$name)) {
+	    	
+			$src = "https://parser.gig-games.de$dir$name";
+
+			if(!defined('DEV_MODE')) $res = (new Ebay_shopping2)->imageUpload($src);
+			if (isset($res['SiteHostedPictureDetails']['FullURL'])) {
+				$FullURL = $res['SiteHostedPictureDetails']['FullURL'];
+			}
+		}
+	}
+	echo json_encode([
+		'$_POST'=>$_POST, 
+		'$_FILES'=>$_FILES,
+		'src' => $src,
+		'FullURL' => $FullURL,
+		'$res' => $res,
+		'ERRORS' => $_ERRORS,
+	]);
+}
+
+
+function js_alpha_dash($_file_)
+{
+	$str = basename($_file_);
+	$str = str_replace(['-','.php'], ['_',''], $str);
+	return 'js_'.$str;
+}
