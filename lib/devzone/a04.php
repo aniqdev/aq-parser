@@ -1,5 +1,24 @@
-<?php
+<?php ini_get('safe_mode') or set_time_limit(1300);
 
+
+
+
+
+
+    $items = arrayDB("SELECT * from moda_list where flag = 'dataparsed1' and ListingType = ''");
+
+    foreach ($items as $moda) {
+        $moda_id = $moda['id'];
+        $ListingType = get_moda_meta($moda_id, $meta_key = 'ListingType');
+        $ListingType = _esc($ListingType);
+        arrayDB("UPDATE moda_list SET ListingType = '$ListingType' where id = $moda_id");
+    }
+
+sa(count($items));
+
+
+
+return;
 define('CRM_HOST', 'b24-1cbkwk.bitrix24.ru'); // Домен срм системы
 define('CRM_PORT', '443'); 
 define('CRM_PATH', '/crm/configs/import/lead.php'); 

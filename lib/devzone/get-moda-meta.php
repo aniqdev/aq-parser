@@ -94,9 +94,11 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate-meta') {
 		'VariationsPics' => json_encode($resp['Item']['Variations']['Pictures']),
 	]);
 
+	$ListingType = _esc($resp['Item']['ListingType']);
 
+	arrayDB("UPDATE $table SET $extra_field = '$extra_field_mark',
+								ListingType = '$ListingType' WHERE id = '$moda_id'");
 
-	arrayDB("UPDATE $table SET $extra_field = '$extra_field_mark' WHERE id = '{$res[0]['id']}'");
 
 	//=============================================================================
 
