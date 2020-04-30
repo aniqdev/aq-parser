@@ -103,15 +103,15 @@ if($_POST) return;
 <style>
 	
 </style>
-	<div id="<?= js_alpha_dash(__FILE__); ?>">
-	<h3>update cdVet Specifics</h3>
+<div id="<?= js_alpha_dash(__FILE__); ?>">
+	<h3><?= script_title(__FILE__); ?></h3>
 	<form id="js_go_form" class="go-form">
 	    <button name="aaa" value="continue" type="button" class="js-go-btn">Continue!</button>
 	    <button name="aaa" value="restart" type="button" class="js-go-btn">Restart!</button>
 	</form><br><br><br>
 	<span class="loading"></span>
 	<h3>Состояние процесса:</h3>
-	<ul id="message" class="message"><li></li></ul>
+	<ul id="message" class="message list-unstyled"><li></li></ul>
 </div>
 <script>
 (function() {

@@ -3,8 +3,62 @@
 
 
 
+$a = [0=>2,1=>3,2=>4];
+
+$b = [2=>'7',7=>'8',8=>'9'];
+
+$a =  array_merge($a, $b);
+
+sa($a);
 
 
+
+
+return;
+$items = arrayDB("SELECT *, UNIX_TIMESTAMP(endTime) as timest from moda_list where flag = 'dataparsed1' order by id desc limit 300");
+?>
+<style>
+fg,fb{
+    height: 10px;
+    width: 10px;
+    display: inline-block;
+    background: lightgreen;
+}
+fb{
+    background: lightcoral;
+}
+</style>
+<div class="container"><br><br>
+    <table class="table">
+    <?php
+    foreach ($items as $key => $item) {
+        $mark = $item['timest'] > time() ? '<fg></fg>' : '<fb></fb>';
+        echo "<tr>";
+        echo "<td>{$item['itemId']}</td>";
+        echo "<td><a href='https://www.ebay.de/itm/{$item['itemId']}' target='_blank'>{$item['title']}</a></td>";
+        echo "<td>{$item['ListingType']}</td>";
+        echo "<td>{$item['endTime']}</td>";
+        echo "<td>{$mark}</td>";
+        echo "</tr>";
+    }
+    ?>
+    </table>
+</div>
+<?php
+
+
+return;
+    
+    $resp = Ebay_shopping2::getSingleItem_moda($itemId = '382532184636', $as_array = 1);
+
+    var_dump($itemId);
+    
+    sa($resp);
+
+
+
+
+return;
     $items = arrayDB("SELECT * from moda_list where flag = 'dataparsed1' and ListingType = ''");
 
     foreach ($items as $moda) {

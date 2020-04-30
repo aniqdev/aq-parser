@@ -4,10 +4,70 @@
 
 
 
+sa(microtime());
+sa(microtime(1));
 
 
 
 
+
+return;
+$payload = [
+  "user_id" => "123",
+];
+
+$token = jwt_token_get_lite($payload);
+
+sa($token);
+
+$check = jwt_token_check_lite($token);
+
+var_dump($check);
+
+$data = jwt_token_data_lite($token);
+
+xa($data);
+
+$json = base64url_decode('eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ');
+
+sa(json_decode($json));
+
+
+
+
+$header = json_encode([
+  "alg" => "HS256",
+  "typ" => "JWT"
+]);
+$input1 = base64url_encode($header);
+
+$input2 = base64url_encode(json_encode([
+  "sub" => "1234567890",
+  "name" => "John Doe",
+  "iat" => 1516239022
+])); // JSON_PRETTY_PRINT
+
+$secret = 'hello';
+
+$sign = hash_hmac('sha256', $input1.'.'.$input2, $secret, true);
+
+$sign = base64url_encode($sign);
+
+$token = $input1.'.'.$input2.'.'.$sign;
+
+$res64 = hash_hmac('sha256', $input1.'.'.$input2, base64url_encode($secret));
+// $res64 = base64url_encode($res64);
+
+sa($token);
+sa($header);
+sa($input1);
+sa($input2);
+sa($sign);
+sa($res64);
+sa(base64url_encode($res64));
+
+
+return;
 $res = Ebay_shopping2::findItemsAdvanced_moda($categoryId = '169291', $page = 1, $perPage = 100);
 
 $res = json_decode($res,1);

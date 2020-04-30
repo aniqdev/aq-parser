@@ -58,7 +58,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate-meta') {
 
 	$moda_id = $res[0]['id'];
 
-	set_moda_meta($moda_id, $key_value_list = [
+	set_moda_meta($moda_id, @$key_value_list = [
 		'ListingType' => $resp['Item']['ListingType'],
 		'ListingStatus' => $resp['Item']['ListingStatus'],
 		'GalleryURL' => $resp['Item']['GalleryURL'],
@@ -94,10 +94,16 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate-meta') {
 		'VariationsPics' => json_encode($resp['Item']['Variations']['Pictures']),
 	]);
 
-	$ListingType = _esc($resp['Item']['ListingType']);
+	$resp['Item']['ListingType'] = _esc($resp['Item']['ListingType']);
+	$resp['Item']['Title'] = _esc($resp['Item']['Title']);
 
 	arrayDB("UPDATE $table SET $extra_field = '$extra_field_mark',
-								ListingType = '$ListingType' WHERE id = '$moda_id'");
+								ListingType = '{$resp['Item']['ListingType']}',
+								title = '{$resp['Item']['Title']}',
+								currentPrice = '{$resp['Item']['CurrentPrice']['Value']}',
+								startTime = '{$resp['Item']['StartTime']}',
+								endTime = '{$resp['Item']['EndTime']}'
+						 WHERE id = '$moda_id'");
 
 
 	//=============================================================================
@@ -113,6 +119,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate-meta') {
 		'resp' => $resp,
 		'key_value_list' => $key_value_list,
 		'itm_link' => 'https://www.ebay.de/itm/'.$itemId,
+		'progress' => get_moda_meta_progress(),
 		'ERRORS' => $_ERRORS,
 	]);
 }
@@ -126,7 +133,7 @@ if($_POST) return;
 	
 </style>
 
-<div class="" id="<?= js_alpha_dash(__FILE__); ?>">
+<div id="<?= js_alpha_dash(__FILE__); ?>">
     <h3><?= script_title(__FILE__); ?></h3>
 	<form id="js_go_form" class="go-form">
 	    <button name="aaa" value="continue" type="button" class="js-go-btn"><i class="glyphicon glyphicon-play"></i> Continue!</button>
@@ -134,8 +141,8 @@ if($_POST) return;
 	    <button name="aaa" value="pause" type="button" class="js-go-btn js-pause-btn"><i class="glyphicon glyphicon-pause"></i> Pause!</button>
 	</form><br><br><br>
 	<span class="loading"></span>
-	<h3>Состояние процесса:</h3>
-	<ul id="message" class="message"><li></li></ul>
+	<h3>Состояние процесса: <span id="gmm_progress"></span></h3>
+	<ul id="message" class="message list-unstyled"><li></li></ul>
 </div>
 
 <script>
@@ -147,13 +154,13 @@ function it_ins_msg(msg) {
 		$('#'+js_alpha_dash+' #message li:last').remove();
 	}
 }
-var first_row = 0; // first row
-var row_limit = 1000; // row limit
+
 var pause = false
 function send_post(offset, btn) {
 	$.post('ajax.php' + window.location.search,
 		{action:'iterate-meta', offset:offset, btn:btn},
 		function (data) {
+			if(data.progress) $('#gmm_progress').html(data.progress);
 			if (data.keep_going !== 1 || pause) {
 				$('#'+js_alpha_dash+' .js-pause-btn').attr('disabled', false);
 				$('#'+js_alpha_dash+' .loading').removeClass('inaction');
@@ -174,7 +181,7 @@ $('#'+js_alpha_dash+' .js-go-btn').on('click', function() {
 		pause = true
 		return false
 	}
-	send_post(first_row, btn);
+	send_post(0, btn);
 });
 }())
 </script>
@@ -240,28 +247,3 @@ $('#'+js_alpha_dash+' .js-go-btn').on('click', function() {
 <?php
 
 
-
-function gmp_get_picture_hashes($pic_url_arr)
-{
-	$pic_hashes = [];
-	if ($pic_url_arr) {
-		foreach ($pic_url_arr as $pic_url) {
-			if (preg_match('#/[^s]/(.+)/#', $pic_url, $matches)) {
-				$pic_hashes[] = $matches[1];
-			}
-		}
-	}
-	return implode(',', $pic_hashes);
-}
-
-function gmp_remove_Ruck($ItemSpecifics)
-{
-	if(is_array($ItemSpecifics) && isset($ItemSpecifics[0])) {
-		return array_values(array_filter($ItemSpecifics, function($value)
-		{
-			return (stripos($value['Name'], 'Rück') === false) ? true : false;
-		}));
-	}else{
-		return $ItemSpecifics;
-	}
-}

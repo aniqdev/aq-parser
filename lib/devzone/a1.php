@@ -1,7 +1,15 @@
 <?php
 
 
+$ebay_id = '253201320285';
 
+$resp = Cdvet::changeQuantity($ebay_id, $Quantity = 3);
+
+sa($resp);
+
+
+
+return;
 require_once(ROOT.'/lib/crest-master/src/crest.php');
 
 $result = CRest::installApp();

@@ -1546,7 +1546,7 @@ $('#tpl_save').on('click', function() {
 
 
 // ====== вывод количества непрочитанных сообщений =====
-if (location.host !== 'parser') {
+if (false && location.host !== 'parser') { // false && (отключено)
 	$.post('ajax.php?action=ebay-messages&show=not_answerd',
 		{action:'new_msg_count'},
 		function(data) {

@@ -78,6 +78,8 @@
             <li><a href="/a.php?action=cdvet-feed-report">Feed report</a></li>
             <li><a href="?action=cdvet-categories">Categories</a></li>
             <li><a href="?action=cdvet-filter-log">Filter log</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="?action=update-cdvet-quantity">update quantity</a></li>
           </ul>
         </li>
 
@@ -106,6 +108,13 @@
             <li role="separator" class="divider"></li>
             <li><a href="?action=slist">get List</a></li>
             <li><a href="?action=slistshow">show&nbsp;List</a></li>
+          </ul>
+        </li>
+
+        <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Moda<i class="caret"></i></a>
+          <ul class="dropdown-menu">
+            <li><a href="?action=get-moda">get&nbsp;Moda</a></li>
+            <li><a href="?action=moda-statistic">moda-statistic</a></li>
           </ul>
         </li>
 

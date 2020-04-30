@@ -468,6 +468,30 @@ class Cdvet
 	}
 
 
+	public static function changeQuantity($item_id, $Quantity = 2)
+	{
+
+		$xml = '<?xml version="1.0" encoding="utf-8"?>
+		<ReviseItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+			<RequesterCredentials>
+				<eBayAuthToken>'.EBAY_CDVET_TOKEN.'</eBayAuthToken>
+			</RequesterCredentials>
+			<Item ComplexType="ItemType">
+				<ItemID>'.$item_id.'</ItemID>
+				<Quantity>'.$Quantity.'</Quantity>
+			</Item>
+			<MessageID>1</MessageID>
+			<WarningLevel>High</WarningLevel>
+			<Version>837</Version>
+		</ReviseItemRequest>​';
+
+
+		$headers = self::getHeaders('ReviseItem');
+		$result = self::request(self::$api_url, $xml, $headers);
+		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
+
+
 	public static function changePostalCode($item_id, $postal_code)
 	{
 

@@ -3,10 +3,29 @@
 
 
 
+function get_moda_meta_progress()
+{
+	$progress_data = arrayDB("SELECT flag,count(*) FROM moda_list  group by flag");
+
+	$progress_data = array_column($progress_data, 'count(*)', 'flag');
+
+	$total = $progress_data[''] + $progress_data['dataparsed1'] + $progress_data['skipped'];
+
+	$done_perc = ($progress_data['dataparsed1']+$progress_data['skipped'])/$total*100;
+sa($done_perc);
+	$done_perc = round($done_perc, 1);
+sa($done_perc);
+
+	$progress_html = "[ {$progress_data['dataparsed1']} / {$total} ] ( {$done_perc}% )";
+
+	return $progress_html;
+}
+
+sa(get_moda_meta_progress());
 
 
 
-
+return;
 $res = Ebay_shopping2::findItemsAdvanced_moda($categoryId = '169291', $page = 1, $perPage = 100);
 
 $res = json_decode($res,1);

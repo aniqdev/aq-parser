@@ -1939,6 +1939,7 @@ function get_suitables2_Woo($product_id = ''){
 
 function draw_unread()
 {
+	return; // отключено за ненадобнсотью
 return '<div href="?action=ebay-messages&show=not_answerd" class="all-msg-count-badge">
             <a href="?action=ebay-messages&show=not_answerd" class="js-ebay-count" title="ebay messages">.</a> /
             <a href="?action=hood-messages&show=not_answerd" class="js-hood-count" title="hood messages">.</a>
@@ -4168,4 +4169,119 @@ function js_alpha_dash($_file_)
 	$str = basename($_file_);
 	$str = str_replace(['-','.php'], ['_',''], $str);
 	return 'js_'.$str;
+}
+
+
+function base64url_encode($data) {
+  return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+}
+
+function base64url_decode($data) {
+  return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT));
+}
+
+function jwt_token_get($payload = [], $secret = 'hello')
+{
+	$header = json_encode(["alg" => "HS256", "typ" => "JWT"]);
+
+	$header = base64url_encode($header);
+
+	$payload = json_encode($payload);
+
+	$payload = base64url_encode($payload);
+
+	$sign = hash_hmac('sha256', $header.'.'.$payload, $secret, true);
+
+	$sign = base64url_encode($sign);
+
+	return $header.'.'.$payload.'.'.$sign; // $token
+}
+
+function jwt_token_get_lite($payload = [], $secret = 'hello')
+{
+	$payload = json_encode($payload);
+
+	$payload = base64url_encode($payload);
+
+	$sign = hash_hmac('sha256', $payload, $secret, true);
+
+	$sign = base64url_encode($sign);
+
+	return $payload.'.'.$sign; // $token
+}
+
+function jwt_token_check_lite($token = '', $secret = 'hello')
+{
+	if (!$token) return false;
+
+	$arr = @explode('.', $token);
+
+	if(!@$arr[0] || !@$arr[1]) return false;
+
+	$payload = @$arr[0];
+
+	$sign = @$arr[1];
+
+	$real_sign = hash_hmac('sha256', $payload, $secret, true);
+
+	$real_sign = base64url_encode($real_sign);
+
+	return $real_sign === $sign;
+}
+
+function jwt_token_data_lite($token = '')
+{
+	if (!$token) return false;
+
+	$arr = @explode('.', $token);
+
+	if(!@$arr[0] || !@$arr[1]) return false;
+
+	$payload = @$arr[0];
+
+	$payload = base64url_decode($payload);
+
+	return json_decode($payload, true);
+}
+
+
+function gmp_get_picture_hashes($pic_url_arr)
+{
+	$pic_hashes = [];
+	if ($pic_url_arr) {
+		foreach ($pic_url_arr as $pic_url) {
+			if (preg_match('#/[^s]/(.+)/#', $pic_url, $matches)) {
+				$pic_hashes[] = $matches[1];
+			}
+		}
+	}
+	return implode(',', $pic_hashes);
+}
+
+function gmp_remove_Ruck($ItemSpecifics)
+{
+	if(is_array($ItemSpecifics) && isset($ItemSpecifics[0])) {
+		return array_values(array_filter($ItemSpecifics, function($value)
+		{
+			return (stripos($value['Name'], 'Rück') === false) ? true : false;
+		}));
+	}else{
+		return $ItemSpecifics;
+	}
+}
+
+
+function get_moda_meta_progress()
+{
+	$progress_data = arrayDB("SELECT flag,count(*) FROM moda_list  group by flag");
+
+	$progress_data = array_column($progress_data, 'count(*)', 'flag');
+
+	$total = $progress_data[''] + $progress_data['dataparsed1'] + $progress_data['skipped'];
+
+	$done_perc = round(($progress_data['dataparsed1']+$progress_data['skipped'])/$total*100, 1);
+
+	$progress_html = "[ {$progress_data['dataparsed1']} / {$total} ] ( {$done_perc}% )";
+
+	return $progress_html;
 }

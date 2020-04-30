@@ -58,6 +58,43 @@
     cursor: pointer;
     position: absolute;
 }
+.col-resizer-wrapper{
+	/* outline: 1px solid aqua; */
+    /* width: 90%; */
+    margin: auto;
+    height: 45px;
+    position: relative;
+    top: 60px;
+}
+.col-resizer{
+    width: 12px;
+    height: 40px;
+    background: #333642;
+    cursor: pointer;
+    position: absolute;
+    left: calc(50% - 6px);
+    z-index: 3;
+    cursor: col-resize;
+    /* transform: translateX(-50%) */
+}
+.col-resizer::before{
+	content: '';
+    width: 2px;
+    height: 35px;
+    position: absolute;
+    left: 3px;
+    top: 3px;
+    background: #000;
+}
+.col-resizer::after{
+	content: '';
+	width: 2px;
+	height: 35px;
+	position: absolute;
+	right: 3px;
+    top: 3px;
+    background: #000;
+}
 </style>
 
 <div class="container">
@@ -85,11 +122,34 @@
 			<input id="input4" class="inp" type="text"><br><br>
 		</div>
 	</div>
+	
+	<br><br><br>
+	<div class="row">
+		<div id="col_resizer_wrapper" class="col-resizer-wrapper">
+			<div id="col_resizer" draggable="true" class="col-resizer"></div>
+		</div>
+		<div class="col-xs-6" id="col_1">
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Debitis blanditiis ipsam, rerum labore asperiores maiores itaque voluptate alias Lorem ipsum dolor sit amet, consectetur adipisicing elit. Unde similique est a, vel perspiciatis deserunt obcaecati eos accusamus doloribus eveniet fugit consequuntur dignissimos quam ex, explicabo eaque reiciendis in ipsa.dicta veniam laudantium perspiciatis quos, accusamus, ex doloremque sapiente dolore obcaecati, quia.</p>
+		</div>
+		<div class="col-xs-6" id="col_2">
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Debitis blanditiis ipsam, rerum labore asperiores maiores itaque voluptate alias dicta veniam laudantium perspiciatis quos, accusamus, Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias totam veniam placeat, distinctio illum nobis nisi omnis reprehenderit eum tempore consequuntur voluptates natus fugit, quo, iusto consectetur. Labore, sit ipsam.Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus vero tempore quibusdam neque possimus, placeat ullam, impedit expedita quis adipisci magni, veniam reprehenderit ipsam, a culpa. Enim dolores tempora reiciendis? ex doloremque sapiente dolore obcaecati, quia.</p>
+		</div>
+	</div>
 </div>
 
 <script>
 !function(w, d) {
 	
+	var col_1 = get_element('col_1')
+	var col_2 = get_element('col_2')
+	function col_resize_callback(perc_x) {
+		col_1.style.width = perc_x+'%'
+		col_2.style.width = (100 - perc_x)+'%'
+	}
+	var col_resizer = get_element('col_resizer')
+	var col_resizer_wrapper = get_element('col_resizer_wrapper')
+	aqs_drag_and_drop(col_resizer, col_resizer_wrapper, col_resize_callback)
+
     var cork = d.createElement('div')
     function get_element(id) {
       return d.getElementById(id) || cork;
@@ -117,6 +177,7 @@
 	var srangeX = square.clientWidth - circle.clientWidth
 	var bottom_scrollbar_callback = function(perc_x, perc_y) {
 		circle.style.left = perc_x*srangeX/100 + 'px'
+		// col_resize(perc_x)
 	}
 	aqs_drag_and_drop(bottom_scroll, bottom_scrollbar, bottom_scrollbar_callback)
 
