@@ -1,20 +1,23 @@
-<?php
+<?php ini_get('safe_mode') or set_time_limit(120);
 
-$num = isset($_GET['num']) ? (int)$_GET['num'] : 20;
+$num = isset($_GET['num']) ? (int)$_GET['num'] : 50;
 
 $file = ROOT.'/lib/adds/cron-moda-update-status.txt';
 
 $status = file_get_contents($file);
 
+
 if ($status !== 'in-progress') {
+	$start_time = time();
 	file_put_contents($file, 'in-progress');
 	for ($i=0; $i < $num; $i++) { 
 		gmp_update_oldest_record_report();
+		if((time() - $start_time) > 50) break;
 	}
 	file_put_contents($file, 'in-peace');
 }
 
-
+sa(@$i+1);
 
 
 
@@ -24,44 +27,62 @@ function gmp_update_oldest_record_report()
 	global $_ERRORS;
 
 	$data = [
-		'moda_id' => $moda_id,
-		'update_query' => $update_query,
-		'res' => $res[0],
-		'resp' => $resp,
-		'key_value_list' => $key_value_list,
-		'cron_status' => $cron_status,
-		'endTime' => $resp['Item']['EndTime'],
+		'res' => '',
+		'resp' => '',
+		'update_query' => '',
+		'key_value_list' => '',
+		'cron_status' => '',
 	];
 
 	$time_start = microtime(1);
 
 	$data = gmp_update_oldest_record($data);
 
-	$post_resp = post_curl('https://modetoday.de/moda-sync.php', [
-		'act' => 'update',
-		'moda_id' => $res['res']['id'],
-	]);
-
-	$data['post_resp'] = $post_resp;
+	// what an option?
+	$action = 'not';
+	$report = 'not';
+	if ($data['cron_status'] === 'good' && $data['res']['post_id']) {
+		$action = 'update';
+		$is_done = gmp_make_post_request($action, $data['res']['id']);
+		if($is_done) $report = 'updated';
+	}
+	if ($data['cron_status'] === 'good' && !$data['res']['post_id']) {
+		$action = 'insert';
+		$is_done = gmp_make_post_request($action, $data['res']['id']);
+		if($is_done) $report = 'inserted';
+	}
+	if ($data['cron_status'] === 'remove' && $data['res']['post_id']) {
+		$action = 'delete';
+		$is_done = gmp_make_post_request($action, $data['res']['id']);
+		if($is_done){
+			arrayDB("DELETE FROM moda_list WHERE id = '{$data['moda_id']}';");
+			$report = 'deleted';
+		}
+	}
+	if ($data['cron_status'] === 'remove' && !$data['res']['post_id']) {
+		arrayDB("DELETE FROM moda_list WHERE id = '{$data['moda_id']}'");
+		$action = 'no-id';
+		$report = 'no-id';
+	}
 
 	if(isset($_GET['dump'])) sa($data);
 
-	$ack = $res['resp']['Ack'];
+	$ack = $data['resp']['Ack'];
 
-	$time_spent = round(microtime(1) - $time_start, 3);
-
-	if ($ack === 'Failure') $errors = _esc(json_encode(array_merge($_ERRORS, $res['resp']['Errors'])));
+	if ($ack === 'Failure') $errors = _esc(json_encode(array_merge($_ERRORS, $data['resp']['Errors'])));
 	else $errors = _esc(json_encode($_ERRORS));
 
-	$endTime = @$res['endTime'] ? $res['endTime'] : 0;
-	$cron_status = @$res['cron_status'] ? $res['cron_status'] : 'failure';
+	$endTime = @$data['resp']['Item']['EndTime'] ? $data['resp']['Item']['EndTime'] : 0;
 
 	arrayDB("INSERT INTO moda_cron_update SET
+							moda_id = '{$data['moda_id']}',
 							Ack = '$ack',
-							endTime = '{$endTime}',
+							endTime = '$endTime',
 							errors = '$errors',
-							time_spent = '$time_spent',
-							cron_status = '$cron_status',
+							action = '$action',
+							report = '$report',
+							time_spent = '".round(microtime(1) - $time_start, 3)."',
+							cron_status = '{$data['cron_status']}',
 							created_at = NOW()
 				");
 }
@@ -74,60 +95,39 @@ function gmp_update_oldest_record($data)
 	global $_ERRORS;
 
 	if(!$res = arrayDB("SELECT * from moda_list order by updated_at limit 1")) return;
-	
-	$itemId = $res[0]['itemId'];
+	$data['res'] = $res[0];
 
-	$resp = Ebay_shopping2::getSingleItem_moda($itemId, $as_array = 1);
-	unset($resp['ReturnPolicy']);
+	$resp = Ebay_shopping2::getSingleItem_moda($res[0]['itemId'], $as_array = 1);
+	unset($resp['Item']['ReturnPolicy']);
+	$data['resp'] = $resp;
+	unset($data['resp']['Item']['ItemSpecifics']);
+	unset($data['resp']['Item']['BusinessSellerDetails']);
+	unset($data['resp']['Item']['Variations']);
+	unset($data['resp']['Item']['ExcludeShipToLocation']);
 
 	$extra_field = 'flag';
 	$extra_field_mark = 'dataparsed1';
 
-
-	// =========== cron_status ===========
-	$old_cron_status = $res[0]['cron_status'];
-	$cron_status = 'good';
-	if ($old_cron_status === 'failure') {
-		$cron_status = 'remove';
-	}else{	
-		if (isset($resp['Ack']) && $resp['Ack'] !== 'Success') {
-			$cron_status = 'failure';
-		}else{
-			$end_time_stamp = date_timestamp_get(date_create($resp['Item']['EndTime']));
-			$now = time();
-			if ($end_time_stamp > $now) {
-				$cron_status = 'good';
-			}
-			if ($end_time_stamp > 1 && $end_time_stamp < $now) {
-				$cron_status = 'expired';
-			}
-			if ($end_time_stamp > 1 && $end_time_stamp < ($now - 60*60*24)) {
-				$cron_status = 'remove';
-			}
-		}
-	}
-
 	$moda_id = $res[0]['id'];
+	$data['moda_id'] = $moda_id;
 
-	// =========== /cron_status ===========
+	// =========== cron_status ========================
+	$cron_status = gmp_get_cron_status($res, $resp);
+	$data['cron_status'] = $cron_status;
+
 	if ($resp['Ack'] !== 'Success' || !isset($resp['Item']['ItemID'])) {
 		arrayDB("UPDATE moda_list SET $extra_field = 'skipped',
-								cron_status = '$cron_status',
+								cron_status = 'failure',
 								updated_at = NOW()
 					 WHERE id = '$moda_id'");
-
-		return ([
-			'res' => $res[0],
-			'resp' => $resp,
-			'cron_status' => 'failure',
-			'ERRORS' => $_ERRORS,
-		]);
+		return $data;
 	}
 
-	// =============== update moda data ==========================================
-	$key_value_list = save_moda_meta($moda_id, $resp);
+	// =============== update moda data =============================
+	$key_value_list = gmp_save_moda_meta($moda_id, $resp);
 	
 	unset($key_value_list['Description']);
+	$data['key_value_list'] = $key_value_list;
 
 	$resp['Item']['ListingType'] = _esc($resp['Item']['ListingType']);
 	$resp['Item']['Title'] = _esc($resp['Item']['Title']);
@@ -142,22 +142,9 @@ function gmp_update_oldest_record($data)
 								updated_at = NOW()
 						 WHERE id = '$moda_id'";
 	arrayDB($update_query);
-
-
-	//=============================================================================
+	$data['update_query'] = $update_query;
 
 	return $data;
-
-	return ([
-		'moda_id' => $moda_id,
-		'update_query' => $update_query,
-		'res' => $res[0],
-		'resp' => $resp,
-		'key_value_list' => $key_value_list,
-		'cron_status' => $cron_status,
-		'endTime' => $resp['Item']['EndTime'],
-		'ERRORS' => $_ERRORS,
-	]);
 }
 
 
@@ -172,6 +159,20 @@ function gmp_update_oldest_record($data)
 
 
 
+function gmp_make_post_request($action, $moda_id)
+{
+	if(defined('DEV_MODE')) $post_uri = 'http://koeln-webstudio.loc/moda-sync.php';
+	else $post_uri = 'https://modetoday.de/moda-sync.php?wpok';
+
+	$post_resp = post_curl($post_uri, [
+		'action' => $action,
+		'moda_id' => $moda_id,
+	]);
+
+	sa($post_resp);
+
+	return $post_resp['func_res'];
+}
 
 
 
@@ -179,8 +180,36 @@ function gmp_update_oldest_record($data)
 
 
 
+function gmp_get_cron_status(&$res, &$resp)
+{
+	$cron_status = 'good';
+	if ($res[0]['cron_status'] === 'failure') { // old_cron_status
+		$cron_status = 'remove';
+	}else{	
+		if (@$resp['Ack'] !== 'Success') {
+			$cron_status = 'failure';
+			if ($resp['Errors'][0]['ShortMessage'] === 'Invalid item ID.') {
+				$cron_status = 'remove';
+			}
+		}else{
+			$end_time_stamp = date_timestamp_get(date_create($resp['Item']['EndTime']));
+			$now = time();
+			if ($end_time_stamp > 1 && $end_time_stamp < $now) {
+				$cron_status = 'expired';
+			}
+			if ($end_time_stamp > 1 && $end_time_stamp < ($now - 60*60*24)) {
+				$cron_status = 'remove';
+			}
+		}
+	}
+	return $cron_status;
+}
 
-function save_moda_meta($moda_id, &$resp)
+
+
+
+
+function gmp_save_moda_meta($moda_id, &$resp)
 {
 	
 	set_moda_meta($moda_id, @$key_value_list = [
