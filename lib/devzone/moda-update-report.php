@@ -4,7 +4,7 @@ $moda_list_count = arrayDB("SELECT count(*) FROM moda_list")[0]['count(*)'];
 $modatoday_count = arrayDB("SELECT count(*) FROM moda_list WHERE post_id <> ''")[0]['count(*)'];
 
 
-$speed_res = arrayDB("SELECT date_format(created_at, '%H:00') as daten, count(*) as count FROM `moda_cron_update` where created_at > (now() - interval  1 day)  group by hour(created_at)");
+$speed_res = arrayDB("SELECT date_format(created_at, '%H:00') as daten, count(*) as count FROM `moda_cron_update` where created_at > (now() - interval  1 day)  group by hour(created_at) order by id");
 
 $arr = [    ['updates per hour', 'updates per hour']    ];
 
@@ -16,18 +16,18 @@ $curve_chart_json = _esc_attr(json_encode($arr));
 
 
 
-$pie_chart_res = arrayDB("SELECT cron_status, count(*) as count FROM moda_cron_update where created_at > (now() - interval  1 day)  group by cron_status");
+$pie_chart_res = arrayDB("SELECT report, count(*) as count FROM moda_cron_update where created_at > (now() - interval  1 day)  group by report");
 
-$pie_arr = [    ['cron status', 'count']    ];
+$pie_arr = [    ['action', 'count']    ];
 
 foreach ($pie_chart_res as $val) {
-  $pie_arr[] = [$val['cron_status'], (int)$val['count']];
+  $pie_arr[] = [$val['report'], (int)$val['count']];
 }
 
 $pie_chart_json = _esc_attr(json_encode($pie_arr));
 
 $last_res = arrayDB("SELECT `id`,  `moda_id`,  `Ack`,  `endTime`,  `time_spent`,  `cron_status`,  `action`,  `report`,  LEFT(`errors`, 50),  `created_at` FROM `moda_cron_update` order by id desc limit 100");
-$last_res = array_reverse($last_res);
+// $last_res = array_reverse($last_res);
 ?>
 <div id="curve_chart_json" json="<?= $curve_chart_json; ?>"></div>
 <div id="pie_chart_json" json="<?= $pie_chart_json; ?>"></div>
@@ -42,18 +42,9 @@ $last_res = array_reverse($last_res);
     var data = google.visualization.arrayToDataTable(JSON.parse(jsonStr));
     var options = {
       title: 'Update speed',
-      curveType: 'function',
+      curveType: 'function', // none,function
       legend: { position: 'bottom' },
-      trendlines: {
-        0: {
-          type: 'linear',
-          color: 'green',
-          lineWidth: 3,
-          opacity: 0.3,
-          showR2: true,
-          visibleInLegend: true
-        }
-      }
+      pointSize: 5,
     };
 
     var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
@@ -83,9 +74,10 @@ $last_res = array_reverse($last_res);
 </script>
 
 <div class="container">
+  <h3>Data for the last 24 hours</h3>
   <div>
     товаров в базе парсера: <?= $moda_list_count; ?>
-    товаров в базе парсера: <?= $modatoday_count; ?>
+    товаров в базе modatoday: <?= $modatoday_count; ?>
   </div><hr>
   <div class="row">
     <div class="col-sm-2" style="height: 300px; overflow-y: auto;">
@@ -112,6 +104,7 @@ $last_res = array_reverse($last_res);
     }
   </style>
   <div class="last100table">
+    <h4>Last 100 records(descending):</h4>
     <?php draw_table_with_sql_results($last_res, 1); ?>
   </div>
 </div>

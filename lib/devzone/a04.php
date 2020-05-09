@@ -3,6 +3,43 @@
 
 
 
+$offsets = get_steam_offsets_new();
+
+sa($offsets);
+
+
+
+
+return;
+$options = array('http' => array('method' => "GET", 'header' => "Accept-language: en-US\r\n" . "Cookie: Steam_Language=".get_language_by_table('steam_de')."; mature_content=1; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
+$context = stream_context_create($options);
+$link = 'http://store.steampowered.com/app/502410/';
+
+$game_item = aqs_file_get_html($link, false, $context);
+
+if ($title = $game_item->find('.apphub_AppName',0)) { // для app|dls
+    $title = $title->innertext;
+
+    $desc = $game_item->find('#game_area_description', 0);
+    $desc = ($desc) ? $desc->innertext : '';
+    $desc = strip_tags($desc, '<br><br/><br /><p><h2><strong><b><i><ul><li>');
+
+}
+
+sa($title);
+
+
+
+return;
+    if(defined('DEV_MODE')) $post_uri = 'http://koeln-webstudio.loc/moda-sync.php';
+    else $post_uri = 'https://modetoday.de/moda-sync.php?wpok';
+
+    $post_resp = post_curl($post_uri, [
+        'action' => 'update',
+        'moda_id' => 7304,
+    ]);
+
+    sa($post_resp);
 
 return;
 $a = [0=>2,1=>3,2=>4];

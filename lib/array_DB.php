@@ -2989,6 +2989,26 @@ function get_steam_offsets($steam_table = false)
 }
 
 
+function get_steam_offsets_new()
+{
+	$tables = ['steam_de','steam_en','steam_fr','steam_es','steam_it','steam_ru'];
+
+	$offsets = [];
+
+	foreach ($tables as $table) {
+		$res = arrayDB("SELECT count(*) from 
+					(SELECT * FROM slist WHERE  scan = (select scan from slist order by id desc limit 1)) f
+						where id < (
+							select id from (
+										SELECT * FROM slist WHERE  scan = (select scan from slist order by id desc limit 1) 
+								  ) s where link = (select link from $table order by updated_at desc limit 1)
+						)");
+		$offsets[$table] = $res ? $res[0]['count(*)'] : 0;
+	}
+	return $offsets;
+}
+
+
 function steam_images_count($app_id, $app_sub)
 {
 	$checker = file_get_contents('http://parser.gig-games.de/steam-images-checker.php?app_id='.$app_id.'&app_sub='.$app_sub);

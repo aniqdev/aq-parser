@@ -2,7 +2,8 @@
 // header('Content-Type: application/json');
 require_once 'vendor/autoload.php';
 require_once 'lib/PHPExcel.php';
-require_once 'lib/simple_html_dom.php';
+// require_once 'lib/simple_html_dom.php';
+require_once 'lib/shd/simple_html_dom.php';
 require_once 'lib/array_DB.php';
 // define('ROOT', __DIR__);
 

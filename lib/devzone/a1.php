@@ -1,11 +1,10 @@
 <?php
 
 
-$ebay_id = '253201320285';
+$speed_res = arrayDB("SELECT id,date_format(created_at, '%H:00') as daten, count(*) as count FROM `moda_cron_update` where created_at > (now() - interval  1 day)  group by hour(created_at) order by id");
 
-$resp = Cdvet::changeQuantity($ebay_id, $Quantity = 3);
+sa($speed_res);
 
-sa($resp);
 
 
 
