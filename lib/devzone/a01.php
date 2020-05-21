@@ -3,23 +3,68 @@
 
 
 
-function get_moda_meta_progress()
-{
-	$progress_data = arrayDB("SELECT flag,count(*) FROM moda_list  group by flag");
 
-	$progress_data = array_column($progress_data, 'count(*)', 'flag');
 
-	$total = $progress_data[''] + $progress_data['dataparsed1'] + $progress_data['skipped'];
+$media = [
+	['type'=>'photo', 'media'=>'https://ireland.apollo.olxcdn.com/v1/files/sqvcip3x3xry1-UA/image;s=644x461','parse_mode' => 'HTML','caption' => 'Довготривала оренда 1-к квартири у новобудові
+<b>8 500 грн.</b>'],
+	['type'=>'photo', 'media'=>'https://ireland.apollo.olxcdn.com:443/v1/files/php94jg1lmg21-UA/image;s=1000x700']
+];
 
-	$done_perc = ($progress_data['dataparsed1']+$progress_data['skipped'])/$total*100;
-sa($done_perc);
-	$done_perc = round($done_perc, 1);
-sa($done_perc);
+$media = json_encode($media);
 
-	$progress_html = "[ {$progress_data['dataparsed1']} / {$total} ] ( {$done_perc}% )";
+var_dump($media);
 
-	return $progress_html;
-}
+$res = AqsBot::setChatId('-1001287057345')->sendMediaGroup([
+	'media' => $media,
+// 	'parse_mode' => 'HTML',
+// 	'caption' => 'Довготривала оренда 1-к квартири у новобудові
+// <b>8 500 грн.</b>'
+]);
+
+sa($res);
+
+$res = json_decode($res);
+
+sa($res);
+
+
+return;
+
+
+$photo = ['https://ireland.apollo.olxcdn.com/v1/files/sqvcip3x3xry1-UA/image;s=644x461','https://ireland.apollo.olxcdn.com:443/v1/files/php94jg1lmg21-UA/image;s=1000x700'];
+
+$res = AqsBot::setChatId('-1001287057345')->sendPhoto([
+	'photo' => $photo,
+	'parse_mode' => 'HTML',
+	'caption' => 'Довготривала оренда 1-к квартири у новобудові
+<b>8 500 грн.</b>'
+]);
+
+sa($res);
+
+$res = json_decode($res);
+
+sa($res);
+
+
+return;
+
+$text = 'Все будет хорошо!!!!!';
+
+$res = AqsBot::setChatId('-1001287057345')->sendMessage($text);
+
+sa($res);
+
+$res = json_decode($res);
+
+sa($res);
+
+
+
+
+return;
+
 
 sa(get_moda_meta_progress());
 

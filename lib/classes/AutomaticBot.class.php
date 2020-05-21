@@ -16,6 +16,7 @@ class AutomaticBot
 	private static $api_url = 'https://api.telegram.org/bot';
 	//чат по умолчанию для вызова статических методов
 	private static $chat_id = '278472749';
+    private static $inst = null;
 
 	//чат по умолчанию для вызова методов объекта
 	// 278472749 => gig-automatic
@@ -29,6 +30,12 @@ class AutomaticBot
 	public static function setChatId($chat_id = '278472749')
 	{
 		self::$chat_id = $chat_id;
+
+		if( self::$inst == null )
+        {
+            self::$inst = new AutomaticBot();
+        }
+        return self::$inst;
 	}
 
 

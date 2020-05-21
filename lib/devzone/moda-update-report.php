@@ -27,6 +27,8 @@ foreach ($pie_chart_res as $val) {
 $pie_chart_json = _esc_attr(json_encode($pie_arr));
 
 $last_res = arrayDB("SELECT `id`,  `moda_id`,  `Ack`,  `endTime`,  `time_spent`,  `cron_status`,  `action`,  `report`,  LEFT(`errors`, 50),  `created_at` FROM `moda_cron_update` order by id desc limit 100");
+
+$time_dif = mur_time_dif($last_res[0]['created_at']);
 // $last_res = array_reverse($last_res);
 ?>
 <div id="curve_chart_json" json="<?= $curve_chart_json; ?>"></div>
@@ -78,6 +80,8 @@ $last_res = arrayDB("SELECT `id`,  `moda_id`,  `Ack`,  `endTime`,  `time_spent`,
   <div>
     товаров в базе парсера: <?= $moda_list_count; ?>
     товаров в базе modatoday: <?= $modatoday_count; ?>
+    <br>
+    Last update was <b><?= $time_dif; ?></b> ago
   </div><hr>
   <div class="row">
     <div class="col-sm-2" style="height: 300px; overflow-y: auto;">
@@ -110,3 +114,38 @@ $last_res = arrayDB("SELECT `id`,  `moda_id`,  `Ack`,  `endTime`,  `time_spent`,
 </div>
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+
+
+function mur_time_dif($date_str)
+{
+    $last_update = date_create($date_str)->getTimestamp();
+
+    $secs = time() - $last_update;
+// sa($secs);
+    if(defined('DEV_MODE')) $secs = $secs + 60*60; // что-то с часовым поясом
+
+    return gmdate("H:i:s", $secs);
+}

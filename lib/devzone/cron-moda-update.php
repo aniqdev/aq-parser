@@ -39,8 +39,8 @@ function gmp_update_oldest_record_report()
 	$data = gmp_update_oldest_record($data);
 
 	// what an option?
-	$action = 'not';
-	$report = 'not';
+	$action = 'error';
+	$report = 'error';
 	if ($data['cron_status'] === 'good' && $data['res']['post_id']) {
 		$action = 'update';
 		$is_done = gmp_make_post_request($action, $data['res']['id']);
@@ -63,6 +63,10 @@ function gmp_update_oldest_record_report()
 		arrayDB("DELETE FROM moda_list WHERE id = '{$data['moda_id']}'");
 		$action = 'no-id';
 		$report = 'no-id';
+	}
+	if ($data['cron_status'] === 'expired') {
+		$action = 'expired';
+		$report = 'expired';
 	}
 
 	if(isset($_GET['dump'])) sa($data);
@@ -135,7 +139,7 @@ function gmp_update_oldest_record($data)
 	$update_query = "UPDATE moda_list SET $extra_field = '$extra_field_mark',
 								ListingType = '{$resp['Item']['ListingType']}',
 								title = '{$resp['Item']['Title']}',
-								currentPrice = '{$resp['Item']['CurrentPrice']['Value']}',
+								currentPrice = '{$resp['Item']['ConvertedCurrentPrice']['Value']}',
 								startTime = '{$resp['Item']['StartTime']}',
 								endTime = '{$resp['Item']['EndTime']}',
 								cron_status = '$cron_status',
@@ -183,7 +187,7 @@ function gmp_make_post_request($action, $moda_id)
 function gmp_get_cron_status(&$res, &$resp)
 {
 	$cron_status = 'good';
-	if ($res[0]['cron_status'] === 'failure') { // old_cron_status
+	if ($res[0]['cron_status'] === 'failure' || $res[0]['globalId'] !== 'EBAY-DE') { // old_cron_status
 		$cron_status = 'remove';
 	}else{	
 		if (@$resp['Ack'] !== 'Success') {

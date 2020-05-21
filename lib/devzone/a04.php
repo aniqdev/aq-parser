@@ -3,11 +3,32 @@
 
 
 
-$offsets = get_steam_offsets_new();
 
-sa($offsets);
+$resp = Ebay_shopping2::getSingleItem_moda('372919657615', $as_array = 1);
+
+sa($resp);
+
+return;
+$moda_id = 18769;
+
+gmp_make_post_request('update', $moda_id);
 
 
+
+function gmp_make_post_request($action, $moda_id)
+{
+    if(defined('DEV_MODE')) $post_uri = 'http://koeln-webstudio.loc/moda-sync.php';
+    else $post_uri = 'https://modetoday.de/moda-sync.php?wpok';
+
+    $post_resp = post_curl($post_uri, [
+        'action' => $action,
+        'moda_id' => $moda_id,
+    ]);
+
+    sa($post_resp);
+
+    return $post_resp['func_res'];
+}
 
 
 return;
