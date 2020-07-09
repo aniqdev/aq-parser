@@ -6,11 +6,11 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate-list') {
 
 
 	if ($_POST['btn'] === 'restart') {
-		arrayDB("UPDATE moda_cats SET page = 0, done = 0, err = '' where type = 'women'");
+		arrayDB("UPDATE moda_cats SET page = 0, done = 0, err = '' where type = 'hund'");
 	}
 
 
-	$cats = arrayDB("SELECT * from moda_cats where type = 'women' AND done = 0 LIMIT 1");
+	$cats = arrayDB("SELECT * from moda_cats where type = 'hund' AND done = 0 LIMIT 1");
 
 	if (!$cats) {
 		echo json_encode([
@@ -65,12 +65,12 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate-list') {
 						endTime = '{$item['listingInfo']['endTime']}',
 						updated_at = now() - interval 5 day";
 
-			$check = arrayDB("SELECT id FROM moda_list WHERE itemId = '$item[itemId]' LIMIT 1");
+			$check = arrayDB("SELECT id FROM hund_list WHERE itemId = '$item[itemId]' LIMIT 1");
 			if ($check) {
-				$sql_query = "UPDATE moda_list SET $set_list WHERE itemId = '$item[itemId]'";
+				$sql_query = "UPDATE hund_list SET $set_list WHERE itemId = '$item[itemId]'";
 				$updated += 1;
 			}else{
-				$sql_query = "INSERT INTO moda_list SET $set_list";
+				$sql_query = "INSERT INTO hund_list SET $set_list";
 				$inserted += 1;
 			}
 			arrayDB($sql_query);

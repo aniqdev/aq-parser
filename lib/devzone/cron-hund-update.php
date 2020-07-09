@@ -1,27 +1,19 @@
 <?php ini_get('safe_mode') or set_time_limit(120);
 
-if (true) {
-	include __DIR__.'/cron-hund-update.php';
-	return;
-}
-
-
 $num = isset($_GET['num']) ? (int)$_GET['num'] : 50;
-
 
 $start_time = time();
 for ($i=0; $i < $num; $i++) { 
-	cmu_update_oldest_record_report();
+	gmp_update_oldest_record_report();
 	if((time() - $start_time) > 50) break;
 }
-
 
 sa(@$i+1);
 
 
 
 
-function cmu_update_oldest_record_report()
+function gmp_update_oldest_record_report()
 {
 	global $_ERRORS;
 
@@ -35,33 +27,33 @@ function cmu_update_oldest_record_report()
 
 	$time_start = microtime(1);
 
-	$data = cmu_update_oldest_record($data);
+	$data = gmp_update_oldest_record($data);
 
 	// what an option?
 	$action = 'error';
 	$report = 'error';
 	if ($data['cron_status'] === 'good' && $data['res']['post_id']) {
 		$action = 'update';
-		$is_done = cmu_make_post_request($action, $data['res']['id']);
+		$is_done = gmp_make_post_request($action, $data['res']['id']);
 		if($is_done) $report = 'updated';
 	}
 	if ($data['cron_status'] === 'good' && !$data['res']['post_id']) {
 		$action = 'insert';
-		$is_done = cmu_make_post_request($action, $data['res']['id']);
+		$is_done = gmp_make_post_request($action, $data['res']['id']);
 		if($is_done) $report = 'inserted';
 	}
 	if ($data['cron_status'] === 'remove' && $data['res']['post_id']) {
 		$action = 'delete';
-		$is_done = cmu_make_post_request($action, $data['res']['id']);
+		$is_done = gmp_make_post_request($action, $data['res']['id']);
 		if($is_done){
-			arrayDB("DELETE FROM moda_list WHERE id = '{$data['moda_id']}';");
-			arrayDB("DELETE FROM moda_list_meta WHERE moda_id = '{$data['moda_id']}'");
+			arrayDB("DELETE FROM hund_list WHERE id = '{$data['hund_id']}';");
+			arrayDB("DELETE FROM hund_list_meta WHERE hund_id = '{$data['hund_id']}'");
 			$report = 'deleted';
 		}
 	}
 	if ($data['cron_status'] === 'remove' && !$data['res']['post_id']) {
-		arrayDB("DELETE FROM moda_list WHERE id = '{$data['moda_id']}'");
-		arrayDB("DELETE FROM moda_list_meta WHERE moda_id = '{$data['moda_id']}'");
+		arrayDB("DELETE FROM hund_list WHERE id = '{$data['hund_id']}'");
+		arrayDB("DELETE FROM hund_list_meta WHERE hund_id = '{$data['hund_id']}'");
 		$action = 'no-id';
 		$report = 'no-id';
 	}
@@ -80,8 +72,8 @@ function cmu_update_oldest_record_report()
 	$endTime = @$data['resp']['Item']['EndTime'] ? $data['resp']['Item']['EndTime'] : 0;
 	$comment = _esc($data['comment']);
 
-	arrayDB("INSERT INTO moda_cron_update SET
-							moda_id = '{$data['moda_id']}',
+	arrayDB("INSERT INTO hund_cron_update SET
+							hund_id = '{$data['hund_id']}',
 							Ack = '$ack',
 							endTime = '$endTime',
 							errors = '$errors',
@@ -97,11 +89,11 @@ function cmu_update_oldest_record_report()
 
 
 
-function cmu_update_oldest_record($data)
+function gmp_update_oldest_record($data)
 {
 	global $_ERRORS;
 
-	if(!$res = arrayDB("SELECT * from moda_list order by updated_at limit 1")) return;
+	if(!$res = arrayDB("SELECT * from hund_list order by updated_at limit 1")) return;
 	$data['res'] = $res[0];
 
 	$resp = Ebay_shopping2::getSingleItem_moda($res[0]['itemId'], $as_array = 1);
@@ -115,23 +107,23 @@ function cmu_update_oldest_record($data)
 	$extra_field = 'flag';
 	$extra_field_mark = 'dataparsed1';
 
-	$moda_id = $res[0]['id'];
-	$data['moda_id'] = $moda_id;
+	$hund_id = $res[0]['id'];
+	$data['hund_id'] = $hund_id;
 
 	// =========== cron_status ========================
-	$cron_status = cmu_get_cron_status($data, $res, $resp);
+	$cron_status = gmp_get_cron_status($data, $res, $resp);
 	$data['cron_status'] = $cron_status;
 
 	if ($resp['Ack'] !== 'Success' || !isset($resp['Item']['ItemID'])) {
-		arrayDB("UPDATE moda_list SET $extra_field = 'skipped',
+		arrayDB("UPDATE hund_list SET $extra_field = 'skipped',
 								cron_status = 'failure',
 								updated_at = NOW()
-					 WHERE id = '$moda_id'");
+					 WHERE id = '$hund_id'");
 		return $data;
 	}
 
-	// =============== update moda data =============================
-	$key_value_list = cmu_save_moda_meta($moda_id, $resp);
+	// =============== update hund data =============================
+	$key_value_list = gmp_save_hund_meta($hund_id, $resp);
 	
 	unset($key_value_list['Description']);
 	$data['key_value_list'] = $key_value_list;
@@ -139,7 +131,7 @@ function cmu_update_oldest_record($data)
 	$resp['Item']['ListingType'] = _esc($resp['Item']['ListingType']);
 	$resp['Item']['Title'] = _esc($resp['Item']['Title']);
 
-	$update_query = "UPDATE moda_list SET $extra_field = '$extra_field_mark',
+	$update_query = "UPDATE hund_list SET $extra_field = '$extra_field_mark',
 								ListingType = '{$resp['Item']['ListingType']}',
 								title = '{$resp['Item']['Title']}',
 								currentPrice = '{$resp['Item']['ConvertedCurrentPrice']['Value']}',
@@ -147,7 +139,7 @@ function cmu_update_oldest_record($data)
 								endTime = '{$resp['Item']['EndTime']}',
 								cron_status = '$cron_status',
 								updated_at = NOW()
-						 WHERE id = '$moda_id'";
+						 WHERE id = '$hund_id'";
 	arrayDB($update_query);
 	$data['update_query'] = $update_query;
 
@@ -166,19 +158,21 @@ function cmu_update_oldest_record($data)
 
 
 
-function cmu_make_post_request($action, $moda_id)
+function gmp_make_post_request($action, $hund_id)
 {
 	if(defined('DEV_MODE')) $post_uri = 'http://koeln-webstudio.loc/moda-sync.php';
 	else $post_uri = 'https://modetoday.de/moda-sync.php?wpok';
 
-	$post_resp = post_curl($post_uri, [
-		'action' => $action,
-		'moda_id' => $moda_id,
-	]);
+	// $post_resp = post_curl($post_uri, [
+	// 	'action' => $action,
+	// 	'hund_id' => $hund_id,
+	// ]);
 
-	sa($post_resp);
+	// sa($post_resp);
 
-	return $post_resp['func_res'];
+	// return $post_resp['func_res'];
+
+	return 1;
 }
 
 
@@ -187,7 +181,7 @@ function cmu_make_post_request($action, $moda_id)
 
 
 
-function cmu_get_cron_status(&$data, &$res, &$resp)
+function gmp_get_cron_status(&$data, &$res, &$resp)
 {
 	$cron_status = 'good'; $comment = '';
 
@@ -236,10 +230,10 @@ function cmu_get_cron_status(&$data, &$res, &$resp)
 
 
 
-function cmu_save_moda_meta($moda_id, &$resp)
+function gmp_save_hund_meta($hund_id, &$resp)
 {
 	
-	set_moda_meta($moda_id, @$key_value_list = [
+	set_hund_meta($hund_id, @$key_value_list = [
 		'ListingType' => $resp['Item']['ListingType'],
 		'ListingStatus' => $resp['Item']['ListingStatus'],
 		'GalleryURL' => $resp['Item']['GalleryURL'],

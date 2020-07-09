@@ -1,10 +1,10 @@
 <?php
 
-$moda_list_count = arrayDB("SELECT count(*) FROM moda_list")[0]['count(*)'];
-$modatoday_count = arrayDB("SELECT count(*) FROM moda_list WHERE post_id <> ''")[0]['count(*)'];
+$hund_list_count = arrayDB("SELECT count(*) FROM hund_list")[0]['count(*)'];
+$modatoday_count = arrayDB("SELECT count(*) FROM hund_list WHERE post_id <> ''")[0]['count(*)'];
 
 
-$speed_res = arrayDB("SELECT date_format(created_at, '%H:00') as daten, count(*) as count FROM `moda_cron_update` where created_at > (now() - interval  1 day)  group by hour(created_at) order by id");
+$speed_res = arrayDB("SELECT date_format(created_at, '%H:00') as daten, count(*) as count FROM `hund_cron_update` where created_at > (now() - interval  1 day)  group by hour(created_at) order by id");
 
 $arr = [    ['updates per hour', 'updates per hour']    ];
 
@@ -16,7 +16,7 @@ $curve_chart_json = _esc_attr(json_encode($arr));
 
 
 
-$pie_chart_res = arrayDB("SELECT report, count(*) as count FROM moda_cron_update where created_at > (now() - interval  1 day)  group by report");
+$pie_chart_res = arrayDB("SELECT report, count(*) as count FROM hund_cron_update where created_at > (now() - interval  1 day)  group by report");
 
 $pie_arr = [    ['action', 'count']    ];
 
@@ -26,7 +26,7 @@ foreach ($pie_chart_res as $val) {
 
 $pie_chart_json = _esc_attr(json_encode($pie_arr));
 
-$last_res = arrayDB("SELECT `id`,  `moda_id`,  `Ack`,  `endTime`,  `time_spent`,  `cron_status`,  `action`,  `report`,  `comment`,  LEFT(`errors`, 50) as errors,  `created_at` FROM `moda_cron_update` order by id desc limit 100");
+$last_res = arrayDB("SELECT `id`,  `hund_id`,  `Ack`,  `endTime`,  `time_spent`,  `cron_status`,  `action`,  `report`,  `comment`,  LEFT(`errors`, 50) as errors,  `created_at` FROM `hund_cron_update` order by id desc limit 100");
 
 $time_dif = mur_time_dif($last_res[0]['created_at']);
 // $last_res = array_reverse($last_res);
@@ -78,7 +78,7 @@ $time_dif = mur_time_dif($last_res[0]['created_at']);
 <div class="container" style="width: 1400px;">
   <h3>Data for the last 24 hours</h3>
   <div>
-    товаров в базе парсера: <?= $moda_list_count; ?>
+    товаров в базе парсера: <?= $hund_list_count; ?>
     товаров в базе modatoday: <?= $modatoday_count; ?>
     <br>
     Last update was <b><?= $time_dif; ?></b> ago

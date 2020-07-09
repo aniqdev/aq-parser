@@ -4,8 +4,64 @@
 
 
 
-$resp = Ebay_shopping2::getSingleItem_moda('372919657615', $as_array = 1);
 
+sa($_SESSION['asd']);
+
+
+
+
+return;
+draw_cats_recursion($CategoryParentID, 'CategoryName_DE');
+
+
+function draw_cats_recursion($CategoryParentID, $cat_name_field = 'CategoryName')
+{
+    $res = arrayDB("SELECT * from moda_cats where CategoryParentID= '$CategoryParentID'");
+    if ($res) {
+        echo "<ul>";
+        foreach ($res as $val) {
+            if($val['CategoryID'] === '20749') echo "<li><mark title='".$val['CategoryID']."'>".$val[$cat_name_field].'</mark>';
+            else echo "<li><span title='".$val['CategoryID']."'>".$val[$cat_name_field];
+            if($val['CategoryID'] != $val['CategoryParentID']) draw_cats_recursion($val['CategoryID']);
+            echo "</li>";
+        }
+        echo "</ul>";
+    }
+}
+
+
+
+
+return;
+    if(defined('DEV_MODE')) $post_uri = 'http://koeln-webstudio.loc/moda-sync.php';
+    else $post_uri = 'https://modetoday.de/moda-sync.php?wpok';
+
+    $post_resp = post_curl($post_uri, [
+        'action' => 'update',
+        'moda_id' => '9790',
+    ]);
+
+    sa($post_resp);
+
+
+
+
+return;
+$res = Ebay_shopping2::findItemsAdvanced_moda($categoryId = '169291', $page = 100);
+
+$res = json_decode($res,1);
+
+
+    $res = gml_clean_result($res);
+sa($res);
+
+
+return;
+$resp = Ebay_shopping2::getSingleItem_moda('264696880829', $as_array = 1);
+
+unset($resp['Item']['ItemSpecifics']);
+
+sa($resp['Item']['QuantitySold']);
 sa($resp);
 
 return;

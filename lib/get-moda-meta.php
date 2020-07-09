@@ -16,17 +16,15 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate-meta') {
 
 	$offset = (int)$_POST['offset'];
 
-	$table = 'moda_list';
-
 	$extra_field = 'flag';
 	$extra_field_mark = 'dataparsed1';
 
 	$where = "WHERE $extra_field = ''";
 	// $where = '';
 
-	$count = arrayDB("SELECT count(*) FROM $table $where")[0]['count(*)'];
+	$count = arrayDB("SELECT count(*) FROM moda_list $where")[0]['count(*)'];
 
-	$res = arrayDB("SELECT * FROM $table $where LIMIT $offset , 1");
+	$res = arrayDB("SELECT * FROM moda_list $where LIMIT $offset , 1");
 	//=============================================================================
 	// sript below
 
@@ -52,7 +50,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate-meta') {
 			'$resp' => $resp,
 			'ERRORS' => $_ERRORS,
 		]);
-		arrayDB("UPDATE $table SET $extra_field = 'skipped' WHERE id = '{$res[0]['id']}'");
+		arrayDB("UPDATE moda_list SET $extra_field = 'skipped' WHERE id = '{$res[0]['id']}'");
 		return;
 	}
 
@@ -97,7 +95,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate-meta') {
 	$resp['Item']['ListingType'] = _esc($resp['Item']['ListingType']);
 	$resp['Item']['Title'] = _esc($resp['Item']['Title']);
 
-	arrayDB("UPDATE $table SET $extra_field = '$extra_field_mark',
+	arrayDB("UPDATE moda_list SET $extra_field = '$extra_field_mark',
 								ListingType = '{$resp['Item']['ListingType']}',
 								title = '{$resp['Item']['Title']}',
 								currentPrice = '{$resp['Item']['CurrentPrice']['Value']}',

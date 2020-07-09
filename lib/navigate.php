@@ -114,12 +114,13 @@
         <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Moda<i class="caret"></i></a>
           <ul class="dropdown-menu">
             <li><a href="?action=get-moda">get&nbsp;Moda</a></li>
+            <li><a href="?action=get-hund-list">get-hund-list</a></li>
             <li><a href="?action=moda-statistic">moda-statistic</a></li>
           </ul>
         </li>
 
         <?= dz('<li><a href="?action=sql">SQL</a></li>');?>
-        
+
         <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Other <i class="caret"></i></a>
           <ul class="dropdown-menu">
             <li><a href="?action=csv">Скачать&nbsp;Exel</a></li>

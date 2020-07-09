@@ -2995,14 +2995,19 @@ function get_steam_offsets_new()
 
 	$offsets = [];
 
+	$scan = arrayDB("SELECT scan from slist order by id desc limit 1");
+	$scan = $scan ? $scan[0]['scan'] : 0;
+
 	foreach ($tables as $table) {
-		$res = arrayDB("SELECT count(*) from 
-					(SELECT * FROM slist WHERE  scan = (select scan from slist order by id desc limit 1)) f
-						where id < (
-							select id from (
-										SELECT * FROM slist WHERE  scan = (select scan from slist order by id desc limit 1) 
-								  ) s where link = (select link from $table order by updated_at desc limit 1)
-						)");
+
+		$slist_id = arrayDB("SELECT id FROM slist
+						  				WHERE link = (select link from $table order by updated_at desc limit 1)
+										and scan = (select scan from slist order by id desc limit 1)");
+
+		$slist_id = $slist_id ? $slist_id[0]['id'] : 0;
+
+		$res = arrayDB("SELECT count(*) from slist WHERE scan = $scan and id < $slist_id");
+
 		$offsets[$table] = $res ? $res[0]['count(*)'] : 0;
 	}
 	return $offsets;
@@ -4149,6 +4154,45 @@ function set_moda_meta($moda_id, $key_value_list = [])
 }
 
 
+function get_hund_meta($hund_id, $meta_key = false)
+{
+	if ($meta_key !== false) {
+		$meta_key = _esc($meta_key);
+		$res = arrayDB("SELECT * FROM hund_list_meta WHERE hund_id = '$hund_id' AND meta_key = '$meta_key' LIMIT 1");
+		return $res ? $res[0]['meta_value'] : '';
+	}else{
+		$res = arrayDB("SELECT * FROM hund_list_meta WHERE hund_id = '$hund_id'");
+		$ret = [];
+		foreach ($res as $val) {
+			$ret[$val['meta_key']] = $val['meta_value'];
+		}
+		return $ret;
+	}
+}
+
+
+function set_hund_meta($hund_id, $key_value_list = [])
+{
+	if(!$hund_id || !$key_value_list) return 0;
+	$meta_key_list = [];
+	$insert_list = [];
+	$hund_id = (int)$hund_id;
+	foreach ($key_value_list as $meta_key => $meta_value) {
+		$meta_key = _esc($meta_key);
+		$meta_value = _esc($meta_value);
+		$meta_key_list[] = "meta_key = '$meta_key'";
+		$insert_list[] = "('$hund_id','".$meta_key . "','" . $meta_value . "')";
+	}
+	$meta_key_list = implode(' OR ', $meta_key_list);
+	arrayDB("DELETE FROM hund_list_meta WHERE hund_id = '$hund_id' AND ($meta_key_list)");
+
+	$insert_list = implode(',', $insert_list);
+	arrayDB("INSERT INTO hund_list_meta (hund_id, meta_key, meta_value)	VALUES $insert_list");
+
+	return arrayDB()->affected();
+}
+
+
 function get_ebay_pic_url_by_hash($hash='')
 {
 	if($hash) return 'https://i.ebayimg.com/images/g/'.$hash.'/s-l200.jpg';
@@ -4304,4 +4348,31 @@ function get_moda_meta_progress()
 	$progress_html = "[ {$progress_data['dataparsed1']} / {$total} ] ( {$done_perc}% )";
 
 	return $progress_html;
+}
+
+
+
+function gml_ccallback($item)
+{
+	if (is_array($item) && isset($item[0]) && count($item) === 1) {
+		// var_dump($item[0]);
+		return $item[0];
+	}elseif (is_array($item)) {
+		return array_map('gml_ccallback', $item);
+		return $item;
+	}else{
+		return $item;
+	}
+}
+
+
+function gml_clean_result($res = [])
+{
+	if(!$res) return $res;
+	$res = array_map('gml_ccallback', $res);
+	$res = array_map('gml_ccallback', $res);
+	$res = array_map('gml_ccallback', $res);
+	$res = array_map('gml_ccallback', $res);
+	$res = array_map('gml_ccallback', $res);
+	return $res;
 }

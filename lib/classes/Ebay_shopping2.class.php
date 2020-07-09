@@ -81,7 +81,7 @@ class Ebay_shopping2{
 				 $url .= '&itemFilter(0).value(2)=StoreInventory';
 				 $url .= "&paginationInput.entriesPerPage=".$perPage;
 				 $url .= "&paginationInput.pageNumber=".$page;
-		    	 // $url .= "&sortOrder=WatchCountDecreaseSort";
+		    	 $url .= "&sortOrder=WatchCountDecreaseSort";
 
 
 				// Открываем файл с помощью установленных выше HTTP-заголовков

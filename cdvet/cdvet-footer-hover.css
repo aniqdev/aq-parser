@@ -1,0 +1,5 @@
+footer.footer-main .container .footer--columns a:hover,
+footer.footer-main #dreiscFooterColumnContent a:hover{
+	color: #fff!important;
+	text-decoration: underline;
+}
