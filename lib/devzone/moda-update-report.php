@@ -15,6 +15,7 @@ foreach ($speed_res as $val) {
 $curve_chart_json = _esc_attr(json_encode($arr));
 
 
+$count24 = arrayDB("SELECT count(*) FROM moda_cron_update where created_at > (now() - interval  1 day)")[0]['count(*)'];
 
 $pie_chart_res = arrayDB("SELECT report, count(*) as count FROM moda_cron_update where created_at > (now() - interval  1 day)  group by report");
 
@@ -27,6 +28,11 @@ foreach ($pie_chart_res as $val) {
 $pie_chart_json = _esc_attr(json_encode($pie_arr));
 
 $last_res = arrayDB("SELECT `id`,  `moda_id`,  `Ack`,  `endTime`,  `time_spent`,  `cron_status`,  `action`,  `report`,  `comment`,  LEFT(`errors`, 50) as errors,  `created_at` FROM `moda_cron_update` order by id desc limit 100");
+
+$pie_chart_res[] = [
+    'report' => 'total',
+    'count' => $count24
+];
 
 $time_dif = mur_time_dif($last_res[0]['created_at']);
 // $last_res = array_reverse($last_res);

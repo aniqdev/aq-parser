@@ -6,9 +6,11 @@ require_once 'vendor/autoload.php';
 // require_once 'lib/PHPExcel.php';
 // require_once 'lib/simple_html_dom.php';
 require_once 'lib/array_DB.php';
+// sa($_POST);
 if (isset($_POST['submitted'])) {
 	$log = _esc($_POST['login']);
 	$pas = _esc(md5($_POST['password']));
+	// sa($pas);
 	$user_check = arrayDB("SELECT * FROM gig_users WHERE username='$log' AND password='$pas'");
 	if ($user_check){
 		$page_list = $user_check[0]['page_list'];

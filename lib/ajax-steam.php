@@ -4,8 +4,6 @@ header('Content-Type: application/json');
 
 $array = [];
 
-$dev_mode = defined('DEV_MODE');
-
 $table = $_POST['table'];
 
 $whr_and = '';
@@ -28,76 +26,28 @@ $slist = arrayDB($query);
 $affected = 0; 
 $was_no_img = 0; 
 $aggregator = [];
-$aggregate = false; // использовать для отладки
-foreach ($slist as $row) {
+$aggregate = is_dev(); // использовать для отладки
+foreach ($slist as $slist_row) {
 
 // ==> Ссылка на игру ($link)
-    $link = _esc(clean_steam_url(trim($row['link'])));
-    if($aggregate) $aggregator[$link]['title'] = $row['title'];
+    $link = _esc(clean_steam_url(trim($slist_row['link'])));
+    if($aggregate) $aggregator[$link]['title'] = $slist_row['title'];
+    if($aggregate) $aggregator[$link]['slist_row'] = $slist_row;
     $game_exists = arrayDB("SELECT id,notice,pics from $table where link = '$link'");
 
-    // удалить после восстановления картинок
-    // if (isset($game_exists[0])) {
-    // 	$pics = $game_exists[0]['pics'];
-    // 	if (strpos($pics, 'thumb') !== false) {
-    // 		continue;
-    // 	}
-    // }
+    $game_dom = aqs_file_get_html($link, false, $context);
+    if (!is_object($game_dom)) continue;
 
-    // $dest = ROOT.'/steam-images/'.$row['appsub'].'s-'.$row['appid'];
-    $dest = get_steam_images_dir_path($row['appsub'], $row['appid']);
-    if($aggregate) $aggregator[$link]['dest'] = $dest;
-    $img_exists = (file_exists($dest.'/header.jpg') && filesize($dest.'/header.jpg') > 30000);
+// ==> Сохранение картинок
+    if ($table === 'steam_de' && !is_dev()) save_steam_images($game_dom, $slist_row); //  is_dev(0) !!!
 
-    // удалить после восстановления картинок
-    $img_exists = false;
-    // после проверки убрать filesize оставить только 
-    // $img_exists = file_exists($dest.'/header.jpg');
-    if($aggregate) $aggregator[$link]['img_exists'] = $img_exists;
-    if (!$img_exists && !$dev_mode) {
-        $was_no_img++;
-        $img_src = 'http://cdn.akamai.steamstatic.com/steam/'.$row['appsub'].'s/'.$row['appid'].'/header.jpg';
-        @mkdir($dest, 0777, true);
-        if(stripos($img_src, 'jpg') !== false) 
-        	$copied = copy($img_src, $dest.'/header.jpg');
-        // if (!$copied){
-        //     $href = 'http://store.steampowered.com/'.$row['appsub'].'/'.$row['appid'].'/';
-        //     copy(ROOT.'/images/noimage.png', $dest.'/header.jpg');
-        // }
-
-        $game_item = aqs_file_get_html($link, false, $context);
-    	if (!is_object($game_item)) continue;
-
-        $srcs = [];
-        foreach ($game_item->find('a[href*=1920x1080]') as $kk => $img) {
-            $src = $img->getAttribute('href');
-            if($aggregate) $aggregator[$link]['img_srcs'][] = $src;
-            // изменилась верстка в стиме
-            // $src = parse_url( $src, PHP_URL_QUERY );
-            // $src = str_replace('url=', '', $src);
-            if(stripos($src, 'jpg') !== false)
-            	copy($src, $dest.'/big'.($kk+1).'.jpg');
-
-            $src = str_replace('1920x1080', '600x338', $src);
-            if(stripos($src, 'jpg') !== false)
-            	copy($src, $dest.'/small'.($kk+1).'.jpg');
-
-            if($kk > 2) break;
-        }
-    }
-
-    // if($game_exists) continue;
-
-    if ($img_exists || $dev_mode) $game_item = aqs_file_get_html($link, false, $context);
-    // пропускаем игру в случае ошибки
-    if (!is_object($game_item)) continue;
     $affected++;
 // ==> Тип товара ($appsub['app','sub','dlc'])
-    $appsub = $row['appsub'];
+    $appsub = $slist_row['appsub'];
     $main_game_title = '';
     $main_game_link = '';
     if ($appsub === 'app') {
-        if($glance_details = $game_item->find('.glance_details' , 0)){
+        if($glance_details = $game_dom->find('.glance_details' , 0)){
 			$appsub = 'dlc';
 			$main_game = $glance_details->find('a', 0);
             $main_game_title = $main_game->plaintext;
@@ -105,58 +55,58 @@ foreach ($slist as $row) {
         }
     }
     $type = $appsub;
-	$appid = $row['appid'];
+	$appid = $slist_row['appid'];
 
 
 // ==> Цена ($price)
-    $old_price = $row['old_price'];
-    $reg_price = $row['reg_price'];
+    $old_price = $slist_row['old_price'];
+    $reg_price = $slist_row['reg_price'];
 
 
 // ==> Год ($year)
-    $year = $row['year'];
+    $year = $slist_row['year'];
 
 
 // ==> purchase_note
     $notice = '';
-    $purchase_note = $game_item->find('#purchase_note', 0);
+    $purchase_note = $game_dom->find('#purchase_note', 0);
     if($purchase_note) $notice = _esc(trim($purchase_note->plaintext));
 
 
 // ==> game_area_details_specs ($details_specs)
     $details_specs = [];
-    foreach ($game_item->find('.game_area_details_specs') as $dfbhet) $details_specs[] = $dfbhet->plaintext;
+    foreach ($game_dom->find('.game_area_details_specs') as $dfbhet) $details_specs[] = $dfbhet->plaintext;
     $details_specs = implode(',', $details_specs);
 
 
 // ==> Языки ($languages)
 	$languages = []; // для игр
-	foreach ($game_item->find('.game_language_options tr[class!=unsupported] .ellipsis') as $lang_item) {
+	foreach ($game_dom->find('.game_language_options tr[class!=unsupported] .ellipsis') as $lang_item) {
 		// sa(trim($lang_item->innertext));
 	    $languages[] = trim($lang_item->innertext);
 	}
 	$languages = implode(',', $languages);
 
 	if($appsub === 'sub'){ // для паков
-	    $language_list = ($language_list = $game_item->find('.language_list', 0)) ? $language_list->innertext : '';
+	    $language_list = ($language_list = $game_dom->find('.language_list', 0)) ? $language_list->innertext : '';
 		$language_list = strip_tags(preg_replace(['"<b[^>]*>.*</b>"','/\s/'], '', $language_list));
 		$languages = $language_list;
 	} 
 	if($aggregate) $aggregator[$link]['languages'] = $languages;
 
 // ==> Название ($title)
-    if ($title = $game_item->find('.apphub_AppName',0)) { // для app|dls
+    if ($title = $game_dom->find('.apphub_AppName',0)) { // для app|dls
         $title = $title->innertext;
 
-        $desc = $game_item->find('#game_area_description', 0);
+        $desc = $game_dom->find('#game_area_description', 0);
         $desc = ($desc) ? $desc->innertext : '';
         $desc = strip_tags($desc, '<br><br/><br /><p><h2><strong><b><i><ul><li>');
 
-    }elseif ($title = $game_item->find('.pageheader',0)) { // для sub|bundle
+    }elseif ($title = $game_dom->find('.pageheader',0)) { // для sub|bundle
         $title = $title->innertext;
 
         $desc = [];
-        foreach ($game_item->find('.tab_item_name') as $overlay) {
+        foreach ($game_dom->find('.tab_item_name') as $overlay) {
             $desc[] = $overlay->plaintext;
         }
         $desc = implode('<br>', $desc);
@@ -169,7 +119,7 @@ foreach ($slist as $row) {
 
 // ==> Жанры ($genres)
     $genres = []; $genres_links = [];
-    $details_block = $game_item->find('.game_details', 0);
+    $details_block = $game_dom->find('.game_details', 0);
     if($details_block) $genres_links = $details_block->find("a[href*='genre']");
     foreach ($genres_links as $wreds) $genres[] = trim($wreds->plaintext);
     $genres = implode(',', $genres);
@@ -188,16 +138,16 @@ foreach ($slist as $row) {
 
 
 // ==> Дата релиза ($release)
-    $release = $row['release'];
+    $release = $slist_row['release'];
 
 
 // ==> Операционная система ($os)
     $os = [];
     if ($appsub === 'sub') {
-		$os_list = ($os_list = $game_item->find('.tab_item_details', 0)) ? $os_list->find('.platform_img') : [];
+		$os_list = ($os_list = $game_dom->find('.tab_item_details', 0)) ? $os_list->find('.platform_img') : [];
 		foreach ($os_list as $span) $os[] = str_ireplace('platform_img ', '', $span->class);
     }else{
-		$os_list = ($os_list = $game_item->find('.game_area_purchase_platform', 0)) ? $os_list->find('.platform_img') : [];
+		$os_list = ($os_list = $game_dom->find('.game_area_purchase_platform', 0)) ? $os_list->find('.platform_img') : [];
 		foreach ($os_list as $span) $os[] = str_ireplace('platform_img ', '', $span->class);
     }
     $os = implode(",", $os);
@@ -205,15 +155,15 @@ foreach ($slist as $row) {
 
 
 // ==> Системные требования ($sys_req)
-    $sys_req = $game_item->find('.game_area_sys_req',0);
+    $sys_req = $game_dom->find('.game_area_sys_req',0);
     ($sys_req) ? $sys_req = $sys_req->plaintext : $sys_req = '';
 
 
 // ==> Обзоры/рейтинг ($reviews, $rating)
 	$recent_rating = ''; $recent_reviews = '';
 	$overall_rating = ''; $overall_reviews = '';
-	$reviews = $game_item->find('.user_reviews_summary_row',0);
-	if ($reviews2 = $game_item->find('.user_reviews_summary_row',1)) {
+	$reviews = $game_dom->find('.user_reviews_summary_row',0);
+	if ($reviews2 = $game_dom->find('.user_reviews_summary_row',1)) {
 		
 		$reviews = $reviews ? $reviews->attr['data-tooltip-html'] : '';
 		$reviews = str_replace('30', '', $reviews);
@@ -245,36 +195,32 @@ foreach ($slist as $row) {
 
 // ==> Теги ($tags)
     $tags_arr = [];
-    $arr = ($re = $game_item->find('.glance_tags',0))?$re->find('a.app_tag'):[];
+    $arr = ($re = $game_dom->find('.glance_tags',0))?$re->find('a.app_tag'):[];
     foreach ($arr as $mwqhg) $tags_arr[] = trim($mwqhg->plaintext);
     $tags = implode(',', $tags_arr);
 
 
 // ==> Возрастные ограничения ($usks)
     $usk_links = [];
-    foreach ($game_item->find('img[src*=ratings]') as $uu) $usk_links[] = $uu->src;
+    foreach ($game_dom->find('img[src*=ratings]') as $uu) $usk_links[] = $uu->src;
     $usk_age = preg_replace("/[\D]+/", '', @$usk_links[0]);
     $usk_links = implode(',', $usk_links);
 
 
 // ==> Включаемые в пак игры ($includes)
 	$includes = []; 
-	$overlay = $game_item->find('.tab_item_overlay');
+	$overlay = $game_dom->find('.tab_item_overlay');
 	foreach ($overlay as $overlay) $includes[] = preg_replace('/\D/', '', $overlay->href);
 	$includes = implode(',', $includes);
 
 // ==> Список картинок ($pics)
-    $path = get_steam_images_dir_path($type, $appid);
-    $dir = @scandir($path);
-    $pics = '';
-    if ($dir) {
-        $dir = array_slice($dir, 2);
-        $pics = implode(',', $dir);
-    }
+    $dir_path = get_steam_images_path($slist_row['appsub'], $slist_row['appid']);
+    $pics = steam_images_scandir($dir_path);
+    if($aggregate) $aggregator[$link]['pics'] = $pics;
 
 // ==> Паки в которых состоит игра ($bundles)
         $packages = [];
-        // $game_wrappers = $game_item->find('.game_area_purchase_game_wrapper');
+        // $game_wrappers = $game_dom->find('.game_area_purchase_game_wrapper');
         // foreach ($game_wrappers as $game_wrapper) {
         //     $texts = $game_wrapper->find('text');
         //     foreach ($texts as $text) {
@@ -306,6 +252,7 @@ foreach ($slist as $row) {
         $appid    = _esc($appid);
         $type     = _esc($appsub);
         $link     = $link;
+        $pics     = _esc($pics);
         $desc     = _esc(trim(html_entity_decode($desc)));
         $genres   = _esc($genres);
         $developer= _esc($developer);

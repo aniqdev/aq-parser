@@ -18,6 +18,10 @@ define_array('CLASSES', Array(
 			'QS' => 'QueryString',
 			));
 
+function is_dev($if_true = 1, $if_false = '')
+{
+	return defined('DEV_MODE') ? $if_true : $if_false;
+}
 // функция для работы с SQLite3
 function aqSqlite($query,$multiquery = false){
 		
@@ -70,6 +74,44 @@ function arrayDB($query = '', $multiquery = false){
 				echo "data base aq_error!";
 		}
 } // arrayDB
+
+function modaDB($query, $multiquery = false){
+
+	if(!$query) return DBm::getInstance();
+	if ($multiquery){
+		$mysqli = new mysqli(dbm_HOST, dbm_USER, dbm_PASS, dbm_NAME);
+		if ($mysqli->connect_errno) die ($mysqli->connect_error);
+		$mysqli->set_charset( "utf8" );
+		$res = $mysqli->multi_query($query);
+		$mysqli->close();
+		return $res;
+	}else{
+		if (stripos($query, 'select') === 0 || stripos($query, 'show') === 0 || stripos($query, 'describe') === 0) {
+				return DBm::getInstance()->get_results($query);
+		}else{
+				return DBm::getInstance()->query($query);
+		}
+	}
+}
+
+function hundDB($query, $multiquery = false){
+
+	if(!$query) return DBh::getInstance();
+	if ($multiquery){
+		$mysqli = new mysqli(dbh_HOST, dbh_USER, dbh_PASS, dbh_NAME);
+		if ($mysqli->connect_errno) die ($mysqli->connect_error);
+		$mysqli->set_charset( "utf8" );
+		$res = $mysqli->multi_query($query);
+		$mysqli->close();
+		return $res;
+	}else{
+		if (stripos($query, 'select') === 0 || stripos($query, 'show') === 0 || stripos($query, 'describe') === 0) {
+				return DBh::getInstance()->get_results($query);
+		}else{
+				return DBh::getInstance()->query($query);
+		}
+	}
+}
 
 function arraDB($query = '', $multiquery = false) // arraDB === arrayDB
 {
@@ -1821,14 +1863,25 @@ function tab_active($get, $val, $css_class = 'active'){
 }
 
 
-function post_curl($url, $post = []){
+function post_curl($url, $post = [], $headers = []){
 	$ch = curl_init($url);
-	curl_setopt_array($ch, [
+	$options = [
 	    CURLOPT_RETURNTRANSFER => true,
 	    CURLOPT_POST => true,
-	    CURLOPT_POSTFIELDS => http_build_query($post)
-	]);
+	    CURLOPT_POSTFIELDS => is_array($post) ? http_build_query($post) : $post
+	];
+	if($headers) $options[CURLOPT_HTTPHEADER] = $headers;
+	curl_setopt_array($ch, $options);
+	
+	// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+	// curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	// curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 	$resp = curl_exec($ch);
+	// var_dump($resp);
+	// sa($url);
+	// sa($headers);
+	// sa($post);
 	curl_close($ch);
 	$decoded = json_decode($resp,1);
 	if ($decoded !== null) {
@@ -3813,6 +3866,7 @@ function gig_sanitize($title) {
 //
 function get_gig_game_url_title($title)
 {
+	// return '';
 	return 'preisvergleich-cd-steam-key-'.gig_sanitize($title);
 }
 
@@ -3823,20 +3877,6 @@ function get_gig_game_link($home_url, &$steam_game)
 
 function aqs_file_get_html($url, $use_include_path = false, $context = null){
 	return str_get_html(file_get_contents($url, $use_include_path, $context));
-}
-
-
-
-function get_steam_images_dir_path($type, $appid)
-{
-	// return ROOT.'/steam-images/'.$type.'/'.implode('/', str_split($appid));
-	return ROOT.'/steam-images/'.($type==='dlc'?'app':$type).'s-'.$appid;
-}
-
-
-function get_steam_images_dir_url($type, $appid)
-{
-	return 'https://parser.gig-games.de/steam-images/'.($type==='dlc'?'app':$type).'s-'.$appid;
 }
 
 
@@ -4150,7 +4190,9 @@ function set_moda_meta($moda_id, $key_value_list = [])
 	$insert_list = implode(',', $insert_list);
 	arrayDB("INSERT INTO moda_list_meta (moda_id, meta_key, meta_value)	VALUES $insert_list");
 
-	return arrayDB()->affected();
+	$affected = arrayDB()->affected();
+	arrayDB()->disconnect();
+	return $affected;
 }
 
 
@@ -4375,4 +4417,135 @@ function gml_clean_result($res = [])
 	$res = array_map('gml_ccallback', $res);
 	$res = array_map('gml_ccallback', $res);
 	return $res;
+}
+
+function get_partner_link($url){
+	// return 'https://rover.ebay.com/rover/1/707-53477-19255-0/1?icep_id=114&ipn=icep&toolid=20004&campid=5338243349&mpre='.rawurlencode($url);
+	return 'http://rover.ebay.com/rover/1/707-53477-19255-0/1?ff3=4&pub=5575611989&toolid=10001&campid=5338724019&customid=&mpre='.urlencode($url);
+}
+
+
+function get_steam_images_dir_path($type, $appid) // deprecated
+{
+	return ROOT.'/steam-images/'.($type==='dlc'?'app':$type).'s-'.$appid;
+}
+
+function get_steam_images_dir_url($type, $appid) // deprecated
+{
+	return 'https://parser.gig-games.de/steam-images/'.($type==='dlc'?'app':$type).'s-'.$appid;
+}
+
+
+function cerate_steam_pics_thumbs($dir_path, $i)
+{
+	$big1_path = $dir_path.'/big'.$i.'.jpg';
+
+    $imagine = new Imagine\Gd\Imagine();
+    $mode = Imagine\Image\ImageInterface::THUMBNAIL_INSET;
+	try {
+	    $imagine->open($big1_path)
+	        ->thumbnail(new Imagine\Image\Box(470, 1000), $mode)
+	        ->save($dir_path.'/thumb-'.$i.'-m.jpg');
+
+	    $imagine->open($big1_path)
+	        ->thumbnail(new Imagine\Image\Box(1000, 120), $mode)
+	        ->save($dir_path.'/thumb-'.$i.'-s.jpg');
+	        return 'good';
+	} catch (Exception $e) {
+	    return $e->getMessage();
+	}
+}
+
+
+function cerate_steam_header_thumbs($dir_path)
+{
+	$imagine = new Imagine\Gd\Imagine();
+
+	$header_path = $dir_path.'/header.jpg';
+	$h_path = $dir_path.'/header-80p.jpg';
+	$s_path = $dir_path.'/header-180x84.jpg';
+	$m_path = $dir_path.'/header-210x98.jpg';
+	$l_path = $dir_path.'/header-256x120.jpg';
+	
+	$jpeg_opts = ['quality' => 80];
+
+	$imagine->open($header_path)
+	        ->save($h_path, $jpeg_opts);
+
+	$imagine->open($header_path)
+	        ->resize(new Imagine\Image\Box(180, 84))
+	        ->save($s_path, $jpeg_opts);
+
+	$imagine->open($header_path)
+	        ->resize(new Imagine\Image\Box(210, 98))
+	        ->save($m_path, $jpeg_opts);
+
+	$imagine->open($header_path)
+	        ->resize(new Imagine\Image\Box(256, 120))
+	        ->save($l_path, $jpeg_opts);
+}
+
+
+function get_steam_images_path($type, $appid, $append = '')
+{
+    $appid_slashed = implode('/', str_split($appid));
+	return ROOT.'/steam-images/'.($type==='dlc'?'app':$type).'s/'.$appid_slashed.'/pics'.$append;
+}
+
+function get_steam_images_url($type, $appid, $append = '')
+{
+	$host = is_dev('parser', 'marser.modetoday.de');
+    $appid_slashed = implode('/', str_split($appid));
+	return '//'.$host.'/steam-images/'.($type==='dlc'?'app':$type).'s/'.$appid_slashed.'/pics'.$append;
+}
+
+function steam_images_scandir($dir_path)
+{
+	$dir = @scandir($dir_path);
+	$pics = '';
+	if ($dir) {
+		$dir = array_slice($dir, 2);
+		$pics = implode(',', $dir);
+	}
+	return $pics;
+}
+
+function save_steam_images($game_dom, $slist_row)
+{
+    $dir_path = get_steam_images_path($slist_row['appsub'], $slist_row['appid']);
+    $img_exists = (file_exists($dir_path.'/header.jpg') && filesize($dir_path.'/header.jpg') > 30000);
+
+    if (!$img_exists) {
+        $img_src = 'http://cdn.akamai.steamstatic.com/steam/'.$slist_row['appsub'].'s/'.$slist_row['appid'].'/header.jpg';
+        @mkdir($dir_path, 0777, true);
+        $copied = copy($img_src, $dir_path.'/header.jpg');
+
+        $srcs = [];
+        foreach ($game_dom->find('a[href*=1920x1080]') as $kk => $img) {
+            $src = $img->getAttribute('href');
+            if(stripos($src, 'jpg') !== false) copy($src, $dir_path.'/big'.($kk+1).'.jpg');
+
+            $src = str_replace('1920x1080', '600x338', $src);
+            if(stripos($src, 'jpg') !== false) copy($src, $dir_path.'/small'.($kk+1).'.jpg');
+
+            if($kk > 2) break;
+        }
+    }
+    //-------------------------------------------------------------------------------------------------
+    // генерация миниатюр
+    
+    $scandir = steam_images_scandir($dir_path);
+
+    if (strpos($scandir, 'header.jpg') !== false && strpos($scandir, 'header-80p.jpg') === false) {
+		cerate_steam_header_thumbs($dir_path);
+    }
+
+	if (strpos($scandir, 'big1') !== false) $rep1 = cerate_steam_pics_thumbs($dir_path, 1);
+	if (strpos($scandir, 'big2') !== false) $rep2 = cerate_steam_pics_thumbs($dir_path, 2);
+	if (strpos($scandir, 'big3') !== false) $rep3 = cerate_steam_pics_thumbs($dir_path, 3);
+	if (strpos($scandir, 'big4') !== false) $rep4 = cerate_steam_pics_thumbs($dir_path, 4);
+
+    $scandir = steam_images_scandir($dir_path);
+
+	return $scandir;
 }

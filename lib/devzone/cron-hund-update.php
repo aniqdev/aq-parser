@@ -160,17 +160,17 @@ function gmp_update_oldest_record($data)
 
 function gmp_make_post_request($action, $hund_id)
 {
-	if(defined('DEV_MODE')) $post_uri = 'http://koeln-webstudio.loc/moda-sync.php';
-	else $post_uri = 'https://modetoday.de/moda-sync.php?wpok';
+	if(defined('DEV_MODE')) $post_uri = 'http://hund-shop.loc/hund-sync.php';
+	else $post_uri = 'http://zeckenmittelhund.de/hund-sync.php?wpok';
 
-	// $post_resp = post_curl($post_uri, [
-	// 	'action' => $action,
-	// 	'hund_id' => $hund_id,
-	// ]);
+	$post_resp = post_curl($post_uri, [
+		'action' => $action,
+		'hund_id' => $hund_id,
+	]);
 
 	// sa($post_resp);
 
-	// return $post_resp['func_res'];
+	return $post_resp['func_res'];
 
 	return 1;
 }

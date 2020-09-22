@@ -7,7 +7,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'edit') {
 	$column = _esc($_POST['column']);
 	$value = _esc($_POST['value']);
 	$id = _esc($_POST['id']);
-	$res = arrayDB("UPDATE `$table` SET `$column` = '$value' WHERE id = '$id'");
+	$res = modaDB("UPDATE `$table` SET `$column` = '$value' WHERE id = '$id'");
 	echo json_encode(['status' => $res?'success':'error', 'report' => 'operation done', '$res' => $res, 'ERRORS' => $_ERRORS]);
 	return;
 }
@@ -27,7 +27,7 @@ $table_name = get_table_name(@$_POST['sql']);
 	}
 </style>
 
-<form action="index.php?action=sql" method="POST">
+<form action="index.php?action=sql-moda" method="POST">
 	<textarea id="js_sql" autofocus="autofocus" name="sql" cols="50" rows="10" placeholder="Введите запрос SQL. Будьте осторожны, вы можете повредить базу данных" style="width:100%;"><?php if (@$_POST['sql']) echo $_POST['sql'];?></textarea>
 	<!-- <input autofocus="autofocus" name="sql" cols="50" rows="10" placeholder="Введите запрос SQL. Будьте осторожны, вы можете повредить базу данных" value="<?php if (@$_POST['sql']) echo $_POST['sql'];?>"> -->
 	<br>
@@ -59,7 +59,7 @@ $table_name = get_table_name(@$_POST['sql']);
 <?php
 
 if (isset($_POST['edit']) && $table_name) {
-	$res = arrayDB($_POST['sql']);
+	$res = modaDB($_POST['sql']);
 	if (is_array($res) && $res && isset($res[0]['id'])) {
 		echo "<table><tr><th>№</th>";
 		foreach ($res[0] as $key => $value) {
@@ -81,7 +81,7 @@ if (isset($_POST['edit']) && $table_name) {
 	if (!$_POST['sql']) {
 		$res = 'Empty query!';
 	}else{
-		$res = arrayDB($_POST['sql']);
+		$res = modaDB($_POST['sql']);
 	}
 	
 	if (is_array($res) && $res) {

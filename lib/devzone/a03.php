@@ -1,24 +1,21 @@
-<script id="bx24_form_button" data-skip-moving="true">
-        (function(w,d,u,b){w['Bitrix24FormObject']=b;w[b] = w[b] || function(){arguments[0].ref=u;
-                (w[b].forms=w[b].forms||[]).push(arguments[0])};
-                if(w[b]['forms']) return;
-                var s=d.createElement('script');s.async=1;s.src=u+'?'+(1*new Date());
-                var h=d.getElementsByTagName('script')[0];h.parentNode.insertBefore(s,h);
-        })(window,document,'https://b24-1cbkwk.bitrix24.ru/bitrix/js/crm/form_loader.js','b24form');
+<?php ini_get('safe_mode') or set_time_limit(1300);
 
-        b24form({"id":"1","lang":"ru","sec":"s7w4yr","type":"button","click":""});
-</script><button class="b24-web-form-popup-btn-1">Мы перезвоним вам</button>
-<?php
+$table = 'steam_de';
+$options = array('http' => array('method' => "GET", 'header' => "Accept-language: en-US\r\n" . "Cookie: Steam_Language=".get_language_by_table($table)."; mature_content=1; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
+$context = stream_context_create($options);
 
-
-
-
-
-
-
-
-
-
+$query = "SELECT * FROM slist 
+		  WHERE scan = (select scan from slist order by id desc limit 1) 
+		  LIMIT 501,1";
+$slist = arrayDB($query);
+sa($slist);
+foreach ($slist as $slist_row) {
+    $link = _esc(clean_steam_url(trim($slist_row['link'])));
+    $game_dom = aqs_file_get_html($link, false, $context);
+    if (!is_object($game_dom)) continue;
+	$pics = save_steam_images($game_dom, $slist_row);
+	sa($pics);
+}
 
 return;
 $res = arrayDB("SELECT CategoryID,CategoryLevel,CategoryName,CategoryName_DE,CategoryParentID from moda_cats where type = 'women'");
@@ -166,20 +163,8 @@ $pic_url_arr = array (
 
 $res = gmp_get_picture_hashes($pic_url_arr);
 
-sa($res);
+xa($res);
 
-function gmp_get_picture_hashes($pic_url_arr)
-{
-	$pic_hashes = [];
-	if ($pic_url_arr) {
-		foreach ($pic_url_arr as $pic_url) {
-			if (preg_match('#/[^s]/(.+)/#', $pic_url, $matches)) {
-				$pic_hashes[] = $matches[1];
-			}
-		}
-	}
-	return implode(',', $pic_hashes);
-}
 
 return;
 $res = get_moda_meta($moda_id = 4, $moda_name = false);

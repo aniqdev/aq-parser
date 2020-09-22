@@ -40,7 +40,7 @@
  All examples provided below assume that this class has been initiated
  Examples below assume the class has been iniated using $database = DB::getInstance();
 ********************************/
-class DB
+class DBm
 {
     private $link = null;
     public $filter;
@@ -87,7 +87,7 @@ class DB
         mb_regex_encoding( 'UTF-8' );
         mysqli_report( MYSQLI_REPORT_STRICT );
         try {
-            $this->link = new mysqli( db_HOST, db_USER, db_PASS, db_NAME );
+            $this->link = new mysqli( dbm_HOST, dbm_USER, dbm_PASS, dbm_NAME );
             $this->link->set_charset( "utf8" );
         } catch ( Exception $e ) {
             die( 'Unable to connect to database' );

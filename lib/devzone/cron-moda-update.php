@@ -1,15 +1,21 @@
 <?php ini_get('safe_mode') or set_time_limit(120);
 
-if (true) {
-	include __DIR__.'/cron-hund-update.php';
+
+
+$start_time = time();
+
+// if (defined('DEV_MODE')) {
+if (defined('DEV_MODE') && !($start_time  / 60 % 2)) { // каждые # мин
+	// include __DIR__.'/cron-hund-update.php';
 	return;
 }
+// return;
 
 
 $num = isset($_GET['num']) ? (int)$_GET['num'] : 50;
 
 
-$start_time = time();
+
 for ($i=0; $i < $num; $i++) { 
 	cmu_update_oldest_record_report();
 	if((time() - $start_time) > 50) break;
@@ -92,6 +98,7 @@ function cmu_update_oldest_record_report()
 							comment = '$comment',
 							created_at = NOW()
 				");
+	arrayDB()->disconnect();
 }
 
 
@@ -102,6 +109,7 @@ function cmu_update_oldest_record($data)
 	global $_ERRORS;
 
 	if(!$res = arrayDB("SELECT * from moda_list order by updated_at limit 1")) return;
+	arrayDB()->disconnect();
 	$data['res'] = $res[0];
 
 	$resp = Ebay_shopping2::getSingleItem_moda($res[0]['itemId'], $as_array = 1);
@@ -149,6 +157,7 @@ function cmu_update_oldest_record($data)
 								updated_at = NOW()
 						 WHERE id = '$moda_id'";
 	arrayDB($update_query);
+	arrayDB()->disconnect();
 	$data['update_query'] = $update_query;
 
 	return $data;
@@ -171,14 +180,14 @@ function cmu_make_post_request($action, $moda_id)
 	if(defined('DEV_MODE')) $post_uri = 'http://koeln-webstudio.loc/moda-sync.php';
 	else $post_uri = 'https://modetoday.de/moda-sync.php?wpok';
 
-	$post_resp = post_curl($post_uri, [
-		'action' => $action,
-		'moda_id' => $moda_id,
-	]);
+	// $post_resp = post_curl($post_uri, [
+	// 	'action' => $action,
+	// 	'moda_id' => $moda_id,
+	// ]);
 
-	sa($post_resp);
+	// return $post_resp['func_res'];
 
-	return $post_resp['func_res'];
+	return 1;
 }
 
 

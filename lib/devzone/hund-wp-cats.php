@@ -1,85 +1,44 @@
-<?php ini_get('safe_mode') or set_time_limit(1300);
-
-
-
-
-
-
-
-
-return;
-$start_time = time();
-
-$items = arrayDB("SELECT * from moda_list where flag = 'dataparsed1' limit 100");
-
-$keys_arr = [
-    'itemId',
-    'title',
-    'categoryId',
-    'PictureURL',
-    'QuantitySold',
-    'HitCount',
-    'currentPrice',
-    'FeedbackScore', // seller FeedbackScore
-    'ItemSpecifics',
-    'VariationsPics',
-    'post_id',
-];
-
-echo "<pre>";
-$final_arr = [];
-$handle = fopen(ROOT . '/Files/moda-arr.txt',"w");
-foreach ($items as &$moda) {
-    $moda_meta = get_moda_meta($moda['id']);
-    if($moda_meta) $moda += $moda_meta;
-    // sa($moda);
-    $temp_arr = [];
-    foreach ($keys_arr as $key) {
-        $temp_arr[$key] = isset($moda[$key]) ? $moda[$key] : '';
-    }
-    $final_arr[] = $temp_arr;
-    $bytes = fwrite($handle, json_encode($temp_arr).PHP_EOL);
-    // var_export(PHP_EOL.$bytes.': ');
-    print_r($temp_arr);
+<?php ini_get('safe_mode') or set_time_limit(1300); ?>
+<style>
+.cats-ul{ padding-left: 15px; }
+.cats-ul a{ color: #00bfff; }
+.wpcats-menu-item{
+    display: none;
+    height: 600px; 
+    overflow: auto;
+    background: #333;
+    padding: 25px 0;
 }
-fclose($handle);
-// $str_to_file = var_export($final_arr, true);
-// $bytes_count = file_put_contents(ROOT . '/Files/moda-arr.eval.txt', 'return ' . $str_to_file . ';');
+.wpcats-menu-wrapper:hover .wpcats-menu-item{
+    display: block;
+}
+</style>
+<div class="container-fluid" style="max-width: 1400px;">
+    <div class="wpcats-menu-wrapper">
+        <button class="btn btn-primary">Show</button>
+        <hr>
+        <div class="row wpcats-menu-item">
+            <div class="col-sm-3">Marke<hr><?php _draw_wp_cats(is_dev(507, 497)); ?></div>
+            <div class="col-sm-3">Hundegröße<hr><?php _draw_wp_cats(is_dev(514, 495)); ?></div>
+            <div class="col-sm-3">Produktart<hr><?php _draw_wp_cats(is_dev(515, 496)); ?></div>
+            <div class="col-sm-3">Hundealter<hr><?php _draw_wp_cats(is_dev(516, 498)); ?></div>
+        </div>
+    </div>
+</div>
+<?php
 
 
-// var_dump($bytes_count);
-echo "</pre>";
-sa('Seconds: ' . (time() - $start_time));
-
-
-
-
-return;
-$url = 'https://touch.com.ua/zaryadnye-ustroystva/';
-
-
-sa( rawurlencode(get_partner_link($url) ));
-
-
-
-
-return;
-$post_res = post_curl('https://gig-games.de', '$json_str', ['Content-Type: application/json; charset=utf-8']);
-
-sa($post_res);
-
-
-
-return;
 function _draw_wp_cats_recur(&$arr, $parent_id)
 {
     if (!$arr) return;
 
     if (isset($arr[$parent_id])) {
-        echo '<ul>';
+        echo '<ul class="cats-ul">';
         foreach ($arr[$parent_id] as $val) {
             // href="https://modetoday.de/fashion_category/'.$val['slug'].'/"
-            echo '<li><sp  target="_blank" title="'.$val['name'].'">'.$val['name'].' ('.$val['count'].')</sp>';
+            echo '<li><a href="https://zeckenmittelhund.de/product-category/'.$val['slug'].'/" 
+                target="_blank"
+                title="'.$val['term_id'].'">'.$val['name'].' ('.$val['count'].')</a>';
             if($val['term_id'] != $val['parent']) _draw_wp_cats_recur($arr, $val['term_id']);
             echo '</li>';
         }
@@ -93,7 +52,8 @@ function _draw_wp_cats($parent_id = '0')
     FROM wp_terms AS t
     INNER JOIN wp_term_taxonomy AS tt
     ON t.term_id = tt.term_id
-    WHERE tt.taxonomy = 'product_cat'");
+    WHERE tt.taxonomy = 'product_cat'
+    order by count desc");
 
     $parent_keys = [];
     foreach ($res as $val) {

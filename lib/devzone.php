@@ -1,5 +1,6 @@
 
-<br><div class="container text-center"><?php 
+<br><div class="container text-center" style="border-bottom: 1px solid grey;">
+<?php 
 
 $files = scandir(__DIR__.'/devzone');
 
@@ -11,7 +12,7 @@ for ($i=2; $i < count($files); $i++) {
 	$text = str_ireplace('.php', '', $files[$i]);
     if($prev_char !== $text[0]) {
         echo '</div><div class="row char-block">';
-        echo '<div class="first-char col-xs-4"><b>'.$text[0].'</b></div>';
+        echo '<div class="first-char col-xs-4"><b>'.strtoupper($text[0]).'</b></div>';
     }
     $prev_char = $text[0];
 	echo '<div class="col-xs-4"><a class="devzone-btn" href="?action=devzone/',$text,'" title="',$text,'">',$text,'</a></div>';

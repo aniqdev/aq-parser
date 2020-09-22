@@ -14,6 +14,14 @@ $res1 = arrayDB("SELECT tt1.moda_id,tt2.meta_value as HitCount,tt1.meta_value as
 				order by CAST(HitCount AS unsigned) desc");
 
 
+// $res2 = arrayDB("SELECT tt1.moda_id,tt2.meta_value as HitCount,tt1.meta_value as QuantitySold, ROUND(tt2.meta_value / tt1.meta_value, 2) as `Hit/Sold`
+// 				from
+// 				(select * from moda_list_meta WHERE meta_key = 'QuantitySold') as tt1
+// 				join
+// 				(select * from moda_list_meta WHERE meta_key = 'HitCount' AND meta_value > 50000 limit $limit) as tt2
+// 				on tt1.moda_id = tt2.moda_id
+// 				order by CAST(QuantitySold AS unsigned) desc");
+
 $res2 = arrayDB("SELECT tt1.moda_id,tt2.meta_value as HitCount,tt1.meta_value as QuantitySold, ROUND(tt2.meta_value / tt1.meta_value, 2) as `Hit/Sold`
 				from
 				(select * from moda_list_meta WHERE meta_key = 'QuantitySold') as tt1

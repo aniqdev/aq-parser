@@ -4,6 +4,18 @@
 
 
 
+
+sa(strlen(md5('11')));
+sa(md5('11'));
+
+sa(strlen(md5('11',1)));
+sa(base64_encode(md5('11',1)));
+sa(base64_decode(base64_encode(md5('11',1))));
+
+
+
+
+return;
 $video = 'https://v19.tiktokcdn.com/b0c0b102ec2a2387f8ded16199647476/5ed3b6fd/video/tos/useast2a/tos-useast2a-ve-0068c001/d295e9ecd94c429c829bb5437b86f5db/?a=1233&br=4656&bt=2328&cr=0&cs=0&dr=0&ds=3&er=&l=20200531075351010189072216250CD704&lr=tiktok_m&mime_type=video%2Fmp4&qs=0&rc=M3g6eTpydjlldTMzZjczM0ApZWloOWY4NDxnNzhpZjc7OGdxb282YWBzZTZfLS0xMTZzcy9eL14zMDUtY2AuMTNjMjU6Yw%3D%3D&vl=&vr=';
 
 $res = AqsBot::setChatId('-1001449047445')->sendVideo([
