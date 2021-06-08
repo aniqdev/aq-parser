@@ -78,8 +78,9 @@
             <li><a href="/a.php?action=cdvet-feed-report">Feed report</a></li>
             <li><a href="?action=cdvet-categories">Categories</a></li>
             <li><a href="?action=cdvet-filter-log">Filter log</a></li>
-            <li role="separator" class="divider"></li>
             <li><a href="?action=update-cdvet-quantity">update quantity</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="?action=hundefutter-changes">hundefutter changes</a></li>
           </ul>
         </li>
 

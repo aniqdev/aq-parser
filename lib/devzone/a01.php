@@ -1,10 +1,551 @@
 <?php ini_get('safe_mode') or set_time_limit(1300);
 
+$css = file_get_contents('css/style.css');
+
+function parse_css($css)
+{
+	preg_match_all("/\{.+\}/sU", $css, $matches);
+	$all_css_vals = [];
+	foreach ($matches[0] as $selector) {
+		$selector = trim($selector, '{}');
+		$selector = preg_replace('/\/\*.+\*\\//sU', '', $selector);
+		$values = explode(';', $selector);
+		foreach ($values as $value) {
+			if($value = trim($value) && no_vendor_prefix($value)){
+				$value = str_replace(['*'], '', explode(':', $value)[0]);
+				@$all_css_vals[$value]++;
+			}
+		}
+	}
+	return $all_css_vals;
+}
+
+$all_css_vals = parse_css($css);
+
+arsort($all_css_vals, SORT_NUMERIC);
+
+sa($all_css_vals);
+
+
+
+function no_vendor_prefix($string){
+	foreach ([
+		'-moz-',
+		'-webkit-'
+	] as $vendor_prefix) {
+		if(str_contains($string, $vendor_prefix)) return false;
+	}
+	return true;
+}
+
+
+
+return;
+$json = file_get_contents('http://cdvet-parser.gig-games.de/b2b/input.json');
+
+$json = json_decode($json, 1);
+
+sa(count($json));
+
+sa($json);
+
+
+
+return;
+// $cdvet_feed = file_get_contents('http://cdvet-parser.gig-games.de/b2b/input.json');
+$cdvet_feed = file_get_contents(ROOT.'/Files/input.json');
+
+$cdvet_feed = json_decode($cdvet_feed, 1);
+
+sa(count($cdvet_feed));
+// sa(($cdvet_feed));
+
+
+foreach ($cdvet_feed as $variants) {
+	foreach ($variants as $variant) {
+		sa([
+			(count($variants) > 1) ? 'VARIABLE':'SIMPLE',
+			@$variant['price'],
+			@$variant['price_unit'],
+			get_unit_price($variant),
+		]);
+	}
+}
+
+function get_unit_price($variant)
+{
+
+		$price_unit = @$variant['price_unit'];
+		if ($price_unit) {
+			$inhalt = str_replace('Inhalt:', '', $price_unit);
+			// $inhalt = preg_replace('pattern', replacement, subject);
+			$inhalt = trim($inhalt);
+			if (strpos($inhalt,')')) {
+				$amount = explode('(', $inhalt)[0];
+				$res = preg_replace('/.+\(/', '(', $inhalt);
+			}else{
+				$amount = $inhalt;
+				$res = $variant['price'] . '€** / ' . $inhalt;
+			}
+			$res = shortify_units($res);
+
+			$price_4_unit = explode('/', $res)[0];
+			$price_4_unit = preg_replace('/[^\d ,]/', '', $price_4_unit);
+			$price_4_unit = str_replace(',','.',$price_4_unit);
+			// sa($price_4_unit);
+			$price_4_unit = get_price_by_formula($price_4_unit);
+			// sa($price_4_unit);
+			$price_4_unit = str_replace('.',',',$price_4_unit);
+			$itog = $price_4_unit . ' € /' . explode('/', $res)[1];
+			
+		}elseif(@$variant['price']){
+			$itog = str_replace('.', ',', $variant['price']). ' € / 1 St.';
+		}else{
+			$itog = '0,00 € / 1 St.';
+		}
+		return $itog;
+}
+
+function shortify_units($str)
+{
+	return str_ireplace(
+		['(', ')', ' * ', 'Liter', 'Kilogramm', 'Gramm','Stück'],
+		['',  '',  ' ',   'l',     'kg',        'g',    'St.'  ],
+		$str);
+}
+function get_price_by_formula($price, $tax = 19)
+{
+	$price = (float)$price * 1.25;
+	if($tax == 5 || $tax == 7) $price = $price * 1.07;
+	if($tax == 16 || $tax == 19) $price = $price * 1.19;
+	$price = round($price, 2);
+	$int = (int)$price;
+	$cents = $price*100 % 100;
+	$cents = $cents < 50 ? 49 : 99;
+	$cents = $cents / 100;
+	return (string)($int + $cents);
+}
+// 1. "deliveryTime" cо значением "Lieferung in 1-3 Werktagen" если товар в  наличие и "Lieferung in 5 Werktagen" если нет
+// 2. "eans" со значениями дублирующие "gtin"
+// 3. "categoryPath" со значением "Hundefutter" + ">" + "(название последнего уровня категории в которой находится товар)"
+// 4. "basePrice" с уже вычисленным значением цены за юнит. Пример "9,16 € / 100 g"
+
+return;
+$url_get_csrf = 'https://b2b.cdvet.de/csrftoken';
+
+$res = file_get_contents($url_get_csrf);
+
+foreach ($http_response_header as $key => $header) {
+	$header = explode(':', $header);
+	// sa($header[0]);
+	if ($header[0] === 'x-csrf-token') {
+		sa($header[0]);
+		$csrf_token = trim($header[1]);
+		sa($csrf_token);
+	}
+}
+
+sa($http_response_header);
+$url_login = 'https://b2b.cdvet.de/PrivateLogin/login/sTarget/PrivateLogin/sTargetAction/redirectLogin';
+
+// sa(htmlspecialchars($res));
+
+$res = post_curl($url_login, [
+	'email' => 'gp-development@yandex.com',
+	'password' => 'rekaMore71',
+	'__csrf_token' => $csrf_token
+], $headers = []);
+
+// sa($_GET['headerLine']);
+sa($http_response_header);
+sa($res);
+
+
+
+return;
+
+
+// $json = file_get_contents('Files/test-json.json');
+
+// sa($json);
+
+// $arr = json_decode('{"@context":"https:\/\/schema.org\/","@graph":[{"@context":"https:\/\/schema.org\/","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"name":"\u0413\u043b\u0430\u0432\u043d\u0430\u044f","@id":"http:\/\/cdvet-feed.loc"}},{"@type":"ListItem","position":2,"item":{"name":"Hund","@id":"http:\/\/cdvet-feed.loc\/product-category\/hund\/"}},{"@type":"ListItem","position":3,"item":{"name":"ArthroGreen Classic","@id":"http:\/\/cdvet-feed.loc\/product\/arthrogreen-classic\/"}}]},{"@context":"https:\/\/schema.org\/","@type":"Product","@id":"http:\/\/cdvet-feed.loc\/product\/arthrogreen-classic\/#product","name":"ArthroGreen Classic","url":"http:\/\/cdvet-feed.loc\/product\/arthrogreen-classic\/","description":"Zur bedarfsgerechten F\u00fctterung von gelenkempfindlichen Hunden und Katzen. Besondere Versorgung von Gelenken, Muskeln, Sehnen - mit Gr\u00fcnlippmuschel, Pulver","image":"http:\/\/cdvet-feed.loc\/wp-content\/uploads\/2021\/01\/image_285_1_1280x1280.png","sku":8001,"offers":[{"@type":"Offer","price":"19.49","priceValidUntil":"2022-12-31","priceSpecification":{"price":"19.49","priceCurrency":"EUR","valueAddedTaxIncluded":"true"},"priceCurrency":"EUR","availability":"http:\/\/schema.org\/InStock","url":"http:\/\/cdvet-feed.loc\/product\/arthrogreen-classic\/","seller":{"@type":"Organization","name":"cdVet","url":"http:\/\/cdvet-feed.loc"}}],"test_structura":"ArthroGreen"}]}', true);
+
+// sa($arr);
+// sa($arr['age']);
+
+
+// $arr = [
+// 	'key' => 'value',
+// 	'num' => 23534,
+// 	'boolean' => true,
+// 	'array' => [1,2,3,4]
+// ];
+
+// sa(json_encode($arr, 128));
+
+// file_put_contents('Files/test-json.json', json_encode($arr, 128));
+
+
+// return;
+$json = file_get_contents('http://cdvet-parser.gig-games.de/b2b/input.json');
+
+$json = json_decode($json, 1);
+
+sa(count($json));
+
+sa($json);
+
+
+
+
+return;
+$generator = Faker\Factory::create();
+$generator->seed(1);
+$documentor = new Faker\Documentor($generator);
+?>
+<?php foreach ($documentor->getFormatters() as $provider => $formatters): ?>
+
+### `<?php echo $provider ?>`
+
+<?php foreach ($formatters as $formatter => $example): ?>
+    <?php echo str_pad($formatter, 23) ?><?php if ($example): ?> // <?php echo $example ?> <?php endif; ?>
+
+<?php endforeach; ?>
+<?php endforeach;
+
+
+return;
+$json = file_get_contents('https://eor.pp.ua/input.json');
+
+$arr = json_decode($json, 1);
+
+foreach ($arr as &$variants) {
+	foreach ($variants as &$variant) {
+		$variant['images'] = json_decode($variant['images']);
+		unset($variant['description_html']);
+	}
+}
+
+sa($arr);
 
 
 
 
 
+return;
+$res = arrayDB("select title,ebay_id,shop_id as cdvet_id,vat from cdvet where vat in(5,16) order by vat");
+draw_table_with_sql_results($res);
+
+
+
+return;
+$arr = readExcel('csv/apartments.xlsx');
+
+if ($arr[1] && $arr[2]){
+
+	$first_row = $arr[1];
+	unset($arr[1]);
+
+	sa($first_row);
+	$arr = array_map(function($excel_row) use ($first_row)
+	{
+		$new_row = [];
+		foreach ($excel_row as $key => $value) {
+			$new_row[$first_row[$key]] = $value;
+		}
+		return $new_row;
+	}, $arr);
+	sa($arr);
+}
+
+
+
+
+
+
+
+
+return;
+$res = file_get_contents('csv/cdvet-products-09.12.20.json');
+$res = json_decode($res, true);
+
+// sa($res);
+// return;
+
+$parrents_arr = [];
+foreach ($res as $key => $value) {
+	$parrents_arr[$value['A']] = [
+				'categoryId' => $value['A'],
+				'parentID' => $value['B'],
+				'metatitle' => $value['E'],
+				'description' => $value['C'],
+				// 'position' => $value['D'],
+	];
+}
+
+sa($parrents_arr);
+return;
+
+// $final_arr = [];
+// foreach ($res as $key => $val) {
+// 	if ($val['B'] == '1651') {
+// 		$final_arr[$val['A']] = [];
+// 	}
+// }
+
+$hund_cats = [];
+
+foreach ($parrents_arr['1651'] as $key => &$value) {
+	if (isset($parrents_arr[$value['categoryId']])) {
+		foreach ($parrents_arr[$value['categoryId']] as $key => &$value2) {
+			if (isset($parrents_arr[$value2['categoryId']])) {
+				$value2['children'] =  $parrents_arr[$value2['categoryId']];
+			}else{
+				$value2['children'] =  0;
+			}
+			$hund_cats[$value2['categoryId']] = $res[$value2['categoryId']];
+		}
+		$value['children'] = $parrents_arr[$value['categoryId']];
+	}else{
+		$value['children'] = 0;
+	}
+	$hund_cats[$value['categoryId']] = $res[$value['categoryId']];
+}
+
+sa(JSON_PRETTY_PRINT);
+sa($parrents_arr['1651']);
+
+$hund_cats = array_map(function($value)
+{
+	return [
+				'categoryId' => $value['A'],
+				'parentID' => $value['B'],
+				'metatitle' => $value['E'],
+				'description' => $value['C'],
+				'dev_cat_id' => '111',
+				'prod_cat_id' => '222',
+		];
+}, $hund_cats);
+sa($hund_cats);
+// file_put_contents('csv/hundefutter_cats.json', json_encode($hund_cats, JSON_PRETTY_PRINT));
+
+// sa($res);
+
+
+return;
+$res = file_get_contents('csv/cdvet-products-09.12.20.json');
+$res = json_decode($res, true);
+$res = array_column($res, null, 'A');
+$res = array_map(function($el)
+{
+	return [
+		'shop_id' => $el['A'],
+		'price' => $el['K'],
+		'tax' => $el['F'],
+		'cats' => $el['R'],
+	];
+}, $res);
+
+
+
+sa($res);
+
+return;
+
+
+
+
+
+
+return;
+$cdvet_feed = json_decode(file_get_contents('csv/cdvet_feed.json'), true);
+sa(count($cdvet_feed));
+sa($cdvet_feed[30]);
+foreach (explode('|', $cdvet_feed[30][16]) as $key => $img_src) {
+	echo "<img src='$img_src' style='width:100px'>";
+}
+
+
+$res = arrayDB("SELECT shop_id,ebay_id,extra_field2,title FROM cdvet");
+
+foreach ($res as $key => &$value) {
+	if (isset($cdvet_feed[$value['shop_id']])) {
+		$value['volume'] = $cdvet_feed[$value['shop_id']][8].$cdvet_feed[$value['shop_id']][7];
+		$value['volume'] = str_replace(
+			['0.5l','0.25l','0.72kg','0.2l','0.6kg','0.8kg','0.25kg','0.5kg','0.7kg','0.4kg','0.3kg','0.35kg'],
+			['500ml','250ml','720g','200ml','600g', '800g', '250g',  '500g', '700g', '400g', '300g',  '350g'],
+			$value['volume']);
+		$digits_title = preg_replace('/\D/', '', $value['title']);
+		$digits_volume = preg_replace('/\D/', '', $value['volume']);
+		$value['good'] = $digits_title === $digits_volume ? 'goodd' : 'badd';
+		if(strpos($value['title'], $value['volume']) !== false) $value['good'] = 'goodd';
+		$value['shop title'] = $cdvet_feed[$value['shop_id']][4];
+	}else{
+		$value['volume'] = $value['shop title'] = $value['good'] = '-';
+		if($value['extra_field2'] === 'update_pics1') $value['extra_field2'] = 'not_in_feed';
+	}
+}
+
+draw_table_with_sql_results($res, true);
+
+
+
+return;
+$file_path = 'csv/Kategorie-Metadescription-1.1.xls';
+
+$sheet_1 = readExcel($file_path);
+$sheet_2 = readExcel($file_path, 1);
+
+$sheet_1 = array_column($sheet_1, null, 'A');
+
+foreach ($sheet_1 as $key => &$value) {
+	$value['count'] = 0;
+}
+foreach ($sheet_2 as $key => &$value) {
+	$value['E'] = '';
+}
+
+$not_existing_cats = [];
+foreach ($sheet_2 as $key => $row) {
+	$cats_arr = explode('|', $row['D']);
+	if (in_array(1651, $cats_arr)) {
+		$sheet_2[$key]['E'] = 'in Hund';
+	}
+	foreach ($cats_arr as $key => $cat_id) {
+		if ($cat_id) {
+			if (isset($sheet_1[$cat_id])) {
+				$sheet_1[$cat_id]['count'] += 1;
+			}else{
+				if(isset($not_existing_cats[$cat_id])){
+					$not_existing_cats[$cat_id] += 1;
+				}else{
+					$not_existing_cats[$cat_id] = 0;
+				}
+			}
+		}
+	}
+}
+
+// sa($sheet_2);
+
+// $cats_arr = [];
+// for ($i=2; $i <= count($sheet_1); $i++) { 
+// 	$cats_arr[] = $sheet_1[$i]['A'];
+// }
+// sa($cats_arr);
+
+?>
+<div class="container-fluid">
+	<table class="ppp-table">
+		<?php foreach ($sheet_2 as $key => $row): break;?>
+			<tr>
+				<td><?= $row['A'] ?></td>
+				<td><?= $row['E'] ?></td>
+			</tr>
+		<?php endforeach ?>
+	</table>
+	<div class="row">
+		<div class="col-sm-4"><?php // sa($sheet_1); ?></div>
+		<div class="col-sm-4"><?php // sa($sheet_2); ?></div>
+		<div class="col-sm-4"><?php // sa($not_existing_cats); ?></div>
+	</div>
+</div>
+<?php
+
+
+return;
+$res = Cdvet::GetSellerList();
+$res = array_map(function($el)
+{
+	return $el['ItemID'];
+}, $res);
+sa($res);
+
+
+
+
+
+
+return;
+$res = unserialize('a:2:{s:8:"pa_value";a:6:{s:4:"name";s:8:"pa_value";s:5:"value";s:0:"";s:8:"position";i:0;s:10:"is_visible";i:0;s:12:"is_variation";i:1;s:11:"is_taxonomy";i:1;}s:7:"pa_size";a:6:{s:4:"name";s:7:"pa_size";s:5:"value";s:0:"";s:8:"position";i:1;s:10:"is_visible";i:1;s:12:"is_variation";i:1;s:11:"is_taxonomy";i:1;}}');
+
+sa($res);
+
+$res = unserialize('a:2:{s:8:"pa_value";a:6:{s:4:"name";s:8:"pa_value";s:5:"value";s:0:"";s:8:"position";i:0;s:10:"is_visible";i:0;s:12:"is_variation";i:1;s:11:"is_taxonomy";i:1;}s:7:"pa_size";a:6:{s:4:"name";s:7:"pa_size";s:5:"value";s:0:"";s:8:"position";i:1;s:10:"is_visible";i:1;s:12:"is_variation";i:1;s:11:"is_taxonomy";i:1;}}');
+
+sa($res);
+
+$res = unserialize('a:8:{s:10:"wc_notices";N;s:4:"cart";s:455:"a:1:{s:32:"47d5e07a1b44a9638bab53f869cd4c9a";a:11:{s:3:"key";s:32:"47d5e07a1b44a9638bab53f869cd4c9a";s:10:"product_id";i:2977;s:12:"variation_id";i:2991;s:9:"variation";a:1:{s:17:"attribute_pa_size";s:4:"60-g";}s:8:"quantity";i:1;s:9:"data_hash";s:32:"4da846832186be7554db60b9d3723c11";s:13:"line_tax_data";a:2:{s:8:"subtotal";a:0:{}s:5:"total";a:0:{}}s:13:"line_subtotal";d:6.27;s:17:"line_subtotal_tax";i:0;s:10:"line_total";d:6.27;s:8:"line_tax";i:0;}}";s:11:"cart_totals";s:402:"a:15:{s:8:"subtotal";s:4:"6.27";s:12:"subtotal_tax";d:0;s:14:"shipping_total";s:4:"0.00";s:12:"shipping_tax";i:0;s:14:"shipping_taxes";a:0:{}s:14:"discount_total";i:0;s:12:"discount_tax";i:0;s:19:"cart_contents_total";s:4:"6.27";s:17:"cart_contents_tax";i:0;s:19:"cart_contents_taxes";a:0:{}s:9:"fee_total";s:4:"0.00";s:7:"fee_tax";i:0;s:9:"fee_taxes";a:0:{}s:5:"total";s:4:"6.27";s:9:"total_tax";d:0;}";s:15:"applied_coupons";s:6:"a:0:{}";s:22:"coupon_discount_totals";s:6:"a:0:{}";s:26:"coupon_discount_tax_totals";s:6:"a:0:{}";s:21:"removed_cart_contents";s:6:"a:0:{}";s:8:"customer";s:726:"a:26:{s:2:"id";s:1:"1";s:13:"date_modified";s:25:"2020-10-04T17:32:14+00:00";s:8:"postcode";s:0:"";s:4:"city";s:0:"";s:9:"address_1";s:0:"";s:7:"address";s:0:"";s:9:"address_2";s:0:"";s:5:"state";s:0:"";s:7:"country";s:2:"DE";s:17:"shipping_postcode";s:0:"";s:13:"shipping_city";s:0:"";s:18:"shipping_address_1";s:0:"";s:16:"shipping_address";s:0:"";s:18:"shipping_address_2";s:0:"";s:14:"shipping_state";s:0:"";s:16:"shipping_country";s:2:"DE";s:13:"is_vat_exempt";s:0:"";s:19:"calculated_shipping";s:0:"";s:10:"first_name";s:0:"";s:9:"last_name";s:0:"";s:7:"company";s:0:"";s:5:"phone";s:0:"";s:5:"email";s:12:"dsfg@sdf.gfh";s:19:"shipping_first_name";s:0:"";s:18:"shipping_last_name";s:0:"";s:16:"shipping_company";s:0:"";}";}');
+
+sa($res);
+
+foreach ($res as $key => $val) {
+	sa(unserialize($val));
+}
+
+return;
+$Woo = new WooCommerceApi([
+	'store_url' => 'http://cdvet-feed.loc/',
+	'api_key' => CDVET_WOO_KEY,
+	'api_secret' => CDVET_WOO_SECRET
+]);
+
+
+
+$data = [
+		'regular_price' => '13.33',
+];
+
+
+// $res = $Woo->addProduct($data);
+$res = $Woo->updateProduct($id = 24, $data);
+
+sa($res);
+
+
+
+
+
+
+
+
+return;
+// for ($i=1; $i < 96; $i++) {
+
+// 	sa($i);
+// 	$res = Ebay_shopping2::findItemsAdvanced(0, 'fiedifighters_de', $i, 100);
+// 	$res = gml_clean_result(json_decode($res,1));
+// 	echo($res['findItemsAdvancedResponse']['ack']);
+
+// 	if ($res['findItemsAdvancedResponse']['ack'] !== 'Success') {
+// 		break;
+// 	}
+
+// 	foreach ($res['findItemsAdvancedResponse']['searchResult']['item'] as $key => $item) {
+// 		// arrayDB("INSERT IGNORE INTO temp_ebay_pics_parser SET ebay_id = '$item[itemId]'");
+// 		$item['title'] = _esc($item['title']);
+// 		arrayDB("UPDATE temp_ebay_pics_parser SET title = '$item[title]' WHERE ebay_id = '$item[itemId]'");
+// 	}
+
+// }
+
+// $res = Ebay_shopping2::findItemsAdvanced(0, 'fiedifighters_de', $page = 36, $perPage = 100);
+
+// $res = gml_clean_result(json_decode($res,1));
+
+// sa($res);
+
+
+// foreach ($res['findItemsAdvancedResponse']['searchResult']['item'] as $key => $item) {
+// 	sa($item['itemId']);
+// 	arrayDB("INSERT IGNORE INTO temp_ebay_pics_parser SET ebay_id = '$item[itemId]'");
+// }
+
+
+
+
+return;
 sa(strlen(md5('11')));
 sa(md5('11'));
 
@@ -189,7 +730,7 @@ return;
 	$multi_curl->error(function($instance) {
 		global $_ERRORS;
 		$_ERRORS[] = 'THAT WAS multi_curl ERROR!!!';
-	    $_ERRORS[] = $instance->errorMessage;
+			$_ERRORS[] = $instance->errorMessage;
 	});
 
 	// for ($offs=0; $offs < 701; $offs += 100) { 
@@ -354,14 +895,14 @@ preg_match_all( '@\[([^<>&/\[\]\x00-\x20=]++)@', $content, $matches );
 sa($matches);
 
 $shortcode_tags = [
-    'embed' => '__return_false',
-    'dd-owl-carousel' => [
-            '0' => [
-                    'plugin_name:Owl_Carousel_2_Public:private' => 'owl-carousel-2',
-                    'version:Owl_Carousel_2_Public:private' => '1.0.8'
-                ],
-            '1' => 'dd_owl_carousel_two'
-        ]
+		'embed' => '__return_false',
+		'dd-owl-carousel' => [
+						'0' => [
+										'plugin_name:Owl_Carousel_2_Public:private' => 'owl-carousel-2',
+										'version:Owl_Carousel_2_Public:private' => '1.0.8'
+								],
+						'1' => 'dd_owl_carousel_two'
+				]
 	];
 
 $tagnames = array_intersect( array_keys( $shortcode_tags ), $matches[1] );
@@ -392,13 +933,13 @@ return;
 
 
 return
-    $dest = get_steam_images_dir_path('app', '640900');
-    var_dump(file_exists($dest.'/header.jpg'));
-    echo "<hr>";
-    var_dump(filesize($dest.'/header.jpg'));
-    $img_exists = (file_exists($dest.'/header.jpg') && filesize($dest.'/header.jpg') > 30000);
-    echo "<hr>";
-    var_dump($img_exists);
+		$dest = get_steam_images_dir_path('app', '640900');
+		var_dump(file_exists($dest.'/header.jpg'));
+		echo "<hr>";
+		var_dump(filesize($dest.'/header.jpg'));
+		$img_exists = (file_exists($dest.'/header.jpg') && filesize($dest.'/header.jpg') > 30000);
+		echo "<hr>";
+		var_dump($img_exists);
 
 
 
@@ -524,27 +1065,27 @@ $data = [
 ];
 
 $data_ = [
-    'name' => 'Premium Quality',
-    'type' => 'simple',
-    'regular_price' => '21.99',
-    'description' => 'Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.',
-    'short_description' => 'Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.',
-    'categories' => [
-        [
-            'id' => 9
-        ],
-        [
-            'id' => 14
-        ]
-    ],
-    'images' => [
-        [
-            'src' => 'http://demo.woothemes.com/woocommerce/wp-content/uploads/sites/56/2013/06/T_2_front.jpg'
-        ],
-        [
-            'src' => 'http://demo.woothemes.com/woocommerce/wp-content/uploads/sites/56/2013/06/T_2_back.jpg'
-        ]
-    ]
+		'name' => 'Premium Quality',
+		'type' => 'simple',
+		'regular_price' => '21.99',
+		'description' => 'Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.',
+		'short_description' => 'Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.',
+		'categories' => [
+				[
+						'id' => 9
+				],
+				[
+						'id' => 14
+				]
+		],
+		'images' => [
+				[
+						'src' => 'http://demo.woothemes.com/woocommerce/wp-content/uploads/sites/56/2013/06/T_2_front.jpg'
+				],
+				[
+						'src' => 'http://demo.woothemes.com/woocommerce/wp-content/uploads/sites/56/2013/06/T_2_back.jpg'
+				]
+		]
 ];
 
 $res = $WooCommerceApi->addProduct($data);

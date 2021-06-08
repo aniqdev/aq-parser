@@ -1,5 +1,119 @@
+<script>
+	
+const cl = console.log
+
+function getToken(){
+    const url = 'http://yvonne-server.loc/api/login';
+    let data = {
+            email: 'kluettgen@example.com',
+            password: 'password',
+            remember: true,
+            device_name: 'chrome'
+        }
+    fetch(url, {
+        method: 'POST', // или 'PUT'
+        body: new URLSearchParams(data).toString(), // данные могут быть 'строкой' или {объектом}!
+        headers: {
+        	// 'Content-Type': 'application/json'
+        	'Content-Type': 'application/x-www-form-urlencoded'
+        	}
+    }).then((response) => {
+	    return response.json();
+	}).then((data) => {
+	    console.log(data);
+	});
+}
+getToken()
+
+function getUser(){
+    const url = 'http://yvonne-server.loc/api/user';
+
+    fetch(url, {
+        method: 'GET', // или 'PUT'
+        headers: {
+        	// 'Content-Type': 'application/json'
+        	'Content-Type': 'application/x-www-form-urlencoded',
+        	'Authorization': 'Bearer 19|3ptDEiqTy7VHN0oK7qUz0Ps3iUc5aRw6YAJehcIw'
+        }
+    }).then((response) => {
+	    return response.json();
+	}).then((data) => {
+	    console.log(data);
+	});
+}
+// getUser()
+</script>
 <?php ini_get('safe_mode') or set_time_limit(1300);
 
+
+
+
+
+
+//sa(json_decode(base64_decode('eyIwIjoiNDI1IiwiMSI6IkNsYXNzaWMiLCIyIjoiQ2xhc3NpYyIsIjMiOiI0MDQwMDU2MDA0MjUyIiwiNCI6IkRhcm1Ba3RpdiBIdW5kICYgS2F0emUiLCI1IjoiMC4xMjYiLCI2IjoiMTAiLCI3IjoibWwiLCI4IjoiMTAwIiwiMTAiOiJIdW5kPlByb2R1a3RlIEEtWiIsIjExIjoiMTY1MSIsIjEyIjoiNiwyNSIsIjEzIjoiNi4yNSBcdTIwYWMgXC8gMTAwIG1sIiwiMTQiOiJodHRwczpcL1wvd3d3LmNkdmV0LmRlXC9kYXJtYWt0aXYtaHVuZC1rYXR6ZSIsIjE1IjoiaHR0cHM6XC9cL3d3dy5jZHZldC5kZVwvbWVkaWFcL2ltYWdlXC9hNlwvYzRcLzQyXC9pbWFnZV9WSDQyNV8xXzEyODB4MTI4MC5wbmciLCIxNiI6Imh0dHBzOlwvXC93d3cuY2R2ZXQuZGVcL21lZGlhXC9pbWFnZVwvYmZcL2UxXC9hM1wvaW1hZ2VfNDI1XzFfMTI4MHgxMjgwLnBuZ3xodHRwczpcL1wvd3d3LmNkdmV0LmRlXC9tZWRpYVwvaW1hZ2VcLzBhXC8wMlwvYmRcL2ltYWdlXzQyNV8yXzEyODB4MTI4MC5wbmd8aHR0cHM6XC9cL3d3dy5jZHZldC5kZVwvbWVkaWFcL2ltYWdlXC9hNlwvYzRcLzQyXC9pbWFnZV9WSDQyNV8xXzEyODB4MTI4MC5wbmciLCIxNyI6IjIgVGFnZSIsIjE4IjoiMyw5NSIsIjE5IjoiRXJuXHUwMGU0aHJ1bmdzYmVkaW5ndGUgVW50ZXJzdFx1MDBmY3R6dW5nIGRlciBEYXJtZmxvcmEsIGZsXHUwMGZjc3NpZyBEYXJtQWt0aXYgZlx1MDBmY3IgSHVuZGUgdW5kIEthdHplbiB1bnRlcnN0XHUwMGZjdHp0IGRpZSBEYXJta29uZGl0aW9uLCBpbnNiZXNvbmRlcmUgYmVpIGVyblx1MDBlNGhydW5nc2JlZGluZ3QgZ2VzdFx1MDBmNnJ0ZXIgRGFybWZsb3JhIHVuZCBWZXJkYXV1bmdzcHJvYmxlbWVuLiBGZXJtZW50aWVydGVyIFBmbGFuemVuYXVzenVnIGF1cyBXaWxkLSB1bmQgR2V3XHUwMGZjcnprclx1MDBlNHV0ZXJuIG5hY2ggc3BlemllbGxlciBjZFZldCBSZXplcHR1ci4iLCIyMCI6IiJ9')));
+
+
+
+
+return;
+$res = Cdvet::updateItemVATPercent('253956809233', 5);
+// $res = Cdvet::updateItemTitle('253956809233', '22');
+// $res = Cdvet::changeQuantity('253956809233', '5');
+
+// cdVet® LactoMint 2.5kg Agrar Euterpflege mit Ätherischen Ölen keine Hemmstoffe
+sa($res);
+
+
+
+return;
+$res = arrayDB("SELECT * from temp_ebay_pics_parser");
+
+// sa($res);
+
+echo '<table class="ppp-table" style="max-width: 10600px;">';
+foreach ($res as $key => $item) {
+	echo '<tr><td>'.$item['ebay_id'].'</td>';
+	echo '<td>'.$item['title'].'</td><td>';
+	if ($item['pics_hashes']) {
+		foreach (explode(',', $item['pics_hashes']) as $key => $pic_hash) {
+			echo 'https://i.ebayimg.com/images/g/'.$pic_hash.'/s-l2000.jpg<br>';
+		}
+	}else{
+		echo $item['flag'];
+	}
+	echo '</td></tr>';
+}
+echo '</table>';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+return;
 $table = 'steam_de';
 $options = array('http' => array('method' => "GET", 'header' => "Accept-language: en-US\r\n" . "Cookie: Steam_Language=".get_language_by_table($table)."; mature_content=1; birthtime=238921201; lastagecheckage=28-July-1977\r\n"));
 $context = stream_context_create($options);

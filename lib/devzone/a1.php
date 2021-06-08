@@ -1,6 +1,48 @@
 <?php
 
 
+
+
+
+
+
+
+$feed_1 = file_get_contents('http://cdvet-parser.gig-games.de/b2b/input.json');
+
+$feed_1 = json_decode($feed_1, 1);
+
+sa(count($feed_1));
+
+// sa($feed_1);
+
+
+
+
+
+
+
+
+return;
+sa(calc_price(7.9, 5));
+
+function calc_price($old_price, $tax)
+{
+  $price = (float)$old_price * 1.25;
+  sa($price);
+  if($tax == 5) $price = $price * 1.07;
+  if($tax == 16) $price = $price * 1.19;
+  sa($price);
+  $price = round($price, 2);
+  $int = (int)$price;
+  $cents = $price*100 % 100;
+  $cents = $cents < 50 ? 49 : 99;
+  $cents = $cents / 100;
+  return (string)($int + $cents);
+}
+
+
+
+return;
 $speed_res = arrayDB("SELECT id,date_format(created_at, '%H:00') as daten, count(*) as count FROM `moda_cron_update` where created_at > (now() - interval  1 day)  group by hour(created_at) order by id");
 
 sa($speed_res);

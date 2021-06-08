@@ -90,10 +90,10 @@ if ($_GET['scan']) {
             $reviews = '';
         }
 
-        // $aggregator[$appsub.'-'.$appid]['title'] = $title;
-        // $aggregator[$appsub.'-'.$appid]['reg_price'] = $reg_price;
-        // $aggregator[$appsub.'-'.$appid]['rating'] = $rating;
-        // $aggregator[$appsub.'-'.$appid]['reviews'] = $reviews;
+        $aggregator[$appsub.'-'.$appid]['title'] = $title;
+        $aggregator[$appsub.'-'.$appid]['reg_price'] = $reg_price;
+        $aggregator[$appsub.'-'.$appid]['rating'] = $rating;
+        $aggregator[$appsub.'-'.$appid]['reviews'] = $reviews;
 
 
         $appid     = _esc(trim($appid));

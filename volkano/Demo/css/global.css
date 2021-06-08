@@ -1,0 +1,50 @@
+body {
+    position: relative;
+    color: #000;
+    font-size: 16px;
+    font-family: Verdana, Arial, sans-serif;
+}
+
+table {
+    margin-left: 40px;
+    width: 620px;
+}
+
+th {
+    text-align: left;
+    width: 280px;
+    font-size: 24px;
+    vertical-align: top;
+}
+
+td {
+    text-align: left;
+    width: 400px;
+    font-size: 16px;
+}
+
+body{
+    background-color: #fadbd3;
+}
+.title-td{
+        /* vertical-align: bottom; */
+}
+.title{
+    font-size: 50px;
+    color: #000;
+}
+.logo-td{
+    text-align: right;
+}
+.logo{
+    width: 200px;
+    padding: 20px 10px 20px 90px;
+    /* float: right; */
+}
+.banner-td{
+        text-align: right;
+}
+.banner{
+    width: 100%;
+    margin-bottom: 20px;
+}

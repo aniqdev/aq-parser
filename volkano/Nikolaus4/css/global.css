@@ -1,0 +1,30 @@
+body {}
+
+.parent {
+    position: absolute;
+    color: #000;
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    width: 100%;
+    font-family: Verdana, Arial, sans-serif;
+}
+
+.code {
+    bottom: 265px;
+}
+
+.value {
+    bottom: 180px;
+}
+
+.shopName {
+    bottom: 95px;
+    font-size: 20px;
+}
+
+.shopUrl {
+    bottom: 67px;
+    font-size: 16px;
+    font-weight: normal;
+}

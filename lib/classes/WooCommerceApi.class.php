@@ -2,26 +2,33 @@
 
 class WooCommerceApi{
 
-		private $woocommerce;
-		
-		function __construct(){
+	private $woocommerce;
+	
+	function __construct($opts = []){
 
-				$this->woocommerce = new \Automattic\WooCommerce\Client(
-						'https://gig-games.de/', // Your store URL
-						WOO_CK, // Your consumer key
-						WOO_CS, // Your consumer secret
-						[
-				        'wp_api' => true,
-				        'version' => 'wc/v3',
-				        // 'version' => 'v3',
-						 // 'verify_ssl'=>false,
-						 // 'ssl_enabled'=>false,
-						 'query_string_auth' => true,
-						 // 'oauth_timestamp' => time() + (60*60)
-						 // 'user_agent'=>'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'
-						 ]
-				);
-		}
+
+		$opts = array_merge([
+			'store_url' => 'https://gig-games.de/',
+			'api_key' => WOO_CK,
+			'api_secret' => WOO_CS
+		], $opts);
+
+		$this->woocommerce = new \Automattic\WooCommerce\Client(
+				$opts['store_url'], // Your store URL
+				$opts['api_key'], // Your consumer key
+				$opts['api_secret'], // Your consumer secret
+				[
+		        'wp_api' => true,
+		        'version' => 'wc/v3',
+		        // 'version' => 'v3',
+				 // 'verify_ssl'=>false,
+				 // 'ssl_enabled'=>false,
+				 'query_string_auth' => true,
+				 // 'oauth_timestamp' => time() + (60*60)
+				 // 'user_agent'=>'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'
+				 ]
+		);
+	}
 
 //--------------------------------------------------------------------
 		/*
@@ -46,6 +53,13 @@ class WooCommerceApi{
 		public function addProduct($data){
 
 				return $this->woocommerce->post('products', $data);
+		}
+
+		
+		public function updateProduct($id, $data)
+		{
+			$id = (int)$id;
+			return $this->woocommerce->put('products/'.$id, $data);
 		}
 
 //--------------------------------------------------------------------

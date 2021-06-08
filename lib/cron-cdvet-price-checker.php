@@ -17,7 +17,7 @@ $feed_old = array_column($feed_old, null, 'shop_id');
 
 // var_dump($feed_new[175][5] === $feed_old[175]['desc']);
 
-xa($feed_new);
+// xa($feed_new);
 // sa($feed_old);
 return;
 

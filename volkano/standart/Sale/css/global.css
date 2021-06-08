@@ -1,0 +1,52 @@
+body {
+    position: relative;
+    color: #000;
+    font-size: 16px;
+    font-family: Verdana, Arial, sans-serif;
+}
+
+table {
+    margin-left: 40px;
+    /* width: 620px; */
+    width: 100%;
+}
+
+th {
+    text-align: left;
+    width: 220px;
+    font-size: 24px;
+    vertical-align: top;
+}
+
+td {
+    text-align: left;
+    width: 310px;
+    font-size: 16px;
+}
+
+body{
+    background-color: #fadbd3;
+}
+.title-td{
+        vertical-align: middle;
+}
+.title{
+    font-size: 50px;
+    color: #000;
+}
+.logo-td{
+    text-align: right;
+}
+.logo{
+    width: 200px;
+    padding: 20px 10px 20px 70px;
+
+}
+.banner-td{
+        text-align: right;
+        width: 620px;
+}
+.banner{
+    width: 100%;
+    margin-bottom: 20px;
+}

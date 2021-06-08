@@ -1,0 +1,136 @@
+#anim_dog{
+    position: fixed;
+    bottom: 51px;
+    z-index: 9999;
+    width: 250px;
+    left: 0;
+}
+
+#cloud_xs,
+#cloud_sm,
+#anim_dog_cloud{
+    display: block;
+    position: absolute;
+    background: #fff;
+    /* box-shadow: 0 0 5px #888; */
+    border: 3px solid #a8a8a8;
+    border-radius: 50%;
+    animation: 6s anime-cloud-appear linear;
+}
+#cloud_xs{
+    width: 16px;
+    height: 16px;
+    z-index: -2;
+    bottom: 92%;
+    left: 127px;
+}
+#cloud_sm{
+    width: 27px;
+    height: 22px;
+    z-index: -2;
+    bottom: 99%;
+    left: 107px;
+}
+#anim_dog_cloud{
+    width: 140px;
+    height: 80px;
+    text-align: center;
+    overflow: hidden;
+    bottom: 108%;
+    left: 4%;
+}
+#anim_dog_cloud .-inner{
+    /*outline: 1px solid #fbb;*/
+    font-weight: bold;
+    width: 129px;
+    display: inline-block;
+    position: relative;
+    margin: 0;
+    color: #5f7285;
+    font-size: 14px;
+    line-height: 17px;
+    /*animation: 10s anime-banner-text 5s linear infinite;*/
+    /*transition: top 6s linear;*/
+}
+#anim_dog_cloud .-inner > div{
+    padding: 16px 10px;
+}
+
+@keyframes anime-cloud-appear{
+    0%{
+        opacity: 0;
+    }
+    50%{
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+    }
+}
+
+@keyframes anime-banner-text2{
+    0%{
+        top: 0px;
+    }
+    30%{
+        top: -50px;
+    }
+    60%{
+        top: -50px;
+    }
+    100%{
+        top: -134px;
+    }
+}
+
+#anim_banner{
+    position: fixed;
+    bottom: 62px;
+    z-index: 9999;
+    width: 500px;
+    left: 250px;
+    animation: 3.2s anime-banner;
+}
+
+#anim_close{
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    background: rgba(0,0,0,0.14);
+    text-align: center;
+    line-height: 28px;
+    border-radius: 30px;
+    opacity: 0.5;
+    font-size: 32px;
+    cursor: pointer;
+    user-select: none;
+    color: #820024;
+}
+
+@keyframes anime-banner{
+    0%{
+        left: 1700px;
+    }
+    100%{
+        left: 250px;
+    }
+}
+
+@media (max-width: 991px){
+    #anim_dog{
+        left: -69px;
+    }
+    #cloud_xs{
+        left: 171px;
+        bottom: 89%;
+    }
+    #cloud_sm {
+        left: 177px;
+        bottom: 97%;
+    }
+    #anim_dog_cloud {
+        left: 39%;
+    }
+}

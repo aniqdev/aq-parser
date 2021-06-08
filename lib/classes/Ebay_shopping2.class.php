@@ -43,7 +43,7 @@ class Ebay_shopping2{
 				 if($request) $url .= "&keywords=".rawurlencode($request);
 				 $url .= "&paginationInput.entriesPerPage=$perPage";
 				 $url .= "&paginationInput.pageNumber=".$page;
-		    	 // $url .= "&sortOrder=StartTimeNewest";
+		    	 $url .= "&sortOrder=CurrentPriceHighest";
 
 
 				// Открываем файл с помощью установленных выше HTTP-заголовков
@@ -118,7 +118,7 @@ class Ebay_shopping2{
 				$url .= '&version=1079';
 				$url .= '&ItemID='.$itemId;
 				// $url .= '&IncludeSelector=Details,TextDescription';
-				$url .= '&IncludeSelector=Details,ItemSpecifics,Description,Variations';
+				// $url .= '&IncludeSelector=Details,ItemSpecifics,Description,Variations';
 				// $url .= '&IncludeSelector=Details,TextDescription';
 
 				// Открываем файл с помощью установленных выше HTTP-заголовков
@@ -127,7 +127,7 @@ class Ebay_shopping2{
 				return $json;
 		}
 
-		static function getSingleItem_moda($itemId, $as_array = 0){
+		static function getSingleItem_moda($itemId, $as_array = 0, $IncludeSelector = 'Details'){
 				$url = 'http://open.api.ebay.com/shopping';
 				$url .= '?callname=GetSingleItem';
 				$url .= '&responseencoding=JSON';
@@ -136,7 +136,7 @@ class Ebay_shopping2{
 				$url .= '&version=1079';
 				$url .= '&ItemID='.$itemId;
 				// $url .= '&IncludeSelector=Details,TextDescription'; // or Description
-				$url .= '&IncludeSelector=Details,ItemSpecifics,TextDescription,Variations';
+				if($IncludeSelector) $url .= '&IncludeSelector='.$IncludeSelector;
 				// $url .= '&IncludeSelector=Details,TextDescription';
 
 				// Открываем файл с помощью установленных выше HTTP-заголовков
@@ -153,7 +153,7 @@ class Ebay_shopping2{
 		 		$url .= '&siteid=77';
 				$url .= '&version=1079';
 				$url .= '&ItemID='.$itemId;
-				$url .= '&IncludeSelector=Details,TextDescription';
+				$url .= '&IncludeSelector=Details';
 				// $url .= '&IncludeSelector=Details,ItemSpecifics,Description,Variations';
 				// $url .= '&IncludeSelector=Details,TextDescription';
 

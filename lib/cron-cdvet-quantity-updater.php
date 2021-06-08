@@ -39,11 +39,11 @@ foreach ($ebay_item_arr as $key => $ebay_item) {
 		pc_add_to_items_arr($items_arr, $elements_arr);
 		continue;
 	}
-	if ($feed_new[$shop_id][17] === '2 Tage' && $quantity != '2') {
+	if ($feed_new[$shop_id][17] === '2 Tage' && $quantity != '2' && !is_cdvet_forbidden_product($ebay_id)) {
 		$elements_arr['ItemID'] =  $ebay_id;
 		$elements_arr['Quantity'] = '2';
 	}
-	if ($feed_new[$shop_id][12] == 0) {
+	if ($feed_new[$shop_id][12] == 0 || is_cdvet_forbidden_product($ebay_id)) {
 		$elements_arr['ItemID'] =  $ebay_id;
 		$elements_arr['Quantity'] = '0';
 		file_put_contents($file, $ebay_id.PHP_EOL, FILE_APPEND);
@@ -53,8 +53,9 @@ foreach ($ebay_item_arr as $key => $ebay_item) {
 	sa(['$ebay_id' => $ebay_id,
 		'$feed_new' => $feed_new[$shop_id][17],
 		'$quantity' => $quantity]);
-}
+} // foreach
 
+sa(count($items_arr));
 sa($items_arr);
 
 if(defined('DEV_MODE')) return;

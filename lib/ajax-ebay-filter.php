@@ -176,8 +176,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_filter_data') {
 		// $to_json_arr[$v['name']][$v['value']] = $v['count'];
 		$to_json_arr[$v['name']][] = ['v' => $v['value'], 'c' => $v['count']];
 	}
-	$to_json_arr['picture_hashes'] = arrayDB("SELECT item_id,picture_hash FROM ebay_prices");
-	$to_json_arr['picture_hashes'] = array_column($to_json_arr['picture_hashes'], 'picture_hash', 'item_id');
 
 	$to_json_arr['max_reviews'] = arrayDB("SELECT o_reviews from steam_de where ebay_id <> '' order by o_reviews desc limit 1")[0]['o_reviews'];
 

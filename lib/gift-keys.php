@@ -3,7 +3,7 @@
 
 
 // sa($_POST);
-
+$report = '';
 if ($_POST && isset($_POST['gift_keys_add_key'])) {
 	if ($_POST['key']) $report = Gift_keys::save_key();
 	if ($_FILES && $_FILES['file']['size']) $report = Gift_keys::save_keys();

@@ -14,7 +14,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 	// sript below
 
 
-	$extra_field_mark = 'desc_upadated4';
+	$extra_field_mark = 'desc_upadated5';
 
 	if($res[0]['extra_field'] === $extra_field_mark){
 		echo json_encode([
@@ -49,11 +49,17 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 
 	$cdvet_feed = json_decode(file_get_contents('csv/cdvet_feed.json'), true);
 
-	if(isset($cd_arr[$shop_id])) $row = $cd_arr[$shop_id];
-	else{
-		echo json_encode(['resp' => 'There are no excel info!',
-		  'text_resp' => '<pre>There are no excel info!</pre>',
-		  'ERRORS' => $_ERRORS]);
+	if(isset($cd_arr[$shop_id])){
+		$row = $cd_arr[$shop_id];
+	}else{
+		echo json_encode([
+			'resp' => 'There are no excel info!',
+		    'text_resp' => '<pre>There are no excel info!</pre>',
+			'offset' => $offset,
+			'count' => $count,
+			'res' => $res[0],
+			'ERRORS' => $_ERRORS,
+		]);
 		return;
 	}
 
@@ -106,14 +112,14 @@ if (isset($_POST['action']) && $_POST['action'] === 'iterate') {
 	$description = str_replace('#buybtn', 'https://offer.ebay.de/ws/eBayISAPI.dll?BinConfirm&rev=2&fromPage=2047675&item='.$ebay_id.'&quantity=1&fb=1', $description);
 
 	//----------------------------------------------------------------------------
+echo $description;
 
+	// $resp = Cdvet::updateItemDescription($ebay_id, $description);
+	// unset($resp['Fees']);
 
-	$resp = Cdvet::updateItemDescription($ebay_id, $description);
-	unset($resp['Fees']);
-
-	if (isset($resp['Ack']) && $resp['Ack'] !== 'Failure') {
-		arrayDB("UPDATE cdvet SET extra_field = '$extra_field_mark' WHERE id = '$cdvet_id'");
-	}
+	// if (isset($resp['Ack']) && $resp['Ack'] !== 'Failure') {
+	// 	arrayDB("UPDATE cdvet SET extra_field = '$extra_field_mark' WHERE id = '$cdvet_id'");
+	// }
 
 
 	//=============================================================================
@@ -154,7 +160,7 @@ function send_post(offset) {
 	$.post('ajax.php' + window.location.search,
 		{action:'iterate', offset:offset},
 		function (data) {
-			if (offset < data.count && offset < 1000) { // row limit
+			if (offset < data.count && offset < 10) { // row limit
 				if (data.resp && data.resp.Ack) 	var add = data.resp.Ack;
 				else var add = data.resp;
 				it_ins_msg(offset + ' : <a href="https://www.ebay.de/itm/'+data.resp.ItemID+'" target="_blank">' + data.res.title + '</a> | ' + add);

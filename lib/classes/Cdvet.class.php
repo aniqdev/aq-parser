@@ -589,6 +589,37 @@ class Cdvet
 		return json_decode(json_encode(simplexml_load_string($result)), true);
 	}
 
+	public static function updateItemVATPercent($item_id, $VATPercent = false)
+	{
+		$item_id = preg_replace('/\D/', '', $item_id);
+		if(!$item_id || !$VATPercent) return false;
+/*			    <VATDetails>
+			      <BusinessSeller>true</BusinessSeller>
+			      <RestrictedToBusiness>false</RestrictedToBusiness>
+			      <VATPercent>17</VATPercent>
+			    </VATDetails>*/
+		$xml = '<?xml version="1.0" encoding="utf-8"?>
+		<ReviseItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+			<RequesterCredentials>
+				<eBayAuthToken>'.EBAY_CDVET_TOKEN.'</eBayAuthToken>
+			</RequesterCredentials>
+			<Item ComplexType="ItemType">
+				<ItemID>'.$item_id.'</ItemID>
+			    <VATDetails>
+			      <BusinessSeller>true</BusinessSeller>
+			      <VATPercent>'.$VATPercent.'</VATPercent>
+			    </VATDetails>
+			</Item>
+			<MessageID>1</MessageID>
+			<WarningLevel>High</WarningLevel>
+			<Version>837</Version>
+		</ReviseItemRequest>​';
+
+		$headers = self::getHeaders('ReviseItem'); // 983
+		$result = self::request(self::$api_url, $xml, $headers);
+		return json_decode(json_encode(simplexml_load_string($result)), true);
+	}
+
 	public static function updateItemPictures($item_id, $pics_arr = [])
 	{
 		$item_id = preg_replace('/\D/', '', $item_id);

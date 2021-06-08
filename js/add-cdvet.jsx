@@ -220,3 +220,13 @@ class App extends React.Component {
     	)
 	}
 }
+try {
+	var addr_field = document.getElementById('shipping_address_address').parentNode.parentNode
+	var delivery_variants = document.getElementById('delivery_variants')
+	var order_form = document.getElementById('order_form')
+	order_form.insertBefore(addr_field, delivery_variants.nextSibling);
+} catch (e) {}
+
+var qsa = document.querySelectorAll
+qsa('[for="register"]').forEach(function(el){el.innerHTML = el.innerHTML.replace('Зареєструйтеся','Зареєструватися')})
+qsa('[for="order_comment"]').forEach(function(el){el.innerHTML = el.innerHTML.replace('Комментарі','Коментарі')})

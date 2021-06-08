@@ -1,0 +1,210 @@
+{
+    "1517": {
+        "categoryId": 1517,
+        "parentID": 1017,
+        "metatitle": "Futtererg\u00e4nzung",
+        "description": "Futtererg\u00e4nzung",
+        "dev_cat_id": "116",
+        "prod_cat_id": "128"
+    },
+    "1826": {
+        "categoryId": 1826,
+        "parentID": 1017,
+        "metatitle": "Trockenfutter",
+        "description": "Trockenfutter",
+        "dev_cat_id": "116",
+        "prod_cat_id": "129"
+    },
+    "1827": {
+        "categoryId": 1827,
+        "parentID": 1017,
+        "metatitle": "Snacks & Leckerlis",
+        "description": "Snacks & Leckerlis",
+        "dev_cat_id": "116",
+        "prod_cat_id": "130"
+    },
+    "1849": {
+        "categoryId": 1849,
+        "parentID": 1017,
+        "metatitle": "BARF & Frostfutter",
+        "description": "BARF & Frostfutter",
+        "dev_cat_id": "116",
+        "prod_cat_id": "131"
+    },
+    "307423": {
+        "categoryId": 307423,
+        "parentID": 1017,
+        "metatitle": "Barf Rechner",
+        "description": "BARF Rechner",
+        "dev_cat_id": "116",
+        "prod_cat_id": "132"
+    },
+    "1017": {
+        "categoryId": 1017,
+        "parentID": 1651,
+        "metatitle": "Hundefutter",
+        "description": "Hundefutter",
+        "dev_cat_id": "116",
+        "prod_cat_id": "127"
+    },
+    "1018": {
+        "categoryId": 1018,
+        "parentID": 1651,
+        "metatitle": "Produkte A-Z",
+        "description": "Produkte A-Z",
+        "dev_cat_id": "116",
+        "prod_cat_id": "133"
+    },
+    "1092": {
+        "categoryId": 1092,
+        "parentID": 1101,
+        "metatitle": "Atemwege",
+        "description": "Atemwege",
+        "dev_cat_id": "116",
+        "prod_cat_id": "135"
+    },
+    "1107": {
+        "categoryId": 1107,
+        "parentID": 1101,
+        "metatitle": "Herz-Kreislauf",
+        "description": "Herz-Kreislauf",
+        "dev_cat_id": "116",
+        "prod_cat_id": "136"
+    },
+    "1108": {
+        "categoryId": 1108,
+        "parentID": 1101,
+        "metatitle": "Stress",
+        "description": "Stress",
+        "dev_cat_id": "116",
+        "prod_cat_id": "137"
+    },
+    "1497": {
+        "categoryId": 1497,
+        "parentID": 1101,
+        "metatitle": "Stoffwechsel & Leber",
+        "description": "Stoffwechsel & Leber",
+        "dev_cat_id": "116",
+        "prod_cat_id": "138"
+    },
+    "1515": {
+        "categoryId": 1515,
+        "parentID": 1101,
+        "metatitle": "Magen & Darm",
+        "description": "Magen & Darm",
+        "dev_cat_id": "116",
+        "prod_cat_id": "139"
+    },
+    "1845": {
+        "categoryId": 1845,
+        "parentID": 1101,
+        "metatitle": "Immunsystem",
+        "description": "Immunsystem",
+        "dev_cat_id": "116",
+        "prod_cat_id": "140"
+    },
+    "1101": {
+        "categoryId": 1101,
+        "parentID": 1651,
+        "metatitle": "Gesundheit",
+        "description": "Gesundheit",
+        "dev_cat_id": "116",
+        "prod_cat_id": "134"
+    },
+    "1016": {
+        "categoryId": 1016,
+        "parentID": 1103,
+        "metatitle": "Augenpflege",
+        "description": "Augenpflege",
+        "dev_cat_id": "116",
+        "prod_cat_id": "142"
+    },
+    "1118": {
+        "categoryId": 1118,
+        "parentID": 1103,
+        "metatitle": "Ohrenpflege",
+        "description": "Ohrenpflege",
+        "dev_cat_id": "116",
+        "prod_cat_id": "143"
+    },
+    "1138": {
+        "categoryId": 1138,
+        "parentID": 1103,
+        "metatitle": "Zahnpflege & Maulhygiene",
+        "description": "Zahnpflege & Maulhygiene",
+        "dev_cat_id": "116",
+        "prod_cat_id": "144"
+    },
+    "1834": {
+        "categoryId": 1834,
+        "parentID": 1103,
+        "metatitle": "Fell- & Hautpflege",
+        "description": "Fell- & Hautpflege",
+        "dev_cat_id": "116",
+        "prod_cat_id": "145"
+    },
+    "1103": {
+        "categoryId": 1103,
+        "parentID": 1651,
+        "metatitle": "Pflege & Hygiene",
+        "description": "Pflege & Hygiene",
+        "dev_cat_id": "116",
+        "prod_cat_id": "141"
+    },
+    "1105": {
+        "categoryId": 1105,
+        "parentID": 1104,
+        "metatitle": "Futtererg\u00e4nzung",
+        "description": "Futtererg\u00e4nzung",
+        "dev_cat_id": "116",
+        "prod_cat_id": "147"
+    },
+    "1106": {
+        "categoryId": 1106,
+        "parentID": 1104,
+        "metatitle": "Pflege",
+        "description": "Pflege",
+        "dev_cat_id": "116",
+        "prod_cat_id": "148"
+    },
+    "1104": {
+        "categoryId": 1104,
+        "parentID": 1651,
+        "metatitle": "Bewegungsapparat",
+        "description": "Bewegungsapparat",
+        "dev_cat_id": "116",
+        "prod_cat_id": "146"
+    },
+    "1035": {
+        "categoryId": 1035,
+        "parentID": 1847,
+        "metatitle": "Alter",
+        "description": "Alter",
+        "dev_cat_id": "116",
+        "prod_cat_id": "150"
+    },
+    "1211": {
+        "categoryId": 1211,
+        "parentID": 1847,
+        "metatitle": "Welpen\/Zucht",
+        "description": "Welpen\/Zucht",
+        "dev_cat_id": "116",
+        "prod_cat_id": "151"
+    },
+    "1529": {
+        "categoryId": 1529,
+        "parentID": 1847,
+        "metatitle": "Zucht",
+        "description": "Zucht",
+        "dev_cat_id": "116",
+        "prod_cat_id": "152"
+    },
+    "1847": {
+        "categoryId": 1847,
+        "parentID": 1651,
+        "metatitle": "Welpen\/Zucht & Alter",
+        "description": "Welpen\/Zucht & Alter",
+        "dev_cat_id": "116",
+        "prod_cat_id": "149"
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "title": "DEMO",
+    "description": "Dieses Layout dient nur zur Demonstration der nutzbaren Template-Variablen.",
+    "author": "Net Inventors GmbH <info@netinventors.de>",
+    "version": "1.0.0",
+    "categories": [
+        "season", "1-sided", "A4"
+    ],
+    "previews": {
+	"backend": {
+	        "small": "preview/small.jpg",
+        	"large": "preview/large.jpg"
+	},
+	"frontend": {
+	        "small": "preview/small.jpg",
+        	"large": "preview/large.jpg"
+	}
+    },
+    "format": [210, 297],
+    "css-path": "css",
+    "css-files": [
+        "global.css"
+    ],
+    "pages": [
+        {
+            "template": "templates/NetInventors.pdf",
+            "main-file": "html/page-1.tpl"
+        }
+    ]
+}

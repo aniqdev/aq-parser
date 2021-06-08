@@ -3,10 +3,9 @@
 
 
 
+$res = Cdvet::filter_search_site();
 
-sa(time());
-sa(date('Y-m-d H:i'));
-
+sa(json_decode($res));
 
 return;
 	$type = 'app';

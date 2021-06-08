@@ -309,37 +309,37 @@ function readExcel($path, $sheet = 0){
 // $value = array('Фото яндекса','м1','д1','м2','д2','м3','д3');
 // writeCell(FILES_DIR.'file.xls', $cell, $value);
 function writeCell($file_path, $cell, $value){
-		$Xlsvsfkii_Failik = PHPExcel_IOFactory::load($file_path);
-		$Xlsvsfkii_Failik->setActiveSheetIndex(0);
+	$Xlsvsfkii_Failik = PHPExcel_IOFactory::load($file_path);
+	$Xlsvsfkii_Failik->setActiveSheetIndex(0);
 
-if (is_array($cell) && is_array($value)) {
+	if (is_array($cell) && is_array($value)) {
 		foreach ($cell as $k => $onecell) {
-				$Xlsvsfkii_Failik->getActiveSheet()->setCellValue($onecell, $value[$k]);
+			$Xlsvsfkii_Failik->getActiveSheet()->setCellValue($onecell, $value[$k]);
 		}
-}else{
+	}else{
 		$Xlsvsfkii_Failik->getActiveSheet()->setCellValue($cell, $value);
-}
+	}
 
-		switch (strtolower(pathinfo($file_path)['extension'])) {
-				case 'csv':
-						$writeType = 'CSV';
-						break;
-				case 'xls':
-						$writeType = 'Excel5';
-						break;
-				case 'xlsx':
-						$writeType = 'Excel2007';
-						break;
-				
-				default:
-						$writeType = 'Excel2007';
-						break;
-		}
-		$Zapisat = PHPExcel_IOFactory::createWriter($Xlsvsfkii_Failik, $writeType);
-		$Zapisat->save($file_path);
-		 
-		unset($Xlsvsfkii_Failik);
-		unset($Zapisat);
+	switch (strtolower(pathinfo($file_path)['extension'])) {
+		case 'csv':
+			$writeType = 'CSV';
+			break;
+		case 'xls':
+			$writeType = 'Excel5';
+			break;
+		case 'xlsx':
+			$writeType = 'Excel2007';
+			break;
+		
+		default:
+			$writeType = 'Excel2007';
+			break;
+	}
+	$Zapisat = PHPExcel_IOFactory::createWriter($Xlsvsfkii_Failik, $writeType);
+	$Zapisat->save($file_path);
+	 
+	unset($Xlsvsfkii_Failik);
+	unset($Zapisat);
 }
 
 //===================================================================================
@@ -1882,6 +1882,34 @@ function post_curl($url, $post = [], $headers = []){
 	// sa($url);
 	// sa($headers);
 	// sa($post);
+	curl_close($ch);
+	$decoded = json_decode($resp,1);
+	if ($decoded !== null) {
+		return $decoded;
+	}
+	return $resp;
+}
+
+
+function post_curl_nofolow($url, $post = [], $headers = []){
+	$ch = curl_init($url);
+	$options = [
+	    CURLOPT_RETURNTRANSFER => true,
+	    CURLOPT_POST => true,
+	    CURLOPT_POSTFIELDS => is_array($post) ? http_build_query($post) : $post
+	];
+	if($headers) $options[CURLOPT_HTTPHEADER] = $headers;
+	curl_setopt_array($ch, $options);
+	// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+	// curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	// curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+	curl_setopt($ch, CURLOPT_HEADERFUNCTION, function($ch, $headerLine)
+	{
+		$_GET['headerLine'] = $headerLine;
+		// sa($headerLine);
+	});
+	$resp = curl_exec($ch);
 	curl_close($ch);
 	$decoded = json_decode($resp,1);
 	if ($decoded !== null) {
@@ -4424,6 +4452,11 @@ function get_partner_link($url){
 	return 'http://rover.ebay.com/rover/1/707-53477-19255-0/1?ff3=4&pub=5575611989&toolid=10001&campid=5338724019&customid=&mpre='.urlencode($url);
 }
 
+function get_search_parner_link($title)
+{
+	return get_partner_link('https://www.ebay.de/sch/PC-Videospiele/1249/i.html?_from=R40&_nkw='.rawurlencode($title).'&_dcat=1249&Plattform=PC&rt=nc&_trksid=p2045573.m1684');
+}
+
 
 function get_steam_images_dir_path($type, $appid) // deprecated
 {
@@ -4548,4 +4581,26 @@ function save_steam_images($game_dom, $slist_row)
     $scandir = steam_images_scandir($dir_path);
 
 	return $scandir;
+}
+
+
+function is_cdvet_forbidden_product($ebay_id = 0)
+{
+	$arr = [
+		'253250279517' => 1,
+		'253250278719' => 1,
+		'253250277655' => 1,
+		'253250273773' => 1,
+		'253250097631' => 1,
+		'253732049050' => 1,
+		'253732048914' => 1,
+		'253453585170' => 1,
+		'253453585031' => 1,
+		'253453571311' => 1,
+		'253453569730' => 1,
+		'253453569659' => 1,
+		'253453569589' => 1,
+		'253250279517' => 1,
+	];
+	return isset($arr[$ebay_id]);
 }
