@@ -12,7 +12,7 @@ if (isset($_GET['logout'])  && $_GET['logout'] === 'true') {
 	die;
 }
 require_once 'vendor/autoload.php';
-require_once 'lib/kint-master/Kint.class.php';
+// require_once 'lib/kint-master/Kint.class.php';
 require_once 'lib/PHPExcel.php';
 // require_once 'lib/simple_html_dom.php';
 require_once 'lib/shd/simple_html_dom.php';
@@ -28,7 +28,7 @@ require_once 'lib/array_DB.php';
 	<title><?= aqs_get_page_title(); ?></title>
 	<!-- Bootstrap -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
-	<link rel="stylesheet" href="css/style.css?t=<?php echo date('d-m-y_H:i:s',filemtime ('css/style.css')); ?>">
+	<link rel="stylesheet" href="css/style.css?t=<?= filemtime('css/style.css'); ?>">
 	<script src="js/jquery-2.1.3.min.js"></script>
 	<script src="js/list.min.js"></script>
 </head>
@@ -63,7 +63,7 @@ if ($accessed) {
 <?php
 if ($_ERRORS){
 	echo '<div class="errors"><style>	.errors .kint{margin: 0;}</style>';
-	ddd($_ERRORS);
+	d($_ERRORS);
 	echo '</div>';
 } 
 ?>

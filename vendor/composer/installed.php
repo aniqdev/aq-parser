@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '9df6aa5fcac88b3c3b735abcbf128258a2610f9a',
+    'reference' => 'b941feb2315c89e28d3ea011daa3eb018f25f159',
     'name' => '__root__',
   ),
   'versions' => 
@@ -18,7 +18,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '9df6aa5fcac88b3c3b735abcbf128258a2610f9a',
+      'reference' => 'b941feb2315c89e28d3ea011daa3eb018f25f159',
     ),
     'amenadiel/jpgraph' => 
     array (
@@ -217,6 +217,15 @@
       array (
       ),
       'reference' => 'a2f61eb1fa1ebe0ea67a64b5d631495c304a189b',
+    ),
+    'kint-php/kint' => 
+    array (
+      'pretty_version' => '3.3',
+      'version' => '3.3.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '335ac1bcaf04d87df70d8aa51e8887ba2c6d203b',
     ),
     'mpdf/mpdf' => 
     array (

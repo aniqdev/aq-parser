@@ -38,6 +38,7 @@ return array(
     'Philo\\Blade\\' => array($vendorDir . '/philo/laravel-blade/src'),
     'Pdp\\' => array($vendorDir . '/jeremykendall/php-domain-parser/src'),
     'Mpdf\\' => array($vendorDir . '/mpdf/mpdf/src'),
+    'Kint\\' => array($vendorDir . '/kint-php/kint/src'),
     'Illuminate\\View\\' => array($vendorDir . '/illuminate/view'),
     'Illuminate\\Support\\' => array($vendorDir . '/illuminate/support'),
     'Illuminate\\Filesystem\\' => array($vendorDir . '/illuminate/filesystem'),

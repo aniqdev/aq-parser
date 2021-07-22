@@ -1,5 +1,8 @@
 <?php
-ini_get('safe_mode') or set_time_limit(2500); // Указываем скрипту, чтобы не обрывал связь.
+ini_set('max_execution_time', 300);
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+// ini_get('safe_mode') or set_time_limit(2500); // Указываем скрипту, чтобы не обрывал связь.
 header('Content-Type: application/json');
 
 $array = [];

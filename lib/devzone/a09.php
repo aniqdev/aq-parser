@@ -10,17 +10,14 @@
     background: #0000006b;
     display: none;
 }
-.modal-wrapper.active{
+.modal-wrapper.active {
     display: grid;
 }
 .modal-wrapper.active .modal-inner{
     animation: .4s modal-show;
 }
-/* body .modal-wrapper.fadde{
-    animation: .4s modal-faddeD;
-} */
-.modal-wrapper.fadde{
-    animation: .4s modal-faddeO;
+.modal-wrapper.fadde .modal-inner{
+    animation: .4s modal-fadde;
 }
 .modal-inner{
     max-width: 600px;
@@ -33,7 +30,7 @@
 }
 @keyframes modal-show {
 	from{
-		margin-top: -400px;
+		margin-top: -300px;
 		opacity: 0;
 	}
 	to{
@@ -41,24 +38,21 @@
 		opacity: 1;
 	}
 }
-@keyframes modal-faddeD {
-	from{
-		display: grid;
-	}
-	to{
-		display: grid;
-	}
-}
-@keyframes modal-faddeO {
+@keyframes modal-fadde {
 	from{
 		opacity: 1;
+		margin-top: 0;
 	}
 	to{
 		opacity: 0;
+		margin-top: -200px;
 	}
 }
+.modal-header{
+	user-select: none;
+}
 </style>
-<div class="modal-wrapper js-open-modal" id="test_modal1" data-target="test_modal1" >
+<div class="modal-wrapper js-open-modal fadde" id="test_modal1" data-target="test_modal1" >
 	<div class="modal-inner">
 		<div class="modal-header">
 			<h3 style="margin: 0;">
@@ -99,13 +93,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
 document.querySelectorAll('.js-open-modal').forEach(function(el){
     el.addEventListener('click', function(e){
     	if(e.target !== this) return false
-        var modal = document.getElementById(this.dataset.target)
+        if(!(modal = document.getElementById(this.dataset.target)))	return false
     	
-    	if(modal.classList.contains('active')){
+    	if(modal.classList.toggle('fadde')){
     		setTimeout(function(){modal.classList.remove('active')}, 400)
-    		modal.classList.add('fadde')
     	}else{
-    		modal.classList.remove('fadde')
     		modal.classList.add('active')
     	}
     })

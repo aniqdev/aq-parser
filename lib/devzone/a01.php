@@ -1,6 +1,27 @@
 <?php ini_get('safe_mode') or set_time_limit(1300);
 
-$css = file_get_contents('css/style.css');
+
+
+
+/*
+перевозки Днепр-ЛНР Ира:
+050 085 0301
+*/
+
+
+
+$asd = function(){
+	return function(){
+		return 2;
+	};
+};
+
+var_dump($asd()());
+// sa(asd);
+
+
+return;
+sa($_SERVER);
 
 function parse_css($css)
 {
@@ -11,8 +32,9 @@ function parse_css($css)
 		$selector = preg_replace('/\/\*.+\*\\//sU', '', $selector);
 		$values = explode(';', $selector);
 		foreach ($values as $value) {
-			if($value = trim($value) && no_vendor_prefix($value)){
-				$value = str_replace(['*'], '', explode(':', $value)[0]);
+			$value = trim(explode(':', $value)[0]);
+			if($value && allow_css_value($value)){
+				$value = str_replace(['*'], '', $value);
 				@$all_css_vals[$value]++;
 			}
 		}
@@ -20,18 +42,34 @@ function parse_css($css)
 	return $all_css_vals;
 }
 
-$all_css_vals = parse_css($css);
+$css = file_get_contents('css/style.css');
+$arr1 = parse_css($css);
 
-arsort($all_css_vals, SORT_NUMERIC);
+$css = file_get_contents('css/bootstrap.css');
+$arr2 = parse_css($css);
 
-sa($all_css_vals);
+$sums = array();
+    
+foreach (array_keys($arr1 + $arr2) as $c) {
+  $sum = (isset($arr1[$c]) ? $arr1[$c] : 0) + (isset($arr2[$c]) ? $arr2[$c] : 0);
+  if($sum >= 5) $sums[$c] = $sum;
+}
+// var_dump($sums);
+
+arsort($sums, SORT_NUMERIC);
+
+sa(count($sums));
+sa($sums);
 
 
 
-function no_vendor_prefix($string){
+function allow_css_value($string){
 	foreach ([
+		'-o-',
+		'-ms-',
 		'-moz-',
-		'-webkit-'
+		'-webkit-',
+		'base64',
 	] as $vendor_prefix) {
 		if(str_contains($string, $vendor_prefix)) return false;
 	}
