@@ -1,0 +1,53 @@
+:root{
+	--boxColor: #0ff7;
+	--rotateSpeed: 20s;
+	--bounceSpeed: 1.5s;
+}
+
+html{
+	font-size: 100px;
+}
+
+html, body, .scene{
+	height: 100%;
+}
+
+.scene{
+    display: grid;
+    place-items: center;
+    perspective: 15rem;
+    perspective-origin: center top;
+}
+
+.cube{
+	width: 2rem;
+	height: 2rem;
+	position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.2s linear;
+    animation: cube-rotate var(--rotateSpeed) linear infinite;
+    transform-origin: 50% 50% -1rem;
+}
+@keyframes cube-rotate {
+	from{transform: rotateY(0deg);}
+	to{transform: rotateY(360deg);}
+}
+
+.cube > div{
+	position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: var(--boxColor);
+    box-shadow: 0 0 0.3rem #000 inset;
+    text-align: center;
+    color: white;
+    line-height: 2rem;
+    font-size: 40px;
+    transform-origin: 50% 50% -1rem;
+}
+.cube .left{ transform: rotateY(90deg); }
+.cube .right{ transform: rotateY(-90deg); }
+/* .cube .front{ transform:; } */
+.cube .back{ transform: rotateY(180deg); }
+.cube .top{ transform: rotateX(90deg); }
+.cube .bottom{ transform: rotateX(-90deg); }
