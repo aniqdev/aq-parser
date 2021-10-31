@@ -14,8 +14,8 @@ if (isset($_GET['logout'])  && $_GET['logout'] === 'true') {
 require_once 'vendor/autoload.php';
 // require_once 'lib/kint-master/Kint.class.php';
 require_once 'lib/PHPExcel.php';
-// require_once 'lib/simple_html_dom.php';
-require_once 'lib/shd/simple_html_dom.php';
+require_once 'lib/simple_html_dom.php';
+// require_once 'lib/shd/simple_html_dom.php';
 require_once 'lib/array_DB.php';
 ?>
 <!doctype html>

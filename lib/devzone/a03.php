@@ -1,6 +1,87 @@
+<style>
+.d-grid{
+	display: grid;
+	list-style: none;
+	margin: 20px auto;
+	padding: 0;
+	width: 1000px;
+  gap: 10px;
+	/* grid-template-columns: 1fr 1fr 1fr; */
+	grid-template-rows: 1fr 3fr 3fr;
+	grid-template-areas: 
+	'areaa areaa areab'
+	'areac aread aread'
+	'areae aread aread';
+/* 	grid-template: 
+            "areaa areaa areab" 1fr
+            "areac aread aread" 3fr
+            "areae aread aread" 3fr / 1fr 1fr 1fr; */
+}
+.grid-item1{	grid-area: areaa; }
+.grid-item2{	grid-area: areab; }
+.grid-item3{	grid-area: areac; }
+.grid-item4{	grid-area: aread; }
+.grid-item5{	grid-area: areae; }
+.grid-item{
+	background: #1b2838;
+	border: 1px solid #555;
+}
+.grid-item img{
+	margin-right: 15px;
+}
+</style>
+<ul class="d-grid">
+<?php 
+
+$res = arrayDB("SELECT appid,title FROM steam_de LIMIT 15 OFFSET 5000");
+
+foreach ($res as $key => $game) {
+	echo '<li class="grid-item grid-item'.($key + 1).'">';
+		echo '<img src="https://cdn.cloudflare.steamstatic.com/steam/apps/'.$game['appid'].'/capsule_184x69.jpg">';
+		echo '<span>';
+		echo $game['title'];
+		echo '</span>';
+	echo '</li>';
+}
+
+
+?>
+</ul>
+<hr>
+<hr>
+<style>
+.d-flex{
+	display: flex;
+	list-style: none;
+	margin: 20px auto;
+	padding: 0;
+	width: 1000px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.flex-item{
+    background: #1b2838;
+    border: 1px solid #555;
+    flex: 1 1 calc(50% - 10px);
+}
+</style>
+<ul class="d-flex">
+<?php 
+$res = arrayDB("SELECT appid,title FROM steam_de LIMIT 5 OFFSET 5000");
+foreach ($res as $key => $game) {
+	echo '<li class="flex-item flex-item'.($key + 1).'">';
+		echo '<img src="https://cdn.cloudflare.steamstatic.com/steam/apps/'.$game['appid'].'/capsule_184x69.jpg">';
+		echo '<span>';
+		echo $game['title'];
+		echo '</span>';
+	echo '</li>';
+}
+?>
+</ul>
+
 <script>
 	
-const cl = console.log
+var cl = console.log
 
 function getToken(){
     const url = 'http://yvonne-server.loc/api/login';
@@ -23,7 +104,7 @@ function getToken(){
 	    console.log(data);
 	});
 }
-getToken()
+// getToken()
 
 function getUser(){
     const url = 'http://yvonne-server.loc/api/user';

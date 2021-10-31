@@ -1,5 +1,49 @@
+<script>
+
+var { log,dir,dir:d } = console
+
+
+let x = 10
+let y = 10
+
+const arrs = [...Array(x)].map(_=>[...Array(y)].map(_=>'text'))
+const arrs2 = [,,,'xx',,,'xxx',,].map(el=> log(el) || el).filter(el=>el)
+
+// log(arrs)
+// log(arrs2)
+
+const obj = {
+	5:5,
+	'5s':5
+}
+log(Object.keys(obj))
+
+const map = new Map([
+	// ['asd', 1],
+	[true, 2],
+	[NaN, 3],
+	[undefined, 4],
+	[5, 5],
+	['5', 5],
+	// [Null, 5], // Error: Null is not defined
+])
+log(map.keys())
+log(map.values())
+log(map['__proto__'])
+
+log('======================= Set =======================')
+const set = new Set([8,1,2,3,7,{'4':4}, [5],{'4':4}, [5]])
+log(set)
+
+
+
+</script>
 <?php ini_set('max_execution_time', 300);
 
+
+
+
+return;
 $_GET['similar_products'] = json_decode(file_get_contents('csv/similar_products_18-06.json'), true);
 // sa($_GET['similar_products']);
 // return;

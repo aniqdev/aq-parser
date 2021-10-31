@@ -1,19 +1,255 @@
 <?php ini_get('safe_mode') or set_time_limit(1300);
+// use PHPUnit\Framework\TestCase;
+
+
+
+sa(json_decode(''));
+
+
+return;
+function alphanumeric(string $string): bool {
+  return preg_match('/^[\d\w]{3,}$/', $string);
+}
+
+
+
+sa('True => '.(alphanumeric('Mazinkaiser') ? 'TRUE' : 'FALSE')); // assertTrue
+sa('False => '.(alphanumeric('hello world_') ? 'TRUE' : 'FALSE'));
+sa('True => '.(alphanumeric('PassW0rd') ? 'TRUE' : 'FALSE'));
+sa('False => '.(alphanumeric('     ') ? 'TRUE' : 'FALSE'));
+sa('False => '.(alphanumeric('фыв111') ? 'TRUE' : 'FALSE'));
 
 
 
 
+
+return;
+function solution(array $a, array $b, $ndx = 0): float {
+	return array_reduce($a, function($accum, $item) use ($b, &$ndx) {
+		return $accum += pow(abs($item - $b[$ndx++]), 2);
+	}, 0) / count($a);
+}
+
+sa(9 .' => '. solution([1, 2, 3], [4, 5, 6]));
+sa(16.5 .' => '. solution([10, 20, 10, 2], [10, 25, 5, -2]));
+sa(1 .' => '. solution([0, -1], [-1, 0]));
+
+return;
+function findMissing_2($list) {
+   return (reset($list) + end($list)) / 2 * (count($list) + 1) - array_sum($list);
+}
+
+function findMissing($list) {
+	$len = count($list); // 4
+	$array_sum = array_sum($list); // 11
+	// sa('$array_sum: '.$array_sum);
+	$first_last_sum = $list[0] + $list[$len - 1]; // 6
+	// sa('$first_last_sum: '.$first_last_sum);
+	$len_p1 = $len + 1; // 5
+	// sa('$len_p1: '.$len_p1);
+    return $first_last_sum * $len_p1 / 2 - $array_sum;
+
+	$smalest_dif = abs($list[1] - $list[0]);
+	foreach ($list as $key => $current) {
+		if (isset($last)) {
+			if(abs($current - $last) < $smalest_dif){
+				$smalest_dif = abs($current - $last);
+			}
+		}
+		$last = $current;
+	}
+	$result = 0;
+	unset($last);
+	foreach ($list as $key => $current) {
+		if (isset($last)) {
+			if(abs($current - $last) > $smalest_dif){
+				$result = ($current + $last) / 2;
+			}
+		}
+		$last = $current;
+	}
+	return $result;
+}
+
+sa(findMissing([1, 2, 3, 5]));
+sa(findMissing([1, 3, 5, 9, 11]));
+sa(findMissing([100, 200, 300, 500]));
+sa(findMissing([-300, -100, 0, 100, 200, 300, 400, 500]));
+sa(findMissing([ 500, 400, 300, 200, 100, -100, -200, -300]));
+
+
+
+return;
+sa(count_chars('aaываыы'));
+
+return;
+$a = array("apple", "banana");
+$b = array(1 => "banana", 0 => "apple");
+
+sa($a);
+sa($b);
+
+var_dump($a == $b); // bool(true)
+echo '<hr>';
+var_dump($a === $b); // bool(false)
+
+return;
+$arr = [
+	1 => 'a',
+	'2' => 'b',
+];
+
+foreach ($arr as $key => $value) {
+	var_dump($key);
+}
+
+$arr[2] = 'X';
+
+sa($arr);
+
+
+
+
+
+return;
+function anagrams_3(string $word, array $words): array {
+	return array_values(array_filter($words, function($wordd) use($word){
+		return count_chars($word, 1) == count_chars($wordd, 1);
+	}));
+}
+
+
+function anagrams_2(string $word, array $words): array {
+	return array_values(array_filter($words, function($wordd) use($word){
+		$word_arr2 = str_split($wordd);
+		$word_arr1 = str_split($word);
+		sort($word_arr1);
+		sort($word_arr2);
+		return implode($word_arr1) === implode($word_arr2);
+	}));
+}
+
+
+function anagrams(string $word, array $words): array {
+	return array_filter($words, function($wordd) use($word){
+		$word_arr2 = str_split($wordd);
+		$word_arr1 = str_split($word);
+		$alowed_letters = [];
+		foreach ($word_arr1 as $key => $letter) {
+			@$alowed_letters[$letter] += 1;
+		}
+		foreach($word_arr2 as $wordd_letter){
+			if(isset($alowed_letters[$wordd_letter]) && $alowed_letters[$wordd_letter] > 0){
+				$alowed_letters[$wordd_letter] -= 1;
+			}	else {
+				return false;
+			}
+		}
+		return true;
+	});
+}
+
+
+sa(anagrams('a', ['a', 'b', 'c', 'd']));
+sa(anagrams('racer', ['carer', 'arcre', 'carre', 'racrs', 'racers', 'arceer', 'raccer', 'carrer', 'cerarr']));
+sa(anagrams('abba', ['aabb', 'abcd', 'bbaa', 'dada']));
+sa(anagrams('racer', ['crazer', 'carer', 'racar', 'caers', 'racer']));
+sa(anagrams('laser', ['lazing', 'lazy',  'lacer']));
+echo('<hr>');
+sa(anagrams_2('a', ['a', 'b', 'c', 'd']));
+sa(anagrams_2('racer', ['carer', 'arcre', 'carre', 'racrs', 'racers', 'arceer', 'raccer', 'carrer', 'cerarr']));
+sa(anagrams_2('abba', ['aabb', 'abcd', 'bbaa', 'dada']));
+sa(anagrams_2('racer', ['crazer', 'carer', 'racar', 'caers', 'racer']));
+sa(anagrams_2('laser', ['lazing', 'lazy',  'lacer']));
+
+return;
+// final class AnagramsTest extends TestCase {
+//   public function testExamples() {
+//     // $this->assertEquals(['a'], anagrams('a', ['a', 'b', 'c', 'd']));
+//     $this->assertEquals(['carer', 'arcre', 'carre'], anagrams('racer', ['carer', 'arcre', 'carre', 'racrs', 'racers', 'arceer', 'raccer', 'carrer', 'cerarr']));
+//     $this->assertEquals(['aabb', 'bbaa'], anagrams('abba', ['aabb', 'abcd', 'bbaa', 'dada']), 'Your function should work for an example provided in the Kata Description');
+//     $this->assertEquals(['carer', 'racer'], anagrams('racer', ['crazer', 'carer', 'racar', 'caers', 'racer']), 'Your function should work for an example provided in the Kata Description');
+//     $this->assertEquals([], anagrams('laser', ['lazing', 'lazy',  'lacer']), 'Your function should work for an example provided in the Kata Description');
+//   }
+// }
+
+// (new AnagramsTest)->testExamples();
+
+
+return;
+$dom = file_get_html('https://rozetka.com.ua/home_textile/c169823/');
+
+sa([
+	'asd' => array_map(function($el){return $el->plaintext;}, $dom->find('.goods-tile__title')),
+]);
+
+
+
+
+
+return;
+$dom = file_get_html('https://rozetka.com.ua/mirson_2200003480504/p299087928/');
+
+
+
+sa($product = [
+	'title' => $dom->find('.product__heading', 0)->plaintext, // plaintext, innertext, outertext
+	'Product' => json_decode($dom->find('[data-seo="Product"]', 0)->innertext, true), // plaintext, innertext, outertext
+	// 'old_price' => $dom->find('.super-offer__price--old', 0)->plaintext, // plaintext, innertext, outertext
+]);
+
+foreach ($product['Product']['image'] as $img_src) {
+	echo "<img src='$img_src' style='max-width: 200px; margin: 15px;'>";
+}
+
+sa($product['Product']['image']);
+
+
+return;
+'римские пекарни = 330
+остров = 100
+дамаск = 215
+бренди / болт = -35
+Итого = 610';
+
+
+
+
+function connect(string $host, string $db, string $user, string $password): PDO
+{
+	try {
+		$dsn = "pgsql:host=$host;port=5432;dbname=$db;";
+
+		// make a database connection
+		return new PDO(
+			$dsn,
+			$user,
+			$password,
+			[PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+		);
+	} catch (PDOException $e) {
+		die($e->getMessage());
+	}
+}
+
+$pg_sql = connect($host = 'localhost', $db = 'postgres', $user = 'postgres', $password = 'kajmad');
+
+sa($pg_sql);
+
+
+
+return;
 /*
 перевозки Днепр-ЛНР Ира:
 050 085 0301
 */
-29го 07
+'29го 07
 750грн
 700руб
 22-00
 памятник
 wv красный 0522 николай
-0665408886
+0665408886';
 
 
 $asd = function(){
@@ -55,10 +291,10 @@ $css = file_get_contents('css/bootstrap.css');
 $arr2 = parse_css($css);
 
 $sums = array();
-    
+		
 foreach (array_keys($arr1 + $arr2) as $c) {
-  $sum = (isset($arr1[$c]) ? $arr1[$c] : 0) + (isset($arr2[$c]) ? $arr2[$c] : 0);
-  if($sum >= 5) $sums[$c] = $sum;
+	$sum = (isset($arr1[$c]) ? $arr1[$c] : 0) + (isset($arr2[$c]) ? $arr2[$c] : 0);
+	if($sum >= 5) $sums[$c] = $sum;
 }
 // var_dump($sums);
 
@@ -253,7 +489,7 @@ $documentor = new Faker\Documentor($generator);
 ### `<?php echo $provider ?>`
 
 <?php foreach ($formatters as $formatter => $example): ?>
-    <?php echo str_pad($formatter, 23) ?><?php if ($example): ?> // <?php echo $example ?> <?php endif; ?>
+		<?php echo str_pad($formatter, 23) ?><?php if ($example): ?> // <?php echo $example ?> <?php endif; ?>
 
 <?php endforeach; ?>
 <?php endforeach;
